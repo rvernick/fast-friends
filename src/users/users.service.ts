@@ -10,19 +10,6 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  private readonly users = [
-    {
-      userId: 1,
-      username: 'rvernick@yahoo.com',
-      password: 'wuzzle',
-    },
-    {
-      userId: 2,
-      username: 'testUser',
-      password: '1234',
-    },
-  ];
-
   findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
@@ -37,6 +24,11 @@ export class UsersService {
         username: username,
       },
     });
+  }
+
+  createUser(username: string, password: string) {
+    const newUser = new User(username, password);
+    this.usersRepository.insert(newUser);
   }
 
   async remove(id: number): Promise<void> {

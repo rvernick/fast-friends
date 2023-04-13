@@ -19,4 +19,12 @@ export class AuthService {
       access_token: await this.jwtService.signAsync(payload),
     };
   }
+
+  async createUser(username: string, pass: string) {
+    const user = await this.usersService.findUsername(username);
+    if (user != null) {
+      throw new UnauthorizedException();
+    }
+    this.usersService.createUser(username, pass);
+  }
 }

@@ -9,28 +9,42 @@ import { EncryptionTransformer } from 'typeorm-encrypted';
 
 @Entity()
 export class User {
+  constructor(username: string, pass: string) {
+    this.username = username;
+    this.password = pass;
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   username: string;
 
+  /*
+      transformer: new EncryptionTransformer({
+      key: Buffer.from(
+        't5blWVOiY2l10dqeTiUNgteRNPsB+Dk7Tqe8q9sANc0SDIQ/iP8u3tLZjYFILo24',
+        'base64',
+      ).toString(),
+      algorithm: 'aes-256-gcm',
+      ivLength: 16,
+    }),
+*/
   @Column({
     type: 'varchar',
     nullable: false,
-    transformer: new EncryptionTransformer({
-      key: 'C&F)J@NcRfUjXn2r5u8x/A%D*G-KaPdSgVkYp3s6v9y$B&E(H+MbQeThWmZq4t7w',
-      algorithm: 'aes-256-cbc',
-      ivLength: 16,
-      iv: '7w!z%C&F)J@NcRfU',
-    }),
   })
   password: string;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
   firstName: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   lastName: string;
 
   @Column({ default: true })
