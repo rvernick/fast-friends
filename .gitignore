@@ -1,9 +1,12 @@
 # compiled output
-/dist
-/node_modules
+dist
+**/node_modules
+**/dist
+*/node_modules
 
 # Logs
 logs
+*/logs
 *.log
 npm-debug.log*
 pnpm-debug.log*
@@ -16,6 +19,7 @@ lerna-debug.log*
 
 # Tests
 /coverage
+*/converge
 /.nyc_output
 
 # IDEs and editors
@@ -34,6 +38,25 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
+**/build/
+*/tmp/
+*/temp/
 build/
 tmp/
 temp/
+
+**/.expo/
+**/npm-debug.*
+**/*.jks
+**/*.p8
+**/*.p12
+**/*.key
+**/*.mobileprovision
+**/*.orig.*
+**/web-build/
+
+# macOS
+**/.DS_Store
+
+# Temporary files created by Metro to check the health of the file watcher
+**/.metro-health-check*
