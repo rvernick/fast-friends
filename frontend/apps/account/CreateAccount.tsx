@@ -5,9 +5,10 @@ import { NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 let email = '';
 let password = '';
 
-export const Login = () => {
+export const CreateAccount = () => {
   const [email, setEnteredEmail] = useState('');
   const [password, setEnteredPassword] = useState('');
+  const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
   
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
@@ -58,7 +59,13 @@ export const Login = () => {
             <Input 
               type="password"
               onChangeText={updatePassword}
-              onSubmitEditing={login}
+              />
+          </FormControl>
+          <FormControl isRequired>
+            <FormControl.Label>Confirm Password</FormControl.Label>
+            <Input 
+              type="password"
+              onChangeText={updatePasswordConfirm}
               />
             <Link _text={{
             fontSize: "xs",
