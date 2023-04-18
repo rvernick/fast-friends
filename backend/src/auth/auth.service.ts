@@ -9,9 +9,10 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  // need a test for when the username is nill or shouldn't be found
   async signIn(username: string, pass: string) {
     const user = await this.usersService.findUsername(username);
-    if (user?.password != pass) {
+    if (user == null || user?.password != pass) {
       throw new UnauthorizedException();
     }
     const payload = { username: user.username, sub: user.id };
