@@ -1,14 +1,16 @@
 import React, { ChangeEvent, useState } from "react";
 import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, Center, NativeBaseProvider } from "native-base";
-import { NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
+import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
+import LoginController from "./LoginController";
 
 let email = '';
 let password = '';
 
 export const Login = () => {
+  const controller = new LoginController();
   const [email, setEnteredEmail] = useState('');
   const [password, setEnteredPassword] = useState('');
-  
+
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
   }
@@ -17,23 +19,15 @@ export const Login = () => {
     setEnteredPassword(newText);
   }
 
-  const login = function() {
-    console.log('Logging in: ' + email + " pw: " + password);
-    const result = fetch('http://localhost:3000/auth/login', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: email,
-        password: password,
-      })
-    });
-    console.log('Logging in: ' + email + " pw: " + password);
-    console.log(result);
+  const loginSubmit = function(e: NativeSyntheticEvent<TextInputChangeEventData>) {
+    e.preventDefault();
+    controller.login(email, password);
   };
-  
+
+  const loginButton = function(e: GestureResponderEvent) {
+    e.preventDefault();
+    controller.login(email, password);
+  };
 
   return <Center w="100%">
       <Box safeArea p="2" py="8" w="90%" maxW="290">
@@ -58,7 +52,7 @@ export const Login = () => {
             <Input 
               type="password"
               onChangeText={updatePassword}
-              onSubmitEditing={login}
+              onSubmitEditing={loginSubmit}
               />
             <Link _text={{
             fontSize: "xs",
@@ -68,7 +62,9 @@ export const Login = () => {
               Forget Password?
             </Link>
           </FormControl>
-          <Button onPress={login} mt="2" colorScheme="indigo">
+          <Button disabled={!email.length || !password.length} 
+              variant={(!email.length || !password.length)? 'ghost' : 'solid'}
+              onPress={loginButton} mt="2" colorScheme="indigo">
             Sign in
           </Button>
           <HStack mt="6" justifyContent="center">

@@ -31,8 +31,6 @@ export const CreateAccount = () => {
         password: password,
       })
     });
-    console.log('Logging in: ' + email + " pw: " + password);
-    console.log(result);
   };
   
 

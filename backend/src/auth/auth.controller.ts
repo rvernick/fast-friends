@@ -11,6 +11,7 @@ import {
 import { AuthGuard, Public } from './auth.guard';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './create-user.dto';
+import { LoginUserDto } from './login-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -19,7 +20,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Public()
   @Post('login')
-  signIn(@Body() signInDto: Record<string, any>) {
+  signIn(@Body() signInDto: LoginUserDto): Promise<{ access_token: string; }> {
     return this.authService.signIn(signInDto.username, signInDto.password);
   }
 
@@ -34,5 +35,5 @@ export class AuthController {
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
-  }
+  };
 }

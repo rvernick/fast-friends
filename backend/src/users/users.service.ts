@@ -19,6 +19,7 @@ export class UsersService {
   }
 
   findUsername(username: string): Promise<User | null> {
+    if (username == null) return null;
     return this.usersRepository.findOne({
       where: {
         username: username,
