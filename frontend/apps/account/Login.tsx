@@ -1,13 +1,16 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useContext, useState } from "react";
 import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, Center, NativeBaseProvider } from "native-base";
 import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 import LoginController from "./LoginController";
+import { GlobalStateContext } from "../../config/GlobalContext";
 
 let email = '';
 let password = '';
 
 export const Login = () => {
-  const controller = new LoginController();
+  const { appContext } = useContext(GlobalStateContext);
+  const controller = new LoginController(appContext);
+
   const [email, setEnteredEmail] = useState('');
   const [password, setEnteredPassword] = useState('');
 
