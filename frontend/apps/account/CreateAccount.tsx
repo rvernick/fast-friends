@@ -1,36 +1,63 @@
-import React, { ChangeEvent, useState } from "react";
-import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, Center, NativeBaseProvider } from "native-base";
-import { NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
+import React, { useContext, useState } from "react";
+import { Box, Heading, VStack, FormControl, Input, Button, HStack, Center, WarningOutlineIcon } from "native-base";
+import { GlobalStateContext } from "../config/GlobalContext";
+import CreateAccountController from './CreateAccountController';
 
-let email = '';
-let password = '';
-
-export const CreateAccount = () => {
+export const CreateAccount = ({ navigation }) => {
+  const { appContext } = useContext(GlobalStateContext);
+  const controller = new CreateAccountController(appContext);
   const [email, setEnteredEmail] = useState('');
   const [password, setEnteredPassword] = useState('');
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+  const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');  
   
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
   }
-
   const updatePassword = function(newText: string) {
     setEnteredPassword(newText);
   }
+  const updatePasswordConfirm = function(newText: string) {
+    setEnteredPasswordConfirm(newText);
+  }
+  const verifyEmail = function() {
+    const msg = controller.verifyEmail(email);
+    setEmailErrorMessage(msg);
+    return msg.length == 0;
+  }
+  const verifyPassword = function() {
+    const msg = controller.verifyPassword(password)
+    setPasswordErrorMessage(msg);
+    return msg.length == 0;
+  }
+  const verifyPasswordMatch = function() {
+    if (password != passwordConfirm) {
+      setPasswordConfirmErrorMessage('Passwords must match');
+      return false;
+    }
+    return true;
+  }
 
-  const login = function() {
-    console.log('Logging in: ' + email + " pw: " + password);
-    const result = fetch('http://localhost:3000/auth/login', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: email,
-        password: password,
+  const accountInfoValid = function() {
+    return verifyEmail()
+      && verifyPassword()
+      && verifyPasswordMatch();
+  };
+
+  const createAccount = function() {
+    if(accountInfoValid()) {
+      const response = controller.createAccount(email, password);
+      response.then(msg => {
+        console.log('create acct ' + msg);
+        if (msg) {
+          setEmailErrorMessage(msg);
+        } else {
+          navigation.replace('Login');
+        }
       })
-    });
+    }
   };
   
 
@@ -44,51 +71,49 @@ export const CreateAccount = () => {
         <Heading mt="1" _dark={{
         color: "warmGray.200"
       }} color="coolGray.600" fontWeight="medium" size="xs">
-          Sign in to continue!
+          Create Account
         </Heading>
 
         <VStack space={3} mt="5">
-          <FormControl isRequired>
+          <FormControl isRequired isInvalid={emailErrorMessage.length > 0}>
             <FormControl.Label>Email ID</FormControl.Label>
             <Input onChangeText={updateEmail}/>
+            <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+                { emailErrorMessage }
+              </FormControl.ErrorMessage>
           </FormControl>
-          <FormControl isRequired>
+          <FormControl
+            isRequired
+            isInvalid={passwordErrorMessage.length > 0} >
             <FormControl.Label>Password</FormControl.Label>
             <Input 
               type="password"
               onChangeText={updatePassword}
+              onSubmitEditing={verifyPassword}
               />
+              <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+                { passwordErrorMessage }
+              </FormControl.ErrorMessage>
           </FormControl>
-          <FormControl isRequired>
+          <FormControl isRequired isInvalid={passwordConfirmErrorMessage.length > 0}>
             <FormControl.Label>Confirm Password</FormControl.Label>
             <Input 
               type="password"
               onChangeText={updatePasswordConfirm}
               />
-            <Link _text={{
-            fontSize: "xs",
-            fontWeight: "500",
-            color: "indigo.500"
-          }} alignSelf="flex-end" mt="1">
-              Forget Password?
-            </Link>
+              <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+              { passwordConfirmErrorMessage }
+              </FormControl.ErrorMessage>
           </FormControl>
-          <Button onPress={login} mt="2" colorScheme="indigo">
-            Sign in
+          <Button onPress={ createAccount } mt="2" colorScheme="indigo">
+            Create Account
           </Button>
           <HStack mt="6" justifyContent="center">
-            <Text fontSize="sm" color="coolGray.600" _dark={{
-            color: "warmGray.200"
-          }}>
-              I'm a new user.{" "}
-            </Text>
-            <Link _text={{
-            color: "indigo.500",
-            fontWeight: "medium",
-            fontSize: "sm"
-          }} href="#"> 
-              Sign Up
-            </Link>
+            <Button
+              variant={'ghost'}
+              onPress={() => navigation.replace('Login')}>
+                I have an account
+            </Button> 
           </HStack>
         </VStack>
       </Box>

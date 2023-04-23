@@ -1,7 +1,7 @@
 import { IsEmail, IsString, Matches, MinLength } from 'class-validator'
 
 export class CreateUserDto {
-  @IsEmail()
+  @IsEmail({}, {message: 'Invalid email'})
   username: string;
 
   @IsString()

@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+//import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { NativeBaseProvider } from 'native-base';
-import { Login } from './apps/account/Login'
 import { StyleSheet, Text, View } from 'react-native';
-import { GlobalStateContext, GlobalStateProvider } from "./config/GlobalContext";
+import { GlobalStateProvider } from "./apps/config/GlobalContext";
+import { Root } from "./apps/Root";
+import { NavigationContainer } from "@react-navigation/native";
 // import { BASE_URL } from '@env';
 
 export default function App() {
@@ -13,7 +14,9 @@ export default function App() {
   return (
     <GlobalStateProvider>
       <NativeBaseProvider >
-        <Login />
+        <NavigationContainer>
+          <Root />
+        </NavigationContainer>
       </NativeBaseProvider>
     </GlobalStateProvider>
   );

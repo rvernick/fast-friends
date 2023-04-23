@@ -1,13 +1,11 @@
-import { GlobalStateContext } from "../../config/GlobalContext"; 
-import AppContext from "../../config/app-context";
+import AppController from "../config/AppController";
+import { GlobalStateContext } from "../config/GlobalContext"; 
+import AppContext from "../config/app-context";
 
-class LoginController {
-  appContext: AppContext;
-  baseUrl: string;
+class LoginController extends AppController {
   
   constructor(context: AppContext) {
-    this.appContext = context;
-    this.baseUrl = context.baseUrl();
+    super(context);
   }
 
   async login(username: string, password: string) {
