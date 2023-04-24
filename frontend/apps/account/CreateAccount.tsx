@@ -15,12 +15,15 @@ export const CreateAccount = ({ navigation }) => {
   
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
+    setEmailErrorMessage('');
   }
   const updatePassword = function(newText: string) {
     setEnteredPassword(newText);
+    setPasswordErrorMessage('');
   }
   const updatePasswordConfirm = function(newText: string) {
     setEnteredPasswordConfirm(newText);
+    setPasswordConfirmErrorMessage('');
   }
   const verifyEmail = function() {
     const msg = controller.verifyEmail(email);
@@ -50,13 +53,13 @@ export const CreateAccount = ({ navigation }) => {
     if(accountInfoValid()) {
       const response = controller.createAccount(email, password);
       response.then(msg => {
-        console.log('create acct ' + msg);
-        if (msg) {
-          setEmailErrorMessage(msg);
-        } else {
-          navigation.replace('Login');
-        }
-      })
+          console.log('create acct ' + msg);
+          if (msg) {
+            setEmailErrorMessage(msg);
+          } else {
+            navigation.replace('Login');
+          }
+        })
     }
   };
   

@@ -9,26 +9,22 @@ class LoginController extends AppController {
   }
 
   async login(username: string, password: string) {
-    const url = this.baseUrl + 'auth/login';
-    console.log('Calling: ' + url)
-    const response = await fetch(this.baseUrl + 'auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-type': 'application/json',
-            },
-             body: JSON.stringify({
-                username: username,
-                password: password,
-            })
-        });
-    if (!response.ok) {
-      console.log('Error in calling: ' + url);
-      throw response;
-    }
-    this.appContext.jwtToken = await response.json();
-    console.log('Should be logged in: ' + this.appContext.isLoggedIn())
+    const args = JSON.stringify({
+      username: username,
+      password: password,
+    });
+    const response = this.post('auth/login', args);
+    response
+      .then(resp => {
+        if (resp.ok) {
+          resp.json().then(body => this.appContext.jwtToken = body)
+          console.log('Should be logged in: ' + this.appContext.isLoggedIn())  
+        } else {
+          console.log('Login failed ' + resp.statusText)  
+        }
+      })
+      .catch(error => {console.log('Failed to log in ' + error.message)});
   };
-
 }
 
 export default LoginController;

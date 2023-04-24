@@ -37,27 +37,24 @@ class CreateAccountController extends AppController {
     return '';
   }
 
-
   async callCreateAccount(username: string, password: string) {
-    const response = await fetch(this.appContext.baseUrl() + 'auth/create', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    try {
+      const body = JSON.stringify({
         username: username,
         password: password,
-      })
-    });
-    if (response.ok) {
-      return '';
+      });
+      
+      const response = await this.post('auth/create', body);
+      if (response.ok) {
+        return '';
+      }
+      const result = await response.json();
+      console.log('json ' + result.message);
+      return result.message;
+    } catch(e: any) {
+      console.log(e.message);
+      return 'Unable to Create Account';
     }
-    const msg = await response.json(); 
-    const message = await msg.message;
-    console.log('message ' + message);
-    console.log('msg ' + msg.message);
-    return msg.message;
   }
 };
 
