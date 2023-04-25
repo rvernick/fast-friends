@@ -2,9 +2,14 @@
 class AppContext {
   private _jwtToken: string;
   private _isLoggedInWatcher;
+  private _userEmail;
   constructor() {
 
   };
+
+  public set email(anEmail: string) {
+    this._userEmail = anEmail;
+  }
 
   public set jwtToken(token: string) {
     this._jwtToken = token;

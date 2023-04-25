@@ -12,6 +12,7 @@ import { AuthGuard, Public } from './auth.guard';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './create-user.dto';
 import { LoginUserDto } from './login-user.dto';
+import { ChangePasswordDto } from './change-password.dto';
 
 
 @Controller('auth')
@@ -30,6 +31,16 @@ export class AuthController {
   @Post('create')
   create(@Body() createUserDto: CreateUserDto) {
     return this.authService.createUser(createUserDto.username, createUserDto.password);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('changePassword')
+  changePassword(@Body() changePassword: ChangePasswordDto) {
+    return this.authService.changePassword(
+      changePassword.username,
+      changePassword.oldPassword,
+      changePassword.newPassword
+      );
   }
 
   @UseGuards(AuthGuard)

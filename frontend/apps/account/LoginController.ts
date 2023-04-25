@@ -17,7 +17,8 @@ class LoginController extends AppController {
     response
       .then(resp => {
         if (resp.ok) {
-          resp.json().then(body => this.appContext.jwtToken = body)
+          resp.json().then(body => this.appContext.jwtToken = body);
+          this.appContext.email = username;
           console.log('Should be logged in: ' + this.appContext.isLoggedIn())  
         } else {
           console.log('Login failed ' + resp.statusText)  
