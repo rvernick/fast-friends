@@ -1,13 +1,13 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useContext, useState } from "react";
 import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, Center, NativeBaseProvider } from "native-base";
 import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 import LoginController from "./LoginController";
+import { GlobalStateContext } from "../config/GlobalContext";
 
-let email = '';
-let password = '';
+export const LoginScreen = ({ navigation }) => {
+  const { appContext } = useContext(GlobalStateContext);
+  const controller = new LoginController(appContext);
 
-export const Login = () => {
-  const controller = new LoginController();
   const [email, setEnteredEmail] = useState('');
   const [password, setEnteredPassword] = useState('');
 
@@ -68,18 +68,11 @@ export const Login = () => {
             Sign in
           </Button>
           <HStack mt="6" justifyContent="center">
-            <Text fontSize="sm" color="coolGray.600" _dark={{
-            color: "warmGray.200"
-          }}>
-              I'm a new user.{" "}
-            </Text>
-            <Link _text={{
-            color: "indigo.500",
-            fontWeight: "medium",
-            fontSize: "sm"
-          }} href="#"> 
-              Sign Up
-            </Link>
+            <Button
+              variant={'ghost'}
+              onPress={() => navigation.replace('CreateAccount')}>
+                I'm a new user
+            </Button> 
           </HStack>
         </VStack>
       </Box>

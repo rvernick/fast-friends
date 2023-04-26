@@ -32,6 +32,12 @@ export class UsersService {
     this.usersRepository.insert(newUser);
   }
 
+  updatePassword(user: User, newPassword: string) {
+    user.password = newPassword;
+    this.usersRepository.save(user);
+  }
+
+
   async remove(id: number): Promise<void> {
     await this.usersRepository.delete(id);
   }

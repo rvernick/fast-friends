@@ -28,4 +28,12 @@ export class AuthService {
     }
     this.usersService.createUser(username, pass);
   }
+
+  async changePassword(username: string, oldPassword: string, newPassword: string) {
+    const user = await this.usersService.findUsername(username);
+    if (user == null || user?.password != oldPassword) {
+      throw new UnauthorizedException();
+    }
+    this.usersService.updatePassword(user, newPassword);
+  }
 }

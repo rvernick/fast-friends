@@ -1,17 +1,19 @@
 import { IsEmail, IsString, Matches, MinLength } from 'class-validator'
 
-export class CreateUserDto {
-  @IsEmail({}, {message: 'Invalid email'})
+export class ChangePasswordDto {
+  @IsEmail()
   username: string;
+
+  @IsString()
+  oldPassword: string;
 
   @IsString()
   @MinLength(8)
   @Matches(
     /((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/,
     {message: 'password must have at least one upper case letter, one lower case letter and one special character'})
-  password: string;
+  newPassword: string;
 }
-
 
 /**
  * regex to ensure

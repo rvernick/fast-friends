@@ -1,21 +1,19 @@
 import React, { useContext, useState } from "react";
 import { Box, Heading, VStack, FormControl, Input, Button, HStack, Center, WarningOutlineIcon } from "native-base";
 import { GlobalStateContext } from "../config/GlobalContext";
-import CreateAccountController from './CreateAccountController';
+import ChangePasswordController from "./ChangePasswordController";
 
-export const CreateAccount = ({ navigation }) => {
+export const ChangePassword = ({ navigation }) => {
   const { appContext } = useContext(GlobalStateContext);
-  const controller = new CreateAccountController(appContext);
-  const [email, setEnteredEmail] = useState('');
+  const controller = new ChangePasswordController(appContext);
+  const [oldPassword, setOldPassword] = useState('');
   const [password, setEnteredPassword] = useState('');
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
-  const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');  
   
-  const updateEmail = function(newText: string) {
-    setEnteredEmail(newText);
-    setEmailErrorMessage('');
+  const updateOldPassword = function(newText: string) {
+    setOldPassword(newText);
   }
   const updatePassword = function(newText: string) {
     setEnteredPassword(newText);
@@ -24,11 +22,6 @@ export const CreateAccount = ({ navigation }) => {
   const updatePasswordConfirm = function(newText: string) {
     setEnteredPasswordConfirm(newText);
     setPasswordConfirmErrorMessage('');
-  }
-  const verifyEmail = function() {
-    const msg = controller.verifyEmail(email);
-    setEmailErrorMessage(msg);
-    return msg.length == 0;
   }
   const verifyPassword = function() {
     const msg = controller.verifyPassword(password)
@@ -44,20 +37,19 @@ export const CreateAccount = ({ navigation }) => {
   }
 
   const accountInfoValid = function() {
-    return verifyEmail()
-      && verifyPassword()
+    return verifyPassword()
       && verifyPasswordMatch();
   };
 
-  const createAccount = function() {
+  const changePassword = function() {
     if(accountInfoValid()) {
-      const response = controller.createAccount(email, password);
+      const response = controller.changePassword(oldPassword, password);
       response.then(msg => {
           console.log('create acct ' + msg);
           if (msg) {
-            setEmailErrorMessage(msg);
+            setPasswordErrorMessage(msg);
           } else {
-            navigation.replace('Login');
+            navigation.pop();
           }
         })
     }
@@ -74,21 +66,23 @@ export const CreateAccount = ({ navigation }) => {
         <Heading mt="1" _dark={{
         color: "warmGray.200"
       }} color="coolGray.600" fontWeight="medium" size="xs">
-          Create Account
+          Change Password
         </Heading>
 
         <VStack space={3} mt="5">
-          <FormControl isRequired isInvalid={emailErrorMessage.length > 0}>
-            <FormControl.Label>Email ID</FormControl.Label>
-            <Input onChangeText={updateEmail}/>
-            <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-                { emailErrorMessage }
-              </FormControl.ErrorMessage>
+        <FormControl
+            isRequired
+            isInvalid={passwordErrorMessage.length > 0} >
+            <FormControl.Label>Old Password</FormControl.Label>
+            <Input 
+              type="password"
+              onChangeText={updateOldPassword}
+              />
           </FormControl>
           <FormControl
             isRequired
             isInvalid={passwordErrorMessage.length > 0} >
-            <FormControl.Label>Password</FormControl.Label>
+            <FormControl.Label>New Password</FormControl.Label>
             <Input 
               type="password"
               onChangeText={updatePassword}
@@ -108,16 +102,9 @@ export const CreateAccount = ({ navigation }) => {
               { passwordConfirmErrorMessage }
               </FormControl.ErrorMessage>
           </FormControl>
-          <Button onPress={ createAccount } mt="2" colorScheme="indigo">
-            Create Account
+          <Button onPress={ changePassword } mt="2" colorScheme="indigo">
+            Update Password
           </Button>
-          <HStack mt="6" justifyContent="center">
-            <Button
-              variant={'ghost'}
-              onPress={() => navigation.replace('Login')}>
-                I have an account
-            </Button> 
-          </HStack>
         </VStack>
       </Box>
     </Center>;
