@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useState } from 'react';
 import AppContext from "./app-context";
 
 export const GlobalStateContext = createContext({ appContext: new AppContext() });
