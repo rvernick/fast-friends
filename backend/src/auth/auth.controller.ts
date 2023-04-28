@@ -43,9 +43,16 @@ export class AuthController {
       );
   }
 
-  @UseGuards(AuthGuard)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
-  };
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Get('healthCheck')
+  health() {
+    return 'Running';
+  }  
+
+  // @UseGuards(AuthGuard)
+  // @Get('profile')
+  // getProfile(@Request() req) {
+  //   return req.user;
+  // };
 }
