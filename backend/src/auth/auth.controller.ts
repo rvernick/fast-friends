@@ -23,6 +23,7 @@ export class AuthController {
   @Public()
   @Post('login')
   signIn(@Body() signInDto: LoginUserDto): Promise<{ access_token: string; }> {
+    console.log('signing in: ' + signInDto.username);
     return this.authService.signIn(signInDto.username, signInDto.password);
   }
 

@@ -1,9 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { AppLogger } from './config/app.logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {cors: true});
+  // const logger = new AppLogger();
+  const app = await NestFactory.create(AppModule, 
+    {
+      cors: true,
+      logger: console,
+    });
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);
 }
