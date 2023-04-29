@@ -5,11 +5,7 @@ import { AppLogger } from './config/app.logger';
 
 async function bootstrap() {
   // const logger = new AppLogger();
-  const app = await NestFactory.create(AppModule, 
-    {
-      cors: true,
-      logger: console,
-    });
+  const app = await NestFactory.create(AppModule, {cors: true, });
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);
 }
