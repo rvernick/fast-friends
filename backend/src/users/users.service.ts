@@ -18,17 +18,19 @@ export class UsersService {
 
   findOne(id: number): Promise<User | null> {
     const result = this.usersRepository.findOneBy({ id });
-    this.logger.log('Searching for: ' + id + ' found: ' + result);
+    this.logger.log('info', 'Searching for: ' + id + ' found: ' + result);
     return result;
   }
 
   findUsername(username: string): Promise<User | null> {
     if (username == null) return null;
-    return this.usersRepository.findOne({
+    const result = this.usersRepository.findOne({
       where: {
         username: username,
       },
     });
+    this.logger.log('info', 'Searching for: ' + username + ' found: ' + result);
+    return result;
   }
 
   createUser(username: string, password: string) {
