@@ -3,12 +3,16 @@ import { AppModule } from './app.module';
 import { LoggerService, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
+  const logger = createLogger()
   const app = await NestFactory.create(AppModule, {
     cors: true,
-    logger: createLogger(),
+    logger: logger,
   });
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(80);
+  logger.log('info', 'Opening port 3000');
+  await app.listen(3000);
+  const url = await app.getUrl();
+  logger.log('info', 'Listening on: ' + url);
 }
 
 function createLogger(): LoggerService {
