@@ -21,7 +21,7 @@ import { User } from './users/user.entity';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get('HOST'),
-        port: +configService.get('PORT'),
+        port: +configService.get('DATABASE_PORT'),
         username: configService.get('DATABASE_USER'),
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
