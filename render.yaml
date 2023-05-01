@@ -1,0 +1,14 @@
+services:
+- type: web
+  name: ff-backend
+  env: node
+  rootDir: backend
+  buildCommand: npm install
+  startCommand: npx @nestjs/cli start
+- type: web
+  name: ff-frontend
+  env: node
+  rootDir: frontend
+  buildCommand: npm install
+  startCommand: npx expo start --web
+  
