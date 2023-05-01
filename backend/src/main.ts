@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { LoggerService, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const port =  3000;
+  const port = process.env.PORT || 3000;
   console.log('Opening on port ' + port);
 
   const app = await NestFactory.create(AppModule, {
