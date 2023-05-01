@@ -9,8 +9,8 @@ async function bootstrap() {
     logger: logger,
   });
   app.useGlobalPipes(new ValidationPipe());
-  logger.log('info', 'Opening port 3000');
-  await app.listen(3000);
+  logger.log('info', 'Opening port 5432');
+  await app.listen(5432);
   const url = await app.getUrl();
   logger.log('info', 'Listening on: ' + url);
 }
