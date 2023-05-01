@@ -3,8 +3,9 @@ import { AppModule } from './app.module';
 import { LoggerService, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
+  const logger = createLogger();
   const port = process.env.PORT || 3000;
-  console.log('Opening on port ' + port);
+  logger.log('info', 'Opening on port ' + port);
 
   const app = await NestFactory.create(AppModule, {
     cors: true,
@@ -32,14 +33,14 @@ function createLogger(): LoggerService {
       //   maxFiles: 2,
       //   tailable: true,
       // }),
-      new winston.transports.File({
-        format: winston.format.simple(),
-        filename: 'logs/combined.log',
-        level: 'info',
-        maxsize: 1000,
-        maxFiles: 3,
-        tailable: true,
-      }),
+      // new winston.transports.File({
+      //   format: winston.format.simple(),
+      //   filename: 'logs/combined.log',
+      //   level: 'info',
+      //   maxsize: 1000,
+      //   maxFiles: 3,
+      //   tailable: true,
+      // }),
       new winston.transports.Console({ level: 'info', format: winston.format.simple() }),
     ],
   });
