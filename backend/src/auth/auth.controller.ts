@@ -45,6 +45,13 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Post('update-user')
+  updateUser(@Body() updateUserDto: CreateUserDto) {
+      return this.authService.updateUser(updateUserDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Public()
   @Get('healthCheck')
   health() {

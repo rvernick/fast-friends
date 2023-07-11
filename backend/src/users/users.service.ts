@@ -43,6 +43,10 @@ export class UsersService {
     this.usersRepository.save(user);
   }
 
+  updateUser(user: User, mobilePhone: string) {
+    user.cellPhone = mobilePhone;
+  }
+
 
   async remove(id: number): Promise<void> {
     await this.usersRepository.delete(id);

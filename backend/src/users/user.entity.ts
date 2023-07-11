@@ -47,6 +47,12 @@ export class User {
   })
   lastName: string;
 
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  cellPhone: string;
+
   @Column({ default: true })
   isActive: boolean;
 

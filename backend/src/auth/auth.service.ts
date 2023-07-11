@@ -42,4 +42,13 @@ export class AuthService {
     this.logger.log('info', 'password changed for: ' + username);
     this.usersService.updatePassword(user, newPassword);
   }
+
+  async updateUser(username: string, mobilePhone: string) {
+    const user = await this.usersService.findUsername(username);
+    if (user == null) {
+      this.logger.log('info', 'failed update user attempt:'+ username);
+      throw new UnauthorizedException();
+    }
+    this.usersService.updateUser(user, mobilePhone);
+  }
 }
