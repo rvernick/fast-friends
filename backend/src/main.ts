@@ -14,7 +14,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(port);
   const url = await app.getUrl();
-  console.log('Listening on: ' + url);
+  console.log('Listening on: ' + url + ' on port ' + port);
 }
 
 function createLogger(): LoggerService {
