@@ -44,6 +44,7 @@ export class AuthService {
   }
 
   async updateUser(username: string, mobile: string) {
+
     const user = await this.usersService.findUsername(username);
     if (user == null) {
       this.logger.log('info', 'failed update user attempt:'+ username);
