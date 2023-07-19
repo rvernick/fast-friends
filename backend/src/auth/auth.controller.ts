@@ -14,6 +14,7 @@ import { CreateUserDto } from './create-user.dto';
 import { LoginUserDto } from './login-user.dto';
 import { ChangePasswordDto } from './change-password.dto';
 import { UpdateUserDto } from './update-user.dto';
+import { log } from 'console';
 
 
 @Controller('auth')
@@ -56,6 +57,7 @@ export class AuthController {
   @Public()
   @Get('healthCheck')
   health() {
+    console.log("Health check running.  Returning okay.")
     return 'Running';
   }  
 
