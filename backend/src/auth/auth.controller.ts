@@ -13,6 +13,8 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from './create-user.dto';
 import { LoginUserDto } from './login-user.dto';
 import { ChangePasswordDto } from './change-password.dto';
+import { UpdateUserDto } from './update-user.dto';
+import { log } from 'console';
 
 
 @Controller('auth')
@@ -47,14 +49,15 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Post('update-user')
-  updateUser(@Body() updateUserDto: CreateUserDto) {
-      return this.authService.updateUser(updateUserDto);
+  updateUser(@Body() updateUserDto: UpdateUserDto) {
+      return this.authService.updateUser(updateUserDto.username, updateUserDto.mobile);
   }
 
   @HttpCode(HttpStatus.OK)
   @Public()
   @Get('healthCheck')
   health() {
+    console.log("Health check running.  Returning okay.")
     return 'Running';
   }  
 
