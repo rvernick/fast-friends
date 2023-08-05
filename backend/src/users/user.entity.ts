@@ -20,21 +20,14 @@ export class User {
   @Column()
   username: string;
 
-  /*
-      transformer: new EncryptionTransformer({
-      key: Buffer.from(
-        't5blWVOiY2l10dqeTiUNgteRNPsB+Dk7Tqe8q9sANc0SDIQ/iP8u3tLZjYFILo24',
-        'base64',
-      ).toString(),
-      algorithm: 'aes-256-gcm',
-      ivLength: 16,
-    }),
-*/
-  @Column({
-    type: 'varchar',
-    nullable: false,
-  })
-  password: string;
+  @Column({ transformer: new EncryptionTransformer({
+    key: Buffer.from(
+    't5blWVOiY2l10dqeTiUNgteRNPsB+Dk7Tqe8q9sANc0SDIQ/iP8u3tLZjYFILo24',
+    'base64',
+    ).toString(),
+    algorithm: 'aes-256-gcm',
+    ivLength: 16,}) })
+    password: string;
 
   @Column({
     type: 'varchar',

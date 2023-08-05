@@ -4,6 +4,7 @@ import { Home } from './Home';
 import { LoginScreen } from './account/LoginScreen';
 import { GlobalStateContext } from './config/GlobalContext';
 import { CreateAccount } from './account/CreateAccount';
+import { CreateRideScreen } from './rides/CreateRideScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +16,7 @@ export function Root() {
   if (!isLoggedIn) {
     return (
       <Stack.Navigator>
+        <Stack.Screen name="CreateRide" component={CreateRideScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="CreateAccount" component={CreateAccount} />
       </Stack.Navigator>

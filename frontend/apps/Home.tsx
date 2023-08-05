@@ -8,8 +8,10 @@ const Tabs = createBottomTabNavigator();
 export function Home() {
   const { appContext } = useContext(GlobalStateContext);
 
-  return ( 
+  return (
     <Tabs.Navigator>
+      {/* <Tabs.Screen name="Rides" component={RidesManager}/>
+      <Tabs.Screen name="Groups" component={GroupsManager}/> */}
       <Tabs.Screen name='Settings' component={SettingsStack}/>
     </Tabs.Navigator> );
 }
