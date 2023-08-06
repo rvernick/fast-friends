@@ -1,30 +1,55 @@
 import { useState } from "react";
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import DateAndTimeController from './DateAndTimeController';
+import { View } from "react-native";
 
 export const AndroidDateTimeSelector = (props) => {
-  const [date, setDate] = useState(props.datetime);
-  const [time, setTime] = useState(props.datetime);
+  const initDate = new Date(props.value);
+  const [date, setDate] = useState(initDate);
+  const [time, setTime] = useState(initDate);
 
-  const controller = new DateAndTimeController(props.datetime, props.setter);
+  const controller = new DateAndTimeController(date, props.setter);
 
-  const handleDateChange = (event) => {
-    controller.setDate(event.detail.value);
-  }
-  const handleTimeChange = (event) => {
-    controller.setTime(event.detail.value);
-  }
+  const handleDateChange = (event: DateTimePickerEvent, selecteDate: Date) => {
+    const {
+      type,
+      nativeEvent: {timestamp},
+    } = event;
+    console.log(type);
+    console.log(selecteDate);
+    console.log(timestamp);
+    if (type === 'set') {
+      controller.setDate(selecteDate);
+      setDate(controller.getDate());
+    }
+  };
 
-  return <div>
+  const handleTimeChange = (event: DateTimePickerEvent, selectedTime: Date) => {
+    const {
+      type,
+      nativeEvent: {timestamp},
+    } = event;
+    console.log('timechange: ' + type);
+    console.log('timestame ' + timestamp);
+    console.log('selectedTime: ' + selectedTime);
+    if (type === 'set') {
+      controller.setTime(selectedTime);
+      setDate(controller.getDate());
+    }
+  };
+
+  return <View>
     <DateTimePicker
       mode="date"
-      value={props.datetime}
+      value={date}
+
       minimumDate={props.minimumDate}
       onChange={handleDateChange} />
     <DateTimePicker
       mode="time"
-      value={props.datetime}
+      minuteInterval={5}
+      value={time}
       minimumDate={props.minimumDate}
       onChange={handleTimeChange} />
-  </div>
+  </View>
 };

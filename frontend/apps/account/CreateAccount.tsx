@@ -11,8 +11,8 @@ export const CreateAccount = ({ navigation }) => {
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
-  const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');  
-  
+  const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');
+
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
     setEmailErrorMessage('');
@@ -62,7 +62,7 @@ export const CreateAccount = ({ navigation }) => {
         })
     }
   };
-  
+
 
   return <Center w="100%">
       <Box safeArea p="2" py="8" w="90%" maxW="290">
@@ -80,7 +80,7 @@ export const CreateAccount = ({ navigation }) => {
         <VStack space={3} mt="5">
           <FormControl isRequired isInvalid={emailErrorMessage.length > 0}>
             <FormControl.Label>Email ID</FormControl.Label>
-            <Input onChangeText={updateEmail}/>
+            <Input autoCapitalize="none" onChangeText={updateEmail}/>
             <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
                 { emailErrorMessage }
               </FormControl.ErrorMessage>
@@ -89,7 +89,7 @@ export const CreateAccount = ({ navigation }) => {
             isRequired
             isInvalid={passwordErrorMessage.length > 0} >
             <FormControl.Label>Password</FormControl.Label>
-            <Input 
+            <Input
               type="password"
               onChangeText={updatePassword}
               onSubmitEditing={verifyPassword}
@@ -100,7 +100,7 @@ export const CreateAccount = ({ navigation }) => {
           </FormControl>
           <FormControl isRequired isInvalid={passwordConfirmErrorMessage.length > 0}>
             <FormControl.Label>Confirm Password</FormControl.Label>
-            <Input 
+            <Input
               type="password"
               onChangeText={updatePasswordConfirm}
               />
@@ -116,7 +116,7 @@ export const CreateAccount = ({ navigation }) => {
               variant={'ghost'}
               onPress={() => navigation.replace('Login')}>
                 I have an account
-            </Button> 
+            </Button>
           </HStack>
         </VStack>
       </Box>

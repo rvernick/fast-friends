@@ -9,9 +9,12 @@ export const CreateRideScreen = ({ navigation }) => {
   const { appContext } = useContext(GlobalStateContext);
   // const controller = new CreateRideController(appContext);
 
-  // Title, Starttime, startlocation, groups, route, style
+  // Title, Starttime, startlocation, groups, route, style]
+  // default to tomorrow at 7:00 and the time picker works better
+  const today = new Date();
+  const defaultStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 7, 0);
   const [title, setEnteredTitle] = useState('');
-  const [startDateTime, setStartDateTime] = useState(new Date());
+  const [startDateTime, setStartDateTime] = useState(defaultStart);
 
 
   const updateTitle = function(newText: string) {
@@ -22,6 +25,11 @@ export const CreateRideScreen = ({ navigation }) => {
     console.log("setting start date to: " + toDate);
     setStartDateTime(toDate);
   };
+
+  const setStart = function(toDate: Date) {
+    console.log("setting start date: " + toDate);
+    setStartDateTime(toDate);
+  }
 
   const submitRide = function(e: GestureResponderEvent) {
     e.preventDefault();
@@ -47,7 +55,7 @@ export const CreateRideScreen = ({ navigation }) => {
           <FormControl>
             <FormControl.Label>Start</FormControl.Label>
             <DateTimeSelection
-              setter={setStartDateTime}
+              setter={setStart}
               value={startDateTime}
               minimumDate={new Date()}/>
           </FormControl>

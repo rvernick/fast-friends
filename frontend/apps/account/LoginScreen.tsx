@@ -45,11 +45,11 @@ export const LoginScreen = ({ navigation }) => {
         <VStack space={3} mt="5">
           <FormControl isRequired>
             <FormControl.Label>Email ID</FormControl.Label>
-            <Input onChangeText={updateEmail}/>
+            <Input autoCapitalize="none" onChangeText={updateEmail}/>
           </FormControl>
           <FormControl isRequired>
             <FormControl.Label>Password</FormControl.Label>
-            <Input 
+            <Input
               type="password"
               onChangeText={updatePassword}
               onSubmitEditing={loginSubmit}
@@ -62,7 +62,7 @@ export const LoginScreen = ({ navigation }) => {
               Forget Password?
             </Link>
           </FormControl>
-          <Button disabled={!email.length || !password.length} 
+          <Button disabled={!email.length || !password.length}
               variant={(!email.length || !password.length)? 'ghost' : 'solid'}
               onPress={loginButton} mt="2" colorScheme="indigo">
             Sign in
@@ -72,7 +72,7 @@ export const LoginScreen = ({ navigation }) => {
               variant={'ghost'}
               onPress={() => navigation.replace('CreateAccount')}>
                 I'm a new user
-            </Button> 
+            </Button>
           </HStack>
         </VStack>
       </Box>

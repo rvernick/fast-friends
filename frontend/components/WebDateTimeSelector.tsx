@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {Platform, StyleSheet} from 'react-native';
+import {Platform, StyleSheet, View} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Button } from 'react-native-paper';
 import { DatePickerInput, TimePickerModal } from 'react-native-paper-dates';
@@ -9,21 +9,20 @@ export const WebDateTimeSelector = (props) => {
   const [visible, setVisible] = useState(false)
   const [date, setDate] = useState(props.value);
 
+  const getDate = function(): Date {
+    return date;
+  }
 
   const setDateTime = function(date: Date) {
     setDate(date);
     setVisible(false);
     props.setter(date);
-    // rerender();
   }
   const controller = new DateAndTimeController(date, setDateTime);
 
-  function rerender() {
-    this.forceUpdate();
-  }
-
-  const handleDateChange = (event) => {
-    controller.setDate(event.detail.value);
+  const handleDateChange = (toDate: Date) => {
+    console.log(toDate);
+    controller.setDate(toDate);
   }
 
   const onDismiss = () => {
@@ -34,20 +33,20 @@ export const WebDateTimeSelector = (props) => {
     console.log('onConfirm');
     console.log(hoursAndMinutes.hours + ':' + hoursAndMinutes.minutes);
     setVisible(false);
-    var date = new Date();
-    date.setHours(hoursAndMinutes.hours);
-    date.setMinutes(hoursAndMinutes.minutes);
-    controller.setTime(date);
+    var timeDate = new Date();
+    timeDate.setHours(hoursAndMinutes.hours);
+    timeDate.setMinutes(hoursAndMinutes.minutes);
+    controller.setTime(timeDate);
   };
 
-  return <div>
+  return <View>
     <DatePickerInput
             locale="en"
             value={date}
             onChange={handleDateChange}
             inputMode="start"
           />
-    <Button onPress={() => setVisible(true)} uppercase={false} mode="outlined">
+     <Button onPress={() => setVisible(true)} uppercase={false} mode="outlined">
           {date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
     </Button>
     <TimePickerModal
@@ -57,5 +56,5 @@ export const WebDateTimeSelector = (props) => {
           hours={date.getHours()}
           minutes={date.getMinutes()}
    />
-  </div>
+  </View>;
 };
