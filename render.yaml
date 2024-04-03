@@ -14,6 +14,8 @@ services:
     - key: PORT
       value: "4000"
     - key: DB_HOST
+      value: bullcrap
+    - key: DB_HOST_OLD
       fromDatabase:
         name: fast-friends-prod
         property: host
@@ -33,6 +35,7 @@ services:
       fromDatabase:
         name: fast-friends-prod
         property: database
+
 - type: web
   name: fast-friends-fe
   plan: free
