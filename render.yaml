@@ -42,7 +42,10 @@ services:
   startCommand: npx expo start --web
   envVars:
     - key: BASE_URL
-      value: https://fast-friends.onrender.com
+      fromService:
+        type: web
+        name: fast-friends
+        property: host
 
 databases:
   - name: fast-friends-prod
