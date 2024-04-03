@@ -31,7 +31,7 @@ services:
         property: password
     - key: DB_DATABASE_NAME
       fromDatabase:
-        name: friends-friends-prod
+        name: fast-friends-prod
         property: database
 - type: web
   name: fast-friends-fe
