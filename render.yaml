@@ -15,23 +15,23 @@ services:
       value: "4000"
     - key: DB_HOST
       fromDatabase:
-        name: fast-friends-db
+        name: fast-friends-prod
         property: host
     - key: DB_PORT
       fromDatabase:
-        name: fast-friends-db
+        name: fast-friends-prod
         property: port
     - key: DB_USER
       fromDatabase:
-        name: fast-friends-db
+        name: fast-friends-prod
         property: user
     - key: DB_PASSWORD
       fromDatabase:
-        name: fast-friends-db
+        name: fast-friends-prod
         property: password
     - key: DB_DATABASE_NAME
       fromDatabase:
-        name: fast-friends-db
+        name: friends-friends-prod
         property: database
 - type: web
   name: fast-friends-fe
