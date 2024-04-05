@@ -11,6 +11,7 @@ async function bootstrap() {
     cors: true,
     logger: createLogger(),
   });
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(port);
   const url = await app.getUrl();

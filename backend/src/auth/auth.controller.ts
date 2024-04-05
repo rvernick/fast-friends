@@ -59,7 +59,7 @@ export class AuthController {
   health() {
     console.log("Health check running.  Returning okay.")
     return 'Running';
-  }  
+  }
 
   // @UseGuards(AuthGuard)
   // @Get('profile')
