@@ -35,12 +35,12 @@ services:
         property: database
 
 - type: web
-  name: fast-friends-fe
   plan: free
-  env: node
+  name: fast-friends-fe
+  runtime: static
   rootDir: frontend
-  buildCommand: npm install
-  startCommand: npx expo start --web
+  buildCommand: npx expo export -p web
+  startCommand: npx serve dist
   envVars:
     - key: BASE_URL
       fromService:
