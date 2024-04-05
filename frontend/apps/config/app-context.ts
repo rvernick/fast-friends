@@ -17,11 +17,6 @@ class AppContext {
   }
 
   baseUrl() {
-    console.log('env for base url is: ' + process.env.BASE_URL);
-    const envdict = process.env
-    for (const [key, value] of Object.entries(envdict)) {
-      console.log(key + ':'+ value);
-    }
     if (process.env.NODE_ENV === 'production') {
       return 'https://fast-friends-be.onrender.com/';
     }
