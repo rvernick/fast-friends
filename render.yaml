@@ -33,11 +33,11 @@ services:
       fromDatabase:
         name: fast-friends-prod
         property: database
-
 - type: web
+  plan: free
   name: fast-friends-fe
-  runtime: static
   rootDir: frontend
+  runtime: static
   buildCommand: npx expo export -p web
   startCommand: npx serve dist
   envVars:
