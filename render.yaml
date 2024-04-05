@@ -34,7 +34,6 @@ services:
         name: fast-friends-prod
         property: database
 - type: web
-  plan: free
   name: fast-friends-fe
   rootDir: frontend
   runtime: static
