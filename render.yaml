@@ -39,7 +39,10 @@ services:
   rootDir: frontend
   buildCommand: npx expo export -p web
   staticPublishPath: frontend/dist
-  startCommand: npx serve dist
+  routes:
+    - type: redirect
+      source: /*
+      destination: /index.html
   envVars:
     - key: BASE_URL
       fromService:

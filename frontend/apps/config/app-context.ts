@@ -17,6 +17,11 @@ class AppContext {
   }
 
   baseUrl() {
+    console.log('env for base url is: ' + process.env.BASE_URL);
+    const envdict = process.env
+    for (const [key, value] of Object.entries(envdict)) {
+      console.log(key + ':'+ value);
+    }
     return process.env.BASE_URL || 'http:localhost:3000/';
   }
 
