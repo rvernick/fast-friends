@@ -35,9 +35,9 @@ services:
         property: database
 - type: web
   name: fast-friends-fe
-  rootDir: frontend
   runtime: static
   buildCommand: npx expo export -p web
+  staticPublishPath: frontend
   startCommand: npx serve dist
   envVars:
     - key: BASE_URL
