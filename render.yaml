@@ -38,7 +38,7 @@ services:
   runtime: static
   rootDir: frontend
   buildCommand: npx expo export -p web
-  staticPublishPath: frontend/dist
+  staticPublishPath: dist
   routes:
     - type: redirect
       source: /*
