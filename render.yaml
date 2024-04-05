@@ -1,14 +1,58 @@
 services:
 - type: web
-  name: ff-backend
+  plan: free
+  name: fast-friends-be
   env: node
   rootDir: backend
   buildCommand: npm install
   startCommand: npx @nestjs/cli start
+  envVars:
+    - key: NODE_VERSION
+      value: 18.15.0
+    - key: NODE_ENV
+      value: prod
+    - key: PORT
+      value: "4000"
+    - key: DB_HOST
+      fromDatabase:
+        name: fast-friends-prod
+        property: host
+    - key: DB_PORT
+      fromDatabase:
+        name: fast-friends-prod
+        property: port
+    - key: DB_USER
+      fromDatabase:
+        name: fast-friends-prod
+        property: user
+    - key: DB_PASSWORD
+      fromDatabase:
+        name: fast-friends-prod
+        property: password
+    - key: DB_DATABASE_NAME
+      fromDatabase:
+        name: fast-friends-prod
+        property: database
 - type: web
-  name: ff-frontend
-  env: node
+  name: fast-friends
+  runtime: static
   rootDir: frontend
-  buildCommand: npm install
-  startCommand: npx expo start --web
-  
+  buildCommand: npx expo export -p web
+  staticPublishPath: dist
+  routes:
+    - type: redirect
+      source: /*
+      destination: /index.html
+  envVars:
+    - key: BASE_URL
+      fromService:
+        type: web
+        name: fast-friends
+        property: host
+
+databases:
+  - name: fast-friends-prod
+    databaseName: fast_friends_prod
+    user: fast_friends_prod_user
+    plan: free
+
