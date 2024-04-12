@@ -6,7 +6,7 @@ import { User } from './user.entity';
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
-  
+
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
@@ -43,10 +43,12 @@ export class UsersService {
     this.usersRepository.save(user);
   }
 
-  updateUser(user: User, mobilePhone: string) {
-    user.cellPhone = mobilePhone;
+  updateUser(user: User, firstName: string, lastName: string, mobilePhone: string) {
+    if (firstName!= null) user.firstName = firstName;
+    if (lastName!= null) user.lastName = lastName;
+    if (mobilePhone!= null) user.cellPhone = mobilePhone;
+    this.usersRepository.save(user);
   }
-
 
   async remove(id: number): Promise<void> {
     await this.usersRepository.delete(id);

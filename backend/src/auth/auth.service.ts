@@ -43,13 +43,16 @@ export class AuthService {
     this.usersService.updatePassword(user, newPassword);
   }
 
-  async updateUser(username: string, mobile: string) {
+  async updateUser(username: string,
+    firstName: string,
+    lastName: string,
+    mobile: string) {
 
     const user = await this.usersService.findUsername(username);
     if (user == null) {
       this.logger.log('info', 'failed update user attempt:'+ username);
       throw new UnauthorizedException();
     }
-    this.usersService.updateUser(user, mobile);
+    this.usersService.updateUser(user, firstName, lastName, mobile);
   }
 }

@@ -4,6 +4,7 @@ import { Home } from './Home';
 import { LoginScreen } from './account/LoginScreen';
 import { GlobalStateContext } from './config/GlobalContext';
 import { CreateAccount } from './account/CreateAccount';
+import { FinishAccount } from './account/FinishAccount';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,6 +18,7 @@ export function Root() {
       <Stack.Navigator>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="CreateAccount" component={CreateAccount} />
+        <Stack.Screen name="FinishAccount" component={FinishAccount} />
       </Stack.Navigator>
     )
   }

@@ -7,15 +7,23 @@ export const CreateAccount = ({ navigation }) => {
   const { appContext } = useContext(GlobalStateContext);
   const controller = new CreateAccountController(appContext);
   const [email, setEnteredEmail] = useState('');
+  const [firstName, setEnteredFirstName] = useState('');
+  const [lastName, setEnteredLastName] = useState('');
   const [password, setEnteredPassword] = useState('');
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
-  const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');  
-  
+  const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');
+
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
     setEmailErrorMessage('');
+  }
+  const updateFirstName = function(newText: string) {
+    setEnteredFirstName(newText);
+  }
+  const updateLastName = function(newText: string) {
+    setEnteredLastName(newText);
   }
   const updatePassword = function(newText: string) {
     setEnteredPassword(newText);
@@ -50,19 +58,20 @@ export const CreateAccount = ({ navigation }) => {
   };
 
   const createAccount = function() {
-    if(accountInfoValid()) {
-      const response = controller.createAccount(email, password);
-      response.then(msg => {
-          console.log('create acct ' + msg);
-          if (msg) {
-            setEmailErrorMessage(msg);
-          } else {
-            navigation.replace('Login');
-          }
-        })
-    }
+    navigation.replace('FinishAccount', {email: email});
+    // if(accountInfoValid()) {
+    //   const response = controller.createAccount(email, password);
+    //   response.then(msg => {
+    //       console.log('create acct ' + msg);
+    //       if (msg) {
+    //         setEmailErrorMessage(msg);
+    //       } else {
+    //         navigation.replace('FinishAccount', {email: email});
+    //       }
+    //     })
+    // }
   };
-  
+
 
   return <Center w="100%">
       <Box safeArea p="2" py="8" w="90%" maxW="290">
@@ -85,11 +94,23 @@ export const CreateAccount = ({ navigation }) => {
                 { emailErrorMessage }
               </FormControl.ErrorMessage>
           </FormControl>
+          <FormControl>
+            <FormControl.Label>First Name</FormControl.Label>
+            <Input
+              type="text"
+              onChangeText={updateFirstName}/>
+          </FormControl>
+          <FormControl>
+            <FormControl.Label>Last Name</FormControl.Label>
+            <Input
+              type="text"
+              onChangeText={updateLastName}/>
+          </FormControl>
           <FormControl
             isRequired
             isInvalid={passwordErrorMessage.length > 0} >
             <FormControl.Label>Password</FormControl.Label>
-            <Input 
+            <Input
               type="password"
               onChangeText={updatePassword}
               onSubmitEditing={verifyPassword}
@@ -100,7 +121,7 @@ export const CreateAccount = ({ navigation }) => {
           </FormControl>
           <FormControl isRequired isInvalid={passwordConfirmErrorMessage.length > 0}>
             <FormControl.Label>Confirm Password</FormControl.Label>
-            <Input 
+            <Input
               type="password"
               onChangeText={updatePasswordConfirm}
               />
@@ -116,7 +137,7 @@ export const CreateAccount = ({ navigation }) => {
               variant={'ghost'}
               onPress={() => navigation.replace('Login')}>
                 I have an account
-            </Button> 
+            </Button>
           </HStack>
         </VStack>
       </Box>
