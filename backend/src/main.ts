@@ -25,14 +25,14 @@ function createLogger(): LoggerService {
     format: winston.format.json(),
     defaultMeta: { service: 'user-service' },
     transports: [
-      // new winston.transports.File({
-      //   format: winston.format.simple(),
-      //   filename: 'logs/error.log',
-      //   level: 'error',
-      //   maxsize: 1000,
-      //   maxFiles: 2,
-      //   tailable: true,
-      // }),
+      new winston.transports.File({
+        format: winston.format.simple(),
+        filename: 'logs/error.log',
+        level: 'error',
+        maxsize: 1000,
+        maxFiles: 2,
+        tailable: true,
+      }),
       new winston.transports.File({
         format: winston.format.simple(),
         filename: 'logs/combined.log',

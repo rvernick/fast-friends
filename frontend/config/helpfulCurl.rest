@@ -1,0 +1,8 @@
+POST http://localhost:3000/auth/create HTTP/1.1
+content-type: application/json
+
+{
+    "username": "stupid@user.com",
+    "password": "st^pidUser"
+}
+

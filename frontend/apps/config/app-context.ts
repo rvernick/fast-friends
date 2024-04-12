@@ -20,7 +20,8 @@ class AppContext {
     if (process.env.NODE_ENV === 'production') {
       return 'https://fast-friends-be.onrender.com/';
     }
-    return process.env.BASE_URL || 'http:localhost:3000/';
+    console.log('process.env.BASE_URL: ' + process.env.BASE_URL)
+    return process.env.BASE_URL || 'http://localhost:3000/';
   }
 
   isLoggedIn() {

@@ -33,6 +33,7 @@ export class AuthController {
   @Public()
   @Post('create')
   create(@Body() createUserDto: CreateUserDto) {
+    console.log('creating user: ' + createUserDto.username);
     return this.authService.createUser(createUserDto.username, createUserDto.password);
   }
 
@@ -50,7 +51,10 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Post('update-user')
   updateUser(@Body() updateUserDto: UpdateUserDto) {
-      return this.authService.updateUser(updateUserDto.username, updateUserDto.mobile);
+    return this.authService.updateUser(updateUserDto.username,
+      updateUserDto.firstName,
+      updateUserDto.lastName,
+      updateUserDto.mobile);
   }
 
   @HttpCode(HttpStatus.OK)
