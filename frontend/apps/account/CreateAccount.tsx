@@ -50,7 +50,6 @@ export const CreateAccount = ({ navigation }) => {
   };
 
   const createAccount = function() {
-    navigation.replace('FinishAccount', {email: email});
     if(accountInfoValid()) {
       const response = controller.createAccount(email, password);
       response.then(msg => {
