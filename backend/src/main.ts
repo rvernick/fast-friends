@@ -3,9 +3,9 @@ import { AppModule } from './app.module';
 import { LoggerService, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const logger = createLogger();
+//  const logger = createLogger();
   const port = process.env.PORT || 5000;
-  logger.log('info', 'Opening on port ' + port);
+//  logger.log('info', 'Opening on port ' + port);
 
   const app = await NestFactory.create(AppModule, {
     cors: true,
@@ -17,7 +17,8 @@ async function bootstrap() {
   console.log('Listening on: ' + url);
 }
 
-function createLogger(): LoggerService {
+/**
+  function createLogger(): LoggerService {
   const winston = require('winston');
 
   const logger = winston.createLogger({
@@ -46,4 +47,6 @@ function createLogger(): LoggerService {
   });
   return logger;
 }
+**/
+
 bootstrap();
