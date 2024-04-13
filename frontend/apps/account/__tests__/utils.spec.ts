@@ -1,4 +1,4 @@
-import {strippedPhone, isValidPhone} from '../utils';
+import {strippedPhone, isValidPhone, isValidPassword } from '../utils';
 
 describe('FinishAccount Helper Methods', () => {
   it('stripped phone number', () => {
@@ -19,4 +19,10 @@ describe('FinishAccount Helper Methods', () => {
     expect(isValidPhone('123.45667890')).toBeFalsy();
   });
 
+  it('validate password', () => {
+    expect(isValidPassword('e!ghtCha')).toBeTruthy();
+    expect(isValidPassword('tooF#w')).toBeFalsy();
+    expect(isValidPassword('noSpecial')).toBeFalsy();
+    expect(isValidPassword('no(apital')).toBeFalsy();
+  });
 });

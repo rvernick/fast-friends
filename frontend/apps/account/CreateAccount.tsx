@@ -32,6 +32,7 @@ export const CreateAccount = ({ navigation }) => {
   }
   const verifyPassword = function() {
     const msg = controller.verifyPassword(password)
+    console.log('UI verify password: ' + msg);
     setPasswordErrorMessage(msg);
     return msg.length == 0;
   }
@@ -92,7 +93,7 @@ export const CreateAccount = ({ navigation }) => {
             <Input
               type="password"
               onChangeText={updatePassword}
-              onSubmitEditing={verifyPassword}
+              onBlur={verifyPassword}
               />
               <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
                 { passwordErrorMessage }

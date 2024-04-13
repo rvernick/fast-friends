@@ -4,6 +4,7 @@ import { NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 import { GlobalStateContext } from "../config/GlobalContext";
 import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
+import { isValidPassword, invalidPasswordMessage } from "./utils";
 
 class CreateAccountController extends AppController {
   constructor(appContext: AppContext) {
@@ -24,15 +25,15 @@ class CreateAccountController extends AppController {
   }
 
   verifyPassword(password: string) {
-    if (password.length < 8) {
-      return 'Password must be at least 8 characters';
+    if (!isValidPassword(password)) {
+      return invalidPasswordMessage;
     }
     return '';
   }
 
   verifyPasswords(password: string, confirmPassword: string) {
-    if (password.length < 8) {
-      return 'Password must be at least 8 characters';
+    if (password!== confirmPassword || !isValidPassword(password)) {
+      return invalidPasswordMessage;
     }
     return '';
   }
@@ -43,7 +44,7 @@ class CreateAccountController extends AppController {
         username: username,
         password: password,
       });
-      
+
       const response = await this.post('auth/create', body);
       if (response.ok) {
         return '';
