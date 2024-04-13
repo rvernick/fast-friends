@@ -7,8 +7,6 @@ export const CreateAccount = ({ navigation }) => {
   const { appContext } = useContext(GlobalStateContext);
   const controller = new CreateAccountController(appContext);
   const [email, setEnteredEmail] = useState('');
-  const [firstName, setEnteredFirstName] = useState('');
-  const [lastName, setEnteredLastName] = useState('');
   const [password, setEnteredPassword] = useState('');
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
@@ -18,12 +16,6 @@ export const CreateAccount = ({ navigation }) => {
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
     setEmailErrorMessage('');
-  }
-  const updateFirstName = function(newText: string) {
-    setEnteredFirstName(newText);
-  }
-  const updateLastName = function(newText: string) {
-    setEnteredLastName(newText);
   }
   const updatePassword = function(newText: string) {
     setEnteredPassword(newText);
@@ -59,17 +51,17 @@ export const CreateAccount = ({ navigation }) => {
 
   const createAccount = function() {
     navigation.replace('FinishAccount', {email: email});
-    // if(accountInfoValid()) {
-    //   const response = controller.createAccount(email, password);
-    //   response.then(msg => {
-    //       console.log('create acct ' + msg);
-    //       if (msg) {
-    //         setEmailErrorMessage(msg);
-    //       } else {
-    //         navigation.replace('FinishAccount', {email: email});
-    //       }
-    //     })
-    // }
+    if(accountInfoValid()) {
+      const response = controller.createAccount(email, password);
+      response.then(msg => {
+          console.log('create acct ' + msg);
+          if (msg) {
+            setEmailErrorMessage(msg);
+          } else {
+            navigation.replace('FinishAccount', {email: email});
+          }
+        })
+    }
   };
 
 
@@ -94,18 +86,6 @@ export const CreateAccount = ({ navigation }) => {
                 { emailErrorMessage }
               </FormControl.ErrorMessage>
           </FormControl>
-          <FormControl>
-            <FormControl.Label>First Name</FormControl.Label>
-            <Input
-              type="text"
-              onChangeText={updateFirstName}/>
-          </FormControl>
-          <FormControl>
-            <FormControl.Label>Last Name</FormControl.Label>
-            <Input
-              type="text"
-              onChangeText={updateLastName}/>
-          </FormControl>
           <FormControl
             isRequired
             isInvalid={passwordErrorMessage.length > 0} >
@@ -129,7 +109,7 @@ export const CreateAccount = ({ navigation }) => {
               { passwordConfirmErrorMessage }
               </FormControl.ErrorMessage>
           </FormControl>
-          <Button onPress={ createAccount } mt="2" colorScheme="indigo">
+          <Button onPress={ createAccount } isDisabled={emailErrorMessage.length > 0 ||  passwordConfirmErrorMessage.length > 0} mt="2" colorScheme="indigo">
             Create Account
           </Button>
           <HStack mt="6" justifyContent="center">

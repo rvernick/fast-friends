@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { Box, Heading, VStack, FormControl, Input, Button, HStack, Center, WarningOutlineIcon } from "native-base";
 import { GlobalStateContext } from "../config/GlobalContext";
 import FinishAccountController from './FinishAccountController';
+import { strippedPhone, isValidPhone } from './utils';
 
 export function FinishAccount({ navigation, route }) {
   const { appContext } = useContext(GlobalStateContext);
@@ -21,24 +22,26 @@ export function FinishAccount({ navigation, route }) {
     setEnteredLastName(newText);
   }
   const updateMobile = function(newText: string) {
+    if (isValidPhone(newText)) {
+      setMobileErrorMessage('');
+    }
     setEnteredMobile(newText);
   }
 
   const validatePhone = () => {
     // Simple phone number validation
-    var mobileEntered = mobile.replace(/[^0-9]/g, '');
-    console.log(mobileEntered);
-    const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(mobileEntered)) {
-      setMobileErrorMessage('Invalid phone number');
-    } else {
+    console.log('validating: ' + mobile);
+    if (mobile.length == 0 || isValidPhone(mobile)) {
       setMobileErrorMessage('');
+    } else {
+      console.log('Invalid phone number');
+      setMobileErrorMessage('Invalid phone number');
     }
   };
 
   const updateAccount = function() {
     navigation.replace('Login');
-    const response = controller.updateAccount(email, firstName, lastName, null);
+    const response = controller.updateAccount(email, firstName, lastName, mobile);
     response.then(msg => {
       console.log('setting names ' + firstName +'' + lastName +'' + msg);
         if (msg) {
@@ -69,6 +72,9 @@ export function FinishAccount({ navigation, route }) {
             <Input
               type="text"
               onChangeText={updateFirstName}/>
+            <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+              { nameErrorMessage }
+            </FormControl.ErrorMessage>
           </FormControl>
           <FormControl isRequired>
             <FormControl.Label>Last Name</FormControl.Label>
@@ -76,18 +82,18 @@ export function FinishAccount({ navigation, route }) {
               type="text"
               onChangeText={updateLastName}/>
           </FormControl>
-          <FormControl >
+          <FormControl isInvalid={mobileErrorMessage.length > 0} >
             <FormControl.Label>Mobile</FormControl.Label>
-            <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
-                { mobileErrorMessage }
-              </FormControl.ErrorMessage>
             <Input
               type="text"
               keyboardType="phone-pad"
               onChangeText={updateMobile}
               onBlur={validatePhone}/>
+            <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+                { mobileErrorMessage }
+            </FormControl.ErrorMessage>
           </FormControl>
-          <Button onPress={ updateAccount } mt="2" colorScheme="indigo">
+          <Button onPress={ updateAccount } isDisabled={mobileErrorMessage.length > 0} mt="2" colorScheme="indigo">
             Update Account
           </Button>
           <HStack mt="6" justifyContent="center">

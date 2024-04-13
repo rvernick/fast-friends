@@ -4,6 +4,7 @@ import { NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 import { GlobalStateContext } from "../config/GlobalContext";
 import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
+import { strippedPhone } from "./utils";
 
 class FinishAccountController extends AppController {
   constructor(appContext: AppContext) {
@@ -11,7 +12,11 @@ class FinishAccountController extends AppController {
   }
 
   public updateAccount(username: string, firstName: string, lastName: string, mobile: string) {
-    return this.callUpdateAccount(username, firstName, lastName, mobile);
+    return this.callUpdateAccount(
+      username,
+      firstName,
+      lastName,
+      strippedPhone(mobile));
   }
 
   async callUpdateAccount(username: string,
