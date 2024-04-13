@@ -11,8 +11,8 @@ export const CreateAccount = ({ navigation }) => {
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
-  const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');  
-  
+  const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');
+
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
     setEmailErrorMessage('');
@@ -32,6 +32,7 @@ export const CreateAccount = ({ navigation }) => {
   }
   const verifyPassword = function() {
     const msg = controller.verifyPassword(password)
+    console.log('UI verify password: ' + msg);
     setPasswordErrorMessage(msg);
     return msg.length == 0;
   }
@@ -57,12 +58,12 @@ export const CreateAccount = ({ navigation }) => {
           if (msg) {
             setEmailErrorMessage(msg);
           } else {
-            navigation.replace('Login');
+            navigation.replace('FinishAccount', {email: email});
           }
         })
     }
   };
-  
+
 
   return <Center w="100%">
       <Box safeArea p="2" py="8" w="90%" maxW="290">
@@ -89,10 +90,10 @@ export const CreateAccount = ({ navigation }) => {
             isRequired
             isInvalid={passwordErrorMessage.length > 0} >
             <FormControl.Label>Password</FormControl.Label>
-            <Input 
+            <Input
               type="password"
               onChangeText={updatePassword}
-              onSubmitEditing={verifyPassword}
+              onBlur={verifyPassword}
               />
               <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
                 { passwordErrorMessage }
@@ -100,7 +101,7 @@ export const CreateAccount = ({ navigation }) => {
           </FormControl>
           <FormControl isRequired isInvalid={passwordConfirmErrorMessage.length > 0}>
             <FormControl.Label>Confirm Password</FormControl.Label>
-            <Input 
+            <Input
               type="password"
               onChangeText={updatePasswordConfirm}
               />
@@ -108,7 +109,7 @@ export const CreateAccount = ({ navigation }) => {
               { passwordConfirmErrorMessage }
               </FormControl.ErrorMessage>
           </FormControl>
-          <Button onPress={ createAccount } mt="2" colorScheme="indigo">
+          <Button onPress={ createAccount } isDisabled={emailErrorMessage.length > 0 ||  passwordConfirmErrorMessage.length > 0} mt="2" colorScheme="indigo">
             Create Account
           </Button>
           <HStack mt="6" justifyContent="center">
@@ -116,7 +117,7 @@ export const CreateAccount = ({ navigation }) => {
               variant={'ghost'}
               onPress={() => navigation.replace('Login')}>
                 I have an account
-            </Button> 
+            </Button>
           </HStack>
         </VStack>
       </Box>

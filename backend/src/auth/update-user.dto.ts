@@ -1,4 +1,4 @@
-import { IsPhoneNumber, IsString, Matches, MinLength } from 'class-validator'
+import { IsPhoneNumber, IsString } from 'class-validator'
 
 export class UpdateUserDto {
   @IsString()
@@ -9,7 +9,7 @@ export class UpdateUserDto {
 
   @IsString()
   lastName: string;
-  
+
   @IsString()
   @IsPhoneNumber('US', {message: 'phone number format: +14158675309'})
   mobile: string;

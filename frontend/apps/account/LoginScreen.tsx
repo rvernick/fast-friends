@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useContext, useState } from "react";
-import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, Center, NativeBaseProvider } from "native-base";
+import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, Center, WarningOutlineIcon } from "native-base";
 import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 import LoginController from "./LoginController";
 import { GlobalStateContext } from "../config/GlobalContext";
@@ -10,23 +10,38 @@ export const LoginScreen = ({ navigation }) => {
 
   const [email, setEnteredEmail] = useState('');
   const [password, setEnteredPassword] = useState('');
+  const [loginErrorMessage, setLoginErrorMessage] = useState('');
 
   const updateEmail = function(newText: string) {
+    setLoginErrorMessage('');
     setEnteredEmail(newText);
   }
 
   const updatePassword = function(newText: string) {
+    setLoginErrorMessage('');
     setEnteredPassword(newText);
   }
 
   const loginSubmit = function(e: NativeSyntheticEvent<TextInputChangeEventData>) {
     e.preventDefault();
-    controller.login(email, password);
+    attemptLogin();
   };
 
   const loginButton = function(e: GestureResponderEvent) {
     e.preventDefault();
-    controller.login(email, password);
+    attemptLogin();
+  };
+
+  const attemptLogin = function() {
+    const loginAttempt = controller.login(email, password);
+    loginAttempt.then(msg => {
+      console.log('loginAttempt: ' + msg);
+      if (msg) {
+        setLoginErrorMessage(msg);
+      } else {
+        navigation.replace('Home');
+      }
+    });
   };
 
   return <Center w="100%">
@@ -47,13 +62,16 @@ export const LoginScreen = ({ navigation }) => {
             <FormControl.Label>Email ID</FormControl.Label>
             <Input onChangeText={updateEmail}/>
           </FormControl>
-          <FormControl isRequired>
+          <FormControl isRequired isInvalid={loginErrorMessage.length > 0}>
             <FormControl.Label>Password</FormControl.Label>
-            <Input 
+            <Input
               type="password"
               onChangeText={updatePassword}
               onSubmitEditing={loginSubmit}
               />
+            <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+              { loginErrorMessage }
+            </FormControl.ErrorMessage>
             <Link _text={{
             fontSize: "xs",
             fontWeight: "500",
@@ -62,7 +80,7 @@ export const LoginScreen = ({ navigation }) => {
               Forget Password?
             </Link>
           </FormControl>
-          <Button disabled={!email.length || !password.length} 
+          <Button disabled={!email.length || !password.length}
               variant={(!email.length || !password.length)? 'ghost' : 'solid'}
               onPress={loginButton} mt="2" colorScheme="indigo">
             Sign in
@@ -72,7 +90,7 @@ export const LoginScreen = ({ navigation }) => {
               variant={'ghost'}
               onPress={() => navigation.replace('CreateAccount')}>
                 I'm a new user
-            </Button> 
+            </Button>
           </HStack>
         </VStack>
       </Box>
