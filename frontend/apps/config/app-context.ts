@@ -7,6 +7,10 @@ class AppContext {
 
   };
 
+  public get email(): string {
+    return this._userEmail;
+  }
+  
   public set email(anEmail: string) {
     this._userEmail = anEmail;
   }

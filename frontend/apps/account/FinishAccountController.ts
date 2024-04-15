@@ -5,6 +5,7 @@ import { GlobalStateContext } from "../config/GlobalContext";
 import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
 import { strippedPhone } from "./utils";
+import { post } from "../common/http_utils";
 
 class FinishAccountController extends AppController {
   constructor(appContext: AppContext) {
@@ -32,7 +33,7 @@ class FinishAccountController extends AppController {
         mobile: mobile,
       });
 
-      const response = await this.post('auth/update-user', body);
+      const response = await post('auth/update-user', body);
       if (response.ok) {
         return '';
       }

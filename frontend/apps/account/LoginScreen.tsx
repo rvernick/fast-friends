@@ -3,6 +3,7 @@ import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, C
 import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 import LoginController from "./LoginController";
 import { GlobalStateContext } from "../config/GlobalContext";
+import { login } from './utils';
 
 export const LoginScreen = ({ navigation }) => {
   const { appContext } = useContext(GlobalStateContext);
@@ -33,15 +34,21 @@ export const LoginScreen = ({ navigation }) => {
   };
 
   const attemptLogin = function() {
-    const loginAttempt = controller.login(email, password);
-    loginAttempt.then(msg => {
-      console.log('loginAttempt: ' + msg);
-      if (msg) {
-        setLoginErrorMessage(msg);
-      } else {
-        navigation.replace('Home');
-      }
-    });
+    const loginAttempt = login(email, password, appContext);
+    loginAttempt
+      .then(msg => {
+        console.log('loginAttempt: ' + msg);
+        if (msg) {
+          setLoginErrorMessage(msg);
+        } else {
+          console.log('login successful');
+/*          // navigation.replace('Home'); */
+        }
+      })
+      .catch(error => {
+        console.log('Failed to log in ' + error.message);
+        setLoginErrorMessage(error.message);
+      });
   };
 
   return <Center w="100%">

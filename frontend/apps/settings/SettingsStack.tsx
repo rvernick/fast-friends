@@ -9,7 +9,7 @@ const Stack = createNativeStackNavigator();
 export function SettingsStack() {
   const { appContext } = useContext(GlobalStateContext);
 
-  return ( 
+  return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name='SettingsHome' component={SettingScreen}/>
         <Stack.Screen name='ChangePassword' component={ChangePassword}/>

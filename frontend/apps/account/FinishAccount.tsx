@@ -13,7 +13,7 @@ export function FinishAccount({ navigation, route }) {
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
 
-  const email = route.params.email;
+  const email = appContext.email;
 
   const updateFirstName = function(newText: string) {
     setEnteredFirstName(newText);
@@ -40,14 +40,13 @@ export function FinishAccount({ navigation, route }) {
   };
 
   const updateAccount = function() {
-    navigation.replace('Login');
     const response = controller.updateAccount(email, firstName, lastName, mobile);
     response.then(msg => {
       console.log('setting names ' + firstName +'' + lastName +'' + msg);
         if (msg) {
           setNameErrorMessage(msg);
         } else {
-          navigation.replace('Login');
+          navigation.replace('Home');
         }
       })
   };

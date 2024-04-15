@@ -5,56 +5,6 @@ import ChangePasswordController from "./ChangePasswordController";
 
 export const SettingScreen = ({ navigation }) => {
   const { appContext } = useContext(GlobalStateContext);
-  const controller = new ChangePasswordController(appContext);
-  const [oldPassword, setOldPassword] = useState('');
-  const [password, setEnteredPassword] = useState('');
-  const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
-  const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');  
-  
-  const updateOldPassword = function(newText: string) {
-    setOldPassword(newText);
-  }
-  const updatePassword = function(newText: string) {
-    setEnteredPassword(newText);
-    setPasswordErrorMessage('');
-  }
-  const updatePasswordConfirm = function(newText: string) {
-    setEnteredPasswordConfirm(newText);
-    setPasswordConfirmErrorMessage('');
-  }
-  const verifyPassword = function() {
-    const msg = controller.verifyPassword(password)
-    setPasswordErrorMessage(msg);
-    return msg.length == 0;
-  }
-  const verifyPasswordMatch = function() {
-    if (password != passwordConfirm) {
-      setPasswordConfirmErrorMessage('Passwords must match');
-      return false;
-    }
-    return true;
-  }
-
-  const accountInfoValid = function() {
-    return verifyPassword()
-      && verifyPasswordMatch();
-  };
-
-  const changePassword = function() {
-    if(accountInfoValid()) {
-      const response = controller.changePassword(oldPassword, password);
-      response.then(msg => {
-          console.log('create acct ' + msg);
-          if (msg) {
-            setPasswordErrorMessage(msg);
-          } else {
-            navigation.replace('Settings');
-          }
-        })
-    }
-  };
-  
 
   return <Center w="100%">
       <Box safeArea p="2" py="8" w="90%" maxW="290">
@@ -70,13 +20,13 @@ export const SettingScreen = ({ navigation }) => {
         </Heading>
 
         <VStack space={3} mt="5">
-        <FormControl>
-            <FormControl.Label>Username</FormControl.Label>
-            <Input isReadOnly={true}>
-              {appContext.email}
-            </Input>
+          <FormControl isReadOnly={true} isDisabled={true}>
+            <FormControl.Label>Email ID</FormControl.Label>
+            <Input isReadOnly={true}
+              type="text"
+              placeholder={appContext.email}/>
           </FormControl>
-          <Button onPress={ () => navigation.push('ChangePassword') } mt="2" colorScheme="indigo">
+         <Button onPress={ () => navigation.push('ChangePassword') } mt="2" colorScheme="indigo">
             Update Password
           </Button>
         </VStack>
