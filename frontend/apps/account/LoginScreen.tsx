@@ -3,7 +3,7 @@ import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, C
 import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 import LoginController from "./LoginController";
 import { GlobalStateContext } from "../config/GlobalContext";
-import { login } from './utils';
+import { login } from '../common/utils';
 
 export const LoginScreen = ({ navigation }) => {
   const { appContext } = useContext(GlobalStateContext);
@@ -11,6 +11,8 @@ export const LoginScreen = ({ navigation }) => {
 
   const [email, setEnteredEmail] = useState('');
   const [password, setEnteredPassword] = useState('');
+  // const [email, setEnteredEmail] = useState('t5@t.com');
+  // const [password, setEnteredPassword] = useState('h@ppyHappy');
   const [loginErrorMessage, setLoginErrorMessage] = useState('');
 
   const updateEmail = function(newText: string) {

@@ -1,4 +1,4 @@
-import { IsPhoneNumber, IsString } from 'class-validator'
+import { Matches, IsString } from 'class-validator'
 
 export class UpdateUserDto {
   @IsString()
@@ -11,6 +11,9 @@ export class UpdateUserDto {
   lastName: string;
 
   @IsString()
-  @IsPhoneNumber('US', {message: 'phone number format: +14158675309'})
+  @Matches(
+    /^\d{10}$/,
+    {message: 'Phone number should be exactly 10 digits.'}
+  )
   mobile: string;
 }

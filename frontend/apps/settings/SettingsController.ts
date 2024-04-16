@@ -4,8 +4,8 @@ import { NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 import { GlobalStateContext } from "../config/GlobalContext";
 import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
-import { strippedPhone } from "./utils";
-import { post } from "../common/http_utils";
+import { strippedPhone } from "../common/utils";
+import { get, post } from "../common/http_utils";
 
 class FinishAccountController extends AppController {
   constructor(appContext: AppContext) {
@@ -33,7 +33,7 @@ class FinishAccountController extends AppController {
         mobile: mobile,
       });
 
-      const response = await post('auth/update-user', body);
+      const response = await post('auth/update-user', body, this.appContext.jwtToken);
       if (response.ok) {
         return '';
       }
@@ -45,6 +45,31 @@ class FinishAccountController extends AppController {
       return 'Unable to Update Account';
     }
   }
+
+  getUser = (username: string, appContext: AppContext): Promise<Object>  => {
+    console.log('getting user:'+ username);
+    console.log(appContext);
+    console.log(appContext.jwtToken);
+    try {
+      const parameters = {
+        username: username,
+      };
+      const result = get('auth/user', parameters, appContext.jwtToken);
+      console.log('json ' + result);
+      return result.then(resp => {
+        if (resp.ok) {
+          return resp.json()
+        } else {
+          console.log('Failed to get user:'+ resp.statusText);
+          return null;
+        }
+      });
+    } catch(e: any) {
+      console.log(e.message);
+      return null;
+    }
+  }
 };
+
 
 export default FinishAccountController;

@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { Box, Heading, VStack, FormControl, Input, Button, HStack, Center, WarningOutlineIcon } from "native-base";
 import { GlobalStateContext } from "../config/GlobalContext";
 import CreateAccountController from './CreateAccountController';
-import { login } from './utils';
+import { login } from '../common/utils';
 
 export const CreateAccount = ({ navigation }) => {
   const { appContext } = useContext(GlobalStateContext);
@@ -75,7 +75,7 @@ export const CreateAccount = ({ navigation }) => {
       if (msg) {
         setEmailErrorMessage(msg);
       } else {
-        navigation.replace('FinishAccount');
+//        navigation.replace('FinishAccount');
       }
     });
   }

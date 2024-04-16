@@ -1,7 +1,10 @@
-import { post } from "../common/http_utils";
+import { post } from "./http_utils";
 import AppContext from "../config/app-context";
 
 export const strippedPhone = (formattedPhone: string) => {
+  if (!formattedPhone) {
+    return '';
+  }
   return formattedPhone.replace(/[^0-9]/g, '');
 };
 
@@ -23,7 +26,7 @@ export async function login(username: string, password: string, appContext: AppC
     username: username,
     password: password,
   });
-  const response = post('auth/login', args);
+  const response = post('auth/login', args, appContext.jwtToken);
   return response
     .then(resp => {
       if (resp.ok) {
@@ -33,6 +36,7 @@ export async function login(username: string, password: string, appContext: AppC
         // console.log('json ' + resp.body);
         resp.json().then(body => {
           console.log('setting appContext.jwtToken to:' + body);
+          console.log('body ' + body.access_token);
           appContext.jwtToken = body;
           console.log('setting appContext.email to:'+ username);
           appContext.email = username;
