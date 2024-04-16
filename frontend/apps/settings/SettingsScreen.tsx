@@ -2,20 +2,20 @@ import React, { useContext, useState } from "react";
 import { Box, Heading, VStack, FormControl, Input, Button, HStack, Center, WarningOutlineIcon } from "native-base";
 import { GlobalStateContext } from "../config/GlobalContext";
 import SettingsController from "./SettingsController";
-import { strippedPhone, isValidPhone } from '../common/utils';
+import { isValidPhone } from '../common/utils';
+import { useQuery, useQueryClient } from'@tanstack/react-query';
 
-export const SettingsScreen = ({ navigation }) => {
+export const SettingsScreen = ({ navigation, route }) => {
   const { appContext } = useContext(GlobalStateContext);
-  const [firstName, setEnteredFirstName] = useState('');
-  const [lastName, setEnteredLastName] = useState('');
-  const [mobile, setEnteredMobile] = useState('');
-  const [nameErrorMessage, setNameErrorMessage] = useState('');
-  const [mobileErrorMessage, setMobileErrorMessage] = useState('');
-
   const controller = new SettingsController(appContext);
   const email = appContext.email;
-  const userPromise = controller.getUser(email, appContext);
-  console.log('user: ' + userPromise);
+  const user = route.params.user;
+
+  const [firstName, setEnteredFirstName] = useState(user ? user.firstName : '');
+  const [lastName, setEnteredLastName] = useState(user ? user.lastName : '');
+  const [mobile, setEnteredMobile] = useState(user ? user.cellPhone : '');
+  const [nameErrorMessage, setNameErrorMessage] = useState('');
+  const [mobileErrorMessage, setMobileErrorMessage] = useState('');
 
   const updateFirstName = function(newText: string) {
     setEnteredFirstName(newText);
@@ -94,10 +94,9 @@ export const SettingsScreen = ({ navigation }) => {
             <FormControl.Label>Mobile</FormControl.Label>
             <Input
               type="text"
-              keyboardType="phone-pad"
               value={mobile}
               onChangeText={updateMobile}
-              onBlur={validatePhone}/>
+              />
             <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
                 { mobileErrorMessage }
             </FormControl.ErrorMessage>

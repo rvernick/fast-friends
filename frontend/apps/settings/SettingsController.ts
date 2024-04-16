@@ -54,16 +54,7 @@ class FinishAccountController extends AppController {
       const parameters = {
         username: username,
       };
-      const result = get('auth/user', parameters, appContext.jwtToken);
-      console.log('json ' + result);
-      return result.then(resp => {
-        if (resp.ok) {
-          return resp.json()
-        } else {
-          console.log('Failed to get user:'+ resp.statusText);
-          return null;
-        }
-      });
+      return get('auth/user', parameters, appContext.jwtToken);
     } catch(e: any) {
       console.log(e.message);
       return null;
