@@ -15,7 +15,8 @@ export class AuthService {
   // need a test for when the username is nill or shouldn't be found
   async signIn(username: string, pass: string) {
     const user = await this.usersService.findUsername(username);
-    if (user == null || user?.password != pass) {
+
+    if (user == null || !user.comparePassword(pass)) {
       this.logger.log('info', 'sign in failed for: ' + username);
       throw new UnauthorizedException();
     }

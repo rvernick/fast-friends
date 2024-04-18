@@ -1,7 +1,7 @@
 import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User, createNewUser } from './user.entity';
 
 @Injectable()
 export class UsersService {
@@ -34,7 +34,7 @@ export class UsersService {
   }
 
   createUser(username: string, password: string) {
-    const newUser = new User(username, password);
+    const newUser = createNewUser(username, password);
     this.usersRepository.insert(newUser);
   }
 

@@ -6,6 +6,13 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { EncryptionTransformer } from 'typeorm-encrypted';
+import * as bcrypt from 'bcrypt';
+
+export const createNewUser = (username: string, password: string) => {
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  const newUser = new User(username, hashedPassword);
+  return newUser;
+};
 
 @Entity()
 export class User {
@@ -14,22 +21,16 @@ export class User {
     this.password = pass;
   }
 
+  comparePassword(candidatePassword: string): boolean {
+    return bcrypt.compareSync(candidatePassword, this.password);
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   username: string;
 
-  /*
-      transformer: new EncryptionTransformer({
-      key: Buffer.from(
-        't5blWVOiY2l10dqeTiUNgteRNPsB+Dk7Tqe8q9sANc0SDIQ/iP8u3tLZjYFILo24',
-        'base64',
-      ).toString(),
-      algorithm: 'aes-256-gcm',
-      ivLength: 16,
-    }),
-*/
   @Column({
     type: 'varchar',
     nullable: false,
