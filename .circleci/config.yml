@@ -14,15 +14,15 @@ jobs:
         pkg-manager: npm
     - run:
         name: Install
-        command: cd ~/fastfriends/backend; npm install
+        command: npm install
     - run:
         name: Test
-        command: cd ~/fastfriends/backend; npm run test
+        command: npm run test
 
   test-frontend:
     # Install node dependencies and run tests
     executor: node/default
-    working_directory: ~/frontend
+    working_directory: ~/fastfriends/frontend
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
     steps:
@@ -31,10 +31,10 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
-          command: ~/fastfriends/frontend; npm install
+          command: npm install
       - run:
           name: Run tests
-          command: ~/fastfriends/frontend; npm run test --ci --runInBand --reporters=default --reporters=jest-junit
+          command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
       - store_test_results:
           path: ./test-results/
   deploy:
