@@ -6,18 +6,18 @@ orbs:
 jobs:
   test-backend:
    executor: node/default
-   working_directory: ~/backend
+   working_directory: ~/fastfriends/backend
    steps:
     - checkout:
-        path: ~/
+        path: ~/fastfriends
     - node/install-packages:
         pkg-manager: npm
     - run:
         name: Install
-        command: cd ~/backend; npm install
+        command: cd ~/fastfriends/backend; npm install
     - run:
         name: Test
-        command: cd ~/backend; npm run test
+        command: cd ~/fastfriends/backend; npm run test
 
   test-frontend:
     # Install node dependencies and run tests
@@ -27,14 +27,14 @@ jobs:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
     steps:
       - checkout:
-          path: ~/
+          path: ~/fastfriends
       - node/install-packages:
           pkg-manager: npm
       - run:
-          command: ~/frontend; npm install
+          command: ~/fastfriends/frontend; npm install
       - run:
           name: Run tests
-          command: ~/frontend; npm run test --ci --runInBand --reporters=default --reporters=jest-junit
+          command: ~/fastfriends/frontend; npm run test --ci --runInBand --reporters=default --reporters=jest-junit
       - store_test_results:
           path: ./test-results/
   deploy:
