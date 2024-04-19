@@ -13,10 +13,10 @@ jobs:
         pkg-manager: npm
     - run:
         name: Install
-        command: npm install
+        command: cd ~/backend; npm install
     - run:
         name: Test
-        command: npm run test
+        command: cd ~/backend; npm run test
   test-frontend:
     # Install node dependencies and run tests
     executor: node/default
@@ -25,14 +25,14 @@ jobs:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
     steps:
       - checkout:
-          path: ~/project
+          path: ~/frontend
       - node/install-packages:
           pkg-manager: npm
       - run:
-          command: npm install
+          command: ~/frontend; npm install
       - run:
           name: Run tests
-          command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
+          command: ~/frontend; npm run test --ci --runInBand --reporters=default --reporters=jest-junit
       - store_test_results:
           path: ./test-results/
   deploy:
