@@ -5,17 +5,17 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Request,
   UseGuards,
+  Query,
 } from '@nestjs/common';
+
 import { AuthGuard, Public } from './auth.guard';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './create-user.dto';
 import { LoginUserDto } from './login-user.dto';
 import { ChangePasswordDto } from './change-password.dto';
 import { UpdateUserDto } from './update-user.dto';
-import { log } from 'console';
-
+import { User } from '../users/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -27,6 +27,13 @@ export class AuthController {
   signIn(@Body() signInDto: LoginUserDto): Promise<{ access_token: string; }> {
     console.log('signing in: ' + signInDto.username);
     return this.authService.signIn(signInDto.username, signInDto.password);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('user')
+  getUser(@Query('username') username: string): Promise<User | null> {
+    console.log('getting user:'+ username);
+    return this.authService.getUser(username);
   }
 
   @HttpCode(HttpStatus.OK)

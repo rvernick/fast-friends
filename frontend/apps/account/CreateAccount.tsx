@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { Box, Heading, VStack, FormControl, Input, Button, HStack, Center, WarningOutlineIcon } from "native-base";
 import { GlobalStateContext } from "../config/GlobalContext";
 import CreateAccountController from './CreateAccountController';
+import { login } from '../common/utils';
 
 export const CreateAccount = ({ navigation }) => {
   const { appContext } = useContext(GlobalStateContext);
@@ -12,6 +13,8 @@ export const CreateAccount = ({ navigation }) => {
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');
+
+  console.log('create account context: ' + appContext);
 
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
@@ -58,11 +61,24 @@ export const CreateAccount = ({ navigation }) => {
           if (msg) {
             setEmailErrorMessage(msg);
           } else {
-            navigation.replace('FinishAccount', {email: email});
+            attemptLogin(email, password);
           }
         })
     }
   };
+
+  const attemptLogin = function(email: string, password: string) {
+    console.log('attempt login ' + appContext);
+    const loginMessage = login(email, password, appContext);
+    loginMessage.then(msg => {
+      console.log('loginAttempt: ' + msg);
+      if (msg) {
+        setEmailErrorMessage(msg);
+      } else {
+//        navigation.replace('FinishAccount');
+      }
+    });
+  }
 
 
   return <Center w="100%">

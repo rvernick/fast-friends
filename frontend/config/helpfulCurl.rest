@@ -6,3 +6,22 @@ content-type: application/json
     "password": "st^pidUser"
 }
 
+###
+
+GET https://fast-friends.onrender.com/ HTTP/1.1
+content-type: application/json
+
+{
+
+}
+
+###
+
+GET https://fastfriends.biz/ HTTP/1.1
+content-type: application/json
+
+{
+
+}
+
+###

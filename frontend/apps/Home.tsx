@@ -8,7 +8,8 @@ const Tabs = createBottomTabNavigator();
 export function Home() {
   const { appContext } = useContext(GlobalStateContext);
 
-  return ( 
+  console.log('home context: ' + appContext);
+  return (
     <Tabs.Navigator>
       <Tabs.Screen name='Settings' component={SettingsStack}/>
     </Tabs.Navigator> );

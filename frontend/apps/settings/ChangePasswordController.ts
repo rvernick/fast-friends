@@ -1,5 +1,6 @@
 import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
+import { post } from "../common/http_utils";
 
 class ChangePasswordController extends AppController {
   constructor(appContext: AppContext) {
@@ -41,8 +42,8 @@ class ChangePasswordController extends AppController {
         oldPassword: oldPassword,
         newPassword: newPassword,
       });
-      
-      const response = await this.post('auth/changePassword', body);
+
+      const response = await post('auth/changePassword', body, this._appContext.jwtToken);
       if (response.ok) {
         return '';
       }

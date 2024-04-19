@@ -1,6 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,8 @@ export class AuthService {
   // need a test for when the username is nill or shouldn't be found
   async signIn(username: string, pass: string) {
     const user = await this.usersService.findUsername(username);
-    if (user == null || user?.password != pass) {
+
+    if (user == null || !user.comparePassword(pass)) {
       this.logger.log('info', 'sign in failed for: ' + username);
       throw new UnauthorizedException();
     }
@@ -22,6 +24,10 @@ export class AuthService {
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  async getUser(username: string): Promise<User | null> {
+    return await this.usersService.findUsername(username);
   }
 
   async createUser(username: string, pass: string) {

@@ -1,6 +1,6 @@
-import {strippedPhone, isValidPhone, isValidPassword } from '../utils';
+import {strippedPhone, isValidPhone, isValidPassword } from '../../common/utils';
 
-describe('FinishAccount Helper Methods', () => {
+describe('Phone Helper Methods', () => {
   it('stripped phone number', () => {
     expect(strippedPhone('1234567890')).toBe('1234567890');
     expect(strippedPhone('(123) 456-7890')).toBe('1234567890');

@@ -4,7 +4,8 @@ import { NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 import { GlobalStateContext } from "../config/GlobalContext";
 import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
-import { isValidPassword, invalidPasswordMessage } from "./utils";
+import { isValidPassword, invalidPasswordMessage } from "../common/utils";
+import { post } from '../common/http_utils';
 
 class CreateAccountController extends AppController {
   constructor(appContext: AppContext) {
@@ -45,7 +46,7 @@ class CreateAccountController extends AppController {
         password: password,
       });
 
-      const response = await this.post('auth/create', body);
+      const response = await post('auth/create', body, null);
       if (response.ok) {
         return '';
       }

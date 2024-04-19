@@ -39,6 +39,9 @@ services:
   rootDir: frontend
   buildCommand: npx expo export -p web
   staticPublishPath: dist
+  domains:
+    - fast-friends.biz
+    - www.fast-friends.biz
   routes:
     - type: redirect
       source: /*
