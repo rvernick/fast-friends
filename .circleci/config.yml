@@ -4,7 +4,20 @@ version: 2.1
 orbs:
   node: circleci/node@5
 jobs:
-  test-node:
+  test-backend:
+   executor: node/default
+   working_directory: ~/project/backend
+   steps:
+    - checkout
+    - node/install-packages:
+        pkg-manager: npm
+    - run:
+        name: Install
+        command: npm install
+    - run:
+        name: Test
+        command: npm run test
+  test-frontend:
     # Install node dependencies and run tests
     executor: node/default
     working_directory: ~/project/frontend
@@ -16,7 +29,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
-          command: npm install jest-junit
+          command: npm install
       - run:
           name: Run tests
           command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
@@ -37,7 +50,8 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - test-node
+      - test-backend
+      - test-frontend
     # - deploy:
     #     requires:
     #       - test-node
