@@ -1,4 +1,3 @@
-
 test_backend:
   image: node:latest
   stage: test
