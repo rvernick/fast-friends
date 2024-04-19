@@ -6,7 +6,7 @@ orbs:
 jobs:
   test-backend:
    executor: node/default
-   working_directory: ~/project/backend
+   working_directory: ~/backend
    steps:
     - checkout
     - node/install-packages:
@@ -20,7 +20,7 @@ jobs:
   test-frontend:
     # Install node dependencies and run tests
     executor: node/default
-    working_directory: ~/project/frontend
+    working_directory: ~/frontend
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
     steps:
