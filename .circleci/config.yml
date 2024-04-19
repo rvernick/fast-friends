@@ -4,11 +4,15 @@ version: 2.1
 orbs:
   node: circleci/node@5
 jobs:
+  start-job:
+  steps:
+    - checkout:
+      path: ~/
   test-backend:
    executor: node/default
    working_directory: ~/backend
    steps:
-    - checkout
+
     - node/install-packages:
         pkg-manager: npm
     - run:
@@ -24,8 +28,6 @@ jobs:
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
     steps:
-      - checkout:
-          path: ~/frontend
       - node/install-packages:
           pkg-manager: npm
       - run:
@@ -50,6 +52,7 @@ jobs:
 workflows:
   build-and-test:
     jobs:
+      - start-job
       - test-backend
       - test-frontend
     # - deploy:
