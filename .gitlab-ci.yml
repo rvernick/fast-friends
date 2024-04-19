@@ -1,34 +1,20 @@
 
-image: node:latest
-
-build-backend:
-  stage: build
-  script:
-    - cd backend
-    - npm install
-  after_script:
-    - cd ..
-
-test-backend:
+test_backend:
+  image: node:latest
   stage: test
   script:
     - cd backend
+    - npm install
     - npm run test
   after_script:
     - cd ..
 
-build-frontend:
-  stage: build
-  script:
-    - cd frontend
-    - npm install
-  after_script:
-    - cd ..
-
-test-frontend:
+test_frontend:
+  image: node:latest
   stage: test
   script:
     - cd frontend
+    - npm install
     - npm test
   after_script:
     - cd ..
