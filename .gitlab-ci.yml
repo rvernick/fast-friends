@@ -1,11 +1,5 @@
-image: node:latest
-
-cache:
-  paths:
-    - backend/node_modules/
-    - frontend/node_modules/
-
 test_backend:
+  image: node:latest
   stage: test
   script:
     - cd backend
@@ -14,15 +8,8 @@ test_backend:
   after_script:
     - cd ..
 
-build_frontend:
-  stage: build
-  script:
-    - cd frontend
-    - 
-  after_script:
-    - cd ..
-
 test_frontend:
+  image: node:latest
   stage: test
   script:
     - cd frontend
@@ -30,4 +17,3 @@ test_frontend:
     - npm test
   after_script:
     - cd ..
-    
