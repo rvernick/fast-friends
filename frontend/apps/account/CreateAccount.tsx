@@ -31,6 +31,7 @@ export const CreateAccount = ({ navigation }) => {
   const verifyEmail = function() {
     const msg = controller.verifyEmail(email);
     setEmailErrorMessage(msg);
+    console.log('CA: email error message: ' + msg);
     return msg.length == 0;
   }
   const verifyPassword = function() {
@@ -95,10 +96,16 @@ export const CreateAccount = ({ navigation }) => {
         </Heading>
 
         <VStack space={3} mt="5">
-          <FormControl isRequired isInvalid={emailErrorMessage.length > 0}>
+          <FormControl testID="emailForm" isRequired isInvalid={emailErrorMessage.length > 0}>
             <FormControl.Label>Email ID</FormControl.Label>
-            <Input onChangeText={updateEmail}/>
-            <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
+            <Input
+              onChangeText={updateEmail}
+              testID="emailInput"
+              onBlur={verifyEmail}
+              />
+            <FormControl.ErrorMessage
+              testID="emailError"
+              leftIcon={<WarningOutlineIcon size="xs" />}>
                 { emailErrorMessage }
               </FormControl.ErrorMessage>
           </FormControl>
@@ -110,6 +117,7 @@ export const CreateAccount = ({ navigation }) => {
               type="password"
               onChangeText={updatePassword}
               onBlur={verifyPassword}
+              testID="passwordInput"
               />
               <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
                 { passwordErrorMessage }
@@ -120,6 +128,7 @@ export const CreateAccount = ({ navigation }) => {
             <Input
               type="password"
               onChangeText={updatePasswordConfirm}
+              testID="confirmPasswordInput"
               />
               <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
               { passwordConfirmErrorMessage }
@@ -131,7 +140,8 @@ export const CreateAccount = ({ navigation }) => {
           <HStack mt="6" justifyContent="center">
             <Button
               variant={'ghost'}
-              onPress={() => navigation.replace('Login')}>
+              onPress={() => navigation.replace('Login')}
+              testID="createAccountButton">
                 I have an account
             </Button>
           </HStack>

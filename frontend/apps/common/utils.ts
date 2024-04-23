@@ -12,11 +12,25 @@ export const isValidPhone = (phone: string) => {
   return strippedPhone(phone).length == 10;
 };
 
+/**
+ * ensures password is at least 8 characters long
+ * has at least one special character
+ * and at least one lower and one upper case letter
+ */
 export const isValidPassword = (password: string) => {
-  console.log('ivp length ' + password.length);
-  return password.match(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/)
-  && password.length >= 8;
-};
+  return (
+    password.length >= 8 &&
+    password.match(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/) !=  null
+  );
+}
+
+export const isValidEmail = (email: string): boolean => {
+  return (
+    email.includes('@') &&
+    email.includes('.') &&
+    email.length > 4 &&
+    email.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/) != null);
+}
 
 export async function login(username: string, password: string, appContext: AppContext) {
   console.log('Logging in... ' + appContext);
