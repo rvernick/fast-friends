@@ -7,7 +7,7 @@ import AppController from "../config/AppController";
 import { strippedPhone } from "../common/utils";
 import { get, post } from "../common/http_utils";
 
-class FinishAccountController extends AppController {
+class SettingsController extends AppController {
   constructor(appContext: AppContext) {
     super(appContext);
   }
@@ -33,7 +33,7 @@ class FinishAccountController extends AppController {
         mobile: mobile,
       });
 
-      const response = await post('auth/update-user', body, this.appContext.jwtToken);
+      const response = await post('/auth/update-user', body, this.appContext.jwtToken);
       if (response.ok) {
         return '';
       }
@@ -54,7 +54,7 @@ class FinishAccountController extends AppController {
       const parameters = {
         username: username,
       };
-      return get('auth/user', parameters, appContext.jwtToken);
+      return get('/auth/user', parameters, appContext.jwtToken);
     } catch(e: any) {
       console.log(e.message);
       return null;
@@ -63,4 +63,4 @@ class FinishAccountController extends AppController {
 };
 
 
-export default FinishAccountController;
+export default SettingsController;

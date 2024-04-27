@@ -1,3 +1,4 @@
+import { baseUrl } from "../common/http_utils";
 
 class AppContext {
   private _jwtToken;
@@ -25,11 +26,12 @@ class AppContext {
   }
 
   baseUrl() {
-    if (process.env.NODE_ENV === 'production') {
-      return 'https://fast-friends-be.onrender.com/';
-    }
-    console.log('process.env.BASE_URL: ' + process.env.BASE_URL)
-    return process.env.BASE_URL || 'http://localhost:3000/';
+    return baseUrl();
+    // if (process.env.NODE_ENV === 'production') {
+    //   return 'https://fast-friends-be.onrender.com/';
+    // }
+    // console.log('process.env.BASE_URL: ' + process.env.BASE_URL)
+    // return process.env.BASE_URL || 'http://localhost:3000/';
   }
 
   isLoggedIn() {

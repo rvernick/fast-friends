@@ -8,17 +8,9 @@ class CreateAccountController extends AppController {
     super(appContext);
   }
 
-  public createAccount(username: string, password: string) {
-    this.verifyEmail(username);
+  public updatePassword(token: string, password: string) {
     this.verifyPassword(password);
-    return this.callCreateAccount(username, password);
-  }
-
-  verifyEmail(email: string) {
-    if (!isValidEmail(email)) {
-      return 'Please enter valid email';
-    }
-    return '';
+    return this.callUpdatePassword(token, password);
   }
 
   verifyPassword(password: string) {
@@ -35,14 +27,14 @@ class CreateAccountController extends AppController {
     return '';
   }
 
-  async callCreateAccount(username: string, password: string) {
+  async callUpdatePassword(token: string, password: string) {
     try {
       const body = JSON.stringify({
-        username: username,
+        token: token,
         password: password,
       });
 
-      const response = await post('/auth/create', body, null);
+      const response = await post('/auth/update-password', body, null);
       if (response.ok) {
         return '';
       }

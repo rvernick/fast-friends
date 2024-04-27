@@ -25,3 +25,26 @@ content-type: application/json
 }
 
 ###
+
+GET https://www.strava.com/api/v3/athlete
+Authorization: Bearer 3aaf866e4d84a05dbe11d27468cb825ab04abe64
+###
+
+https://www.strava.com/api/v3/athlete
+Authorization: Bearer 3aaf866e4d84a05dbe11d27468cb825ab04abe64
+
+###
+GET https://www.strava.com/api/v3/athlete/activities
+Authorization: Bearer 3aaf866e4d84a05dbe11d27468cb825ab04abe64
+
+###
+GET https://www.strava.com/api/v3/gear/10352896
+id: 10352896
+Authorization: Bearer 3aaf866e4d84a05dbe11d27468cb825ab04abe64
+
+### Refresh 7128
+POST https://www.strava.com/api/v3/oauth/token
+client_id: 125563
+client_secret: 22bbcc919c35ee62b0a8882def9503b459a39341
+refresh_token: f1bfa76918a3f57a612a6af6b358a6f0e5ef6316
+grant_type: refresh_token

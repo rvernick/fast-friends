@@ -4,11 +4,12 @@ export const baseUrl = () => {
     return 'https://fast-friends-be.onrender.com/';
   }
   console.log('process.env.BASE_URL: ' + process.env.BASE_URL)
-  return process.env.BASE_URL || 'http://localhost:3000/';
+  const result = process.env.BASE_URL || 'http://localhost:3000';
+  return ensureNoSlash(result);
 }
 
 export const get = (url: string, parameters, jwtToken) => {
-  const fullUrl = baseUrl() + ensureNoSlash(url) + '?' + new URLSearchParams(parameters).toString();
+  const fullUrl = baseUrl() + url + '?' + new URLSearchParams(parameters).toString();
   console.log('fullUrl: ' + fullUrl);
 
   return fetch(fullUrl, {

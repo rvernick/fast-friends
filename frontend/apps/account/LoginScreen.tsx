@@ -82,10 +82,10 @@ export const LoginScreen = ({ navigation }) => {
               { loginErrorMessage }
             </FormControl.ErrorMessage>
             <Link _text={{
-            fontSize: "xs",
-            fontWeight: "500",
-            color: "indigo.500"
-          }} alignSelf="flex-end" mt="1">
+              fontSize: "xs",
+              fontWeight: "500",
+              color: "indigo.500"
+            }} alignSelf="flex-end" mt="1" onPress={() => navigation.replace("ResetPassword")}>
               Forget Password?
             </Link>
           </FormControl>

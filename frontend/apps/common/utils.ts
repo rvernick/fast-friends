@@ -40,7 +40,7 @@ export async function login(username: string, password: string, appContext: AppC
     username: username,
     password: password,
   });
-  const response = post('auth/login', args, appContext.jwtToken);
+  const response = post('/auth/login', args, appContext.jwtToken);
   return response
     .then(resp => {
       if (resp.ok) {

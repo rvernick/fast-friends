@@ -72,6 +72,16 @@ export class AuthController {
     return 'Running';
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Get('strava-callback')
+  stravaCallback(@Query('code') code: string, @Query('state') state: string) {
+    console.log("Code: " + code);
+    console.log("State: " + state);
+    return 'Running';
+  }
+
+
   // @UseGuards(AuthGuard)
   // @Get('profile')
   // getProfile(@Request() req) {

@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GlobalStateContext } from './config/GlobalContext';
 import { SettingsStack } from './settings/SettingsStack';
+import { StravaReplyScreen } from './settings/StravaReplyScreen';
 
 const Tabs = createBottomTabNavigator();
 
@@ -12,6 +13,7 @@ export function Home() {
   return (
     <Tabs.Navigator>
       <Tabs.Screen name='Settings' component={SettingsStack}/>
+      <Tabs.Screen name='StravaReply' component={StravaReplyScreen}/>
     </Tabs.Navigator> );
 }
 

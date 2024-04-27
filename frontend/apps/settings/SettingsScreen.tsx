@@ -4,6 +4,7 @@ import { GlobalStateContext } from "../config/GlobalContext";
 import SettingsController from "./SettingsController";
 import { isValidPhone } from '../common/utils';
 import { useQuery, useQueryClient } from'@tanstack/react-query';
+import { StravaComponent } from './StravaComponent';
 
 export const SettingsScreen = ({ navigation, route }) => {
   const { appContext } = useContext(GlobalStateContext);
@@ -67,6 +68,7 @@ export const SettingsScreen = ({ navigation, route }) => {
         </Heading>
 
         <VStack space={3} mt="5">
+          <StravaComponent user={user} />
           <FormControl isReadOnly={true} isDisabled={true}>
             <FormControl.Label>Email ID</FormControl.Label>
             <Input isReadOnly={true}

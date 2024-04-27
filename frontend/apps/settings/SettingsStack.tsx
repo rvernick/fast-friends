@@ -4,6 +4,7 @@ import { GlobalStateContext } from '../config/GlobalContext';
 import { SettingsScreen } from './SettingsScreen';
 import { ChangePassword } from './ChangePassword';
 import { LoadUserScreen } from './LoadUserScreen';
+import { StravaReplyScreen } from './StravaReplyScreen';
 
 const Stack = createNativeStackNavigator();
 
