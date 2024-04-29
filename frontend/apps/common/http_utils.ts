@@ -8,20 +8,24 @@ export const baseUrl = () => {
   return ensureNoSlash(result);
 }
 
-export const get = (url: string, parameters, jwtToken) => {
+export const get = async (url: string, parameters: any, jwtTokenPromise: Promise<any>) => {
+  var jwtToken = null;
+  if (jwtTokenPromise != null) {
+    jwtToken = await jwtTokenPromise;
+  }
   const fullUrl = baseUrl() + url + '?' + new URLSearchParams(parameters).toString();
   console.log('fullUrl: ' + fullUrl);
-
+  console.log('jwtToken ' + jwtToken);
   return fetch(fullUrl, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer '+ jwtToken,
+      'Authorization': 'Bearer '+ jwtToken.access_token,
     },
   })
-   .then((res) => res.json())
-   .catch((err) => console.log(err));
-}
+  .then((res) => res.json())
+  .catch((err) => console.log(err));
+};
 
 function ensureNoSlash(path: string) {
   return path.endsWith('/')? path.slice(0, -1) : path;
@@ -35,11 +39,15 @@ function objToQueryString(obj) {
   return keyValuePairs.join('&');
 }
 
-export const post = (endpoint: string, body: Object, jwtToken) => {
-  return postExternal(baseUrl(), endpoint, body, jwtToken);
+export const post = (endpoint: string, body: Object, jwtTokenPromise: Promise<any>) => {
+  return postExternal(baseUrl(), endpoint, body, jwtTokenPromise);
 };
 
-export const postExternal = (urlBase: string, endpoint: string, args: Object, jwtToken) => {
+export const postExternal = async (urlBase: string, endpoint: string, args: Object, jwtTokenPromise: Promise<any>) => {
+  var jwtToken = null;
+  if (jwtTokenPromise != null) {
+    jwtToken = await jwtTokenPromise;
+  }
   const url = urlBase + endpoint;
   const body = JSON.stringify(args);
   console.log('Posting: ' + url);
@@ -47,7 +55,7 @@ export const postExternal = (urlBase: string, endpoint: string, args: Object, jw
     'Content-Type': 'application/json',
   };
   if (jwtToken) {
-    headers['Authorization'] = 'Bearer '+ jwtToken;
+    headers['Authorization'] = 'Bearer '+ jwtToken.access_token;
   }
   return fetch(url, {
     method: 'POST',

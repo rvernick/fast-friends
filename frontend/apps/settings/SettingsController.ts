@@ -33,7 +33,7 @@ class SettingsController extends AppController {
         mobile: mobile,
       };
 
-      const response = await post('/auth/update-user', body, this.appContext.jwtToken);
+      const response = await post('/auth/update-user', body, this.appContext.getJwtTokenPromise());
       if (response.ok) {
         return '';
       }
@@ -47,14 +47,14 @@ class SettingsController extends AppController {
   }
 
   getUser = (username: string, appContext: AppContext): Promise<Object>  => {
-    console.log('getting user:'+ username);
+    console.log('getting user:' + username);
     console.log(appContext);
     console.log(appContext.getJwtToken());
     try {
       const parameters = {
         username: username,
       };
-      return get('/auth/user', parameters, appContext.getJwtToken());
+      return get('/auth/user', parameters, appContext.getJwtTokenPromise());
     } catch(e: any) {
       console.log(e.message);
       return null;

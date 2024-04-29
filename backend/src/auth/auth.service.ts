@@ -3,6 +3,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../users/user.entity';
 import { UpdateUserDto } from './update-user.dto';
+import { UpdateStravaDto } from './update-strava.dto';
 
 @Injectable()
 export class AuthService {
@@ -63,9 +64,28 @@ export class AuthService {
       updateUserDto.firstName,
       updateUserDto.lastName,
       updateUserDto.mobile,
-      updateUserDto.stravaCode,
-      updateUserDto.stravaAccessToken,
-      updateUserDto.stravaRefreshToken,
+      null,
+      null,
+      null,
+    );
+  }
+  
+  async updateStrava(updateStravaDto: UpdateStravaDto) {
+
+    const username = updateStravaDto.username;
+    const user = await this.usersService.findUsername(username);
+    if (user == null) {
+      this.logger.log('info', 'failed update user attempt:'+ username);
+      throw new UnauthorizedException();
+    }
+    this.usersService.updateUser(
+      user,
+      null,
+      null,
+      null,
+      updateStravaDto.stravaCode,
+      updateStravaDto.stravaRefreshToken,
+      updateStravaDto.stravaAccessToken,
     );
   }
 }

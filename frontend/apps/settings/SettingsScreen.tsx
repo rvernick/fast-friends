@@ -9,7 +9,7 @@ import { StravaComponent } from './StravaComponent';
 export const SettingsScreen = ({ navigation, route }) => {
   const { appContext } = useContext(GlobalStateContext);
   const controller = new SettingsController(appContext);
-  const email = appContext.email;
+  const email = appContext.getEmail();
   const user = route.params.user;
 
   const [firstName, setEnteredFirstName] = useState(user ? user.firstName : '');
@@ -48,8 +48,6 @@ export const SettingsScreen = ({ navigation, route }) => {
       console.log('setting names ' + firstName +'' + lastName +'' + msg);
         if (msg) {
           setNameErrorMessage(msg);
-        } else {
-          navigation.replace('Home');
         }
       })
   };
@@ -73,7 +71,7 @@ export const SettingsScreen = ({ navigation, route }) => {
             <FormControl.Label>Email ID</FormControl.Label>
             <Input isReadOnly={true}
               type="text"
-              placeholder={appContext.email}/>
+              placeholder={appContext.getEmail()}/>
           </FormControl>
           <FormControl isRequired>
             <FormControl.Label>First Name</FormControl.Label>

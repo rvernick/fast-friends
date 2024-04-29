@@ -58,7 +58,7 @@ class StravaController extends AppController {
         stravaCode: stravaCode,
       };
 
-      const response = await post('/auth/update-strava', body, this.appContext.getJwtToken());
+      const response = await post('/auth/update-strava', body, this.appContext.getJwtTokenPromise());
       if (response.ok) {
         return '';
       }
@@ -84,7 +84,7 @@ class StravaController extends AppController {
         mobile: mobile,
       };
 
-      const response = await post('/auth/update-user', body, this.appContext.getJwtToken());
+      const response = await post('/auth/update-user', body, this.appContext.getJwtTokenPromise());
       if (response.ok) {
         return '';
       }

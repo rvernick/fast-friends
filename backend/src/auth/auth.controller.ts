@@ -15,6 +15,7 @@ import { CreateUserDto } from './create-user.dto';
 import { LoginUserDto } from './login-user.dto';
 import { ChangePasswordDto } from './change-password.dto';
 import { UpdateUserDto } from './update-user.dto';
+import { UpdateStravaDto } from './update-strava.dto';
 import { User } from '../users/user.entity';
 
 @Controller('auth')
@@ -72,8 +73,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Public()
   @Post('update-strava')
-  stravaCallback(@Body() UpdateUserDto) {
-    return this.authService.updateUser(UpdateUserDto);
+  stravaCallback(@Body() updateStravaDto: UpdateStravaDto) {
+    return this.authService.updateStrava(updateStravaDto);
   }
 
 

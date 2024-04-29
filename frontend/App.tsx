@@ -12,6 +12,7 @@ const config = {
   screens: {
     NewPasswordOnReset: 'new-password-on-reset',
     StravaReply: 'strava-reply',
+    Settings: 'Settings',
     NotFound: '*',
   },
 };

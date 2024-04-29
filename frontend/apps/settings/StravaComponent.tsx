@@ -6,7 +6,7 @@ import StravaController from "./StravaController";
 export const StravaComponent = ({ user }) => {
   const { appContext } = useContext(GlobalStateContext);
   const controller = new StravaController(appContext);
-  const email = appContext.email;
+  const email = appContext.getEmail();
 
   if (user.stravaId == null) {
     return <Button onPress={ () => controller.linkToStrava(user, appContext) } mt="2" colorScheme="indigo">

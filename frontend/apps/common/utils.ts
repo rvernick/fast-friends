@@ -34,7 +34,7 @@ export const isValidEmail = (email: string): boolean => {
 
 export async function login(username: string, password: string, appContext: AppContext) {
   console.log('Logging in... ' + appContext);
-  console.log('Logging in... ' + appContext.email);
+  console.log('Logging in... ' + appContext.getEmail());
 
   const args = {
     username: username,
@@ -51,9 +51,9 @@ export async function login(username: string, password: string, appContext: AppC
         resp.json().then(body => {
           console.log('setting appContext.jwtToken to:' + body);
           console.log('body ' + body.access_token);
-          appContext.jwtToken = body.access_token;
+          appContext.jwtToken = body;
           console.log('setting appContext.email to:'+ username);
-          appContext.email = username;
+          appContext.setEmail(username);
           console.log('checking is logged in');
           console.log('Should be logged in: ' + appContext.isLoggedIn())
           return '';

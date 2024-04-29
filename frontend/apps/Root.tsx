@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Home } from './Home';
 import { LoginScreen } from './account/LoginScreen';
@@ -19,6 +19,26 @@ export function Root() {
     setIsLoggedIn(val)
   }
 
+  useEffect(() => {
+    appContext.waitIsLoggedIn()
+      .then((wasLoggedIn) => {
+        if (wasLoggedIn) {
+          if (!isLoggedIn) {
+            console.log('is logged in');
+            loggedInState(true);
+          }
+        } else {
+          if (isLoggedIn) {
+            console.log('is not logged in');
+            loggedInState(false);
+          }
+        }
+      })
+      .catch((err) => {
+        console.log('login monitor error: ' + err);
+      });
+  });
+
   if (isLoggedIn) {
     return (<Home/>);
   } else {
@@ -30,7 +50,6 @@ export function Root() {
         <Stack.Screen name="CreateAccount" component={CreateAccount} />
         <Stack.Screen name="ResetPassword" component={PasswordReset} />
         <Stack.Screen name="NewPasswordOnReset" component={NewPasswordOnReset} />
-        <Stack.Screen name='StravaReply' component={StravaReplyScreen}/>
         <Stack.Screen name='NotFound' component={NotFoundScreen}/>
       </Stack.Navigator>
     )
