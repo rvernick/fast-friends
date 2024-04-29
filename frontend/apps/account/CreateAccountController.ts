@@ -37,10 +37,10 @@ class CreateAccountController extends AppController {
 
   async callCreateAccount(username: string, password: string) {
     try {
-      const body = JSON.stringify({
+      const body = {
         username: username,
         password: password,
-      });
+      };
 
       const response = await post('/auth/create', body, null);
       if (response.ok) {

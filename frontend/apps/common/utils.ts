@@ -36,11 +36,11 @@ export async function login(username: string, password: string, appContext: AppC
   console.log('Logging in... ' + appContext);
   console.log('Logging in... ' + appContext.email);
 
-  const args = JSON.stringify({
+  const args = {
     username: username,
     password: password,
-  });
-  const response = post('/auth/login', args, appContext.jwtToken);
+  };
+  const response = post('/auth/login', args, appContext.getJwtToken());
   return response
     .then(resp => {
       if (resp.ok) {
@@ -51,7 +51,7 @@ export async function login(username: string, password: string, appContext: AppC
         resp.json().then(body => {
           console.log('setting appContext.jwtToken to:' + body);
           console.log('body ' + body.access_token);
-          appContext.jwtToken = body;
+          appContext.jwtToken = body.access_token;
           console.log('setting appContext.email to:'+ username);
           appContext.email = username;
           console.log('checking is logged in');

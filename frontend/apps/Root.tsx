@@ -14,12 +14,19 @@ const Stack = createNativeStackNavigator();
 export function Root() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { appContext } = useContext(GlobalStateContext);
-  appContext.isLoggedInWatcher(setIsLoggedIn);
 
-  if (!isLoggedIn) {
+  const loggedInState = (val) => {
+    setIsLoggedIn(val)
+  }
+
+  if (isLoggedIn) {
+    return (<Home/>);
+  } else {
     return (
       <Stack.Navigator>
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Login">
+          {(props) => <LoginScreen  {...props} loggedInMonitor={loggedInState} />}
+        </Stack.Screen>
         <Stack.Screen name="CreateAccount" component={CreateAccount} />
         <Stack.Screen name="ResetPassword" component={PasswordReset} />
         <Stack.Screen name="NewPasswordOnReset" component={NewPasswordOnReset} />
@@ -28,5 +35,4 @@ export function Root() {
       </Stack.Navigator>
     )
   }
-  return ( <Home/> );
 };

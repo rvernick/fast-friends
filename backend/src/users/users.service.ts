@@ -43,10 +43,20 @@ export class UsersService {
     this.usersRepository.save(user);
   }
 
-  updateUser(user: User, firstName: string, lastName: string, mobilePhone: string) {
+  updateUser(
+      user: User,
+      firstName: string,
+      lastName: string,
+      mobilePhone: string,
+      stravaCode: string,
+      stravaRefreshToken: string,
+      stravaAccessToken: string) {
     if (firstName!= null) user.firstName = firstName;
     if (lastName!= null) user.lastName = lastName;
     if (mobilePhone!= null) user.cellPhone = mobilePhone;
+    if (stravaCode!= null) user.stravaCode = stravaCode;
+    if (stravaRefreshToken!= null) user.stravaRefreshToken = stravaRefreshToken;
+    if (stravaAccessToken!= null) user.stravaAccessToken = stravaAccessToken;
     this.usersRepository.save(user);
   }
 

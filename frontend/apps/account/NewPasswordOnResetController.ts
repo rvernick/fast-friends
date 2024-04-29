@@ -29,10 +29,10 @@ class CreateAccountController extends AppController {
 
   async callUpdatePassword(token: string, password: string) {
     try {
-      const body = JSON.stringify({
+      const body = {
         token: token,
         password: password,
-      });
+      };
 
       const response = await post('/auth/update-password', body, null);
       if (response.ok) {

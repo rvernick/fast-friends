@@ -37,13 +37,13 @@ class ChangePasswordController extends AppController {
 
   async callChangePassword(username: string, oldPassword: string, newPassword: string) {
     try {
-      const body = JSON.stringify({
+      const body = {
         username: username,
         oldPassword: oldPassword,
         newPassword: newPassword,
-      });
+      };
 
-      const response = await post('/auth/changePassword', body, this._appContext.jwtToken);
+      const response = await post('/auth/changePassword', body, this._appContext.getJwtToken());
       if (response.ok) {
         return '';
       }

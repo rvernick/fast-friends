@@ -58,10 +58,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Post('update-user')
   updateUser(@Body() updateUserDto: UpdateUserDto) {
-    return this.authService.updateUser(updateUserDto.username,
-      updateUserDto.firstName,
-      updateUserDto.lastName,
-      updateUserDto.mobile);
+    return this.authService.updateUser(updateUserDto);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -74,11 +71,9 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Public()
-  @Get('strava-callback')
-  stravaCallback(@Query('code') code: string, @Query('state') state: string) {
-    console.log("Code: " + code);
-    console.log("State: " + state);
-    return 'Running';
+  @Post('update-strava')
+  stravaCallback(@Body() UpdateUserDto) {
+    return this.authService.updateUser(UpdateUserDto);
   }
 
 

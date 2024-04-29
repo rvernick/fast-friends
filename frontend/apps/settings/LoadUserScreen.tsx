@@ -16,10 +16,11 @@ export const LoadUserScreen = ({ navigation }) => {
   })
 
   useEffect(() => {
+    console.log('load user screen' + status + data);
     if (status === 'success' && data) {
       navigation.replace('SettingsScreen', {user: data})
     }
-  }, [status]);
+  });
 
   if (status === 'error') {
     return (

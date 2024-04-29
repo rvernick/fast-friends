@@ -5,7 +5,7 @@ import LoginController from "./LoginController";
 import { GlobalStateContext } from "../config/GlobalContext";
 import { login } from '../common/utils';
 
-export const LoginScreen = ({ navigation }) => {
+export const LoginScreen = ({ navigation, loggedInMonitor }) => {
   const { appContext } = useContext(GlobalStateContext);
   const controller = new LoginController(appContext);
 
@@ -42,9 +42,11 @@ export const LoginScreen = ({ navigation }) => {
         console.log('loginAttempt: ' + msg);
         if (msg) {
           setLoginErrorMessage(msg);
+          loggedInMonitor(false);
         } else {
           console.log('login successful');
-/*          // navigation.replace('Home'); */
+          loggedInMonitor(true);
+          navigation.replace('Home');
         }
       })
       .catch(error => {

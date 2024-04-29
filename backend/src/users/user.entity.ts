@@ -54,6 +54,25 @@ export class User {
   })
   cellPhone: string;
 
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  stravaCode: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  stravaRefreshToken: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  stravaAccessToken: string;
+
+
   @Column({ default: true })
   isActive: boolean;
 

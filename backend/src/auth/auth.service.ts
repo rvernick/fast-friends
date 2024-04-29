@@ -2,6 +2,7 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../users/user.entity';
+import { UpdateUserDto } from './update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -49,16 +50,22 @@ export class AuthService {
     this.usersService.updatePassword(user, newPassword);
   }
 
-  async updateUser(username: string,
-    firstName: string,
-    lastName: string,
-    mobile: string) {
+  async updateUser(updateUserDto: UpdateUserDto) {
 
+    const username = updateUserDto.username;
     const user = await this.usersService.findUsername(username);
     if (user == null) {
       this.logger.log('info', 'failed update user attempt:'+ username);
       throw new UnauthorizedException();
     }
-    this.usersService.updateUser(user, firstName, lastName, mobile);
+    this.usersService.updateUser(
+      user,
+      updateUserDto.firstName,
+      updateUserDto.lastName,
+      updateUserDto.mobile,
+      updateUserDto.stravaCode,
+      updateUserDto.stravaAccessToken,
+      updateUserDto.stravaRefreshToken,
+    );
   }
 }

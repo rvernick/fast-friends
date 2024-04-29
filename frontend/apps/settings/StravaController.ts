@@ -2,12 +2,100 @@ import { Platform } from "react-native";
 import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
 import { authorize } from 'react-native-app-auth';
-import {} from "../common/http_utils";
+import { post, postExternal } from "../common/http_utils";
+import { stravaBase, stravaClientId, stravaClientSecret } from "./utils";
 
 class StravaController extends AppController {
   constructor(appContext: AppContext) {
     super(appContext);
   }
+
+  async updateStravaCode(appContext, stravaCode: string) {
+    this.saveStravaCode(appContext, stravaCode);
+    this.doTokenExchange(appContext, stravaCode);
+  }
+
+  // https://developers.strava.com/docs/authentication/#tokenexchange
+  // {"token_type":"Bearer","expires_at":1714369868,"expires_in":21600,
+  // "refresh_token":"8e9140f742b978ba7a361cc22b71adcc0d1b6a4e",
+  // "access_token":"9b8593e15c0fffe1470a5e6f6b0014b1411273b8",
+  // "athlete":{"id":7128,"username":"rvernick","resource_state":2,
+  // "firstname":"Russell","lastname":"Vernick","bio":"","city":"San Francisco",
+  // "state":"CA","country":"United States","sex":"M","premium":true,
+  // "summit":true,"created_at":"2010-08-17T17:40:48Z",
+  // "updated_at":"2023-07-28T20:01:19Z","badge_type_id":1,"weight":74.8427,
+  // "profile_medium":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/medium.jpg","profile":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/large.jpg","friend":null,"follower":null}}
+  async doTokenExchange(appContext, stravaCode: string) {
+    const clientId = stravaClientId();
+    const clientSecret = stravaClientSecret();
+    const params = {
+      client_id: clientId,
+      client_secret: clientSecret,
+      code: stravaCode,
+      grant_type: 'authorization_code',
+    };
+
+    try {
+      const response = await postExternal(stravaBase(), '/oauth/token', params, null);
+      if (response.ok) {
+        const result = await response.json();
+        console.log(JSON.stringify(result));
+        return '';
+      } else {
+        return response.statusText;
+      }
+    } catch(e: any) {
+      console.log(e.message);
+      return e.message;
+    }
+  }
+
+  async saveStravaCode(appContext, stravaCode: string) {
+    const username = appContext.email;
+    try {
+      const body = {
+        username: username,
+        stravaCode: stravaCode,
+      };
+
+      const response = await post('/auth/update-strava', body, this.appContext.getJwtToken());
+      if (response.ok) {
+        return '';
+      }
+      const result = await response.json();
+      console.log('json'+ result.message);
+      return result.message;
+    } catch(e: any) {
+      console.log(e.message);
+      return 'Unable to Update Account';
+    };
+  };
+
+  async callUpdateAccount(username: string,
+    firstName: string,
+    lastName: string,
+    mobile: string) {
+
+    try {
+      const body = {
+        username: username,
+        firstName: firstName,
+        lastName: lastName,
+        mobile: mobile,
+      };
+
+      const response = await post('/auth/update-user', body, this.appContext.getJwtToken());
+      if (response.ok) {
+        return '';
+      }
+      const result = await response.json();
+      console.log('json ' + result.message);
+      return result.message;
+    } catch(e: any) {
+      console.log(e.message);
+      return 'Unable to Update Account';
+    }
+  };
 
   async linkToStrava(user, appContext) {
     console.log('Sending account to Strava for linking... ' + user);
@@ -30,10 +118,11 @@ class StravaController extends AppController {
    */
   async linkToStravaWeb(user, appContext) {
     const redirectUri = 'http://localhost:19000' + '/strava-reply';
+    const clientId = stravaClientId();
     console.log('redirect ' + redirectUri);
     console.log('base: ' + appContext.baseUrl());
     const paramsObj = {
-      client_id: '125563',
+      client_id:  clientId ,
       response_type: 'code',
       approval_prompt: 'force',
       scope: 'read_all' };
@@ -57,8 +146,9 @@ class StravaController extends AppController {
   }
 
   private stravaConstants() {
+    const stravaId = stravaClientId();
     return {
-      clientId: '125563',
+      clientId: stravaId,
       clientSecret: '22bbcc919c35ee62b0a8882def9503b459a39341',
       redirectUrl: 'http://localhost:19000/strava-reply',
       serviceConfiguration: {
@@ -71,10 +161,11 @@ class StravaController extends AppController {
   }
 
   async linkToStravaMobile(user, appContext) {
+    const stravaId = stravaClientId();
     console.log('Sending account to Strava for linking... ' + user);
     console.log(user.email);
     const config = {
-      clientId: '125563',
+      clientId: stravaId,
       clientSecret: '22bbcc919c35ee62b0a8882def9503b459a39341',
       redirectUrl: 'http://localhost:19000/strava-callback',
       serviceConfiguration: {

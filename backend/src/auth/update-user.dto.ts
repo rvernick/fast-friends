@@ -16,4 +16,13 @@ export class UpdateUserDto {
     {message: 'Phone number should be exactly 10 digits.'}
   )
   mobile: string;
+
+  @IsString()
+  stravaCode: string;
+
+  @IsString()
+  stravaAccessToken: string;
+
+  @IsString()
+  stravaRefreshToken: string;
 }

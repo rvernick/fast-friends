@@ -16,7 +16,7 @@ export const get = (url: string, parameters, jwtToken) => {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer '+ jwtToken.access_token,
+      'Authorization': 'Bearer '+ jwtToken,
     },
   })
    .then((res) => res.json())
@@ -35,18 +35,23 @@ function objToQueryString(obj) {
   return keyValuePairs.join('&');
 }
 
-export const post = (endpoint: string, body: string, jwtToken) => {
-  const url = baseUrl() + endpoint;
+export const post = (endpoint: string, body: Object, jwtToken) => {
+  return postExternal(baseUrl(), endpoint, body, jwtToken);
+};
+
+export const postExternal = (urlBase: string, endpoint: string, args: Object, jwtToken) => {
+  const url = urlBase + endpoint;
+  const body = JSON.stringify(args);
   console.log('Posting: ' + url);
   var headers = {
     'Content-Type': 'application/json',
   };
   if (jwtToken) {
-    headers['Authorization'] = 'Bearer '+ jwtToken.access_token;
+    headers['Authorization'] = 'Bearer '+ jwtToken;
   }
   return fetch(url, {
     method: 'POST',
     headers: headers,
     body: body
   });
-};
+}

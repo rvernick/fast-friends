@@ -7,6 +7,16 @@ export const StravaReplyScreen = ({ route, navigation }) => {
   const controller = new StravaController(appContext);
   const email = appContext.email;
 
+  console.log('email: ' + email);
+
+  if (route.params.error) {
+    return errorConnecting(route.params, navigation);
+  }
+
+  if (route.params.code) {
+    controller.updateStravaCode(appContext, route.params.code);
+  }
+  
   console.log('create account context: ' + appContext);
   console.log('route: ' + route);
   console.log('error: ' + route.params.error);
@@ -15,6 +25,9 @@ export const StravaReplyScreen = ({ route, navigation }) => {
   console.log('scope: ' + route.params.scope);
   console.log('code: ' + route.params.code);
 
+};
+
+const errorConnecting = function(route, navigation) {
   return <Center w="100%">
       <Box safeArea p="2" py="8" w="90%" maxW="290">
         <Heading size="lg" fontWeight="600" color="coolGray.800" _dark={{

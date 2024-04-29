@@ -1,11 +1,11 @@
 import { baseUrl } from "../common/http_utils";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class AppContext {
-  private _jwtToken;
-  private _isLoggedInWatcher;
   private _userEmail;
+  private settingJwtToken = false;
+  private _loggedInWatcher;
   constructor() {
-
   };
 
   public get email(): string {
@@ -16,32 +16,71 @@ class AppContext {
     this._userEmail = anEmail;
   }
 
-  public get jwtToken() {
-    return this._jwtToken;
+  public set loggedInWatcher(watcher: Function) {
+    this._loggedInWatcher = watcher;
   }
 
-  public set jwtToken(token) {
-    this._jwtToken = token;
-    this._isLoggedInWatcher(this.isLoggedIn());
+  public getJwtToken(): string {
+    const jwtToken = this.getJwtFromStorage();
+    this.checkJwtExpiration();
+    return jwtToken;
+  }
+
+  private async checkJwtExpiration() {
+    AsyncStorage.getItem('jwtExpiration')
+     .then((value) => {
+      if (value == null) { return; }
+      const expirationDate = new Date(value);
+      const now = new Date();
+      console.log('expirationDate: ' + expirationDate.toString());
+      console.log('now: ' + now.toString());
+      if (now > expirationDate) {
+        AsyncStorage.removeItem('jwtToken');
+        AsyncStorage.removeItem('jwtExpiration');
+      }
+    })
+  }
+
+  private getJwtFromStorage(): string {
+    AsyncStorage.getItem('jwtToken')
+      .then((value) => {
+        if (value!= null) {
+          this.settingJwtToken = false;
+        }
+        return value;
+      })
+      .catch((error) => {
+        console.log('error in jwt access: ' + error.message);
+        return null;
+      });
+    return null;
+  }
+
+  public set jwtToken(token: string) {
+    if (token != null) {
+      this.setJwtExpiration();
+    } else {
+      AsyncStorage.removeItem('jwtToken');
+    }
+    this.settingJwtToken = true;
+    console.log('setting jwtToken to:'+ token.toString());
+    AsyncStorage.setItem('jwtToken', token.toString());
+  }
+
+  setJwtExpiration() {
+    const now = new Date();
+    const fiveHoursInMilliseconds = 5*60*60*1000;
+    const expirationDate = new Date(now.getTime() + fiveHoursInMilliseconds);
+    console.log('setting expiration: ' + expirationDate.toString());
+    AsyncStorage.setItem('jwtExpiration', expirationDate.toString());
   }
 
   baseUrl() {
     return baseUrl();
-    // if (process.env.NODE_ENV === 'production') {
-    //   return 'https://fast-friends-be.onrender.com/';
-    // }
-    // console.log('process.env.BASE_URL: ' + process.env.BASE_URL)
-    // return process.env.BASE_URL || 'http://localhost:3000/';
   }
 
   isLoggedIn() {
-    console.log('isLogged in: ' + this._jwtToken);
-    console.log('isLogged in: ' + this._jwtToken != null);
-    return this._jwtToken != null;
-  }
-
-  isLoggedInWatcher(fuct) {
-    this._isLoggedInWatcher = fuct;
+    return this.settingJwtToken || this.getJwtFromStorage() != null;
   }
 };
 

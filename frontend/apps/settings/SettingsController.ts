@@ -26,12 +26,12 @@ class SettingsController extends AppController {
     mobile: string) {
 
     try {
-      const body = JSON.stringify({
+      const body = {
         username: username,
         firstName: firstName,
         lastName: lastName,
         mobile: mobile,
-      });
+      };
 
       const response = await post('/auth/update-user', body, this.appContext.jwtToken);
       if (response.ok) {
@@ -49,12 +49,12 @@ class SettingsController extends AppController {
   getUser = (username: string, appContext: AppContext): Promise<Object>  => {
     console.log('getting user:'+ username);
     console.log(appContext);
-    console.log(appContext.jwtToken);
+    console.log(appContext.getJwtToken());
     try {
       const parameters = {
         username: username,
       };
-      return get('/auth/user', parameters, appContext.jwtToken);
+      return get('/auth/user', parameters, appContext.getJwtToken());
     } catch(e: any) {
       console.log(e.message);
       return null;
