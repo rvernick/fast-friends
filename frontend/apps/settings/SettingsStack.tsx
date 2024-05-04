@@ -5,6 +5,7 @@ import { SettingsScreen } from './SettingsScreen';
 import { ChangePassword } from './ChangePassword';
 import { LoadUserScreen } from './LoadUserScreen';
 import { StravaReplyScreen } from './StravaReplyScreen';
+import BikeListScreen from '../strava/BikeListScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +16,7 @@ export function SettingsStack() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name='LoadUser' component={LoadUserScreen}/>
         <Stack.Screen name='SettingsScreen' component={SettingsScreen}/>
+        <Stack.Screen name='Bikes' component={BikeListScreen}/>
         <Stack.Screen name='ChangePassword' component={ChangePassword}/>
       </Stack.Navigator>
   );

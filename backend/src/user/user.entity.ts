@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { EncryptionTransformer } from 'typeorm-encrypted';
 import * as bcrypt from 'bcrypt';
+import { Bike } from './bike.entity';
 
 export const createNewUser = (username: string, password: string) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -28,7 +30,10 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    nullable: false,
+  })
   username: string;
 
   @Column({
@@ -72,6 +77,8 @@ export class User {
   })
   stravaAccessToken: string;
 
+  @OneToMany((type) => Bike, (bike) => bike.user)
+  bikes: Bike[];
 
   @Column({ default: true })
   isActive: boolean;

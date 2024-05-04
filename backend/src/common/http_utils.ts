@@ -1,22 +1,3 @@
-
-export const baseUrl = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return 'https://fast-friends-be.onrender.com/';
-  }
-  console.log('process.env.BASE_URL: ' + process.env.BASE_URL)
-  const result = process.env.BASE_URL || 'http://localhost:3000';
-  return ensureNoSlash(result);
-}
-
-export const getInternal = async (url: string, parameters: any, jwtTokenPromise: Promise<any>) => {
-  var jwtToken = null;
-  if (jwtTokenPromise != null) {
-    jwtToken = await jwtTokenPromise;
-  }
-  const fullUrl = baseUrl() + url;
-  return get(url, parameters, jwtToken.access_token);
-};
-
 export const get = (url: string, parameters: any, access_token: string) => {
   var fullUrl = url
   if (parameters != null && Object.keys(parameters).length > 0) {
@@ -46,10 +27,6 @@ function objToQueryString(obj) {
   }
   return keyValuePairs.join('&');
 }
-
-export const post = (endpoint: string, body: Object, jwtTokenPromise: Promise<any>) => {
-  return postExternal(baseUrl(), endpoint, body, jwtTokenPromise);
-};
 
 export const postExternal = async (urlBase: string, endpoint: string, args: Object, jwtTokenPromise: Promise<any>) => {
   var jwtToken = null;

@@ -5,7 +5,7 @@ import { GlobalStateContext } from "../config/GlobalContext";
 import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
 import { strippedPhone } from "../common/utils";
-import { get, post } from "../common/http_utils";
+import { getInternal, post } from "../common/http_utils";
 
 class SettingsController extends AppController {
   constructor(appContext: AppContext) {
@@ -54,7 +54,7 @@ class SettingsController extends AppController {
       const parameters = {
         username: username,
       };
-      return get('/auth/user', parameters, appContext.getJwtTokenPromise());
+      return getInternal('/auth/user', parameters, appContext.getJwtTokenPromise());
     } catch(e: any) {
       console.log(e.message);
       return null;

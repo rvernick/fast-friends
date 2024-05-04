@@ -15,7 +15,7 @@ export const StravaReplyScreen = ({ route, navigation }) => {
 
   if (route.params.code) {
     controller.updateStravaCode(appContext, route.params.code);
-    refresh();
+    // refresh();
   }
 
   console.log('create account context: ' + appContext);

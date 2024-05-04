@@ -3,7 +3,7 @@ import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
 import { authorize } from 'react-native-app-auth';
 import { post, postExternal } from "../common/http_utils";
-import { stravaBase, stravaClientId, stravaClientSecret } from "./utils";
+import { stravaBase, stravaClientId, stravaClientSecret } from "../strava/utils";
 
 class StravaController extends AppController {
   constructor(appContext: AppContext) {
@@ -12,8 +12,10 @@ class StravaController extends AppController {
 
   async updateStravaCode(appContext, stravaCode: string) {
     this.saveStravaCode(appContext, stravaCode);
-    this.doTokenExchange(appContext, stravaCode);
+    this.doTokenExchange(appContext, stravaCode)
+      .then((resultString) => {this.syncStravaInfo(appContext, stravaCode)});
   }
+
 
   // https://developers.strava.com/docs/authentication/#tokenexchange
   // {"token_type":"Bearer","expires_at":1714369868,"expires_in":21600,
@@ -40,6 +42,11 @@ class StravaController extends AppController {
       if (response.ok) {
         const result = await response.json();
         console.log(JSON.stringify(result));
+        appContext.put('stravaToken', result.access_token);
+        appContext.put('stravaRefreshToken', result.refresh_token);
+        appContext.put('stravaExpiresAt', result.expires_at);
+        appContext.put('stravaTokenType', result.token_type);
+        appContext.put('stravaAthlete', result.athlete.id);
         return '';
       } else {
         return response.statusText;
@@ -50,7 +57,28 @@ class StravaController extends AppController {
     }
   }
 
+  async syncStravaInfo(appContext, stravaCode: string) {
+    const username = appContext.email;
+    try {
+      const body = {
+        username: username,
+        stravaCode: stravaCode,
+        stravaToken: appContext.get('stravaToken'),
+        stravaTokenType: appContext.get('stravaTokenType'),
+        stravaAthlete: appContext.get('stravaAthlete'),
+      }
+      const response = await post('/user/sync-strava', body, this.appContext.getJwtTokenPromise());
+      if (response.ok) {
+        return '';
+      }
+    } catch(e: any) {
+      console.log(e.message);
+      return e.message;
+    }
+  }
+
   async saveStravaCode(appContext, stravaCode: string) {
+    appContext.put('stravaCode', stravaCode);
     const username = appContext.email;
     try {
       const body = {

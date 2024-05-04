@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../users/user.entity';
+import { User } from '../user/user.entity';
 import { UpdateUserDto } from './update-user.dto';
 import { UpdateStravaDto } from './update-strava.dto';
 
@@ -10,13 +10,13 @@ export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
-    private usersService: UsersService,
+    private userService: UserService,
     private jwtService: JwtService,
   ) {}
 
   // need a test for when the username is nill or shouldn't be found
   async signIn(username: string, pass: string) {
-    const user = await this.usersService.findUsername(username);
+    const user = await this.userService.findUsername(username);
 
     if (user == null || !user.comparePassword(pass)) {
       this.logger.log('info', 'sign in failed for: ' + username);
@@ -29,37 +29,37 @@ export class AuthService {
   }
 
   async getUser(username: string): Promise<User | null> {
-    return await this.usersService.findUsername(username);
+    return await this.userService.findUsername(username);
   }
 
   async createUser(username: string, pass: string) {
-    const user = await this.usersService.findUsername(username);
+    const user = await this.userService.findUsername(username);
     if (user != null) {
       this.logger.log('info', 'attempted to create duplicate: ' + username);
       throw new UnauthorizedException();
     }
-    this.usersService.createUser(username, pass);
+    this.userService.createUser(username, pass);
   }
 
   async changePassword(username: string, oldPassword: string, newPassword: string) {
-    const user = await this.usersService.findUsername(username);
+    const user = await this.userService.findUsername(username);
     if (user == null || user?.password != oldPassword) {
       this.logger.log('info', 'failed change password attempt: ' + username);
       throw new UnauthorizedException();
     }
     this.logger.log('info', 'password changed for: ' + username);
-    this.usersService.updatePassword(user, newPassword);
+    this.userService.updatePassword(user, newPassword);
   }
 
   async updateUser(updateUserDto: UpdateUserDto) {
 
     const username = updateUserDto.username;
-    const user = await this.usersService.findUsername(username);
+    const user = await this.userService.findUsername(username);
     if (user == null) {
       this.logger.log('info', 'failed update user attempt:'+ username);
       throw new UnauthorizedException();
     }
-    this.usersService.updateUser(
+    this.userService.updateUser(
       user,
       updateUserDto.firstName,
       updateUserDto.lastName,
@@ -69,16 +69,16 @@ export class AuthService {
       null,
     );
   }
-  
+
   async updateStrava(updateStravaDto: UpdateStravaDto) {
 
     const username = updateStravaDto.username;
-    const user = await this.usersService.findUsername(username);
+    const user = await this.userService.findUsername(username);
     if (user == null) {
       this.logger.log('info', 'failed update user attempt:'+ username);
       throw new UnauthorizedException();
     }
-    this.usersService.updateUser(
+    this.userService.updateUser(
       user,
       null,
       null,

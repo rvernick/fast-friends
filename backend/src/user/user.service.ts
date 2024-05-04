@@ -2,10 +2,12 @@ import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, createNewUser } from './user.entity';
+import { Bike } from './bike.entity';
+import { StravaUserDto } from './strava-user';
 
 @Injectable()
-export class UsersService {
-  private readonly logger = new Logger(UsersService.name);
+export class UserService {
+  private readonly logger = new Logger(UserService.name);
 
   constructor(
     @InjectRepository(User)
@@ -58,6 +60,48 @@ export class UsersService {
     if (stravaRefreshToken!= null) user.stravaRefreshToken = stravaRefreshToken;
     if (stravaAccessToken!= null) user.stravaAccessToken = stravaAccessToken;
     this.usersRepository.save(user);
+  }
+
+  getBikes(username: string): Promise<Bike[] | null> {
+    const userPromise = this.findUsername(username);
+    if (userPromise == null) return null;
+    return userPromise
+      .then((user: User) => {
+        return user.bikes;
+      })
+      .catch((e: any) => {
+        console.log(e.message);
+        return null;
+      });
+
+  }
+
+  syncStravaUser(stravaUserDto: StravaUserDto): Promise<User> {
+    const userPromise = this.findUsername(stravaUserDto.username);
+    if (userPromise == null) return null;
+    return userPromise
+      .then((user: User) => {
+        return syncUserToStrava(user, stravaUserDto);
+      })
+      .catch((e: any) => {
+        console.log(e.message);
+        return null;
+      });
+  }
+
+  private async syncUserToStrava(user: User, stravaUserDto: StravaUserDto): Promise<User> {
+    if (user.bikes != null && user.bikes.length > 0) {
+      return user;
+    }
+    const athlete = await getStravaAthlete(stravaUserDto.stravaAccessToken);
+    for (const bike of athlete.bikes) {
+
+    }
+    return user;
+  }
+
+  private async getStravaAthlete(stravaAccessToken: string): Promise<any> {
+    
   }
 
   async remove(id: number): Promise<void> {

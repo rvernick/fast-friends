@@ -16,7 +16,7 @@ import { LoginUserDto } from './login-user.dto';
 import { ChangePasswordDto } from './change-password.dto';
 import { UpdateUserDto } from './update-user.dto';
 import { UpdateStravaDto } from './update-strava.dto';
-import { User } from '../users/user.entity';
+import { User } from '../user/user.entity';
 
 @Controller('auth')
 export class AuthController {

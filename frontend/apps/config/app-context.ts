@@ -2,10 +2,9 @@ import { baseUrl } from "../common/http_utils";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class AppContext {
+  private hotStringCache = new Map<string, string>();
   private _jwtToken;
-  private _jwtExpiration;
   private _email;
-  private _loggedInWatcher;
   private _syncingJwtToken = true;
   private _syncingEmail = true;
 
@@ -13,6 +12,43 @@ class AppContext {
     this.syncEmail();
     this.syncJwtToken();
   };
+
+  public put(key: string, value: string) {
+    if (value == null) {
+      this.hotStringCache.delete(key);
+      return;
+    }
+    this.hotStringCache.set(key, value);
+    AsyncStorage.setItem(key,value);
+  }
+
+  public get(key: string) {
+    this.syncCache();
+    return this.hotStringCache.get(key);
+  }
+
+  private syncCache() {
+    AsyncStorage.getAllKeys()
+      .then((keys) => {
+        keys.forEach((key) => {
+          AsyncStorage.getItem(key)
+            .then((value) => {
+               this.hotStringCache.set(key, value);
+             })
+            .catch((error) => {
+               console.log(error);
+             });
+          })
+        for (let key of this.hotStringCache.keys()) {
+          if (!keys.includes(key)) {
+            this.hotStringCache.delete(key);
+          }
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   public getEmail(): string {
     this.syncEmail();
@@ -22,10 +58,6 @@ class AppContext {
   public setEmail(anEmail: string) {
     this._email = anEmail;
     AsyncStorage.setItem('email',anEmail);
-  }
-
-  public set loggedInWatcher(watcher: Function) {
-    this._loggedInWatcher = watcher;
   }
 
   public getJwtToken() {
@@ -57,16 +89,6 @@ class AppContext {
       })
       .catch((error) => {
         console.log('error getting email from storage:'+ error);
-      });
-  };
-
-  private syncJwtExpiration() {
-    AsyncStorage.getItem('jwtExpiration')
-      .then((value) => {
-        this._jwtExpiration = value;
-      })
-      .catch((error) => {
-        console.log('error getting jwtExpiration from storage:'+ error);
       });
   };
 
