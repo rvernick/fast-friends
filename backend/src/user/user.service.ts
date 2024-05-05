@@ -4,6 +4,9 @@ import { Repository } from 'typeorm';
 import { User, createNewUser } from './user.entity';
 import { Bike } from './bike.entity';
 import { StravaUserDto } from './strava-user';
+import { HttpService } from '@nestjs/axios';
+import { catchError, firstValueFrom } from 'rxjs';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class UserService {
@@ -12,6 +15,9 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(Bike)
+    private bikesRepository: Repository<Bike>,
+    private readonly httpService: HttpService,
   ) {}
 
   findAll(): Promise<User[]> {
@@ -81,7 +87,7 @@ export class UserService {
     if (userPromise == null) return null;
     return userPromise
       .then((user: User) => {
-        return syncUserToStrava(user, stravaUserDto);
+        return this.syncUserToStrava(user, stravaUserDto);
       })
       .catch((e: any) => {
         console.log(e.message);
@@ -93,18 +99,47 @@ export class UserService {
     if (user.bikes != null && user.bikes.length > 0) {
       return user;
     }
-    const athlete = await getStravaAthlete(stravaUserDto.stravaAccessToken);
+    const athlete = await this.getStravaAthlete(stravaUserDto.stravaToken);
+    this.logger.log('info', 'Syncing user:'+ JSON.stringify(user));
+    console.log(athlete);
     for (const bike of athlete.bikes) {
-
+      this.addStravaBike(user, bike);
     }
     return user;
   }
 
+  private addStravaBike(user: User, bike: any) {
+    const newBike = new Bike();
+    newBike.name = bike.name;
+    newBike.stravaId = bike.id;
+    newBike.type = bike.type;
+    newBike.isActive = true;
+    newBike.user = user;
+    user.addBike(newBike);
+    this.bikesRepository.save(newBike);
+    this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
+    console.log('created and added: ' + JSON.stringify(newBike));
+  }
+
   private async getStravaAthlete(stravaAccessToken: string): Promise<any> {
-    
+    const parameters = {
+      headers: {
+        Authorization: 'Bearer '+ stravaAccessToken,
+      },
+    }
+    const stravaCall = this.httpService.get('https://www.strava.com/api/v3/athlete', parameters);
+    const { data }  = await firstValueFrom(
+      stravaCall.pipe(
+        catchError((error: AxiosError) => {
+          console.log(error.response.data);
+          throw 'An error happened!';
+        }),
+      ),
+    );
+    return data;
   }
 
   async remove(id: number): Promise<void> {
-    await this.usersRepository.delete(id);
+    await this.usersRepository.softDelete(id);
   }
 }

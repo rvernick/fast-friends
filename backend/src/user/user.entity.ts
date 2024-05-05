@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { EncryptionTransformer } from 'typeorm-encrypted';
 import * as bcrypt from 'bcrypt';
@@ -77,15 +78,30 @@ export class User {
   })
   stravaAccessToken: string;
 
-  @OneToMany((type) => Bike, (bike) => bike.user)
+  @OneToMany((type) => Bike, (bike) => bike.user, {
+    eager: true,
+    cascade: true,
+  })
   bikes: Bike[];
 
-  @Column({ default: true })
-  isActive: boolean;
+  @DeleteDateColumn()
+  deletedOn: boolean;
 
   @CreateDateColumn()
   createdOn: Date;
 
   @UpdateDateColumn()
   updatedOn: Date;
+
+  getBikes(): Bike[] {
+    if (this.bikes == null) {
+      this.bikes = [];
+    }
+    return this.bikes.filter((bike) => bike.isActive === true);
+  }
+  addBike(bike: Bike) {
+    bike.user = this;
+    this.getBikes().push(bike);
+  }
+
 }

@@ -12,6 +12,7 @@ import {
 import { UserService } from './user.service';
 import { Bike } from './bike.entity';
 import { StravaUserDto } from './strava-user';
+import { User } from './user.entity';
 
 @Controller('user')
 export class UserController {
@@ -26,7 +27,7 @@ export class UserController {
 
   @HttpCode(HttpStatus.OK)
   @Post('sync-strava')
-  create(@Body() stravaUserDto: StravaUserDto): Promise<User> {
+  create(@Body() stravaUserDto: StravaUserDto): Promise<User | null> {
     return this.userService.syncStravaUser(stravaUserDto);
   }
 

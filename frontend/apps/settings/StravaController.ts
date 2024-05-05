@@ -41,7 +41,7 @@ class StravaController extends AppController {
       const response = await postExternal(stravaBase(), '/oauth/token', params, null);
       if (response.ok) {
         const result = await response.json();
-        console.log(JSON.stringify(result));
+        console.log('token exchange result: ' + JSON.stringify(result));
         appContext.put('stravaToken', result.access_token);
         appContext.put('stravaRefreshToken', result.refresh_token);
         appContext.put('stravaExpiresAt', result.expires_at);
@@ -58,7 +58,9 @@ class StravaController extends AppController {
   }
 
   async syncStravaInfo(appContext, stravaCode: string) {
-    const username = appContext.email;
+    console.log('syncStravaInfo');
+    const username = appContext.getEmail();
+    console.log('sync username:'+ username);
     try {
       const body = {
         username: username,
@@ -67,6 +69,7 @@ class StravaController extends AppController {
         stravaTokenType: appContext.get('stravaTokenType'),
         stravaAthlete: appContext.get('stravaAthlete'),
       }
+      console.log('sync body:'+ JSON.stringify(body));
       const response = await post('/user/sync-strava', body, this.appContext.getJwtTokenPromise());
       if (response.ok) {
         return '';
@@ -153,7 +156,7 @@ class StravaController extends AppController {
       client_id:  clientId ,
       response_type: 'code',
       approval_prompt: 'force',
-      scope: 'read_all' };
+      scope: 'read_all,profile:read_all,activity:read' };
     const searchParams = new URLSearchParams(paramsObj);
     const url = 'https://www.strava.com/oauth/authorize?'
       + searchParams.toString()
@@ -201,7 +204,7 @@ class StravaController extends AppController {
         tokenEndpoint:
           'https://www.strava.com/oauth/token?client_id=125563&client_secret=22bbcc919c35ee62b0a8882def9503b459a39341',
       },
-      scopes: ['activity:read_all'],
+      scopes: ['read_all,profile:read_all,activity:read_all'],
     };
 
     try {

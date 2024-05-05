@@ -3,8 +3,8 @@ export const baseUrl = () => {
   if (process.env.NODE_ENV === 'production') {
     return 'https://fast-friends-be.onrender.com/';
   }
-  console.log('process.env.BASE_URL: ' + process.env.BASE_URL)
   const result = process.env.BASE_URL || 'http://localhost:3000';
+  console.log(result + ' from process.env.BASE_URL: ' + process.env.BASE_URL)
   return ensureNoSlash(result);
 }
 
@@ -13,8 +13,9 @@ export const getInternal = async (url: string, parameters: any, jwtTokenPromise:
   if (jwtTokenPromise != null) {
     jwtToken = await jwtTokenPromise;
   }
+  console.log('getInternal url: ' + url);
   const fullUrl = baseUrl() + url;
-  return get(url, parameters, jwtToken.access_token);
+  return get(fullUrl, parameters, jwtToken.access_token);
 };
 
 export const get = (url: string, parameters: any, access_token: string) => {
@@ -58,7 +59,7 @@ export const postExternal = async (urlBase: string, endpoint: string, args: Obje
   }
   const url = urlBase + endpoint;
   const body = JSON.stringify(args);
-  console.log('Posting: ' + url);
+  console.log('Posting: ' + url + '\n' + body);
   var headers = {
     'Content-Type': 'application/json',
   };

@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator'
+import { IsInt, IsString } from 'class-validator'
 
 export class StravaUserDto {
   @IsString()
@@ -13,6 +13,6 @@ export class StravaUserDto {
   @IsString()
   stravaTokenType: string;
 
-  @IsString()
-  stravaAthlete: string;
+  @IsInt()
+  stravaAthlete: number;
 }

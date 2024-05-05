@@ -16,7 +16,7 @@ export class Bike {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne((type) => User)
+  @ManyToOne((type) => User, { nullable: false, cascade: false })
   user: User;
 
   @Column({
