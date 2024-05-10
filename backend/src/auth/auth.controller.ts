@@ -15,7 +15,8 @@ import { CreateUserDto } from './create-user.dto';
 import { LoginUserDto } from './login-user.dto';
 import { ChangePasswordDto } from './change-password.dto';
 import { UpdateUserDto } from './update-user.dto';
-import { User } from '../users/user.entity';
+import { UpdateStravaDto } from './update-strava.dto';
+import { User } from '../user/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -58,10 +59,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Post('update-user')
   updateUser(@Body() updateUserDto: UpdateUserDto) {
-    return this.authService.updateUser(updateUserDto.username,
-      updateUserDto.firstName,
-      updateUserDto.lastName,
-      updateUserDto.mobile);
+    return this.authService.updateUser(updateUserDto);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -71,6 +69,14 @@ export class AuthController {
     console.log("Health check running.  Returning okay.")
     return 'Running';
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Post('update-strava')
+  stravaCallback(@Body() updateStravaDto: UpdateStravaDto) {
+    return this.authService.updateStrava(updateStravaDto);
+  }
+
 
   // @UseGuards(AuthGuard)
   // @Get('profile')

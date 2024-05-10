@@ -1,21 +1,22 @@
 import React, { useContext, useState } from "react";
-import { Box, Heading, VStack, FormControl, Input, Button, HStack, Center, WarningOutlineIcon } from "native-base";
+import { Box, Heading, VStack, FormControl, Input, Button, Center, WarningOutlineIcon } from "native-base";
 import { GlobalStateContext } from "../config/GlobalContext";
 import SettingsController from "./SettingsController";
 import { isValidPhone } from '../common/utils';
-import { useQuery, useQueryClient } from'@tanstack/react-query';
+import { StravaComponent } from './StravaComponent';
 
 export const SettingsScreen = ({ navigation, route }) => {
   const { appContext } = useContext(GlobalStateContext);
-  const controller = new SettingsController(appContext);
-  const email = appContext.email;
-  const user = route.params.user;
-
-  const [firstName, setEnteredFirstName] = useState(user ? user.firstName : '');
-  const [lastName, setEnteredLastName] = useState(user ? user.lastName : '');
-  const [mobile, setEnteredMobile] = useState(user ? user.cellPhone : '');
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
+
+  const controller = new SettingsController(appContext);
+  const email = appContext.getEmail();
+  const user = appContext.getUser();
+
+  const [firstName, setEnteredFirstName] = useState(user.firstName);
+  const [lastName, setEnteredLastName] = useState(user.lastName);
+  const [mobile, setEnteredMobile] = useState(user.mobile);
 
   const updateFirstName = function(newText: string) {
     setEnteredFirstName(newText);
@@ -45,12 +46,11 @@ export const SettingsScreen = ({ navigation, route }) => {
     const response = controller.updateAccount(email, firstName, lastName, mobile);
     response.then(msg => {
       console.log('setting names ' + firstName +'' + lastName +'' + msg);
-        if (msg) {
-          setNameErrorMessage(msg);
-        } else {
-          navigation.replace('Home');
-        }
-      })
+      appContext.updateUser();
+      if (msg) {
+        setNameErrorMessage(msg);
+      }
+    })
   };
 
   return <Center w="100%">
@@ -67,11 +67,12 @@ export const SettingsScreen = ({ navigation, route }) => {
         </Heading>
 
         <VStack space={3} mt="5">
+          <StravaComponent user={user} />
           <FormControl isReadOnly={true} isDisabled={true}>
             <FormControl.Label>Email ID</FormControl.Label>
             <Input isReadOnly={true}
               type="text"
-              placeholder={appContext.email}/>
+              placeholder={appContext.getEmail()}/>
           </FormControl>
           <FormControl isRequired>
             <FormControl.Label>First Name</FormControl.Label>

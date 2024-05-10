@@ -8,6 +8,19 @@ import { NavigationContainer } from "@react-navigation/native";
 
 const queryClient = new QueryClient()
 
+const config = {
+  screens: {
+    NewPasswordOnReset: 'new-password-on-reset',
+    StravaReply: 'strava-reply',
+    Settings: 'Settings',
+    NotFound: '*',
+  },
+};
+const linking = {
+  prefixes: ['fastfriends://', 'https://fastfriends.biz'],
+  config,
+};
+
 export default function App() {
   // console.log('Base url: ' + BASE_URL);
   // const queryClient = new QueryClient();
@@ -16,7 +29,7 @@ export default function App() {
     <GlobalStateProvider>
       <QueryClientProvider client={queryClient}>
         <NativeBaseProvider >
-          <NavigationContainer>
+          <NavigationContainer linking={linking}>
             <Root />
           </NavigationContainer>
         </NativeBaseProvider>

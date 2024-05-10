@@ -1,13 +1,9 @@
-import React, { ChangeEvent, useContext, useState } from "react";
-import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, Center, NativeBaseProvider } from "native-base";
-import { NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
-import { GlobalStateContext } from "../config/GlobalContext";
 import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
-import { strippedPhone } from "../common/utils";
-import { get, post } from "../common/http_utils";
+import { fetchUser, strippedPhone } from "../common/utils";
+import { post } from "../common/http_utils";
 
-class FinishAccountController extends AppController {
+class SettingsController extends AppController {
   constructor(appContext: AppContext) {
     super(appContext);
   }
@@ -26,14 +22,15 @@ class FinishAccountController extends AppController {
     mobile: string) {
 
     try {
-      const body = JSON.stringify({
+      const body = {
         username: username,
         firstName: firstName,
         lastName: lastName,
         mobile: mobile,
-      });
+      };
 
-      const response = await post('auth/update-user', body, this.appContext.jwtToken);
+      const response = await post('/auth/update-user', body, this.appContext.getJwtTokenPromise());
+      this.appContext.updateUser();
       if (response.ok) {
         return '';
       }
@@ -46,21 +43,10 @@ class FinishAccountController extends AppController {
     }
   }
 
-  getUser = (username: string, appContext: AppContext): Promise<Object>  => {
-    console.log('getting user:'+ username);
-    console.log(appContext);
-    console.log(appContext.jwtToken);
-    try {
-      const parameters = {
-        username: username,
-      };
-      return get('auth/user', parameters, appContext.jwtToken);
-    } catch(e: any) {
-      console.log(e.message);
-      return null;
-    }
+  getUser = (username: string, appContext: AppContext): Promise<User>  => {
+    return fetchUser(username, appContext);
   }
 };
 
 
-export default FinishAccountController;
+export default SettingsController;

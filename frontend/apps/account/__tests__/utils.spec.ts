@@ -1,4 +1,4 @@
-import {strippedPhone, isValidPhone, isValidPassword } from '../../common/utils';
+import {strippedPhone, isValidPhone, isValidPassword, isValidEmail } from '../../common/utils';
 
 describe('Phone Helper Methods', () => {
   it('stripped phone number', () => {
@@ -24,5 +24,14 @@ describe('Phone Helper Methods', () => {
     expect(isValidPassword('tooF#w')).toBeFalsy();
     expect(isValidPassword('noSpecial')).toBeFalsy();
     expect(isValidPassword('no(apital')).toBeFalsy();
+  });
+
+  it('validate email', () => {
+    expect(isValidEmail('noAmpersand')).toBeFalsy();
+    expect(isValidEmail('no@period')).toBeFalsy();
+    expect(isValidEmail('@nothingBefore.amper')).toBeFalsy();
+    expect(isValidEmail('nothing@after.')).toBeFalsy();
+    expect(isValidEmail('two@amper@sand.com')).toBeFalsy();
+    expect(isValidEmail('a@b.com')).toBeTruthy();
   });
 });

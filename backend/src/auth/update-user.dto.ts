@@ -12,7 +12,7 @@ export class UpdateUserDto {
 
   @IsString()
   @Matches(
-    /^\d{10}$/,
+    /^(|[0-9]{10})$/,
     {message: 'Phone number should be exactly 10 digits.'}
   )
   mobile: string;

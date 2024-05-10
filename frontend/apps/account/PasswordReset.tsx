@@ -3,6 +3,7 @@ import { Box, Heading, VStack, FormControl, Input, Button, HStack, Center } from
 import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 import { GlobalStateContext } from "../config/GlobalContext";
 import ResetPasswordController from "./ResetPasswordController";
+import { isValidEmail } from "../common/utils";
 
 export const PasswordReset = ({ navigation }) => {
   const { appContext } = useContext(GlobalStateContext);
@@ -41,17 +42,17 @@ export const PasswordReset = ({ navigation }) => {
             <FormControl.Label>Email ID</FormControl.Label>
             <Input onChangeText={updateEmail}/>
           </FormControl>
-          <Button disabled={!email.length} 
-              variant={(!email.length)? 'ghost' : 'solid'}
+          <Button disabled={!isValidEmail(email)}
+              variant={(isValidEmail(email))? 'solid' : 'ghost'}
               onPress={resetPassword} mt="2" colorScheme="indigo">
-            Sign in
+            Reset Password
           </Button>
           <HStack mt="6" justifyContent="center">
             <Button
               variant={'ghost'}
               onPress={() => navigation.replace('CreateAccount')}>
                 I'm a new user
-            </Button> 
+            </Button>
           </HStack>
         </VStack>
       </Box>

@@ -13,12 +13,18 @@ export class AppController {
   health() {
     return 'Up';
   }
-  
+
   @HttpCode(HttpStatus.OK)
   @Public()
   @Get('check')
   isUp() {
     this.logger.log('info', 'health check');
     return 'Check ok';
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('secrets')
+  getSecrets() {
+    return this.appService.getSecrets();
   }
 }

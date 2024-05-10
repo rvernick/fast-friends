@@ -4,8 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { User } from './users/user.entity';
+import { UsersModule } from './user/user.module';
+import { User } from './user/user.entity';
+import { Bike } from './user/bike.entity';
+import { MaintenanceItem } from './user/maintenance-item.entity';
 
 @Module({
   imports: [
@@ -25,7 +27,7 @@ import { User } from './users/user.entity';
         database: configService.get('DB_DATABASE_NAME', 'fast-friends-dev'),
         username: configService.get('DB_USER', 'fast_friends_dev'),
         password: configService.get('DB_PASSWORD'),
-        entities: [User],
+        entities: [User, Bike, MaintenanceItem],
         synchronize: true,
       }),
     }),

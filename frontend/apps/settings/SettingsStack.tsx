@@ -12,8 +12,8 @@ export function SettingsStack() {
 
   return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='LoadUser' component={LoadUserScreen}/>
         <Stack.Screen name='SettingsScreen' component={SettingsScreen}/>
+        <Stack.Screen name='LoadUser' component={LoadUserScreen}/>
         <Stack.Screen name='ChangePassword' component={ChangePassword}/>
       </Stack.Navigator>
   );

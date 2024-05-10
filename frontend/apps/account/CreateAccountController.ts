@@ -1,10 +1,6 @@
-import React, { ChangeEvent, useContext, useState } from "react";
-import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, Center, NativeBaseProvider } from "native-base";
-import { NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
-import { GlobalStateContext } from "../config/GlobalContext";
 import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
-import { isValidPassword, invalidPasswordMessage } from "../common/utils";
+import { isValidPassword, invalidPasswordMessage, isValidEmail } from "../common/utils";
 import { post } from '../common/http_utils';
 
 class CreateAccountController extends AppController {
@@ -19,7 +15,7 @@ class CreateAccountController extends AppController {
   }
 
   verifyEmail(email: string) {
-    if (!email.includes('@') || !email.includes('.')) {
+    if (!isValidEmail(email)) {
       return 'Please enter valid email';
     }
     return '';
@@ -41,12 +37,12 @@ class CreateAccountController extends AppController {
 
   async callCreateAccount(username: string, password: string) {
     try {
-      const body = JSON.stringify({
+      const body = {
         username: username,
         password: password,
-      });
+      };
 
-      const response = await post('auth/create', body, null);
+      const response = await post('/auth/create', body, null);
       if (response.ok) {
         return '';
       }

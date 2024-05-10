@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from './users.service';
+import { UserService } from './user.service';
 
-describe('UsersService', () => {
+describe('UserService', () => {
   it('should be defined but isnt', () => {
   });
 });

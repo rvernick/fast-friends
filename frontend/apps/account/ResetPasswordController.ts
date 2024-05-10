@@ -9,8 +9,8 @@ class ResetPasswordController extends AppController {
   }
 
   async resetPassword(username: string) {
-    const args = JSON.stringify({username: username,});
-    const response = post('auth/reset', args, null);
+    const args = {username: username,};
+    const response = post('/auth/reset', args, null);
     response
       .then(resp => {
         if (resp.ok) {

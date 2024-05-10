@@ -4,9 +4,12 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { EncryptionTransformer } from 'typeorm-encrypted';
 import * as bcrypt from 'bcrypt';
+import { Bike } from './bike.entity';
 
 export const createNewUser = (username: string, password: string) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -28,7 +31,10 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    nullable: false,
+  })
   username: string;
 
   @Column({
@@ -54,12 +60,45 @@ export class User {
   })
   cellPhone: string;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  stravaCode: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  stravaRefreshToken: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  stravaAccessToken: string;
+
+  @OneToMany((type) => Bike, (bike) => bike.user, {
+    eager: true,
+    cascade: true,
+  })
+  bikes: Bike[];
+
+  @DeleteDateColumn()
+  deletedOn: boolean;
 
   @CreateDateColumn()
   createdOn: Date;
 
   @UpdateDateColumn()
   updatedOn: Date;
+
+  addBike(bike: Bike) {
+    bike.user = this;
+    if (this.bikes === undefined) {
+      this.bikes = [];
+    }
+    this.bikes.push(bike);
+  }
+
 }
