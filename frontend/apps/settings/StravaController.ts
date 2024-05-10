@@ -3,7 +3,7 @@ import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
 import { authorize } from 'react-native-app-auth';
 import { post, postExternal } from "../common/http_utils";
-import { stravaBase, stravaClientId, stravaClientSecret } from "../strava/utils";
+import { stravaBase } from "../strava/utils";
 
 class StravaController extends AppController {
   constructor(appContext: AppContext) {
@@ -16,7 +16,6 @@ class StravaController extends AppController {
       .then((resultString) => {this.syncStravaInfo(appContext, stravaCode)});
   }
 
-
   // https://developers.strava.com/docs/authentication/#tokenexchange
   // {"token_type":"Bearer","expires_at":1714369868,"expires_in":21600,
   // "refresh_token":"8e9140f742b978ba7a361cc22b71adcc0d1b6a4e",
@@ -28,8 +27,8 @@ class StravaController extends AppController {
   // "updated_at":"2023-07-28T20:01:19Z","badge_type_id":1,"weight":74.8427,
   // "profile_medium":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/medium.jpg","profile":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/large.jpg","friend":null,"follower":null}}
   async doTokenExchange(appContext, stravaCode: string) {
-    const clientId = stravaClientId();
-    const clientSecret = stravaClientSecret();
+    const clientId = appContext.getStravaClientId();
+    const clientSecret = appContext.getStravaClientSecret();
     const params = {
       client_id: clientId,
       client_secret: clientSecret,
@@ -143,13 +142,13 @@ class StravaController extends AppController {
   /**
    * ,
       redirect_uri: redirectUri
-  https://www.strava.com/oauth/authorize?clientId=125563&responseType=code&approval_prompt=force&scope=read&redirectUri=http%3A%2F%2Flocalhost%3A190
+  https://www.strava.com/oauth/authorize?clientId=CLIENT_ID&responseType=code&approval_prompt=force&scope=read&redirectUri=http%3A%2F%2Flocalhost%3A190
    * @param user
    * @param appContext
    */
   async linkToStravaWeb(user, appContext) {
     const redirectUri = 'http://localhost:19000' + '/strava-reply';
-    const clientId = stravaClientId();
+    const clientId = appContext.getStravaClientId();
     console.log('redirect ' + redirectUri);
     console.log('base: ' + appContext.baseUrl());
     const paramsObj = {
@@ -176,33 +175,22 @@ class StravaController extends AppController {
     //   .catch((err) => console.log(err));
   }
 
-  private stravaConstants() {
-    const stravaId = stravaClientId();
-    return {
-      clientId: stravaId,
-      clientSecret: '22bbcc919c35ee62b0a8882def9503b459a39341',
+  /*
+  * Connect to strava using: FormidableLabs SDK
+  * https://github.com/FormidableLabs/react-native-app-auth/blob/main/docs/config-examples/strava.md
+  */
+  async linkToStravaMobile(user, appContext) {
+    const stravaId = appContext.getStravaClientId();
+    console.log('Sending account to Strava for linking... ' + user);
+    console.log(user.email);
+    const config = {
+      clientId: appContext.getStravaClientId(),
+      clientSecret: appContext.getStravaClientSecret(),
       redirectUrl: 'http://localhost:19000/strava-reply',
       serviceConfiguration: {
         authorizationEndpoint: 'https://www.strava.com/oauth/mobile/authorize',
         tokenEndpoint:
-          'https://www.strava.com/oauth/token?client_id=125563&client_secret=22bbcc919c35ee62b0a8882def9503b459a39341',
-      },
-      scopes: ['activity:read_all'],
-    };
-  }
-
-  async linkToStravaMobile(user, appContext) {
-    const stravaId = stravaClientId();
-    console.log('Sending account to Strava for linking... ' + user);
-    console.log(user.email);
-    const config = {
-      clientId: stravaId,
-      clientSecret: '22bbcc919c35ee62b0a8882def9503b459a39341',
-      redirectUrl: 'http://localhost:19000/strava-callback',
-      serviceConfiguration: {
-        authorizationEndpoint: 'https://www.strava.com/oauth/mobile/authorize',
-        tokenEndpoint:
-          'https://www.strava.com/oauth/token?client_id=125563&client_secret=22bbcc919c35ee62b0a8882def9503b459a39341',
+          'https://www.strava.com/oauth/token?client_id=CLIENT_ID&client_secret=CLIENT_SECRET',
       },
       scopes: ['read_all,profile:read_all,activity:read_all'],
     };

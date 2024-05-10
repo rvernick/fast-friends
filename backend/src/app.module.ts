@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './user/user.module';
 import { User } from './user/user.entity';
 import { Bike } from './user/bike.entity';
+import { MaintenanceItem } from './user/maintenance-item.entity';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { Bike } from './user/bike.entity';
         database: configService.get('DB_DATABASE_NAME', 'fast-friends-dev'),
         username: configService.get('DB_USER', 'fast_friends_dev'),
         password: configService.get('DB_PASSWORD'),
-        entities: [User, Bike],
+        entities: [User, Bike, MaintenanceItem],
         synchronize: true,
       }),
     }),

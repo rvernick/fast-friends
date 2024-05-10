@@ -46,7 +46,7 @@ export const LoginScreen = ({ navigation, loggedInMonitor }) => {
         } else {
           console.log('login successful');
           loggedInMonitor(true);
-          navigation.replace('Home');
+          navigation.replace('Bikes');
         }
       })
       .catch(error => {

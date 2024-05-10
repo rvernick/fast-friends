@@ -113,7 +113,6 @@ export class UserService {
     newBike.name = bike.name;
     newBike.stravaId = bike.id;
     newBike.type = bike.type;
-    newBike.isActive = true;
     newBike.user = user;
     user.addBike(newBike);
     this.bikesRepository.save(newBike);

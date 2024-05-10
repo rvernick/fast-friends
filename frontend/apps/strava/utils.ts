@@ -1,17 +1,24 @@
 import { get } from '../common/http_utils';
 import AppContext from '../config/app-context';
 
+export enum MaintenanceItemType {
+  CHAIN = "Replace Chain",
+  FRONT_BRAKE_PADS = "Replace Brakes",
+  REAR_BRAKE_PADS = "Replace Brakes",
+  REAR_SHIFTER_CABLE = "Rear Shifter Cable",
+  FRONT_SHIFTER_CABLE = "Front Shifter Cable",
+  REAR_BRAKE_CABLE = "Rear Brake Cable",
+  FRONT_BRAKE_CABLE = "Front Brake Cable",
+  REAR_SUSPENSION = "Replace Rear Suspension",
+  FRONT_SUSPENSION = "Replace Front Suspension",
+  REAR_TIRE = "Replace Rear Tire",
+  FRONT_TIRE = "Replace Front Tire",
+}
+
 export const stravaBase = () => {
   return 'https://www.strava.com';
 }
 
-export const stravaClientId = (): string => {
-  return '125563';
-};
-
-export const stravaClientSecret = (): string => {
-  return '22bbcc919c35ee62b0a8882def9503b459a39341';
-};
 
 /**
  * https://developers.strava.com/docs/reference/#api-Athletes-getLoggedInAthlete

@@ -5,8 +5,17 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from './user.entity';
+import { MaintenanceItem } from './maintenance-item.entity';
+
+export enum GroupSetBrand {
+  SHIMANO = "Shimano",
+  SRAM = "SRAM",
+  CAMPAGNOLO = "Campagnolo"
+}
 
 @Entity()
 export class Bike {
@@ -18,6 +27,12 @@ export class Bike {
 
   @ManyToOne((type) => User, { nullable: false, cascade: false })
   user: User;
+
+  @OneToMany((type) => MaintenanceItem, (maintenanceItem) => maintenanceItem.bike, {
+    eager: true,
+    cascade: true,
+  })
+  maintenanceItems: MaintenanceItem[];
 
   @Column({
     type: 'varchar',
@@ -37,8 +52,22 @@ export class Bike {
   })
   type: string;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column({
+    type: "enum",
+    enum: GroupSetBrand,
+    default: GroupSetBrand.SHIMANO,
+    nullable: true,
+  })
+  groupsetbrand: GroupSetBrand;
+
+  @Column({default: false})
+  isElectronic: boolean;
+
+  @Column({nullable: true})
+  groupsetSpeed: number;
+
+  @DeleteDateColumn({nullable: true})
+  deletedOn: Date;
 
   @CreateDateColumn()
   createdOn: Date;

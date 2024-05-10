@@ -1,4 +1,4 @@
-import { post } from "./http_utils";
+import { getInternal, post } from "./http_utils";
 import AppContext from "../config/app-context";
 
 export const strippedPhone = (formattedPhone: string) => {
@@ -54,6 +54,8 @@ export async function login(username: string, password: string, appContext: AppC
           appContext.jwtToken = body;
           console.log('setting appContext.email to:'+ username);
           appContext.setEmail(username);
+          appContext.updateUser();
+          appContext.updateSecrets();
           console.log('checking is logged in');
           console.log('Should be logged in: ' + appContext.isLoggedIn())
           return '';
@@ -68,5 +70,35 @@ export async function login(username: string, password: string, appContext: AppC
       return 'System error';
     });
 };
+
+export const fetchUser = async (username: string, appContext: AppContext): Promise<User | null> => {
+  console.log('getting user:' + username);
+  console.log(appContext);
+  console.log(appContext.getJwtToken());
+  try {
+    const parameters = {
+      username: username,
+    };
+    console.log('fetching user: ' + username);
+    return getInternal('/auth/user', parameters, appContext.getJwtTokenPromise()) as Promise<User | null>;
+  } catch(e: any) {
+    console.log(e.message);
+    return null;
+  }
+}
+
+export const fetchSecrets = async (appContext: AppContext): Promise<User | null> => {
+  console.log(appContext);
+  console.log(appContext.getJwtToken());
+  try {
+    const parameters = {};
+    console.log('fetching secrets: ');
+    return getInternal('/secrets', parameters, appContext.getJwtTokenPromise()) as Promise<User | null>;
+  } catch(e: any) {
+    console.log(e.message);
+    return null;
+  }
+}
+
 
 export const invalidPasswordMessage = 'password must be at least 8 characters with a mix of special, upper and lower case'

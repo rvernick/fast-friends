@@ -93,15 +93,12 @@ export class User {
   @UpdateDateColumn()
   updatedOn: Date;
 
-  getBikes(): Bike[] {
-    if (this.bikes == null) {
-      this.bikes = [];
-    }
-    return this.bikes.filter((bike) => bike.isActive === true);
-  }
   addBike(bike: Bike) {
     bike.user = this;
-    this.getBikes().push(bike);
+    if (this.bikes === undefined) {
+      this.bikes = [];
+    }
+    this.bikes.push(bike);
   }
 
 }

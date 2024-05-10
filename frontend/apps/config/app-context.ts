@@ -1,7 +1,10 @@
+import { QueryClient } from "@tanstack/react-query";
 import { baseUrl } from "../common/http_utils";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchUser, fetchSecrets } from "../common/utils";
 
 class AppContext {
+  private queryClient: QueryClient;
   private hotStringCache = new Map<string, string>();
   private _jwtToken;
   private _email;
@@ -48,6 +51,57 @@ class AppContext {
       .catch((error) => {
         console.log(error);
       });
+  }
+
+  public setQueryClient(queryClient: QueryClient) {
+    this.queryClient = queryClient;
+  }
+  public getQueryClient(): QueryClient {
+    return this.queryClient;
+  }
+
+  public getUser(): User {
+    if (this.getUserFromCache() == null) {
+      this.updateUser();
+      return {username: this.getEmail(), firstName: '', lastName: '', mobile: '', stravaId: ''};
+    }
+    return this.getUserFromCache();
+  }
+
+  private getUserFromCache(): User | null {
+    return this.queryClient.getQueryData(['user', this.getEmail()]);
+  }
+
+  public updateUser() {
+    console.log('context updating user: ' + this.getEmail());
+    if (this.getEmail() == null || this.getEmail() == '') {
+      return;
+    }
+
+    this.getQueryClient().prefetchQuery(
+      ['user', this.getEmail()],
+      () => fetchUser(this.getEmail(), this)
+    )
+    this.updateSecrets();
+  }
+
+  public updateSecrets() {
+    this.getQueryClient().prefetchQuery(
+      ['secrets', this.getEmail()],
+      () => fetchSecrets(this)
+    )
+  }
+
+  private getSecrets() {
+    return this.queryClient.getQueryData(['secrets', this.getEmail()]);
+  }
+
+  public getStravaClientId(): string {
+    return this.getSecrets()['stravaClientId'];
+  }
+
+  public getStravaClientSecret(): string {
+    return this.getSecrets()['stravaSecret'];
   }
 
   public getEmail(): string {
@@ -127,6 +181,10 @@ class AppContext {
   setJwtExpiration() {
     const now = new Date();
     const fiveHoursInMilliseconds = 5*60*60*1000;
+    const fiveSecondsInMilliseconds = 5*1000;
+    const oneMinutesInMilliseconds = 1*60*1000;
+    // const expirationDate = new Date(now.getTime() + oneMinutesInMilliseconds);
+    // const expirationDate = new Date(now.getTime() + fiveSecondsInMilliseconds);
     const expirationDate = new Date(now.getTime() + fiveHoursInMilliseconds);
     console.log('setting expiration: ' + expirationDate.toString());
     AsyncStorage.setItem('jwtExpiration', expirationDate.toString());

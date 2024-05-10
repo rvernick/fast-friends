@@ -64,7 +64,8 @@ export const postExternal = async (urlBase: string, endpoint: string, args: Obje
     'Content-Type': 'application/json',
   };
   if (jwtToken) {
-    headers['Authorization'] = 'Bearer '+ jwtToken.access_token;
+    headers['Authorization'] = 'Bearer ' + jwtToken.access_token;
+    console.log('jwtToken.access_token: ' + jwtToken.access_token);
   }
   return fetch(url, {
     method: 'POST',
