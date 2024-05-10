@@ -23,7 +23,6 @@ export class AppController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Public()   // todo: remove public guard
   @Get('secrets')
   getSecrets() {
     return this.appService.getSecrets();

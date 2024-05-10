@@ -30,12 +30,4 @@ export class UserController {
   create(@Body() stravaUserDto: StravaUserDto): Promise<User | null> {
     return this.userService.syncStravaUser(stravaUserDto);
   }
-
-
-  // @HttpCode(HttpStatus.OK)
-  // @UseGuards(AuthGuard)
-  // @Post('update-user')
-  // updateUser(@Body() updateUserDto: UpdateUserDto) {
-  //   return this.authService.updateUser(updateUserDto);
-  //
 }
