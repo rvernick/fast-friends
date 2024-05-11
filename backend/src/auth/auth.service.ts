@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '../user/user.entity';
 import { UpdateUserDto } from './update-user.dto';
 import { UpdateStravaDto } from './update-strava.dto';
+import { ResetPasswordDto } from './reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -87,5 +88,21 @@ export class AuthService {
       updateStravaDto.stravaRefreshToken,
       updateStravaDto.stravaAccessToken,
     );
+  }
+
+  async requestPasswordReset(email: string) {
+    const user = await this.userService.findUsername(email);
+    if (user == null) {
+      this.logger.log('info', 'failed reset password attempt:' + email + ' ' + user);
+      throw new UnauthorizedException();
+    }
+    this.userService.initiatePasswordReset(user, email);
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    this.userService.resetPassword(
+      resetPasswordDto.username,
+      resetPasswordDto.token,
+      resetPasswordDto.password);
   }
 }

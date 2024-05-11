@@ -3,38 +3,35 @@ import AppController from "../config/AppController";
 import { isValidPassword, invalidPasswordMessage, isValidEmail } from "../common/utils";
 import { post } from '../common/http_utils';
 
-class CreateAccountController extends AppController {
-  constructor(appContext: AppContext) {
+class NewPasswordOnResetController extends AppController {
+  private token: string;
+
+  constructor(appContext: AppContext, token: string) {
     super(appContext);
+    this.token = token;
   }
 
-  public updatePassword(token: string, password: string) {
-    this.verifyPassword(password);
-    return this.callUpdatePassword(token, password);
+  headingText() {
+    return 'Reset Password';
   }
 
-  verifyPassword(password: string) {
-    if (!isValidPassword(password)) {
-      return invalidPasswordMessage;
-    }
-    return '';
+  buttonText() {
+    return 'Reset Password';
   }
 
-  verifyPasswords(password: string, confirmPassword: string) {
-    if (password!== confirmPassword || !isValidPassword(password)) {
-      return invalidPasswordMessage;
-    }
-    return '';
+  apply(email, password) {
+    return this.callResetPassword(email, this.token, password);
   }
 
-  async callUpdatePassword(token: string, password: string) {
+  async callResetPassword(username: string, token: string, password: string) {
     try {
       const body = {
+        username: username,
         token: token,
         password: password,
       };
 
-      const response = await post('/auth/update-password', body, null);
+      const response = await post('/auth/reset-password', body, null);
       if (response.ok) {
         return '';
       }
@@ -43,9 +40,9 @@ class CreateAccountController extends AppController {
       return result.message;
     } catch(e: any) {
       console.log(e.message);
-      return 'Unable to Create Account';
+      return 'Unable to Reset Password';
     }
   }
 };
 
-export default CreateAccountController;
+export default NewPasswordOnResetController;

@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './user/user.module';
 import { User } from './user/user.entity';
+import { PasswordReset } from './user/password-reset.entity';
 import { Bike } from './user/bike.entity';
 import { MaintenanceItem } from './user/maintenance-item.entity';
 
@@ -27,7 +28,7 @@ import { MaintenanceItem } from './user/maintenance-item.entity';
         database: configService.get('DB_DATABASE_NAME', 'fast-friends-dev'),
         username: configService.get('DB_USER', 'fast_friends_dev'),
         password: configService.get('DB_PASSWORD'),
-        entities: [User, Bike, MaintenanceItem],
+        entities: [User, Bike, MaintenanceItem, PasswordReset],
         synchronize: true,
       }),
     }),

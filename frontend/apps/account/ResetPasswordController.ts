@@ -1,5 +1,4 @@
 import AppController from "../config/AppController";
-import { GlobalStateContext } from "../config/GlobalContext";
 import AppContext from "../config/app-context";
 import { post } from "../common/http_utils";
 
@@ -10,7 +9,7 @@ class ResetPasswordController extends AppController {
 
   async resetPassword(username: string) {
     const args = {username: username,};
-    const response = post('/auth/reset', args, null);
+    const response = post('/auth/request-password-reset', args, null);
     response
       .then(resp => {
         if (resp.ok) {

@@ -35,6 +35,18 @@ class CreateAccountController extends AppController {
     return '';
   }
 
+  headingText() {
+    return 'Create Account';
+  }
+
+  buttonText() {
+    return 'Create Account';
+  }
+
+  apply(username: string, password: string) {
+    return this.callCreateAccount(username, password);
+  }
+
   async callCreateAccount(username: string, password: string) {
     try {
       const body = {

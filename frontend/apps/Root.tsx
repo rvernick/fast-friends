@@ -6,7 +6,6 @@ import { PasswordReset } from './account/PasswordReset';
 import { GlobalStateContext } from './config/GlobalContext';
 import { CreateAccount } from './account/CreateAccount';
 import { NewPasswordOnReset } from './account/NewPasswordOnReset';
-import { StravaReplyScreen } from './settings/StravaReplyScreen';
 import { NotFoundScreen } from './account/NotFoundScreen';
 
 const Stack = createNativeStackNavigator();
