@@ -160,9 +160,7 @@ export class UserService {
         const user = passwordReset.user;
         console.log('info', 'Resetting password for:'+ username);
         console.log('token', 'Resetting password for:'+ token);
-        console.log('newPassword', 'Resetting password for:'+ newPassword);
         console.log('passwordReset', 'Resetting password for:'+ JSON.stringify(passwordReset));
-        console.log('user', 'Resetting password for:'+ JSON.stringify(user));
         user.setRawPassword(newPassword);
         this.usersRepository.save(user);
     }
