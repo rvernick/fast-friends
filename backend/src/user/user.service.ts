@@ -191,28 +191,23 @@ export class UserService {
   };
 
   sendPasswordResetEmail(email: string, passwordResetLink: string): void {
-    var mailer = require('nodemailer');
-    var transporter = mailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'rvernick@yahoo.com',
-        pass: this.configService.get<string>('EMAIL_PASSWORD'),
-      }
-    });
-
-    var mailOptions = {
-      from: 'rvernick@yahoo.com',
+    const sgMail = require('@sendgrid/mail');
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
+    const msg = {
       to: email,
+      from: 'support@fastfriends.biz',
       subject: 'FastFriends Password Reset',
-      text: 'Use the following link to reset your password: '+ passwordResetLink
-    };
-
-    transporter.sendMail(mailOptions, function(error, info){
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Email sent: ' + info.response);
-      }
-    });
+      text: 'Use the following link to reset your password: ' + passwordResetLink,
+      html: 'Use the following link to reset your password: <a href="' + passwordResetLink + '"> Reset Password</a>',
+    }
+    sgMail
+      .send(msg)
+      .then(() => {
+        console.log('Email sent')
+      })
+      .catch((error) => {
+        console.error(error)
+      })
   };
 }

@@ -183,9 +183,9 @@ class AppContext {
     const fiveHoursInMilliseconds = 5*60*60*1000;
     const fiveSecondsInMilliseconds = 5*1000;
     const oneMinutesInMilliseconds = 1*60*1000;
-    // const expirationDate = new Date(now.getTime() + oneMinutesInMilliseconds);
+     const expirationDate = new Date(now.getTime() + oneMinutesInMilliseconds);
     // const expirationDate = new Date(now.getTime() + fiveSecondsInMilliseconds);
-    const expirationDate = new Date(now.getTime() + fiveHoursInMilliseconds);
+//    const expirationDate = new Date(now.getTime() + fiveHoursInMilliseconds);
     console.log('setting expiration: ' + expirationDate.toString());
     AsyncStorage.setItem('jwtExpiration', expirationDate.toString());
   }
