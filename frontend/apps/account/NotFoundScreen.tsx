@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Box, TextArea, Heading, VStack, Button, Center, FormControl, Input } from "native-base";
+import { Box, Heading, VStack, Button, Center, FormControl, Input } from "native-base";
 import { GlobalStateContext } from "../config/GlobalContext";
 
 export const NotFoundScreen = ({ route, navigation }) => {

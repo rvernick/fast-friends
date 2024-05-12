@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { User } from './user/user.entity';
+import { PasswordReset } from './user/password-reset.entity';
 import { Bike } from './user/bike.entity';
 import { MaintenanceItem } from './user/maintenance-item.entity';
 
@@ -13,7 +14,7 @@ export const AppDataSource = new DataSource({
   database: 'test',
   synchronize: true,
   logging: false,
-  entities: [User, Bike, MaintenanceItem],
+  entities: [User, Bike, MaintenanceItem, PasswordReset],
   migrations: [],
   subscribers: [],
 });

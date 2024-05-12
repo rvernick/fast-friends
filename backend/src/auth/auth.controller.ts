@@ -17,6 +17,7 @@ import { ChangePasswordDto } from './change-password.dto';
 import { UpdateUserDto } from './update-user.dto';
 import { UpdateStravaDto } from './update-strava.dto';
 import { User } from '../user/user.entity';
+import { ResetPasswordDto } from './reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -77,6 +78,19 @@ export class AuthController {
     return this.authService.updateStrava(updateStravaDto);
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Post('request-password-reset')
+  requestPasswordReset(@Body("username") username: string) {
+    return this.authService.requestPasswordReset(username);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Post('reset-password')
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
+  }
 
   // @UseGuards(AuthGuard)
   // @Get('profile')

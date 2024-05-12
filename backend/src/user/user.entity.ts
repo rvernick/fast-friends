@@ -43,6 +43,10 @@ export class User {
   })
   password: string;
 
+  setRawPassword(rawPassword: string) {
+    this.password =  bcrypt.hashSync(rawPassword, 10);
+  }
+  
   @Column({
     type: 'varchar',
     nullable: true,

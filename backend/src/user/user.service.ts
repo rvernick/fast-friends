@@ -1,4 +1,4 @@
-import { Logger, Injectable } from '@nestjs/common';
+import { Logger, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, createNewUser } from './user.entity';
@@ -7,6 +7,8 @@ import { StravaUserDto } from './strava-user';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
+import { PasswordReset, createToken } from './password-reset.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
@@ -17,6 +19,10 @@ export class UserService {
     private usersRepository: Repository<User>,
     @InjectRepository(Bike)
     private bikesRepository: Repository<Bike>,
+    @InjectRepository(PasswordReset)
+    private passwordResetRepository: Repository<PasswordReset>,
+    @Inject(ConfigService)
+    private readonly configService: ConfigService,
     private readonly httpService: HttpService,
   ) {}
 
@@ -141,4 +147,65 @@ export class UserService {
   async remove(id: number): Promise<void> {
     await this.usersRepository.softDelete(id);
   }
+
+  async resetPassword(username: string, token: string, newPassword: string): Promise<void> {
+    const passwordReset = await this.passwordResetRepository.findOne({
+      where: {
+        token: token,
+      },
+    });
+    if (passwordReset != null
+      && passwordReset.expiresOn > new Date()
+      && passwordReset.user.username === username) {
+        const user = passwordReset.user;
+        console.log('info', 'Resetting password for:'+ username);
+        console.log('token', 'Resetting password for:'+ token);
+        console.log('passwordReset', 'Resetting password for:'+ JSON.stringify(passwordReset));
+        user.setRawPassword(newPassword);
+        this.usersRepository.save(user);
+    }
+  }
+
+  async initiatePasswordReset(user: User, email: string): Promise<void> {
+    const passwordReset = this.createPasswordReset(user, email);
+    const passwordResetLink = this.createPasswordResetLink(passwordReset);
+    console.log('reset link: ' + passwordResetLink);
+    this.sendPasswordResetEmail(email, passwordResetLink);
+  }
+
+  createPasswordReset(user: User, email: string): PasswordReset {
+    const token = createToken(user);
+    const now = new Date();
+    const tenMinutesInMilliseconds = 10*60*1000;
+    const expirationDate = new Date(now.getTime() + tenMinutesInMilliseconds);
+    const passwordReset = new PasswordReset(user, token, expirationDate);
+    this.passwordResetRepository.save(passwordReset);
+    return passwordReset;
+  }
+
+  createPasswordResetLink(passwordReset: PasswordReset): string {
+    const baseUrl = this.configService.get<string>('CLIENT_URL');
+    return baseUrl + '/new-password-on-reset/?token=' + passwordReset.token;
+  };
+
+  sendPasswordResetEmail(email: string, passwordResetLink: string): void {
+    const sgMail = require('@sendgrid/mail');
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
+    const msg = {
+      to: email,
+      from: 'support@fastfriends.biz',
+      subject: 'FastFriends Password Reset',
+      text: 'Use the following link to reset your password: ' + passwordResetLink,
+      html: 'Use the following link to reset your password: <a href="' + passwordResetLink + '"> Reset Password</a>',
+    }
+    sgMail
+      .send(msg)
+      .then(() => {
+        console.log('Email sent')
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  };
 }
