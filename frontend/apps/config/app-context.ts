@@ -69,6 +69,7 @@ class AppContext {
   }
 
   private getUserFromCache(): User | null {
+    console.log('getting user from cache: ' + this.getEmail());
     return this.queryClient.getQueryData(['user', this.getEmail()]);
   }
 

@@ -20,7 +20,11 @@ export const createNewUser = (username: string, password: string) => {
 @Entity()
 export class User {
   constructor(username: string, pass: string) {
-    this.username = username;
+    if (username != null && username.length > 0) {
+      this.username = username.toLowerCase();
+    } else {
+      this.username = username;
+    }
     this.password = pass;
   }
 
@@ -46,7 +50,7 @@ export class User {
   setRawPassword(rawPassword: string) {
     this.password =  bcrypt.hashSync(rawPassword, 10);
   }
-  
+
   @Column({
     type: 'varchar',
     nullable: true,

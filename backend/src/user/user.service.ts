@@ -40,10 +40,10 @@ export class UserService {
     if (username == null) return null;
     const result = this.usersRepository.findOne({
       where: {
-        username: username,
+        username: username.toLocaleLowerCase(),
       },
     });
-    this.logger.log('info', 'Searching for: ' + username + ' found: ' + result);
+    this.logger.log('info', 'Searching for: ' + username.toLocaleLowerCase() + ' found: ' + result);
     return result;
   }
 
@@ -79,6 +79,8 @@ export class UserService {
     if (userPromise == null) return null;
     return userPromise
       .then((user: User) => {
+        console.log('user/bikes user: '+ user.bikes.length);
+        console.log('user/bikes user: '+ JSON.stringify(user));
         return user.bikes;
       })
       .catch((e: any) => {

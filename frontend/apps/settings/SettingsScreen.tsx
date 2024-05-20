@@ -67,7 +67,7 @@ export const SettingsScreen = ({ navigation, route }) => {
         </Heading>
 
         <VStack space={3} mt="5">
-          <StravaComponent user={user} />
+          <StravaComponent/>
           <FormControl isReadOnly={true} isDisabled={true}>
             <FormControl.Label>Email ID</FormControl.Label>
             <Input isReadOnly={true}

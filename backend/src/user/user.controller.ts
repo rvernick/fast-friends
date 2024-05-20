@@ -21,7 +21,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @Get('bikes')
   getBikes(@Query('username') username: string): Promise<Bike[] | null> {
-    console.log('getting user:'+ username);
+    console.log('user/bikes user:'+ username);
     return this.userService.getBikes(username);
   }
 

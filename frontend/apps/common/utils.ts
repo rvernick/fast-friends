@@ -40,7 +40,7 @@ export async function login(username: string, password: string, appContext: AppC
     username: username,
     password: password,
   };
-  const response = post('/auth/login', args, appContext.getJwtToken());
+  const response = post('/auth/login', args, appContext.getJwtTokenPromise());
   return response
     .then(resp => {
       if (resp.ok) {
@@ -72,7 +72,7 @@ export async function login(username: string, password: string, appContext: AppC
 };
 
 export const fetchUser = async (username: string, appContext: AppContext): Promise<User | null> => {
-  console.log('getting user:' + username);
+  console.log('fetching user:' + username);
   console.log(appContext);
   console.log(appContext.getJwtToken());
   try {
@@ -100,5 +100,10 @@ export const fetchSecrets = async (appContext: AppContext): Promise<User | null>
   }
 }
 
+export const sleep = (timeout: number): Promise<void> => {
+  return new Promise(resolve => {
+    setTimeout(resolve, timeout);
+  });
+};
 
 export const invalidPasswordMessage = 'password must be at least 8 characters with a mix of special, upper and lower case'
