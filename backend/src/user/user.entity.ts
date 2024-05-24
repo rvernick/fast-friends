@@ -78,6 +78,12 @@ export class User {
     type: 'varchar',
     nullable: true,
   })
+  stravaId: string;
+  
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
   stravaRefreshToken: string;
 
   @Column({

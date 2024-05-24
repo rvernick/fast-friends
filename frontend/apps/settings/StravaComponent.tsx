@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Input, Button } from "native-base";
 import { GlobalStateContext } from "../config/GlobalContext";
 import StravaController from "./StravaController";

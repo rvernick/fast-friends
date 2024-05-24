@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User, createNewUser } from './user.entity';
 import { Bike } from './bike.entity';
 import { StravaUserDto } from './strava-user';
+import { StravaAuthenticationDto } from './strava-authentication';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
@@ -90,12 +91,12 @@ export class UserService {
 
   }
 
-  syncStravaUser(stravaUserDto: StravaUserDto): Promise<User> {
-    const userPromise = this.findUsername(stravaUserDto.username);
+  syncStravaUser(stravaAuthDto: StravaAuthenticationDto): Promise<User> {
+    const userPromise = this.findUsername(stravaAuthDto.username);
     if (userPromise == null) return null;
     return userPromise
       .then((user: User) => {
-        return this.syncUserToStrava(user, stravaUserDto);
+        return this.syncUserToStrava(user, stravaAuthDto);
       })
       .catch((e: any) => {
         console.log(e.message);
@@ -103,13 +104,17 @@ export class UserService {
       });
   }
 
-  private async syncUserToStrava(user: User, stravaUserDto: StravaUserDto): Promise<User> {
+  private async syncUserToStrava(user: User, stravaAuthDto: StravaAuthenticationDto): Promise<User> {
+    const athlete = await this.getStravaAthlete(stravaAuthDto.stravaToken);
+    user.stravaId = athlete.id;
+    console.log('setting stravaId: ' + user.stravaId);
+    this.usersRepository.save(user);
+
     if (user.bikes != null && user.bikes.length > 0) {
       return user;
     }
-    const athlete = await this.getStravaAthlete(stravaUserDto.stravaToken);
     this.logger.log('info', 'Syncing user:'+ JSON.stringify(user));
-    console.log(athlete);
+    console.log('bikes: ' + JSON.stringify(athlete.bikes));
     for (const bike of athlete.bikes) {
       this.addStravaBike(user, bike);
     }
@@ -122,7 +127,7 @@ export class UserService {
     newBike.stravaId = bike.id;
     newBike.type = bike.type;
     newBike.user = user;
-    user.addBike(newBike);
+//    user.addBike(newBike);
     this.bikesRepository.save(newBike);
     this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
     console.log('created and added: ' + JSON.stringify(newBike));

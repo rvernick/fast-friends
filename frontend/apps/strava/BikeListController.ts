@@ -14,9 +14,10 @@ class BikeListController extends AppController {
       console.log('get bikes has no context: ' + username);
       return Promise.resolve([]);
     }
-    if (appContext.getJwtToken() == null) {
-      console.log('get bikes has no token sleeping: ' + username);
-      await sleep(1000);
+    const jwtToken = await appContext.getJwtTokenPromise();
+    if (jwtToken == null) {
+      console.log('get bikes has no token dying: ' + username);
+      return Promise.resolve([]);
     }
     console.log('getBikes user:' + username);
     console.log(appContext);

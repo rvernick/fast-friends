@@ -35,6 +35,8 @@ export const isValidEmail = (email: string): boolean => {
 export async function login(username: string, password: string, appContext: AppContext) {
   console.log('Logging in... ' + appContext);
   console.log('Logging in... ' + appContext.getEmail());
+  appContext.clearJwtToken();
+  appContext.clearJwtExpiration();
 
   const args = {
     username: username,
@@ -55,7 +57,6 @@ export async function login(username: string, password: string, appContext: AppC
           console.log('setting appContext.email to:'+ username);
           appContext.setEmail(username);
           appContext.updateUser();
-          appContext.updateSecrets();
           console.log('checking is logged in');
           console.log('Should be logged in: ' + appContext.isLoggedIn())
           return '';
@@ -88,8 +89,8 @@ export const fetchUser = async (username: string, appContext: AppContext): Promi
 }
 
 export const fetchSecrets = async (appContext: AppContext): Promise<User | null> => {
-  console.log(appContext);
-  console.log(appContext.getJwtToken());
+  console.log('fetchSecrets ' + appContext);
+  console.log('fetchSecrets jwt: ' + appContext.getJwtToken());
   try {
     const parameters = {};
     console.log('fetching secrets: ');

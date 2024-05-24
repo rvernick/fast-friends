@@ -6,10 +6,4 @@ export class UpdateStravaDto {
 
   @IsString()
   stravaCode: string;
-
-  @IsString()
-  stravaAccessToken: string;
-
-  @IsString()
-  stravaRefreshToken: string;
 }

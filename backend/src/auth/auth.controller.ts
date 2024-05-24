@@ -72,9 +72,10 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Public()
+  @UseGuards(AuthGuard)
   @Post('update-strava')
   stravaCallback(@Body() updateStravaDto: UpdateStravaDto) {
+    console.log('auth/update-strava user:' + JSON.stringify(updateStravaDto));
     return this.authService.updateStrava(updateStravaDto);
   }
 
