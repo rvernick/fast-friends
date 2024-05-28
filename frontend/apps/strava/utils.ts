@@ -65,8 +65,8 @@ export const getBike = async (bikeId, appContext: AppContext) => {
 
 // https://developers.strava.com/docs/authentication/#tokenexchange
 // {"token_type":"Bearer","expires_at":1714369868,"expires_in":21600,
-// "refresh_token":"8e9140f742b978ba7a361cc22b71adcc0d1b6a4e",
-// "access_token":"9b8593e15c0fffe1470a5e6f6b0014b1411273b8",
+// "refresh_token":"xxxxxx",
+// "access_token":"xxxxx",
 // "athlete":{"id":7128,"username":"rvernick","resource_state":2,
 // "firstname":"Russell","lastname":"Vernick","bio":"","city":"San Francisco",
 // "state":"CA","country":"United States","sex":"M","premium":true,
