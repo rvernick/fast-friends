@@ -11,7 +11,7 @@ export const SettingsScreen = ({ navigation, route }) => {
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
 
-  // const controller = new SettingsController(appContext);
+  const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
   const email = appContext.getEmail();
   var user = appContext.getUser();
@@ -46,14 +46,14 @@ export const SettingsScreen = ({ navigation, route }) => {
   };
 
   const updateAccount = function() {
-    // const response = controller.updateAccount(email, firstName, lastName, mobile);
-    // response.then(msg => {
-    //   console.log('setting names ' + firstName +'' + lastName +'' + msg);
-    //   appContext.updateUser();
-    //   if (msg) {
-    //     setNameErrorMessage(msg);
-    //   }
-    // })
+    const response = controller.updateAccount(email, firstName, lastName, mobile);
+    response.then(msg => {
+      console.log('setting names ' + firstName +'' + lastName +'' + msg);
+      appContext.updateUser();
+      if (msg) {
+        setNameErrorMessage(msg);
+      }
+    })
   };
 
   const linkToStrava = async () => {
