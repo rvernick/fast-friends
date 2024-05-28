@@ -167,8 +167,8 @@ export class UserService {
       && passwordReset.expiresOn > new Date()
       && passwordReset.user.username === username) {
         const user = passwordReset.user;
-        console.log('info', 'Resetting password for:'+ username);
-        console.log('token', 'Resetting password for:'+ token);
+        this.logger.log('Resetting password for:'+ username);
+        this.logger.log('token', 'Resetting password for:'+ token);
         console.log('passwordReset', 'Resetting password for:'+ JSON.stringify(passwordReset));
         user.setRawPassword(newPassword);
         this.usersRepository.save(user);
@@ -178,7 +178,7 @@ export class UserService {
   async initiatePasswordReset(user: User, email: string): Promise<void> {
     const passwordReset = this.createPasswordReset(user, email);
     const passwordResetLink = this.createPasswordResetLink(passwordReset);
-    console.log('reset link: ' + passwordResetLink);
+    this.logger.log('reset link: ' + passwordResetLink);
     this.sendPasswordResetEmail(email, passwordResetLink);
   }
 
@@ -214,6 +214,7 @@ export class UserService {
         console.log('Email sent')
       })
       .catch((error) => {
+        this.logger.error("Error sending email: " + error.message);
         console.error(error)
       })
   };
