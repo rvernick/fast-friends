@@ -7,35 +7,23 @@ import { GlobalStateContext } from './config/GlobalContext';
 import { CreateAccount } from './account/CreateAccount';
 import { NewPasswordOnReset } from './account/NewPasswordOnReset';
 import { NotFoundScreen } from './account/NotFoundScreen';
+import { StravaReplyScreen } from './settings/StravaReplyScreen';
 
 const Stack = createNativeStackNavigator();
 
 export function Root() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { appContext } = useContext(GlobalStateContext);
+  const [isLoggedIn, setIsLoggedIn] = useState(appContext.isLoggedIn());
 
   const loggedInState = (val) => {
     setIsLoggedIn(val)
   }
 
   useEffect(() => {
-    appContext.waitIsLoggedIn()
-      .then((wasLoggedIn) => {
-        if (wasLoggedIn) {
-          if (!isLoggedIn) {
-            console.log('is logged in');
-            loggedInState(true);
-          }
-        } else {
-          if (isLoggedIn) {
-            console.log('is not logged in');
-            loggedInState(false);
-          }
-        }
-      })
-      .catch((err) => {
-        console.log('login monitor error: ' + err);
-      });
+    if (isLoggedIn && appContext.hasLoginExpired()) {
+      console.log('login expired');
+      loggedInState(false);
+    }
   });
 
   if (isLoggedIn) {
@@ -50,6 +38,9 @@ export function Root() {
         <Stack.Screen name="ResetPassword" component={PasswordReset} />
         <Stack.Screen name="NewPasswordOnReset" component={NewPasswordOnReset} />
         <Stack.Screen name='NotFound' component={NotFoundScreen}/>
+        <Stack.Screen name='StravaReply'>
+          {(props) => <StravaReplyScreen  {...props} loggedInMonitor={loggedInState} />}
+        </Stack.Screen>
       </Stack.Navigator>
     )
   }

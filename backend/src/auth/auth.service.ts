@@ -85,8 +85,8 @@ export class AuthService {
       null,
       null,
       updateStravaDto.stravaCode,
-      updateStravaDto.stravaRefreshToken,
-      updateStravaDto.stravaAccessToken,
+      null,
+      null,
     );
   }
 

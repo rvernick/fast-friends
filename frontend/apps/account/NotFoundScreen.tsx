@@ -17,15 +17,12 @@ export const NotFoundScreen = ({ route, navigation }) => {
   }} color="coolGray.600" fontWeight="medium" size="xs">
       Path Not Found: {route.path}
     </Heading>
-
     <VStack space={3} mt="5">
-    <FormControl>
-        <FormControl.Label>route.path</FormControl.Label>
-        <Input/>
-      </FormControl>
-      <Button onPress={ navigation.replace("Login") } mt="2" colorScheme="indigo">
-        Update Password
-      </Button>
+    <FormControl/>
+    <Button
+      onPress={() => window.parent.location = window.parent.location.origin} mt="2" colorScheme="indigo">
+      Return to Application
+    </Button>
     </VStack>
   </Box>
 </Center>;

@@ -2,19 +2,24 @@ import { Platform } from "react-native";
 import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
 import { getInternal } from "../common/http_utils";
+import { sleep } from "../common/utils";
 
 class BikeListController extends AppController {
   constructor(appContext: AppContext) {
     super(appContext);
   }
 
-  getBikes = (username: string, appContext: AppContext): Promise<Bike[]>  => {
-    if (appContext === null || !appContext.isLoggedIn()) {
+  getBikes = async (username: string, appContext: AppContext): Promise<Bike[]>  => {
+    await sleep(20);
+    if (appContext === null) {
+      console.log('get bikes has no context: ' + username);
       return Promise.resolve([]);
     }
-    console.log('getting user:' + username);
-    console.log(appContext);
-    console.log(appContext.getJwtToken());
+    const jwtToken = await appContext.getJwtTokenPromise();
+    if (jwtToken == null) {
+      console.log('get bikes has no token dying: ' + username);
+      return Promise.resolve([]);
+    }
 
     try {
       const parameters = {

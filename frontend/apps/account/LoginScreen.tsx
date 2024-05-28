@@ -1,18 +1,24 @@
 import React, { ChangeEvent, useContext, useState } from "react";
-import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, Center, WarningOutlineIcon } from "native-base";
+import { Box, Text, Heading, VStack, FormControl, Input, Link, Button, HStack, Center, WarningOutlineIcon, useTheme } from "native-base";
 import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 import LoginController from "./LoginController";
 import { GlobalStateContext } from "../config/GlobalContext";
 import { login } from '../common/utils';
+import { baseUrl } from "../common/http_utils";
 
 export const LoginScreen = ({ navigation, loggedInMonitor }) => {
   const { appContext } = useContext(GlobalStateContext);
   const controller = new LoginController(appContext);
+  var user = '';
+  var pword = '';
 
-  const [email, setEnteredEmail] = useState('');
-  const [password, setEnteredPassword] = useState('');
-  // const [email, setEnteredEmail] = useState('t5@t.com');
-  // const [password, setEnteredPassword] = useState('h@ppyHappy');
+  if (baseUrl() == 'http://localhost:3000') {
+    user = 't5@t.com';
+    pword = 'h@ppyHappy';
+  }
+  console.log('user: ' + user);
+  const [email, setEnteredEmail] = useState(user);
+  const [password, setEnteredPassword] = useState(pword);
   const [loginErrorMessage, setLoginErrorMessage] = useState('');
 
   const updateEmail = function(newText: string) {
@@ -46,7 +52,6 @@ export const LoginScreen = ({ navigation, loggedInMonitor }) => {
         } else {
           console.log('login successful');
           loggedInMonitor(true);
-          navigation.replace('Bikes');
         }
       })
       .catch(error => {
@@ -55,16 +60,18 @@ export const LoginScreen = ({ navigation, loggedInMonitor }) => {
       });
   };
 
-  return <Center w="100%">
+  const theme = useTheme();
+  const bgColor = theme.colors[50];
+  return <Center w="100%" colorScheme={"primary"} >
       <Box safeArea p="2" py="8" w="90%" maxW="290">
-        <Heading size="lg" fontWeight="600" color="coolGray.800" _dark={{
-        color: "warmGray.50"
+        <Heading size="lg" fontWeight="600" color="primary.800" _dark={{
+        color: "primary.50"
       }}>
           Fast Friends
         </Heading>
         <Heading mt="1" _dark={{
-        color: "warmGray.200"
-      }} color="coolGray.600" fontWeight="medium" size="xs">
+        color: "primary.200"
+      }} color="primary.600" fontWeight="medium" size="xs">
           Sign in to continue!
         </Heading>
 
@@ -86,7 +93,7 @@ export const LoginScreen = ({ navigation, loggedInMonitor }) => {
             <Link _text={{
               fontSize: "xs",
               fontWeight: "500",
-              color: "indigo.500"
+              color: "primary.500"
             }} alignSelf="flex-end" mt="1" onPress={() => navigation.replace("ResetPassword")}>
               Forget Password?
             </Link>

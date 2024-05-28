@@ -1,4 +1,4 @@
-import { get } from '../common/http_utils';
+import { get, postExternal } from '../common/http_utils';
 import AppContext from '../config/app-context';
 
 export enum MaintenanceItemType {
@@ -54,6 +54,47 @@ export const getBike = async (bikeId, appContext: AppContext) => {
       const result = await response.json();
       console.log(JSON.stringify(result));
       return result;
+    } else {
+      return response.statusText;
+    }
+  } catch(e: any) {
+    console.log(e.message);
+    return e.message;
+  }
+};
+
+// https://developers.strava.com/docs/authentication/#tokenexchange
+// {"token_type":"Bearer","expires_at":1714369868,"expires_in":21600,
+// "refresh_token":"xxxxxx",
+// "access_token":"xxxxx",
+// "athlete":{"id":7128,"username":"rvernick","resource_state":2,
+// "firstname":"Russell","lastname":"Vernick","bio":"","city":"San Francisco",
+// "state":"CA","country":"United States","sex":"M","premium":true,
+// "summit":true,"created_at":"2010-08-17T17:40:48Z",
+// "updated_at":"2023-07-28T20:01:19Z","badge_type_id":1,"weight":74.8427,
+// "profile_medium":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/medium.jpg","profile":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/large.jpg","friend":null,"follower":null}}
+export const doTokenExchange = async (appContext, stravaCode: string) => {
+  console.log('doTokenExchange');
+  const clientId = await appContext.getStravaClientId();
+  const clientSecret = await appContext.getStravaClientSecret();
+  const params = {
+    client_id: clientId,
+    client_secret: clientSecret,
+    code: stravaCode,
+    grant_type: 'authorization_code',
+  };
+
+  try {
+    const response = await postExternal(stravaBase(), '/oauth/token', params, null);
+    if (response.ok) {
+      const result = await response.json();
+      console.log('token exchange result: ' + JSON.stringify(result));
+      appContext.put('stravaToken', result.access_token);
+      appContext.put('stravaRefreshToken', result.refresh_token);
+      appContext.put('stravaExpiresAt', result.expires_at);
+      appContext.put('stravaTokenType', result.token_type);
+      appContext.put('stravaAthlete', '' + result.athlete.id);
+      return '';
     } else {
       return response.statusText;
     }

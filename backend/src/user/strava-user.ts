@@ -6,13 +6,4 @@ export class StravaUserDto {
 
   @IsString()
   stravaCode: string;
-
-  @IsString()
-  stravaToken: string;
-
-  @IsString()
-  stravaTokenType: string;
-
-  @IsInt()
-  stravaAthlete: number;
 }

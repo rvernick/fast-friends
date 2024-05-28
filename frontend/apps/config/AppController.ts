@@ -8,6 +8,7 @@ class AppController {
 
   constructor(context: AppContext) {
     this._appContext = context;
+    this._appContext.ensureUpToDate();
     this._baseUrl = context.baseUrl();
   }
 

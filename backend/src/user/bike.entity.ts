@@ -11,7 +11,7 @@ import {
 import { User } from './user.entity';
 import { MaintenanceItem } from './maintenance-item.entity';
 
-export enum GroupSetBrand {
+export enum GroupsetBrand {
   SHIMANO = "Shimano",
   SRAM = "SRAM",
   CAMPAGNOLO = "Campagnolo"
@@ -54,11 +54,11 @@ export class Bike {
 
   @Column({
     type: "enum",
-    enum: GroupSetBrand,
-    default: GroupSetBrand.SHIMANO,
+    enum: GroupsetBrand,
+    default: GroupsetBrand.SHIMANO,
     nullable: true,
   })
-  groupsetbrand: GroupSetBrand;
+  groupsetBrand: GroupsetBrand;
 
   @Column({default: false})
   isElectronic: boolean;
@@ -74,4 +74,8 @@ export class Bike {
 
   @UpdateDateColumn()
   updatedOn: Date;
+
+  setGroupsetBrand(groupsetBrand: string) {
+    this.groupsetBrand = GroupsetBrand[groupsetBrand];
+  }
 }

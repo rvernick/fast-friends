@@ -2,13 +2,16 @@ import { Logger, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, createNewUser } from './user.entity';
-import { Bike } from './bike.entity';
+import { Bike, GroupsetBrand } from './bike.entity';
 import { StravaUserDto } from './strava-user';
+import { StravaAuthenticationDto } from './strava-authentication';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
+import { UpdateBikeDto } from './update-bike.dto';
+import { DeleteBikeDto } from './delete-bike.dto';
 
 @Injectable()
 export class UserService {
@@ -40,10 +43,10 @@ export class UserService {
     if (username == null) return null;
     const result = this.usersRepository.findOne({
       where: {
-        username: username,
+        username: username.toLocaleLowerCase(),
       },
     });
-    this.logger.log('info', 'Searching for: ' + username + ' found: ' + result);
+    this.logger.log('info', 'Searching for: ' + username.toLocaleLowerCase() + ' found: ' + result);
     return result;
   }
 
@@ -79,6 +82,8 @@ export class UserService {
     if (userPromise == null) return null;
     return userPromise
       .then((user: User) => {
+        console.log('user/bikes user: '+ user.bikes.length);
+        console.log('user/bikes user: '+ JSON.stringify(user));
         return user.bikes;
       })
       .catch((e: any) => {
@@ -88,12 +93,12 @@ export class UserService {
 
   }
 
-  syncStravaUser(stravaUserDto: StravaUserDto): Promise<User> {
-    const userPromise = this.findUsername(stravaUserDto.username);
+  syncStravaUser(stravaAuthDto: StravaAuthenticationDto): Promise<User> {
+    const userPromise = this.findUsername(stravaAuthDto.username);
     if (userPromise == null) return null;
     return userPromise
       .then((user: User) => {
-        return this.syncUserToStrava(user, stravaUserDto);
+        return this.syncUserToStrava(user, stravaAuthDto);
       })
       .catch((e: any) => {
         console.log(e.message);
@@ -101,13 +106,17 @@ export class UserService {
       });
   }
 
-  private async syncUserToStrava(user: User, stravaUserDto: StravaUserDto): Promise<User> {
+  private async syncUserToStrava(user: User, stravaAuthDto: StravaAuthenticationDto): Promise<User> {
+    const athlete = await this.getStravaAthlete(stravaAuthDto.stravaToken);
+    user.stravaId = athlete.id;
+    console.log('setting stravaId: ' + user.stravaId);
+    this.usersRepository.save(user);
+
     if (user.bikes != null && user.bikes.length > 0) {
       return user;
     }
-    const athlete = await this.getStravaAthlete(stravaUserDto.stravaToken);
     this.logger.log('info', 'Syncing user:'+ JSON.stringify(user));
-    console.log(athlete);
+    console.log('bikes: ' + JSON.stringify(athlete.bikes));
     for (const bike of athlete.bikes) {
       this.addStravaBike(user, bike);
     }
@@ -120,7 +129,7 @@ export class UserService {
     newBike.stravaId = bike.id;
     newBike.type = bike.type;
     newBike.user = user;
-    user.addBike(newBike);
+//    user.addBike(newBike);
     this.bikesRepository.save(newBike);
     this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
     console.log('created and added: ' + JSON.stringify(newBike));
@@ -208,4 +217,39 @@ export class UserService {
         console.error(error)
       })
   };
+
+  async updateOrAddBike(bikeDto: UpdateBikeDto): Promise<Bike> {
+    const user = await this.findUsername(bikeDto.username);
+    if (user == null) return null;
+    var bike: Bike;
+    if (bikeDto.id == 0) {
+      bike = new Bike();
+    } else {
+      const id = bikeDto.id;
+      bike = await this.bikesRepository.findOneBy({ id });
+      if (bike == null) return null;
+    }
+    bike.name = bikeDto.name;
+    bike.setGroupsetBrand(bikeDto.groupsetBrand);
+    bike.groupsetSpeed = bikeDto.groupsetSpeed;
+    bike.isElectronic = bikeDto.isElectronic;
+    bike.user = user;
+    this.bikesRepository.save(bike);
+  }
+
+  async deleteBike(bikeDto: DeleteBikeDto): Promise<Bike> {
+    const user = await this.findUsername(bikeDto.username);
+    if (user == null) return null;
+    var bike: Bike;
+    if (bikeDto.id == 0) {
+      bike = new Bike();
+    } else {
+      const id = bikeDto.id;
+      bike = await this.bikesRepository.findOneBy({ id });
+      console.log('bike: '+ JSON.stringify(bike));
+      if (bike == null) return null;
+    }
+
+    this.bikesRepository.softDelete(bike.id);
+  }
 }

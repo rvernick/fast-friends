@@ -34,7 +34,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Get('user')
   getUser(@Query('username') username: string): Promise<User | null> {
-    console.log('getting user:'+ username);
+    console.log('auth/user user:'+ username);
     return this.authService.getUser(username);
   }
 
@@ -72,9 +72,10 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Public()
+  @UseGuards(AuthGuard)
   @Post('update-strava')
   stravaCallback(@Body() updateStravaDto: UpdateStravaDto) {
+    console.log('auth/update-strava user:' + JSON.stringify(updateStravaDto));
     return this.authService.updateStrava(updateStravaDto);
   }
 
