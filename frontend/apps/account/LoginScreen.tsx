@@ -4,15 +4,21 @@ import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData }
 import LoginController from "./LoginController";
 import { GlobalStateContext } from "../config/GlobalContext";
 import { login } from '../common/utils';
+import { baseUrl } from "../common/http_utils";
 
 export const LoginScreen = ({ navigation, loggedInMonitor }) => {
   const { appContext } = useContext(GlobalStateContext);
   const controller = new LoginController(appContext);
+  var user = '';
+  var pword = '';
 
-  const [email, setEnteredEmail] = useState('');
-  const [password, setEnteredPassword] = useState('');
-  // const [email, setEnteredEmail] = useState('t5@t.com');
-  // const [password, setEnteredPassword] = useState('h@ppyHappy');
+  if (baseUrl() == 'http://localhost:3000') {
+    user = 't5@t.com';
+    pword = 'h@ppyHappy';
+  }
+  console.log('user: ' + user);
+  const [email, setEnteredEmail] = useState(user);
+  const [password, setEnteredPassword] = useState(pword);
   const [loginErrorMessage, setLoginErrorMessage] = useState('');
 
   const updateEmail = function(newText: string) {

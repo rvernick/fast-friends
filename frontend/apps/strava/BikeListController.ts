@@ -10,6 +10,7 @@ class BikeListController extends AppController {
   }
 
   getBikes = async (username: string, appContext: AppContext): Promise<Bike[]>  => {
+    await sleep(20);
     if (appContext === null) {
       console.log('get bikes has no context: ' + username);
       return Promise.resolve([]);
@@ -19,8 +20,6 @@ class BikeListController extends AppController {
       console.log('get bikes has no token dying: ' + username);
       return Promise.resolve([]);
     }
-    console.log('getBikes user:' + username);
-    console.log(appContext);
 
     try {
       const parameters = {

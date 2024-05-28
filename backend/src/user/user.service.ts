@@ -2,7 +2,7 @@ import { Logger, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, createNewUser } from './user.entity';
-import { Bike } from './bike.entity';
+import { Bike, GroupsetBrand } from './bike.entity';
 import { StravaUserDto } from './strava-user';
 import { StravaAuthenticationDto } from './strava-authentication';
 import { HttpService } from '@nestjs/axios';
@@ -10,6 +10,8 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
+import { UpdateBikeDto } from './update-bike.dto';
+import { DeleteBikeDto } from './delete-bike.dto';
 
 @Injectable()
 export class UserService {
@@ -215,4 +217,39 @@ export class UserService {
         console.error(error)
       })
   };
+
+  async updateOrAddBike(bikeDto: UpdateBikeDto): Promise<Bike> {
+    const user = await this.findUsername(bikeDto.username);
+    if (user == null) return null;
+    var bike: Bike;
+    if (bikeDto.id == 0) {
+      bike = new Bike();
+    } else {
+      const id = bikeDto.id;
+      bike = await this.bikesRepository.findOneBy({ id });
+      if (bike == null) return null;
+    }
+    bike.name = bikeDto.name;
+    bike.setGroupsetBrand(bikeDto.groupsetBrand);
+    bike.groupsetSpeed = bikeDto.groupsetSpeed;
+    bike.isElectronic = bikeDto.isElectronic;
+    bike.user = user;
+    this.bikesRepository.save(bike);
+  }
+
+  async deleteBike(bikeDto: DeleteBikeDto): Promise<Bike> {
+    const user = await this.findUsername(bikeDto.username);
+    if (user == null) return null;
+    var bike: Bike;
+    if (bikeDto.id == 0) {
+      bike = new Bike();
+    } else {
+      const id = bikeDto.id;
+      bike = await this.bikesRepository.findOneBy({ id });
+      console.log('bike: '+ JSON.stringify(bike));
+      if (bike == null) return null;
+    }
+
+    this.bikesRepository.softDelete(bike.id);
+  }
 }

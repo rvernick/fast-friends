@@ -11,8 +11,8 @@ export function Bikes() {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen name='BikeList' component={BikeListScreen}/>
-      <Stack.Screen name='Bike' component={BikeScreen}/>
+      <Stack.Screen name='BikeList' component={BikeListScreen} options={{ headerShown: false }}/>
+      <Stack.Screen name='Bike' component={BikeScreen} options={{ headerShown: false }}/>
     </Stack.Navigator> );
 }
 

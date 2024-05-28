@@ -74,4 +74,8 @@ export class Bike {
 
   @UpdateDateColumn()
   updatedOn: Date;
+
+  setGroupsetBrand(groupsetBrand: string) {
+    this.groupsetBrand = GroupsetBrand[groupsetBrand];
+  }
 }

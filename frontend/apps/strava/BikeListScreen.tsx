@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Box, Center, Heading, VStack, ScrollView, Button } from 'native-base';
+import { Box, Center, Heading, VStack, ScrollView, Button, Spinner } from 'native-base';
 import { GlobalStateContext } from "../config/GlobalContext";
 import BikeListController from './BikeListController';
 import { useQuery } from'@tanstack/react-query';
+import { useFocusEffect } from '@react-navigation/native';
+import { useColorScheme } from 'react-native';
 
 // Assuming you have a Bike type
 type Bike = {
@@ -11,18 +13,71 @@ type Bike = {
   type: string; // Example: Road, Mountain, etc.
 };
 
+
 // Example component
 const BikeListScreen = ({ navigation, route }) => {
   const { appContext } = useContext(GlobalStateContext);
   const controller = new BikeListController(appContext);
+  const [isUpdating, setIsUpdating] = useState(true);
+
   const email = appContext.getEmail();
 
+  appContext.getQueryClient
   const { status, data, error, isFetching } = useQuery({
     queryKey: [email, 'bikes'],
     queryFn: () => controller.getBikes(email, appContext),
+    refetchOnWindowFocus: 'always',
+    refetchOnReconnect: 'always',
+    refetchOnMount: 'always',
   })
 
-  if (error || isFetching) {
+  const addBike = () => {
+    const newBike = {
+      id: 0,
+      name: '',
+      groupsetBrand: 'Shimano',
+      groupsetSpeed: 11,
+      isElectronic: false,
+    }
+    navigation.push('Bike', { bike: newBike });
+  }
+
+  const editBike = (bike) => {
+    navigation.push('Bike', { bike: bike })
+  }
+
+  const BikeListComponent = ({ data, isUpdating }) => {
+    return (
+      <ScrollView>
+        <VStack space={isUpdating ? 5 : 4} mt="5">
+          {data && data.length > 0? (
+            data.map(bike => (
+              <Box key={bike.id} borderBottomWidth="1" _dark={{
+                borderColor: "gray.600"
+              }} borderColor="coolGray.200" pl="4" pr="5" py="2">
+                <Button key={bike.id}
+                  onPress={() => editBike(bike)}
+                  colorScheme='indigo'>
+                  {bike.name}
+                </Button>
+              </Box>
+          ))) : (
+            <Box> No Bikes Found</Box>
+          )
+        }
+        </VStack>
+      </ScrollView>
+    );
+  };
+
+  useEffect(() => {
+    if (isUpdating && !isFetching) {
+      console.log('sync updating bikes');
+      setIsUpdating(false);
+    }
+  });
+
+  if (error) {
     return (
       <Center w="100%">
         <Box safeArea p="2" py="8" w="90%" maxW="290">
@@ -48,26 +103,21 @@ const BikeListScreen = ({ navigation, route }) => {
         }}>
           Bike List
         </Heading>
-        <ScrollView>
-          <VStack space={4} mt="5">
-            {data && data.length > 0 ? (
-              data.map(bike => (
-                <Box key={bike.id} borderBottomWidth="1" _dark={{
-                  borderColor: "gray.600"
-                }} borderColor="coolGray.200" pl="4" pr="5" py="2">
-                  <Button key={bike.id}
-                    onPress={() => navigation.push('Bike', {bike}) }>
-                    {bike.name}
-                  </Button>
-                </Box>
-            ))) : (
-              <Box> No Bikes Found</Box>
-            )
-          }
-          </VStack>
-        </ScrollView>
+        <MySpinner isVisible={isUpdating}/>
+        <BikeListComponent data={data} isUpdating={isUpdating}/>
+        <Button onPress={addBike}> Add Bike</Button>
       </Box>
     </Center>
+  );
+};
+
+
+const MySpinner = ({ isVisible }) => {
+  if (!isVisible) {
+    return null;
+  }
+  return (
+    <Spinner animating={isVisible} />
   );
 };
 
