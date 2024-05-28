@@ -1,9 +1,10 @@
 
 export const baseUrl = () => {
+  var defaultBase = 'http://localhost:3000';
   if (process.env.NODE_ENV === 'production') {
-    return 'https://fast-friends-be.onrender.com/';
+    defaultBase = 'https://fast-friends-be.onrender.com';
   }
-  const result = process.env.BASE_URL || 'http://localhost:3000';
+  const result = process.env.BASE_URL || defaultBase;
   console.log(result + ' from process.env.BASE_URL: ' + process.env.BASE_URL)
   return ensureNoSlash(result);
 }
