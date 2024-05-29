@@ -24,8 +24,6 @@ const linking = {
 
 
 export default function App() {
-  // console.log('Base url: ' + BASE_URL);
-  // const queryClient = new QueryClient();
 
   return (
     <GlobalStateProvider>

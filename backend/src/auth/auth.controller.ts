@@ -80,6 +80,14 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Post('unlink-from-strava')
+  unlinkFromStrava(@Body("username") username: string) {
+    console.log('auth/unlink-from-strava: ' + username);
+    return this.authService.unlinkFromStrava(username);
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Public()
   @Post('request-password-reset')
   requestPasswordReset(@Body("username") username: string) {

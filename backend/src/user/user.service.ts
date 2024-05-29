@@ -77,6 +77,18 @@ export class UserService {
     this.usersRepository.save(user);
   }
 
+  unlinkFromStrava(user: User) {
+    user.stravaId = null;
+    user.stravaCode = null;
+    user.stravaAccessToken = null;
+    user.stravaRefreshToken = null;
+    this.usersRepository.save(user);
+    for (const bike of user.bikes) {
+      bike.stravaId = null;
+      this.bikesRepository.save(bike);
+    }
+  }
+
   getBikes(username: string): Promise<Bike[] | null> {
     const userPromise = this.findUsername(username);
     if (userPromise == null) return null;

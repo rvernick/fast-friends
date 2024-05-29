@@ -5,7 +5,6 @@ export const baseUrl = () => {
     defaultBase = 'https://fast-friends-be.onrender.com';
   }
   const result = process.env.BASE_URL || defaultBase;
-  console.log(result + ' from process.env.BASE_URL: ' + process.env.BASE_URL)
   return ensureNoSlash(result);
 }
 

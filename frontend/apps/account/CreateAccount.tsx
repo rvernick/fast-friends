@@ -7,8 +7,6 @@ export const CreateAccount = ({ navigation }) => {
   const { appContext } = useContext(GlobalStateContext);
   const controller = new CreateAccountController(appContext);
 
-  console.log('create account context: ' + appContext);
-
   return (
     <EmailPasswordScreen
       controller={controller}

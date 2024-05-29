@@ -90,6 +90,15 @@ export class AuthService {
     );
   }
 
+  async unlinkFromStrava(username: string) {
+    const user = await this.userService.findUsername(username);
+    if (user == null) {
+      this.logger.log('info', 'failed update user attempt:'+ username);
+      throw new UnauthorizedException();
+    }
+    this.userService.unlinkFromStrava(user);
+  }
+
   async requestPasswordReset(email: string) {
     const user = await this.userService.findUsername(email);
     if (user == null) {

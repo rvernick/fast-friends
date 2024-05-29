@@ -94,17 +94,36 @@ class StravaController extends AppController {
     }
   };
 
-  async linkToStrava(user, appContext) {
+  async linkToStrava(user) {
     console.log('Sending account to Strava for linking... ' + JSON.stringify(user));
 
     if (Platform.OS === 'web') {
       console.log('Platform.OS:'+ Platform.OS);
-      this.linkToStravaWeb(user, appContext);
+      this.linkToStravaWeb(user, this.appContext);
     } else {
-      this.linkToStravaMobile(user, appContext);
+      this.linkToStravaMobile(user, this.appContext);
     }
   }
 
+  async unlinkFromStrava(user) {
+    try {
+      const body = {
+        username: user.username,
+      };
+
+      const response = await post('/auth/unlink-from-strava', body, this.appContext.getJwtTokenPromise());
+      if (response.ok) {
+        return '';
+      }
+      const result = await response.json();
+      console.log('json ' + result.message);
+      return result.message;
+    } catch(e: any) {
+      console.log(e.message);
+      return 'Unable to Update Account';
+    }
+
+  }
   /**
    * ,
       redirect_uri: redirectUri
