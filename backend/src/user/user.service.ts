@@ -206,7 +206,7 @@ export class UserService {
 
   createPasswordResetLink(passwordReset: PasswordReset): string {
     const baseUrl = this.configService.get<string>('CLIENT_URL');
-    return baseUrl + '/new-password-on-reset/?token=' + passwordReset.token;
+    return baseUrl + '/new-password-on-reset?token=' + passwordReset.token;
   };
 
   sendPasswordResetEmail(email: string, passwordResetLink: string): void {
