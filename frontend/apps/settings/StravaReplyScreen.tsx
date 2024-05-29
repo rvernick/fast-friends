@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { Box, Heading, VStack, FormControl, Input, Button, HStack, Center, WarningOutlineIcon } from "native-base";import { GlobalStateContext } from "../config/GlobalContext";
+import { Box, Heading, VStack, FormControl, Input, Button, HStack, Center, WarningOutlineIcon, Spinner } from "native-base";import { GlobalStateContext } from "../config/GlobalContext";
 import StravaController from "./StravaController";
 
 export const StravaReplyScreen = ({ loggedInMonitor, route, navigation }) => {
@@ -32,19 +32,23 @@ if (route.params.error) {
   message = 'Strava Connection returned: ' + route.params.error;
 }
 
+const updateStravaAndReturn = async (code: string) => {
+  await controller.updateStravaCode(appContext, code);
+  console.log('updated strava code: ');
+  appContext.isLoggedInPromise()
+    .then((isLoggedIn) => {
+      if (isLoggedIn) {
+        console.log(' updating loggedin monitor ');
+        loggedInMonitor(true);
+      }
+    });
+}
+
 useEffect(() => {
   console.log('StravaReplyScreen useEffect: ' + JSON.stringify(route));
   console.log('navigation: ' + JSON.stringify(navigation));
   if (route.params.code) {
-    controller.updateStravaCode(appContext, route.params.code);
-    console.log('updated strava code: ');
-    appContext.isLoggedInPromise()
-      .then((isLoggedIn) => {
-        if (isLoggedIn) {
-          console.log(' updating loggedin monitor ');
-
-        }
-      });
+    updateStravaAndReturn(route.params.code);
   } else {
     console.log('no code found');
   }
@@ -63,7 +67,7 @@ useEffect(() => {
       }} color="coolGray.600" fontWeight="medium" size="s">
          {message}
         </Heading>
-
+        <Spinner/>
         <VStack space={3} mt="5">
           <HStack mt="6" justifyContent="center">
             <Button

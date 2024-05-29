@@ -3,6 +3,6 @@ interface User {
   username: string;
   firstName: string;
   lastName: string;
-  mobile: string;
+  cellPhone: string;
   stravaId: string;
 }
