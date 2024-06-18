@@ -19,6 +19,14 @@ export const stravaBase = () => {
   return 'https://www.strava.com';
 }
 
+export const convertToMeters = (miles: number) => {
+  return Math.round(miles * 1609.34);
+}
+
+export const convertToMiles = (meters) => {
+  const result = meters * 0.000621371;
+  return Math.round(result);
+}
 
 /**
  * https://developers.strava.com/docs/reference/#api-Athletes-getLoggedInAthlete

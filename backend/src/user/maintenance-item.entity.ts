@@ -9,6 +9,43 @@ import {
 } from 'typeorm';
 import { Bike } from './bike.entity';
 
+export enum Part {
+  CHAIN = "Chain",
+  CASSETTE = "Cassette",
+  FRONT_TIRE = "Front Tire",
+  REAR_TIRE = "Rear Tire",
+  CRANKSET = "Crankset",
+  FRONT_BRAKE_CABLE = "Front Brake Cable",
+  REAR_BRAKE_CABLE = "Rear Brake Cable",
+  FRONT_BRAKE_PADS = "Front Brake Pads",
+  REAR_BRAKE_PADS = "Rear Brake Pads",
+  REAR_SHIFTER_CABLE = "Rear Shifter Cable",
+  FRONT_SHIFTER_CABLE = "Front Shifter Cable",
+  BAR_TAPER = "Bar Tape",
+  TUNE_UP = "Tune Up",
+}
+
+export const defaultMaintenanceItems = (bike: Bike): MaintenanceItem[] => {
+  const maintenanceItems: MaintenanceItem[] = [];
+  const odometerMeters = bike.odometerMeters == null ? 0 : bike.odometerMeters;
+  const oneThousandMiles = odometerMeters + 1609344;
+  const threeThousandMiles = odometerMeters + 4828032;
+  maintenanceItems.push(createMaintenanceItem(Part.CHAIN, threeThousandMiles));
+  maintenanceItems.push(createMaintenanceItem(Part.CASSETTE, threeThousandMiles));
+  maintenanceItems.push(createMaintenanceItem(Part.FRONT_TIRE, threeThousandMiles));
+  maintenanceItems.push(createMaintenanceItem(Part.REAR_TIRE, threeThousandMiles));
+  maintenanceItems.push(createMaintenanceItem(Part.FRONT_BRAKE_PADS, oneThousandMiles));
+  maintenanceItems.push(createMaintenanceItem(Part.REAR_BRAKE_PADS, oneThousandMiles));
+  return maintenanceItems;
+}
+
+const createMaintenanceItem = (part: Part, distance: number): MaintenanceItem => {
+  const maintenanceItem = new MaintenanceItem();
+  maintenanceItem.part = part;
+  maintenanceItem.dueDistanceMeters = distance;
+  return maintenanceItem;
+}
+
 @Entity()
 export class MaintenanceItem {
   constructor() {
@@ -21,16 +58,12 @@ export class MaintenanceItem {
   bike: Bike;
 
   @Column({
-    type: 'varchar',
+    type: "enum",
+    enum: Part,
+    default: Part.CHAIN,
     nullable: false,
   })
-  name: string;
-
-  @Column({
-    type: 'varchar',
-    nullable: true,
-  })
-  stravaId: string;
+  part: Part;
 
   @Column({
     type: 'varchar',
@@ -38,20 +71,32 @@ export class MaintenanceItem {
   })
   type: string;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
   brand: string;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
   model: string;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
   link: string;
 
-  @Column()
-  bikeDistance: number;
+  @Column({nullable: true})
+  dueDistanceMeters: number;
 
-  @Column()
-  dueDistance: number;
+  @Column({nullable: true})
+  dueDate: Date;
+
+  @Column({default: false})
+  completed: boolean;
 
   @DeleteDateColumn({nullable: true})
   deletedOn: Date;

@@ -11,10 +11,14 @@
 
 ## Description
 
+Currently, FastFriends is building a per-bike monitoring for maintenance.  The app tracks when a user has updated various parts and how much they have ridden since, recommending when a user should change things.
+
+For instance, a user can indicate they replaced their chain, and the application will recommend a new one after 1500 miles.
+
 There are two servers in FastFriends: backend and frontend.  Refer to each subdirectory's readme to install and run those servers.
 
 ## Stay in touch
 
 - Author - [Russ Vernick](mailto:rvernick@yahoo.com)
-- ToDo - [FastFriends Pivot](https://www.pivotaltracker.com/n/projects/2639100)
+- ToDo - [Trello FastFriends](https://trello.com/b/kyMVNEo0/fast-friends)
 - iOS App - Coming soon

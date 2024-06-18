@@ -3,8 +3,6 @@ import { Box, Center, Heading, VStack, ScrollView, Button, Spinner } from 'nativ
 import { GlobalStateContext } from "../config/GlobalContext";
 import BikeListController from './BikeListController';
 import { useQuery } from'@tanstack/react-query';
-import { useFocusEffect } from '@react-navigation/native';
-import { useColorScheme } from 'react-native';
 
 // Assuming you have a Bike type
 type Bike = {
@@ -80,7 +78,7 @@ const BikeListScreen = ({ navigation, route }) => {
   if (error) {
     return (
       <Center w="100%">
-        <Box safeArea p="2" py="8" w="90%" maxW="290">
+        <Box safeArea p="2" py="8" w="90%">
           <Heading size="lg" fontWeight="600" color="coolGray.800" _dark={{
           color: "warmGray.50"
         }}>
@@ -97,7 +95,7 @@ const BikeListScreen = ({ navigation, route }) => {
   }
   return (
     <Center w="100%">
-      <Box safeArea p="2" py="8" w="90%" maxW="290">
+      <Box safeArea p="2" py="8" w="90%">
         <Heading size="lg" fontWeight="600" color="coolGray.800" _dark={{
           color: "warmGray.50"
         }}>

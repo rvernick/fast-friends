@@ -2,6 +2,8 @@ import React, { useContext, useState } from "react";
 import { Box, Heading, VStack, FormControl, Text, Button, Center, WarningOutlineIcon, Select, Checkbox, FlatList, HStack, Input } from "native-base";
 import { GlobalStateContext } from "../config/GlobalContext";
 import BikeController from './BikeController';
+import MaintenanceList from "./MaintenanceList";
+import { convertToMiles } from "./utils";
 
 const groupsetBrands = [
   'Shimano',
@@ -17,6 +19,13 @@ export const BikeScreen = ({navigation, route, updateList}) => {
   const bike = route.params.bike;
   const isNew = bike.id == 0;
   const [bikeName, setBikeName] = useState(bike.name);
+  var defaultMileage = '0';
+  if (bike != null && bike.odometerMeters != null) {
+    const bikeMiles = convertToMiles(bike.odometerMeters);
+    defaultMileage = bikeMiles.toString();
+  }
+  const [mileage, setMileage] = useState(defaultMileage);
+  const [mileageError, setMileageError] = useState('');
   const [readOnly, setReadOnly] = useState(!isNew);
   const [groupsetBrand, setGroupsetBrand] = useState(bike.groupsetBrand);
   var defaultGroupsetSpeed = 12;
@@ -31,7 +40,6 @@ export const BikeScreen = ({navigation, route, updateList}) => {
   const email = appContext.getEmail();
   const user = appContext.getUser();
 
-
   const editOrDone = (value) => {
     if (!readOnly) {
       updateBike();
@@ -41,7 +49,14 @@ export const BikeScreen = ({navigation, route, updateList}) => {
   }
 
   const updateBike = async function() {
-    const result = await controller.updateBike(email, bike.id, bikeName, groupsetBrand, speed, isElectronic);
+    const result = await controller.updateBike(
+      email,
+      bike.id,
+      bikeName,
+      Number(mileage),
+      groupsetBrand,
+      speed,
+      isElectronic);
     console.log('update bike result: ' + result);
     if (result == '') {
       navigation.push('BikeList');
@@ -74,8 +89,29 @@ export const BikeScreen = ({navigation, route, updateList}) => {
   }
 
   const updateName = (name: string) => {
+    const msg = controller.isValidName(name);
+    if (msg.length > 0) {
+      setErrorMessage(msg);
+      return;
+    }
     setBikeName(name);
     setErrorMessage('');
+  }
+
+  const updateMileage = (value) => {
+    if (value.match(/^[0-9]*$/)) {
+      setMileage(value);
+      setMileageError('');
+    } else {
+      setMileageError('Mileage must be a number');
+    }
+  }
+
+  const electricSelected = (value) => {
+    console.log('electric selected:'+ value);
+    if (!readOnly) {
+      setIsElectronic(value);
+    }
   }
 
   return <Center w="100%">
@@ -98,8 +134,22 @@ export const BikeScreen = ({navigation, route, updateList}) => {
                 testID="error"
                 leftIcon={<WarningOutlineIcon size="xs" />}>
                   { errorMessage }
-                </FormControl.ErrorMessage>
-            </FormControl>
+            </FormControl.ErrorMessage>
+          </FormControl>
+          <FormControl isReadOnly={readOnly} isDisabled={readOnly}>
+          <FormControl.Label>Mileage</FormControl.Label>
+            <Input
+              testID="mileage"
+              isReadOnly={readOnly}
+              value={mileage}
+              onChangeText={updateMileage}
+            />
+            <FormControl.ErrorMessage
+              testID="mileageError"
+              leftIcon={<WarningOutlineIcon size="xs" />}>
+                { mileageError }
+            </FormControl.ErrorMessage>
+          </FormControl>
           <FormControl isReadOnly={readOnly} isDisabled={readOnly}>
             <Select
               isDisabled={readOnly}
@@ -122,18 +172,22 @@ export const BikeScreen = ({navigation, route, updateList}) => {
                 }
             </Select>
           </FormControl>
-          <FormControl >
-            <FormControl.Label>Electric</FormControl.Label>
+          <FormControl accessible={false} >
+            <FormControl.Label accessibilityLabel={isElectronic ? "Is Electric" : "Is manual"}>Electric</FormControl.Label>
             <Checkbox
+              aria-label="Is Electric"
+              accessibilityLabel={isElectronic ? "Is Electric" : "Is manual"}
               isReadOnly={readOnly}
+              isDisabled={readOnly}
               value="isElectronic"
               isChecked={isElectronic}
-              onChange={values => setIsElectronic(!isElectronic)}>
+              onChange={electricSelected}>
             </Checkbox>
           </FormControl>
           <HStack>
-            <Button onPress={ editOrDone } mt="2" colorScheme="indigo">
-                { readOnly? 'Edit' : 'Done' }
+            <Button onPress={ editOrDone } mt="2" colorScheme="indigo"
+              isDisabled={!readOnly && bikeName.length > 0}>
+                { readOnly ? 'Edit' : 'Done' }
             </Button>
             { (readOnly || isNew) ? null : <Button onPress={ cancel } mt="2" colorScheme="indigo"> Cancel </Button>}
             { (readOnly || isNew) ? null : <Button onPress={ deleteBike } mt="2" colorScheme="red"> Delete </Button>}
@@ -143,7 +197,9 @@ export const BikeScreen = ({navigation, route, updateList}) => {
       }}>
           Maintenance
         </Heading>
+
         </VStack>
       </Box>
+      <MaintenanceList navigation={navigation} bike={bike}/>
     </Center>;
 };

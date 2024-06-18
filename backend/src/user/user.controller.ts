@@ -15,6 +15,7 @@ import { User } from './user.entity';
 import { StravaAuthenticationDto } from './strava-authentication';
 import { UpdateBikeDto } from './update-bike.dto';
 import { DeleteBikeDto } from './delete-bike.dto';
+import { MaintenanceItem } from './maintenance-item.entity';
 
 @Controller('user')
 export class UserController {
@@ -45,5 +46,12 @@ export class UserController {
   deleteBike(@Body() bike: DeleteBikeDto): Promise<Bike | null> {
     console.log('user/add-or-update-bike bike:'+ JSON.stringify(bike));
     return this.userService.deleteBike(bike);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('maintenance-items')
+  getMaintenanceItems(@Query('username') username: string, @Query('bikeId') bikeId: number): Promise<MaintenanceItem[]> {
+    console.log('user/maintenance-items " + bikeId: '+ bikeId);
+    return this.userService.getMaintenanceItems(username, bikeId);
   }
 }

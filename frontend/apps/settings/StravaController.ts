@@ -96,9 +96,9 @@ class StravaController extends AppController {
 
   async linkToStrava(user) {
     console.log('Sending account to Strava for linking... ' + JSON.stringify(user));
+    console.log('Platform.OS: ' + Platform.OS);
 
     if (Platform.OS === 'web') {
-      console.log('Platform.OS:'+ Platform.OS);
       this.linkToStravaWeb(user, this.appContext);
     } else {
       this.linkToStravaMobile(user, this.appContext);
@@ -167,8 +167,8 @@ class StravaController extends AppController {
   */
   async linkToStravaMobile(user, appContext) {
     const stravaId = await appContext.getStravaClientId();
-    console.log('Sending account to Strava for linking... ' + user);
-    console.log(user.email);
+    console.log('Sending account to Strava for linking... ' + JSON.stringify(user));
+    console.log(user.username);
     const config = {
       clientId: await appContext.getStravaClientId(),
       clientSecret: await appContext.getStravaClientSecret(),

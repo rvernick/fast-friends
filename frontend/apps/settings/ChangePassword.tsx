@@ -10,8 +10,8 @@ export const ChangePassword = ({ navigation }) => {
   const [password, setEnteredPassword] = useState('');
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
-  const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');  
-  
+  const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');
+
   const updateOldPassword = function(newText: string) {
     setOldPassword(newText);
   }
@@ -54,10 +54,10 @@ export const ChangePassword = ({ navigation }) => {
         })
     }
   };
-  
+
 
   return <Center w="100%">
-      <Box safeArea p="2" py="8" w="90%" maxW="290">
+      <Box safeArea p="2" py="8" w="90%">
         <Heading size="lg" fontWeight="600" color="coolGray.800" _dark={{
         color: "warmGray.50"
       }}>
@@ -74,7 +74,7 @@ export const ChangePassword = ({ navigation }) => {
             isRequired
             isInvalid={passwordErrorMessage.length > 0} >
             <FormControl.Label>Old Password</FormControl.Label>
-            <Input 
+            <Input
               type="password"
               onChangeText={updateOldPassword}
               />
@@ -83,7 +83,7 @@ export const ChangePassword = ({ navigation }) => {
             isRequired
             isInvalid={passwordErrorMessage.length > 0} >
             <FormControl.Label>New Password</FormControl.Label>
-            <Input 
+            <Input
               type="password"
               onChangeText={updatePassword}
               onSubmitEditing={verifyPassword}
@@ -94,7 +94,7 @@ export const ChangePassword = ({ navigation }) => {
           </FormControl>
           <FormControl isRequired isInvalid={passwordConfirmErrorMessage.length > 0}>
             <FormControl.Label>Confirm Password</FormControl.Label>
-            <Input 
+            <Input
               type="password"
               onChangeText={updatePasswordConfirm}
               />

@@ -66,6 +66,12 @@ export class Bike {
   @Column({nullable: true})
   groupsetSpeed: number;
 
+  @Column({
+    default: 0,
+    nullable: false,
+  })
+  odometerMeters: number;
+
   @DeleteDateColumn({nullable: true})
   deletedOn: Date;
 

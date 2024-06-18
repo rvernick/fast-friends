@@ -3,6 +3,7 @@ import AppContext from "../config/app-context";
 import AppController from "../config/AppController";
 import { getInternal } from "../common/http_utils";
 import { sleep } from "../common/utils";
+import { Bike } from "../../models/bike";
 
 class BikeListController extends AppController {
   constructor(appContext: AppContext) {

@@ -12,6 +12,8 @@ import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
 import { UpdateBikeDto } from './update-bike.dto';
 import { DeleteBikeDto } from './delete-bike.dto';
+import { MaintenanceItem, defaultMaintenanceItems } from './maintenance-item.entity';
+import { log } from 'console';
 
 @Injectable()
 export class UserService {
@@ -141,6 +143,8 @@ export class UserService {
     newBike.stravaId = bike.id;
     newBike.type = bike.type;
     newBike.user = user;
+    newBike.odometerMeters = bike.distance;
+    newBike.maintenanceItems = defaultMaintenanceItems(newBike);
 //    user.addBike(newBike);
     this.bikesRepository.save(newBike);
     this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
@@ -264,5 +268,24 @@ export class UserService {
     }
 
     this.bikesRepository.softDelete(bike.id);
+  }
+
+  async getMaintenanceItems(username: string, bikeId: number): Promise<MaintenanceItem[]> {
+    const bike = await this.bikesRepository.findOneBy({ id: bikeId });
+    const user = await this.findUsername(username);
+    this.logger.log('info', 'Getting maintenance items for:'+ JSON.stringify(bike));
+    if (bike == null) return null;
+    var bikeAndUserMatch = false;
+    for (const userBike of user.bikes) {
+      if (userBike.id === bike.id) {
+        bikeAndUserMatch = true;
+        break;
+      }
+    }
+    if (!bikeAndUserMatch) {
+      this.logger.log('info', 'Bike and user do not match');
+    }
+    this.logger.log('info', 'Returning maintenance items: ' + bike.maintenanceItems.length);
+    return bike.maintenanceItems;
   }
 }
