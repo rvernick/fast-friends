@@ -25,7 +25,7 @@ export const PasswordReset = ({ navigation }) => {
   };
 
   return <Center w="100%">
-      <Box safeArea p="2" py="8" w="90%">
+      <Box safeArea p="2" py="8" w="90%" maxW="290">
         <Heading size="lg" fontWeight="600" color="coolGray.800" _dark={{
         color: "warmGray.50"
       }}>

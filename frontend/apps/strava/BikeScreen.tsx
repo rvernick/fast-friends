@@ -49,6 +49,7 @@ export const BikeScreen = ({navigation, route, updateList}) => {
   }
 
   const updateBike = async function() {
+    console.log('update bike mileage: ' + mileage);
     const result = await controller.updateBike(
       email,
       bike.id,
@@ -82,6 +83,7 @@ export const BikeScreen = ({navigation, route, updateList}) => {
     setBikeName(bike.name);
     setIsElectronic(bike.isElectronic);
     setErrorMessage('');
+    navigation.goBack();
   }
 
   const updateGroupsetBrand = (itemValue: string) => {
@@ -119,7 +121,7 @@ export const BikeScreen = ({navigation, route, updateList}) => {
         <Heading size="lg" fontWeight="600" color="coolGray.800" _dark={{
         color: "warmGray.50"
       }}>
-          {bikeName}
+          {bikeName.length > 0 ? bikeName : 'New Bike'}
         </Heading>
         <VStack space={3} mt="5">
           <FormControl isReadOnly={readOnly} isDisabled={readOnly} isRequired>
@@ -186,11 +188,11 @@ export const BikeScreen = ({navigation, route, updateList}) => {
           </FormControl>
           <HStack>
             <Button onPress={ editOrDone } mt="2" colorScheme="indigo"
-              isDisabled={!readOnly && bikeName.length > 0}>
+              isDisabled={!(readOnly || bikeName.length > 0)}>
                 { readOnly ? 'Edit' : 'Done' }
             </Button>
-            { (readOnly || isNew) ? null : <Button onPress={ cancel } mt="2" colorScheme="indigo"> Cancel </Button>}
-            { (readOnly || isNew) ? null : <Button onPress={ deleteBike } mt="2" colorScheme="red"> Delete </Button>}
+            <Button onPress={ cancel } mt="2" colorScheme="indigo"> Cancel </Button>
+            {(readOnly || isNew) ? null : <Button onPress={ deleteBike } mt="2" colorScheme="red"> Delete </Button>}
           </HStack>
           <Heading size="lg" fontWeight="600" color="coolGray.800" _dark={{
         color: "warmGray.50"

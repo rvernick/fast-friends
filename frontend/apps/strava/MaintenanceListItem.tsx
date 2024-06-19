@@ -10,6 +10,14 @@ const MaintenanceListItem = ({ maintenanceItem }) => {
 
   const email = appContext.getEmail();
 
+  const performedMaintenance = () => {
+    console.log('performed maintenance:'+ maintenanceItem.id);
+    controller.performedMaintenance(email, maintenanceItem);
+  }
+
+  const editMaintenanceItem = () => {
+    // navigation.push('MaintenanceItem', { maintenanceItem: maintenanceItem });
+  }
 
   return (
     <Box borderBottomWidth="1" _dark={{
@@ -30,11 +38,11 @@ const MaintenanceListItem = ({ maintenanceItem }) => {
         </VStack>
         <Spacer />
           <Button key={'done' + maintenanceItem.id} colorScheme="indigo"
-            onPress={() => console.log('Done: ' + JSON.stringify(maintenanceItem))}>
+            onPress={performedMaintenance}>
               Done
           </Button>
           <Button key={'edit' + maintenanceItem.id} colorScheme="indigo"
-            onPress={() => console.log('Edit: ' + JSON.stringify(maintenanceItem))}>
+            onPress={editMaintenanceItem}>
               Edit
           </Button>
       </HStack>

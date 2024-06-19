@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { Box, Center, Heading, VStack, ScrollView, Button, Spinner, FlatList } from 'native-base';
+import React, { useContext } from 'react';
+import { Box, Center, Heading, ScrollView, FlatList } from 'native-base';
 import { GlobalStateContext } from "../config/GlobalContext";
 import MaintenanceListController from './MaintenanceListController';
 import { useQuery } from'@tanstack/react-query';
@@ -39,10 +39,8 @@ const MaintenanceList = ({ bike, navigation }) => {
 
   const MaintenanceListComponent = ({ data }) => {
     return (
-      <ScrollView scrollEnabled={true} sc>
-        <FlatList data={data} renderItem={({item}) =>
+        <FlatList showsVerticalScrollIndicator={true} persistentScrollbar={true} scrollEnabled={true} data={data} renderItem={({item}) =>
           <MaintenanceListItem maintenanceItem={item}/>} keyExtractor={item => item.id} />
-      </ScrollView>
     );
   };
 
@@ -65,14 +63,12 @@ const MaintenanceList = ({ bike, navigation }) => {
     )
   }
   return (
-    <Center w="100%">
-      <Box safeArea p="2" py="8" w="100%">
+    <Center w="99%">
+      <Box safeArea p="2" py="8" w="99%">
         <MaintenanceListComponent data={data}/>
       </Box>
     </Center>
   );
 };
-
-// navigation.push('Bike', { bike })
 
 export default MaintenanceList;

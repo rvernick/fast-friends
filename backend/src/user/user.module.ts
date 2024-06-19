@@ -7,10 +7,11 @@ import { HttpModule } from '@nestjs/axios';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from '../auth/auth.guard';
 import { UserController } from './user.controller';
+import { MaintenanceItem } from './maintenance-item.entity';
 import { PasswordReset } from './password-reset.entity';
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, PasswordReset])],
+  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, MaintenanceItem, PasswordReset])],
   providers: [
     {
       provide: APP_GUARD,

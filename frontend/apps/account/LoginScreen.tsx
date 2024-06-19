@@ -63,7 +63,7 @@ export const LoginScreen = ({ navigation, loggedInMonitor }) => {
   const theme = useTheme();
   const bgColor = theme.colors[50];
   return <Center w="100%" colorScheme={"primary"} >
-      <Box safeArea p="2" py="8" w="90%">
+      <Box safeArea p="2" py="8" w="90%" maxW="290">
         <Heading size="lg" fontWeight="600" color="primary.800" _dark={{
         color: "primary.50"
       }}>

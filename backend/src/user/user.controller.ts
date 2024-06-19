@@ -50,8 +50,15 @@ export class UserController {
 
   @HttpCode(HttpStatus.OK)
   @Get('maintenance-items')
-  getMaintenanceItems(@Query('username') username: string, @Query('bikeId') bikeId: number): Promise<MaintenanceItem[]> {
+  getMaintenanceItems(@Query('username') username: string, @Query('bikeId') bikeId: number, @Query('latest') latest: boolean): Promise<MaintenanceItem[]> {
     console.log('user/maintenance-items " + bikeId: '+ bikeId);
-    return this.userService.getMaintenanceItems(username, bikeId);
+    return this.userService.getMaintenanceItems(username, bikeId, latest);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('performed-maintenance')
+  performedMaintenance(@Body() maintenanceItemId: number): Promise<MaintenanceItem | null> {
+    console.log('user/performed-maintenance maintenanceItem:'+ (maintenanceItemId));
+    return this.userService.performedMaintenance(maintenanceItemId);
   }
 }

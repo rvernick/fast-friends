@@ -41,7 +41,7 @@ class BikeController extends AppController {
         username: username,
         id: id,
         name: name,
-        milage: convertToMeters(milage),
+        odometerMeters: convertToMeters(milage),
         groupsetBrand: groupsetBrand,
         groupsetSpeed: Number(groupsetSpeed),
         isElectronic: isElectronic,

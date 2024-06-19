@@ -12,8 +12,7 @@ import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
 import { UpdateBikeDto } from './update-bike.dto';
 import { DeleteBikeDto } from './delete-bike.dto';
-import { MaintenanceItem, defaultMaintenanceItems } from './maintenance-item.entity';
-import { log } from 'console';
+import { MaintenanceItem, defaultMaintenanceItems, nextMaintenanceItem } from './maintenance-item.entity';
 
 @Injectable()
 export class UserService {
@@ -24,6 +23,8 @@ export class UserService {
     private usersRepository: Repository<User>,
     @InjectRepository(Bike)
     private bikesRepository: Repository<Bike>,
+    @InjectRepository(MaintenanceItem)
+    private maintenanceItemsRepository: Repository<MaintenanceItem>,
     @InjectRepository(PasswordReset)
     private passwordResetRepository: Repository<PasswordReset>,
     @Inject(ConfigService)
@@ -241,6 +242,8 @@ export class UserService {
     var bike: Bike;
     if (bikeDto.id == 0) {
       bike = new Bike();
+      bike.odometerMeters = bikeDto.odometerMeters;
+      bike.maintenanceItems = defaultMaintenanceItems(bike);
     } else {
       const id = bikeDto.id;
       bike = await this.bikesRepository.findOneBy({ id });
@@ -249,6 +252,7 @@ export class UserService {
     bike.name = bikeDto.name;
     bike.setGroupsetBrand(bikeDto.groupsetBrand);
     bike.groupsetSpeed = bikeDto.groupsetSpeed;
+    bike.odometerMeters = bikeDto.odometerMeters;
     bike.isElectronic = bikeDto.isElectronic;
     bike.user = user;
     this.bikesRepository.save(bike);
@@ -270,11 +274,11 @@ export class UserService {
     this.bikesRepository.softDelete(bike.id);
   }
 
-  async getMaintenanceItems(username: string, bikeId: number): Promise<MaintenanceItem[]> {
+  async getMaintenanceItems(username: string, bikeId: number, latest: boolean): Promise<MaintenanceItem[]> {
     const bike = await this.bikesRepository.findOneBy({ id: bikeId });
     const user = await this.findUsername(username);
     this.logger.log('info', 'Getting maintenance items for:'+ JSON.stringify(bike));
-    if (bike == null) return null;
+    if (bike == null) return [];
     var bikeAndUserMatch = false;
     for (const userBike of user.bikes) {
       if (userBike.id === bike.id) {
@@ -285,7 +289,20 @@ export class UserService {
     if (!bikeAndUserMatch) {
       this.logger.log('info', 'Bike and user do not match');
     }
-    this.logger.log('info', 'Returning maintenance items: ' + bike.maintenanceItems.length);
+
+    if (latest) {
+      return bike.maintenanceItems.filter((item) => !item.completed);
+    }
     return bike.maintenanceItems;
-  }
+  };
+
+  async performedMaintenance(maintenanceItemId: number) : Promise<MaintenanceItem> {
+    this.logger.log('info', 'Performing maintenance item:'+ maintenanceItemId);
+    const maintenanceItem = await this.maintenanceItemsRepository.findOneBy({ id: maintenanceItemId });
+    const newMaintenanceItem = nextMaintenanceItem(maintenanceItem);
+    maintenanceItem.completed = true;
+    this.maintenanceItemsRepository.save(newMaintenanceItem);
+    this.maintenanceItemsRepository.save(maintenanceItem);
+    return newMaintenanceItem;
+  };
 }

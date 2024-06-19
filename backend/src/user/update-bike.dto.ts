@@ -16,6 +16,9 @@ export class UpdateBikeDto {
   @IsNumber()
   groupsetSpeed: number;
 
+  @IsNumber()
+  odometerMeters: number;
+
   @IsBoolean()
   isElectronic: boolean;
 }

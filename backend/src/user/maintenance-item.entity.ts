@@ -25,11 +25,21 @@ export enum Part {
   TUNE_UP = "Tune Up",
 }
 
+const defaultLongevity = (part: Part): number => {
+  if (part === Part.FRONT_BRAKE_PADS || part === Part.REAR_BRAKE_PADS) {
+    return oneThousandMilesInMeters;
+  }
+  return threeThousandMilesInMeters;
+}
+
+const oneThousandMilesInMeters = 1609344;
+const threeThousandMilesInMeters = 4828032;
+
 export const defaultMaintenanceItems = (bike: Bike): MaintenanceItem[] => {
   const maintenanceItems: MaintenanceItem[] = [];
   const odometerMeters = bike.odometerMeters == null ? 0 : bike.odometerMeters;
-  const oneThousandMiles = odometerMeters + 1609344;
-  const threeThousandMiles = odometerMeters + 4828032;
+  const oneThousandMiles = odometerMeters + oneThousandMilesInMeters;
+  const threeThousandMiles = odometerMeters + threeThousandMilesInMeters;
   maintenanceItems.push(createMaintenanceItem(Part.CHAIN, threeThousandMiles));
   maintenanceItems.push(createMaintenanceItem(Part.CASSETTE, threeThousandMiles));
   maintenanceItems.push(createMaintenanceItem(Part.FRONT_TIRE, threeThousandMiles));
@@ -46,9 +56,25 @@ const createMaintenanceItem = (part: Part, distance: number): MaintenanceItem =>
   return maintenanceItem;
 }
 
+export const nextMaintenanceItem = (maintenanceItem: MaintenanceItem): MaintenanceItem => {
+  const nextMaintenanceItem = new MaintenanceItem();
+  const bike = maintenanceItem.bike;
+  nextMaintenanceItem.part = maintenanceItem.part;
+  nextMaintenanceItem.type = maintenanceItem.type;
+  nextMaintenanceItem.brand = maintenanceItem.brand;
+  nextMaintenanceItem.model = maintenanceItem.model;
+  nextMaintenanceItem.link = maintenanceItem.link;
+  nextMaintenanceItem.dueDistanceMeters = bike.odometerMeters + defaultLongevity(maintenanceItem.part);
+  nextMaintenanceItem.dueDate = maintenanceItem.dueDate;
+  nextMaintenanceItem.completed = maintenanceItem.completed;
+  nextMaintenanceItem.bike = bike;
+  return nextMaintenanceItem;
+}
+
 @Entity()
 export class MaintenanceItem {
   constructor() {
+    this.completed = false;
   }
 
   @PrimaryGeneratedColumn()
