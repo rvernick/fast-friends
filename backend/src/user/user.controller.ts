@@ -57,7 +57,7 @@ export class UserController {
 
   @HttpCode(HttpStatus.OK)
   @Post('performed-maintenance')
-  performedMaintenance(@Body() maintenanceItemId: number): Promise<MaintenanceItem | null> {
+  performedMaintenance(@Body('maintenanceItemId') maintenanceItemId: number): Promise<MaintenanceItem | null> {
     console.log('user/performed-maintenance maintenanceItem:'+ (maintenanceItemId));
     return this.userService.performedMaintenance(maintenanceItemId);
   }

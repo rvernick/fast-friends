@@ -299,9 +299,14 @@ export class UserService {
   async performedMaintenance(maintenanceItemId: number) : Promise<MaintenanceItem> {
     this.logger.log('info', 'Performing maintenance item:'+ maintenanceItemId);
     const maintenanceItem = await this.maintenanceItemsRepository.findOneBy({ id: maintenanceItemId });
-    const newMaintenanceItem = nextMaintenanceItem(maintenanceItem);
+    const bike = await maintenanceItem.bike;
+    this.logger.log('info', 'Performing maintenance item:'+ JSON.stringify(bike))
+    const newMaintenanceItem = await nextMaintenanceItem(maintenanceItem);
     maintenanceItem.completed = true;
-    this.maintenanceItemsRepository.save(newMaintenanceItem);
+    bike.maintenanceItems.push(newMaintenanceItem);
+    // with cascade: true, both items should be saved, but only the new one seems to be
+    this.bikesRepository.save(bike);
+    // the old one has to be explicitly saved so that the completed property is updated
     this.maintenanceItemsRepository.save(maintenanceItem);
     return newMaintenanceItem;
   };

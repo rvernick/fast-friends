@@ -56,19 +56,19 @@ const createMaintenanceItem = (part: Part, distance: number): MaintenanceItem =>
   return maintenanceItem;
 }
 
-export const nextMaintenanceItem = (maintenanceItem: MaintenanceItem): MaintenanceItem => {
-  const nextMaintenanceItem = new MaintenanceItem();
-  const bike = maintenanceItem.bike;
-  nextMaintenanceItem.part = maintenanceItem.part;
-  nextMaintenanceItem.type = maintenanceItem.type;
-  nextMaintenanceItem.brand = maintenanceItem.brand;
-  nextMaintenanceItem.model = maintenanceItem.model;
-  nextMaintenanceItem.link = maintenanceItem.link;
-  nextMaintenanceItem.dueDistanceMeters = bike.odometerMeters + defaultLongevity(maintenanceItem.part);
-  nextMaintenanceItem.dueDate = maintenanceItem.dueDate;
-  nextMaintenanceItem.completed = maintenanceItem.completed;
-  nextMaintenanceItem.bike = bike;
-  return nextMaintenanceItem;
+export const nextMaintenanceItem = async (maintenanceItem: MaintenanceItem): Promise<MaintenanceItem> => {
+  const replacementMaintenanceItem = new MaintenanceItem();
+  const bike = await maintenanceItem.bike;
+  bike.maintenanceItems.push(replacementMaintenanceItem);
+  replacementMaintenanceItem.part = maintenanceItem.part;
+  replacementMaintenanceItem.type = maintenanceItem.type;
+  replacementMaintenanceItem.brand = maintenanceItem.brand;
+  replacementMaintenanceItem.model = maintenanceItem.model;
+  replacementMaintenanceItem.link = maintenanceItem.link;
+  replacementMaintenanceItem.dueDistanceMeters = bike.odometerMeters + defaultLongevity(maintenanceItem.part);
+  replacementMaintenanceItem.dueDate = maintenanceItem.dueDate;
+  replacementMaintenanceItem.completed = maintenanceItem.completed;
+  return replacementMaintenanceItem;
 }
 
 @Entity()
@@ -79,9 +79,8 @@ export class MaintenanceItem {
 
   @PrimaryGeneratedColumn()
   id: number;
-
-  @ManyToOne((type) => Bike, { nullable: false, cascade: false })
-  bike: Bike;
+  @ManyToOne((type) => Bike, (bike) => bike.maintenanceItems, { nullable: false })
+  bike: Promise<Bike>;
 
   @Column({
     type: "enum",
