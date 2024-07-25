@@ -1,4 +1,5 @@
-import {Stack} from 'expo-router';
+import {Slot, Stack} from 'expo-router';
+import { SessionProvider } from "../ctx";
 import {
   adaptNavigationTheme,
   MD3DarkTheme,
@@ -35,14 +36,9 @@ export default function RootLayout() {
   return (
     <PaperProvider theme={colorScheme}> 
       <ThemeProvider value={colorScheme}>
-        <Stack>
-          <Stack.Screen
-                name="(tabs)"
-                options={{
-                  headerShown: false,
-                }}
-              />
-        </Stack>
+        <SessionProvider>
+          <Slot />
+        </SessionProvider>
       </ThemeProvider>
     </PaperProvider>
   )
