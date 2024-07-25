@@ -1,9 +1,14 @@
+import { useSession } from "@/ctx";
+import { router } from "expo-router";
 import { View } from "react-native";
 import { Avatar, Button, Card, Text } from "react-native-paper";
 
 const LeftContent = (props: any) => <Avatar.Icon {...props} icon="folder" />;
 
 export default function Index() {
+  const goHome = () => { router.push("/") };
+  const { signOut } = useSession();
+  
   return (
     <View
       style={{
@@ -27,9 +32,12 @@ export default function Index() {
           </Text>
         </Card.Content>
         <Card.Actions>
-          <Button>Open</Button>
+          <Button onPress={goHome}>Open</Button>
         </Card.Actions>
       </Card>
+      <Button mode="contained" onPress={signOut}>
+        Log Out
+      </Button>
     </View>
   );
 }
