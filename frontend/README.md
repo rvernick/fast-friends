@@ -4,6 +4,15 @@
 
 ## Installation
 
+Clone the repository (if not already cloned)
+```bash
+$ git clone https://github.com/rvernick/fast-friends.git
+```
+Move to frontent repository on local device
+```bash
+$ cd fast-friends/frontend/
+```
+Install Frontend package.json
 ```bash
 $ npm install
 ```

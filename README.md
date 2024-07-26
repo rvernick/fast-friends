@@ -11,10 +11,10 @@
 
 ## Description
 
-There are two servers in FastFriends: backend and frontend.  Refer to each subdirectory's readme to install and run those servers.
+There are two servers in FastFriends: [backend](https://github.com/rvernick/fast-friends/blob/main/backend/README.md) and [frontend](https://github.com/rvernick/fast-friends/blob/main/frontend/README.md).  Refer to each subdirectory's readme to install and run those servers.
 
 ## Stay in touch
 
 - Author - [Russ Vernick](mailto:rvernick@yahoo.com)
-- ToDo - [FastFriends Pivot](https://www.pivotaltracker.com/n/projects/2639100)
+- ToDo - [Trello FastFriends](https://trello.com/b/kyMVNEo0/fast-friends)
 - iOS App - Coming soon
