@@ -5,6 +5,8 @@ import { login } from "../../common/utils";
 import { baseUrl } from "../../common/http-utils";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
+import { Button } from "react-native-paper";
+import { router } from "expo-router";
 
 export const LoginScreen = () => {
   const { appContext } = useContext(GlobalStateContext);
@@ -64,9 +66,12 @@ export const LoginScreen = () => {
       <ThemedText>
         Need to create email and password fields with a submit button
       </ThemedText>
+      <Button onPress={() => router.replace('/create-account')}>
+        Create Account
+      </Button>
     </ThemedView>
   ); 
-  
+
   /**  was... 
   <Center w="100%" colorScheme={"primary"} >
       <Box safeArea p="2" py="8" w="90%" maxW="290">
