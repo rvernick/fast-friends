@@ -21,6 +21,9 @@ class AppContext {
   };
 
   public ensureUpToDate() {
+    if (this._email == null || this._jwtToken == null) {
+      return;
+    }
     try {
       this.syncEmail();
       this.syncJwtToken();
@@ -45,6 +48,9 @@ class AppContext {
   }
 
   private syncCache() {
+    if (this._email == null || this._jwtToken == null) {
+      return;
+    }
     AsyncStorage.getAllKeys()
       .then((keys) => {
         keys.forEach((key) => {
