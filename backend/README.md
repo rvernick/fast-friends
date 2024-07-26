@@ -7,6 +7,15 @@ This is the backend server for FastFriends.  It uses the following framworks:
 
 ## Installation
 
+Clone the repository (if not already cloned)
+```bash
+$ git clone https://github.com/rvernick/fast-friends.git
+```
+Move to backend repository on local device
+```bash
+$ cd fast-friends/backend/
+```
+Install Backend package.json
 ```bash
 $ npm install
 ```
