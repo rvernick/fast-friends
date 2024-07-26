@@ -1,3 +1,4 @@
+import { ThemedView } from "@/components/ThemedView";
 import { useSession } from "@/ctx";
 import { router } from "expo-router";
 import { View } from "react-native";
@@ -9,8 +10,13 @@ export default function Index() {
   const goHome = () => { router.push("/") };
   const { signOut } = useSession();
   
+  const logout = () => {
+    signOut();
+    goHome();
+  };
+
   return (
-    <View
+    <ThemedView
       style={{
         flex: 1,
         margin: 16,
@@ -35,9 +41,9 @@ export default function Index() {
           <Button onPress={goHome}>Open</Button>
         </Card.Actions>
       </Card>
-      <Button mode="contained" onPress={signOut}>
+      <Button mode="contained" onPress={logout}>
         Log Out
       </Button>
-    </View>
+    </ThemedView>
   );
 }
