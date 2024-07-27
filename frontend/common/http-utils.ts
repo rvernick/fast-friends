@@ -18,7 +18,7 @@ export const getInternal = async (url: string, parameters: any, jwtTokenPromise:
   return get(fullUrl, parameters, jwtToken.access_token);
 };
 
-export const get = (url: string, parameters: any, access_token: string) => {
+export const get = (url: string, parameters: any, access_token: string | null) => {
   var fullUrl = url
   if (parameters != null && Object.keys(parameters).length > 0) {
     fullUrl = fullUrl + '?' + objToQueryString(parameters);
