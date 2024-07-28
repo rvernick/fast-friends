@@ -6,27 +6,28 @@ import { fetchUser, fetchSecrets } from "../common/utils";
 class AppContext {
   private queryClient: QueryClient;
   private hotStringCache = new Map<string, string>();
-  private _jwtToken: string | null;
+  private _session: any;
   private _jwtTokenExpiration: Date | null;
-  private _email: string | null;
-  private _syncingJwtToken = true;
-  private _syncingEmail = true;
+  private testing: boolean = true;
 
-  constructor(queryClient: QueryClient) {
+  constructor(queryClient: QueryClient, session: any) {
     this.queryClient = queryClient;
-    this._jwtToken = null;
+    this._session = session;
     this._jwtTokenExpiration = null;
-    this._email = null;
     this.ensureUpToDate();
   };
 
+  public signIn(jwtToken: any, username: string) {
+    this._session.signIn(jwtToken, username);
+  }
+  
   public ensureUpToDate() {
-    if (this._email == null || this._jwtToken == null) {
+    if (this._session == null || this.testing) {
       return;
     }
     try {
-      this.syncEmail();
-      this.syncJwtToken();
+      // this.syncEmail();
+      // this.syncJwtToken();
       this.syncCache();
     } catch (error) {
       console.error(error);
@@ -47,10 +48,8 @@ class AppContext {
     return this.hotStringCache.get(key);
   }
 
+// TODO: Should move this to use similar logic to ctx.tsx
   private syncCache() {
-    if (this._email == null || this._jwtToken == null) {
-      return;
-    }
     AsyncStorage.getAllKeys()
       .then((keys) => {
         keys.forEach((key) => {
@@ -104,15 +103,6 @@ class AppContext {
     this.queryClient.invalidateQueries({queryKey: ['user', this.getEmail()]});
   }
 
-  private callFetchUser(): Promise<User | null> {
-    const email = this.getEmail();
-    console.log('fetching user: ' + email);
-    if (email == null || email == '') {
-      return Promise.resolve(null);
-    }
-    return fetchUser(email, this);
-  }
-
   async getUserPromise(): Promise<User | null> {
     const email = this.getEmail();
     if (email == null || email == '') {
@@ -138,8 +128,7 @@ class AppContext {
   }
 
   public async getSecrets(): Promise<any> {
-    const isLoggedIn = await this.isLoggedInPromise();
-    if (!isLoggedIn) { return; }
+    if (!this.isLoggedIn()) { return; }
     const email = this.getEmail();
     console.log('context updating secrets: ' + email);
     return this.getQueryClient().fetchQuery({
@@ -160,23 +149,18 @@ class AppContext {
   }
 
   public getEmail(): string | null {
-    this.syncEmail();
-    return this._email;
+    if (this._session == null) {
+      return null;
+    }
+    return this._session.email;
   }
 
   public getEmailPromise(): Promise<any> {
     return AsyncStorage.getItem('email');
   }
 
-  public setEmail(anEmail: string) {
-    this._email = anEmail;
-    AsyncStorage.setItem('email',anEmail);
-  }
-
   public getJwtToken() {
-    this.syncJwtToken();
-    this.checkJwtExpiration();
-    return this._jwtToken;
+    return this._session.jwt_token
   }
 
   public async getJwtTokenPromise(): Promise<any> {
@@ -187,36 +171,12 @@ class AppContext {
     return null;
   }
 
-  private async syncJwtToken() {
-    const token = await AsyncStorage.getItem('jwtToken');
-    const expiration = await AsyncStorage.getItem('jwtExpiration');
-    if (token != null) {
-      this._jwtToken = JSON.parse(token);
-    }
-    if (expiration != null) {
-      this._jwtTokenExpiration = new Date(expiration);
-    }
-  };
-
-  private syncEmail() {
-    AsyncStorage.getItem('email')
-      .then((value) => {
-        console.log('syncing email:'+ value);
-        if (value == null) { return; }
-        this._email = value;
-      })
-      .catch((error) => {
-        console.log('error getting email from storage:'+ error);
-      });
-  };
-
   public hasLoginExpired() {
     return this._jwtTokenExpiration != null && this._jwtTokenExpiration < new Date();
   }
 
   public clearJwtToken() {
-    AsyncStorage.removeItem('jwtToken');
-    this._jwtToken = null;
+    this._session.signOut();
   }
 
   public clearJwtExpiration() {
@@ -242,18 +202,6 @@ class AppContext {
   private async getFromStorage(key: string) {
     let result = null;
     return await AsyncStorage.getItem(key)
-  }
-
-
-  public set jwtToken(token: string) {
-    if (token != null) {
-      this.setJwtExpiration();
-    } else {
-      AsyncStorage.removeItem('jwtToken');
-    }
-    console.log('setting jwtToken to:'+ token.toString());
-    AsyncStorage.setItem('jwtToken', JSON.stringify(token));
-    this._jwtToken = token;
   }
 
   setJwtExpiration() {
@@ -294,10 +242,11 @@ class AppContext {
 
   isLoggedIn() {
     const email = this.getEmail();
-    console.log('checking is logged email: ' + this.getEmail());
-    console.log('checking is logged setting: ' + this._jwtToken);
+    const token = this.getJwtToken();
+    console.log('checking is logged email: ' + email);
+    console.log('checking is logged setting: ' + token);
     const result = email != null && email.length > 0
-      && this._jwtToken != null;
+      && token != null && token.length > 0;
     console.log('checking is logged in: ' + result);
     return result;
   }

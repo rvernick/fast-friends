@@ -10,7 +10,7 @@ export default function SignIn() {
     <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <ThemedText
         onPress={() => {
-          signIn();
+          signIn('jwt_token', 'email@example.com');
           // Navigate after signing in. You may want to tweak this to ensure sign-in is
           // successful before navigating.
           router.replace('/(home)');
