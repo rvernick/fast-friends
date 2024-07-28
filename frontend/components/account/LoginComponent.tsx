@@ -7,6 +7,7 @@ import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
 import { Button } from "react-native-paper";
 import { router } from "expo-router";
+import { Avatar, Card, Text, TextInput } from 'react-native-paper';
 
 export const LoginScreen = () => {
   const { appContext } = useContext(GlobalStateContext);
@@ -61,14 +62,25 @@ export const LoginScreen = () => {
       });
   };
 
+
   return (
     <ThemedView>
-      <ThemedText>
-        Need to create email and password fields with a submit button
-      </ThemedText>
-      <Button onPress={() => router.replace('/create-account')}>
-        Create Account
-      </Button>
+        <Card>
+          <Card.Title title="Fast Friends"></Card.Title>
+          <Card.Content>
+              <TextInput label="Email" keyboardType="email-address" onChangeText={updateEmail}></TextInput>
+              <TextInput label="Password" secureTextEntry={true} onChangeText={updatePassword} ></TextInput>
+              <Button onPress={() => loginSubmit}>
+                Confirm
+              </Button>
+              <Button onPress={() => router.replace('/password-reset')}>
+              Forgot email/password
+              </Button>
+              <Button onPress={() => router.replace('/create-account')}>
+                Create Account
+              </Button>
+          </Card.Content>
+        </Card>  
     </ThemedView>
   ); 
 
