@@ -4,7 +4,7 @@ import { QueryClient } from '@tanstack/react-query';
 
 const invalidEmailMessage = 'Please enter valid email';
 
-const controller = new CreateAccountController(new AppContext(new QueryClient()));
+const controller = new CreateAccountController(new AppContext(new QueryClient(), null));
 describe('Email verifications', () => {
   it('Clearly invalid', () => {
     expect(controller.verifyEmail('noAmpersand')).toBe(invalidEmailMessage);

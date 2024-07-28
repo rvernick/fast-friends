@@ -1,22 +1,21 @@
-import React, { useContext, useState } from "react";
-import { GlobalStateContext } from "../../common/GlobalContext";
+import React, { useState } from "react";
+import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
 import { isValidPhone } from '../../common/utils';
 import StravaController from "./StravaController";
-import { useFocusEffect } from "@react-navigation/native";
 import { ThemedView } from "../ThemedView";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { router } from "expo-router";
 
 export const SettingsComponent = () => {
-  const { appContext } = useContext(GlobalStateContext);
+  const appContext  = useGlobalContext();
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
   const [userInvalid, setUserInvalid] = useState(false);
 
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
-  var email = appContext.getEmail();
+  var email = appContext.getEmail() == null ? '' : appContext.getEmail();
   if (email == null) {
     email = '';
   }

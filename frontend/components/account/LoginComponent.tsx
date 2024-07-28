@@ -1,15 +1,16 @@
 import React, { ChangeEvent, useContext, useState } from "react";
 import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
-import { GlobalStateContext } from "../../common/GlobalContext";
 import { login } from "../../common/utils";
 import { baseUrl } from "../../common/http-utils";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
 import { Button } from "react-native-paper";
 import { router } from "expo-router";
+import { useSession } from "@/ctx";
+import { useGlobalContext } from "@/common/GlobalContext";
 
 export const LoginScreen = () => {
-  const { appContext } = useContext(GlobalStateContext);
+  const appContext = useGlobalContext();
   var user = '';
   var pword = '';
 

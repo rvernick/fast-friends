@@ -1,25 +1,18 @@
 import AppContext from "./app-context";
 
 class AppController {
-  _appContext: AppContext;
-  _baseUrl: string;
+  private _appContext: AppContext;
 
-  constructor(context: AppContext) {
-    this._appContext = context;
-    this._appContext.ensureUpToDate();
-    this._baseUrl = context.baseUrl();
+  constructor(appContext: AppContext) {
+    this._appContext = appContext;
   }
 
-  public get baseUrl() {
-    return this._baseUrl;
+  public getUser(appContext: AppContext): Promise<User | null> {
+    return this._appContext.getUserPromise();
   }
 
-  public get appContext() {
+  get appContext(): AppContext {
     return this._appContext;
-  }
-
-  public get isLoggedIn() {
-    return this._appContext.isLoggedIn;
   }
 }
 

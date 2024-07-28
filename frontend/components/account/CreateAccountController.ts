@@ -4,9 +4,6 @@ import { isValidPassword, invalidPasswordMessage, isValidEmail } from "../../com
 import { post } from '../../common/http-utils';
 
 class CreateAccountController extends AppController {
-  constructor(appContext: AppContext) {
-    super(appContext);
-  }
 
   public createAccount(username: string, password: string) {
     this.verifyEmail(username);

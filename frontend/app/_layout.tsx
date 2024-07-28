@@ -1,4 +1,4 @@
-import {Slot, Stack} from 'expo-router';
+import { Slot } from 'expo-router';
 import { SessionProvider } from "../ctx";
 import {
   adaptNavigationTheme,
@@ -37,11 +37,11 @@ export default function RootLayout() {
   return (
     <PaperProvider theme={colorScheme}> 
       <ThemeProvider value={colorScheme}>
-        <GlobalStateProvider>
-          <SessionProvider>
+        <SessionProvider>
+          <GlobalStateProvider>
             <Slot />
-          </SessionProvider>
-        </GlobalStateProvider>
+          </GlobalStateProvider>
+        </SessionProvider>
       </ThemeProvider>
     </PaperProvider>
   )

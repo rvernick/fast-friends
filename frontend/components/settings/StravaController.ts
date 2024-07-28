@@ -6,9 +6,6 @@ import { post, postExternal } from "../../common/http-utils";
 import { doTokenExchange, stravaBase } from "../strava/utils";
 
 class StravaController extends AppController {
-  constructor(appContext: AppContext) {
-    super(appContext);
-  }
 
   async updateStravaCode(appContext: AppContext, stravaCode: string) {
     this.saveStravaCode(appContext, stravaCode);
@@ -23,7 +20,7 @@ class StravaController extends AppController {
 
   async syncStravaInfo(appContext: AppContext, stravaCode: string) {
     console.log('syncStravaInfo');
-    const username = await appContext.getEmailPromise();
+    const username = appContext.getEmail();
     console.log('sync username:'+ username);
     try {
       const body = {
@@ -48,14 +45,14 @@ class StravaController extends AppController {
   async saveStravaCode(appContext: AppContext, stravaCode: string) {
     console.log('saveStravaCode:'+ stravaCode);
     appContext.put('stravaCode ', stravaCode);
-    const username = await appContext.getEmailPromise();
+    const username = appContext.getEmail();
     try {
       const body = {
         username: username,
         stravaCode: stravaCode,
       };
 
-      const response = await post('/auth/update-strava', body, this.appContext.getJwtTokenPromise());
+      const response = await post('/auth/update-strava', body, appContext.getJwtTokenPromise());
       if (response.ok) {
         return '';
       }

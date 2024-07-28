@@ -43,9 +43,6 @@ class SettingsController extends AppController {
     }
   }
 
-  getUser = (username: string, appContext: AppContext): Promise<User | null>  => {
-    return fetchUser(username, appContext);
-  }
 };
 
 

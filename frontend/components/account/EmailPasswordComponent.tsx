@@ -1,10 +1,10 @@
 import React, { useContext, useState } from "react";
-import { GlobalStateContext } from "../../common/GlobalContext";
 import { invalidPasswordMessage, isValidEmail, isValidPassword, login } from '../../common/utils';
 import { ThemedView } from "../ThemedView";
 import { Button, TextInput, HelperText } from "react-native-paper";
 import { router } from "expo-router";
 import CreateAccountController from "./CreateAccountController";
+import { useSession } from "@/ctx";
 
 
 interface EmailPasswordComponentProps {
@@ -12,7 +12,7 @@ interface EmailPasswordComponentProps {
 }
 
 export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ controller }) => {
-  const { appContext } = useContext(GlobalStateContext);
+  const authContext = useSession();
   const [email, setEnteredEmail] = useState('');
   const [password, setEnteredPassword] = useState('');
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
@@ -20,7 +20,7 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');
 
-  console.log('email password context: ' + appContext);
+  console.log('email password context: ' +  authContext);
 
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
