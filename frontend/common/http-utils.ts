@@ -18,7 +18,7 @@ export const getInternal = async (url: string, parameters: any, jwtTokenPromise:
   return get(fullUrl, parameters, jwtToken.access_token);
 };
 
-export const get = (url: string, parameters: any, access_token: string) => {
+export const get = (url: string, parameters: any, access_token: string | null) => {
   var fullUrl = url
   if (parameters != null && Object.keys(parameters).length > 0) {
     fullUrl = fullUrl + '?' + objToQueryString(parameters);
@@ -48,11 +48,11 @@ function objToQueryString(obj: { [x: string]: string | number | boolean; }) {
   return keyValuePairs.join('&');
 }
 
-export const post = (endpoint: string, body: Object, jwtTokenPromise: Promise<any>) => {
+export const post = (endpoint: string, body: Object, jwtTokenPromise: Promise<any> | null) => {
   return postExternal(baseUrl(), endpoint, body, jwtTokenPromise);
 };
 
-export const postExternal = async (urlBase: string, endpoint: string, args: Object, jwtTokenPromise: Promise<any>) => {
+export const postExternal = async (urlBase: string, endpoint: string, args: Object, jwtTokenPromise: Promise<any> | null) => {
   var jwtToken = null;
   var headers = {};
   if (jwtTokenPromise != null) {

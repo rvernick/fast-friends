@@ -1,4 +1,4 @@
-import {Slot, Stack} from 'expo-router';
+import { Slot } from 'expo-router';
 import { SessionProvider } from "../ctx";
 import {
   adaptNavigationTheme,
@@ -16,6 +16,7 @@ import merge from "deepmerge";
 
 import { Colors } from "../constants/Colors";
 import { useColorScheme } from 'react-native';
+import { GlobalStateProvider } from '@/common/GlobalContext';
 
 const customDarkTheme = { ...MD3DarkTheme, colors: Colors.dark };
 const customLightTheme = { ...MD3LightTheme, colors: Colors.light };
@@ -37,7 +38,9 @@ export default function RootLayout() {
     <PaperProvider theme={colorScheme}> 
       <ThemeProvider value={colorScheme}>
         <SessionProvider>
-          <Slot />
+          <GlobalStateProvider>
+            <Slot />
+          </GlobalStateProvider>
         </SessionProvider>
       </ThemeProvider>
     </PaperProvider>

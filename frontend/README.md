@@ -62,5 +62,6 @@ npm install react-native-safe-area-context
 npx expo install expo-secure-store
 npm run reset-project
 npm install react-native-paper
+npm i react-native-app-auth
 ```
 Tweaked index and layout files to incorporate light/dark modes and most of the theme info
