@@ -67,8 +67,8 @@ export const LoginScreen = () => {
       <ThemedText>
         Need to create email and password fields with a submit button
       </ThemedText>
-      <Button onPress={() => router.replace('/create-account')}>
-        Create Account
+      <Button onPress={() => router.replace('sign-up')}>
+        Sign Up
       </Button>
     </ThemedView>
   ); 

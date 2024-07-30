@@ -5,9 +5,8 @@ import { Button, useTheme, Text } from "react-native-paper";
 
 export default function Index() {
   const theme = useTheme();
-  const goHome = () => { router.push("(home)") };
-  const goSettings = () => { router.push("(home)/settings") };
-
+  const signIn = () => { router.push("(sign-in-sign-up)") };
+  
   return (
     <ThemedView
       style={{
@@ -15,12 +14,13 @@ export default function Index() {
         justifyContent: "center",
         alignItems: "center",
       }}>
-      <Text>In app.  Edit app/index.tsx to edit this screen.</Text>
-      <Button icon="bike-fast" mode="contained" onPress={goHome}>
-        Bikes!
-      </Button>
-      <Button icon="bike" mode="contained" onPress={goSettings}>
-        Bike
+      <Text variant="headlineMedium">Fast Friends</Text>
+      <Text>Welcome to Fast Friends, the on-line platform to assist you with bike maintenance</Text>
+      <Text>You think about your rides and who you want to ride with next.</Text>
+      <Text>We'll think about your bike needs so you don't have to</Text>
+      <Text> </Text>
+      <Button icon="bike-fast" mode="contained" onPress={signIn}>
+        Get Started
       </Button>
     </ThemedView>
   );
