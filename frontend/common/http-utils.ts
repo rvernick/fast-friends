@@ -1,6 +1,6 @@
 
 export const baseUrl = () => {
-  var defaultBase = 'http://localhost:3000';
+  var defaultBase = 'http://localhost:4000';
   if (process.env.NODE_ENV === 'production') {
     defaultBase = 'https://fast-friends-be.onrender.com';
   }

@@ -14,7 +14,7 @@ export const LoginScreen = () => {
   var user = '';
   var pword = '';
 
-  if (baseUrl() == 'http://localhost:3000') {
+  if (baseUrl().includes('localhost:')) {
     user = 't5@t.com';
     pword = 'h@ppyHappy';
   }

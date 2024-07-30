@@ -4,11 +4,9 @@ services:
   name: fast-friends-be
   env: node
   rootDir: backend
-  buildCommand: npm install
+  buildCommand: npm install && npm run typeorm migration:run -- -d src/data-source.ts
   startCommand: npx @nestjs/cli start
   envVars:
-    - key: NODE_VERSION
-      value: 18.15.0
     - key: NODE_ENV
       value: prod
     - key: PORT

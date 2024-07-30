@@ -11,7 +11,7 @@ export default function Layout() {
         title: 'Change Password',
         headerShown: false,
       }} />
-      <Stack.Screen name="load-user" options={{}} />
+      {/* <Stack.Screen name="load-user" options={{}} /> */}
     </Stack>
   );
 }
