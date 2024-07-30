@@ -6,7 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { router } from 'expo-router';
 import { Text } from 'react-native-paper';
 
-export default function SignIn() {
+export default function SignUp() {
   const appContext = useGlobalContext();
   return (
     <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

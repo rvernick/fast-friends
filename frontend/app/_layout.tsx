@@ -17,6 +17,7 @@ import merge from "deepmerge";
 import { Colors } from "../constants/Colors";
 import { useColorScheme } from 'react-native';
 import { GlobalStateProvider } from '@/common/GlobalContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const customDarkTheme = { ...MD3DarkTheme, colors: Colors.dark };
 const customLightTheme = { ...MD3LightTheme, colors: Colors.light };
@@ -32,16 +33,19 @@ const CombinedDarkTheme = merge(DarkTheme, customDarkTheme);
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
   const colorScheme = systemColorScheme === 'dark' ? CombinedDarkTheme : CombinedLightTheme;
-
+  const queryClient = new QueryClient();
+  
   console.log(systemColorScheme);
   return (
     <PaperProvider theme={colorScheme}> 
       <ThemeProvider value={colorScheme}>
-        <SessionProvider>
-          <GlobalStateProvider>
-            <Slot />
-          </GlobalStateProvider>
-        </SessionProvider>
+        <QueryClientProvider client={queryClient}>
+          <SessionProvider>
+            <GlobalStateProvider>
+              <Slot />
+            </GlobalStateProvider>
+          </SessionProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     </PaperProvider>
   )
