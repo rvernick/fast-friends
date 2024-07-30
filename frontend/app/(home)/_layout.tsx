@@ -7,6 +7,7 @@ import { useSession } from "@/ctx";
 export default function TabLayout() {
   const session = useSession();
   
+  console.log("session: " + session.jwt_token);
   if (!session.jwt_token) {
     // On web, static rendering will stop here as the user is not authenticated
     // in the headless Node process that the pages are rendered in.
@@ -19,12 +20,12 @@ export default function TabLayout() {
   return (
     <Tabs>
       <Tabs.Screen
-        name="index"
+        name="(bikes)"
         options={{
-          title: "Home",
+          title: "Bikes",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="home" color={color} />
+            <MaterialCommunityIcons name="bike-fast" color={color} />
           ),
         }}
       />
@@ -39,15 +40,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="bikes"
-        options={{
-          title: 'Bikes',
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <MaterialCommunityIcons name="bike-fast" color={color} />
-          ),
-        }}
-      />
+          name="sign-out"
+          options={{
+            title: "Sign Out",
+            headerShown: true,
+            tabBarIcon: ({ color }) => (
+              <MaterialCommunityIcons name="logout" color={color} />
+            ),
+          }}
+        />
     </Tabs>
   );
 }

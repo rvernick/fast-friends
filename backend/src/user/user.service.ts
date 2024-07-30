@@ -89,6 +89,18 @@ export class UserService {
     }
   }
 
+  getBike(bikeId: number, username: string): Promise<Bike | null> {
+    const bikes = this.getBikes(username);
+    if (bikes == null) return null;
+    return bikes.then((bikes: Bike[]) => {
+      return bikes.find((bike: Bike) => bike.id === bikeId);
+    })
+    .catch((e: any) => {
+      console.log(e.message);
+      return null;
+    });
+  }
+
   getBikes(username: string): Promise<Bike[] | null> {
     const userPromise = this.findUsername(username);
     if (userPromise == null) return null;
@@ -102,7 +114,6 @@ export class UserService {
         console.log(e.message);
         return null;
       });
-
   }
 
   syncStravaUser(stravaAuthDto: StravaAuthenticationDto): Promise<User> {

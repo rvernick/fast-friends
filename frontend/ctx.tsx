@@ -1,19 +1,21 @@
 import { useContext, createContext, type PropsWithChildren } from 'react';
 import { useStorageState } from './useStorageState';
 
+export const defaultAuthState = {
+  signIn: (jwtToken: string, email: string) => null,
+  signOut: () => null,
+  jwt_token: null,
+  email: null,
+  isLoading: false,
+};
+
 const AuthContext = createContext<{
   signIn: (jwtToken: string, email: string) => void;
   signOut: () => void;
   jwt_token?: string | null;
   email?: string | null;
   isLoading: boolean;
-}>({
-  signIn: (jwtToken: string, email: string) => null,
-  signOut: () => null,
-  jwt_token: null,
-  email: null,
-  isLoading: false,
-});
+}>(defaultAuthState);
 
 // This hook can be used to access the user info.
 export function useSession() {

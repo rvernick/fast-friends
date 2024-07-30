@@ -1,6 +1,6 @@
 import { createContext, useState, ReactNode, useContext } from 'react';
 import AppContext from "./app-context";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { useSession } from '@/ctx';
 
 const initialQueryClient = new QueryClient();
@@ -11,13 +11,13 @@ interface GlobalStateProviderProps {
 }
 
 export function useGlobalContext(): AppContext {
-  const { appContext} =  useContext(GlobalStateContext);
+  const { appContext} = useContext(GlobalStateContext);
   return appContext;
 }
 
 export function GlobalStateProvider({ children }: GlobalStateProviderProps) {
   const session = useSession();
-  const [queryClient, setQueryClient] = useState(initialQueryClient);
+  const queryClient = useQueryClient()
   const [appContext, setAppContext] = useState(new AppContext(queryClient, session));
 
   return (

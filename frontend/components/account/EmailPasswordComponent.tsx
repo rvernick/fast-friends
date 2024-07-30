@@ -92,6 +92,7 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
         autoCorrect={false}
         textContentType="emailAddress"
         keyboardType="email-address"
+        testID="emailInput"
       />
       <HelperText type="error" disabled={emailErrorMessage.length == 0} visible={emailErrorMessage.length > 0}>
         {emailErrorMessage}
@@ -104,6 +105,7 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
         secureTextEntry={true}
         autoCapitalize="none"
         autoCorrect={false}
+        testID="passwordInput"
       />
       <TextInput
         label="Confirm Password"
