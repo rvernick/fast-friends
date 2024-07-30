@@ -4,7 +4,8 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router } from "expo-router";
 import { ThemedView } from "../ThemedView";
-import { ActivityIndicator, Button, Checkbox, HelperText, RadioButton, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, Checkbox, HelperText, TextInput } from "react-native-paper";
+import { Dropdown } from "react-native-paper-dropdown";
 
 const groupsetBrands = [
   'Shimano',
@@ -106,22 +107,32 @@ const BikeComponent: React.FC<BikeProps> = ({ bikeid }) => {
     }
   });
   
+  const groupsetOptions = groupsetBrands.map(brand => ({ label: brand, value: brand }));
+  const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
+
   return (
     <ThemedView>
       <ActivityIndicator animating={isInitialized} />
       <TextInput label="Name" readOnly={readOnly} value={bikeName} onChangeText={updateName} placeholder="Name" />
       <HelperText type="error" >{errorMessage}</HelperText>
-      <RadioButton.Group onValueChange={value => setGroupsetBrand(value)} value={groupsetBrand}>
-        {groupsetBrands.map(brand => (
-          <RadioButton.Item key={brand} label={brand} value={brand} />
-        ))}
-      </RadioButton.Group>
-      <RadioButton.Group onValueChange={value => setSpeeds(value)} value={groupsetBrand}>
-        {groupsetSpeeds.map(gears => (
-          <RadioButton.Item key={gears} label={gears} value={gears} />
-        ))}
-      </RadioButton.Group>
+      <Dropdown
+        disabled={readOnly}
+        label="Groupset"
+        placeholder="SRAM"
+        options={groupsetOptions}
+        value={groupsetBrand}
+        onSelect={(value) => setGroupsetBrand(value ? value : '')}
+      />
+      <Dropdown
+        disabled={readOnly}
+        label="Speeds"
+        placeholder="11"
+        options={speedOptions}
+        value={speed}
+        onSelect={(value) => setSpeeds(value ? value : '')}
+      />
       <Checkbox.Item label="Electric"
+        disabled={readOnly}
         status={isElectronic ? "checked" : "unchecked"} 
         onPress={values => setIsElectronic(!isElectronic)}/>
         <Button onPress={ editOrDone }>
