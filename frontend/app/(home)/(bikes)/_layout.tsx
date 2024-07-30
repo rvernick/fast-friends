@@ -7,7 +7,7 @@ import { useSession } from "@/ctx";
 export default function Layout() {
   return (
     <Stack >
-      <Stack.Screen name="index" options={{
+      <Stack.Screen name="bike-list" options={{
           title: "Bikes",
           headerShown: false,
         }} />

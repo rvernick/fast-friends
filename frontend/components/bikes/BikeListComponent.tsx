@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useQuery } from'@tanstack/react-query';
+import { useQuery, useQueryClient } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
 import BikeListController from './BikeListController';
 import { useRouter } from 'expo-router';
@@ -21,9 +21,8 @@ const BikeListComponent = () => {
 
   const email = controller.getEmail();
 
-  const queryClient = appContext.getQueryClient();
-  console.log('queryClient: ', queryClient);
-  
+  const queryClient = useQueryClient();
+
   const { status, data, error, isFetching } = useQuery({
     queryKey: [email, 'bikes'],
     queryFn: () => controller.getBikes(email, appContext),
@@ -43,7 +42,6 @@ const BikeListComponent = () => {
   const BikeList: React.FC<BikeListProps> = ({ bikes, isUpdating }) => {
     return (
     <List.Section>
-    <List.Subheader>Bikes</List.Subheader>
           {bikes && bikes.length > 0? (
             bikes.map(bike => (
               <List.Item key={bike.id} title={bike.name} description={bike.type}
