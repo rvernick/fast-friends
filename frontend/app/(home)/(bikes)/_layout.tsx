@@ -18,32 +18,3 @@ export default function Layout() {
     </Stack>
   );
 }
-
-/**
-export default function TabLayout() {
-  return (
-    <Tabs>
-      <Tabs.Screen
-        name="bikes"
-        options={{
-          title: "Bikes",
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="bike-fast" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="(settings)"
-        options={{
-          title: "Settings",
-          headerShown: true,
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account-settings" color={color} />
-          ),
-        }}
-      />
-    </Tabs>
-  );
-}
-   */

@@ -9,17 +9,10 @@ class ChangePasswordController extends AppController {
 
   public changePassword(oldPassword: string, newPassword: string) {
     const username = this.getEmail();
-    // this.verifyEmail(username);
+
     this.verifyPassword(newPassword);
     return this.callChangePassword(username, oldPassword, newPassword);
   }
-
-  // verifyEmail(email: string) {
-  //   if (!email.includes('@') || !email.includes('.')) {
-  //     return 'Please enter valid email';
-  //   }
-  //   return '';
-  // }
 
   verifyPassword(password: string) {
     if (password.length < 8) {
