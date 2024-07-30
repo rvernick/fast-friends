@@ -2,23 +2,17 @@ import { router } from 'expo-router';
 
 import { useSession } from '@/ctx';
 import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
-import { Button } from 'react-native';
+import { Button } from'react-native-paper';
+import { ChangePasswordComponent } from '@/components/settings/ChangePasswordComponent';
 
-export default function SignIn() {
+export default function ChangePassword() {
   const { signIn } = useSession();
   return (
     <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <ThemedText
-        onPress={() => {
-          signIn('jwt_token', 'email@example.com');
-          // Navigate after signing in. You may want to tweak this to ensure sign-in is
-          // successful before navigating.
-          router.replace('/(home)');
-        }}>
-        Change Password - just goes home for now
-      </ThemedText>
-      <Button title="Cancel" onPress={() => router.back()} />
+      <ChangePasswordComponent/>
+      <Button onPress={() => router.back()}>
+        Cancel
+      </Button>
     </ThemedView>
   );
 }
