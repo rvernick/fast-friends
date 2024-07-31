@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { ThemedView } from "../ThemedView";
-import { ActivityIndicator, Button, Checkbox, HelperText, TextInput } from "react-native-paper";
+import { Text, Button, Checkbox, HelperText, TextInput, ActivityIndicator } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 
 const groupsetBrands = [
@@ -26,9 +26,19 @@ type BikeProps = {
   bikeid: number
 };
 
-const BikeComponent: React.FC<BikeProps> = ({ bikeid }) => {
+const BikeComponent: React.FC<BikeProps> = () => {
   const appContext = useGlobalContext();
-  const isNew = bikeid === 0;
+  const { bikeid } = useLocalSearchParams();
+  var bikeId = 0;
+  if (typeof bikeid === 'string') {
+    console.log('BikeComponent bikeid: '+ bikeid);
+    bikeId = parseInt(bikeid);
+  } else {
+    console.error('Invalid bikeid parameter:'+ bikeid);
+    bikeId = 0;
+  }
+
+  const isNew = bikeId === 0;
   const [bikeName, setBikeName] = useState(newBike.name);
   const [readOnly, setReadOnly] = useState(!isNew);
   const [groupsetBrand, setGroupsetBrand] = useState(newBike.groupsetBrand);
@@ -59,7 +69,7 @@ const BikeComponent: React.FC<BikeProps> = ({ bikeid }) => {
   }
   
   const updateBike = async function() {
-    const result = await controller.updateBike(email, bikeid, bikeName, groupsetBrand, speed, isElectronic);
+    const result = await controller.updateBike(email, bikeId, bikeName, groupsetBrand, speed, isElectronic);
     console.log('update bike result: ' + result);
     if (result == '') {
       router.back();
@@ -70,7 +80,7 @@ const BikeComponent: React.FC<BikeProps> = ({ bikeid }) => {
 
   const deleteBike = async function() {
     setErrorMessage('');
-    const result = await controller.deleteBike(email, bikeid);
+    const result = await controller.deleteBike(email, bikeId);
     if (result == '') {
       if (router.canGoBack()) {
         router.back();
@@ -98,7 +108,7 @@ const BikeComponent: React.FC<BikeProps> = ({ bikeid }) => {
 
   useEffect(() => {
     if (!isInitialized) {
-      controller.getBike(bikeid, email, appContext).then(bike => {
+      controller.getBike(bikeId, email, appContext).then(bike => {
         if (bike!= null) {
           resetBike(bike);
           setIsInitialized(true);

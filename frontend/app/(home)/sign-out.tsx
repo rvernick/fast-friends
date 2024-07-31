@@ -1,12 +1,20 @@
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 
 import { useSession } from '@/ctx';
 import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
-import { LoginScreen } from '@/components/account/LoginComponent';
+import { Text } from 'react-native-paper';
+import { useEffect } from 'react';
 
-export default function SignIn() {
+// useEffect(() => {  
+//   router.replace('/');
+// }, []);
+
+export default function SignOut() {
   const session = useSession();
   session.signOut();
-  router.replace('/sign-in');
+  return (
+    <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Signing out...</Text>
+    </ThemedView>
+  );
 }

@@ -4,32 +4,30 @@ services:
   name: fast-friends-be
   env: node
   rootDir: backend
-  buildCommand: npm install
+  buildCommand: npm install && npm run typeorm migration:run -- -d src/data-source.ts
   startCommand: npx @nestjs/cli start
   envVars:
-    - key: NODE_VERSION
-      value: 18.15.0
     - key: NODE_ENV
       value: prod
     - key: PORT
       value: "4000"
-    - key: DB_HOST
+    - key: DATABASE_HOST
       fromDatabase:
         name: fast-friends-prod
         property: host
-    - key: DB_PORT
+    - key: DATABASE_PORT
       fromDatabase:
         name: fast-friends-prod
         property: port
-    - key: DB_USER
+    - key: DATABASE_USER
       fromDatabase:
         name: fast-friends-prod
         property: user
-    - key: DB_PASSWORD
+    - key: DATABASE_PASSWORD
       fromDatabase:
         name: fast-friends-prod
         property: password
-    - key: DB_DATABASE_NAME
+    - key: DATABASE_NAME
       fromDatabase:
         name: fast-friends-prod
         property: database

@@ -4,7 +4,7 @@ import { useSession } from '@/ctx';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 
-export default function SignIn() {
+export default function PasswordReset() {
   const { signIn } = useSession();
   return (
     <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -15,7 +15,7 @@ export default function SignIn() {
           // successful before navigating.
           router.replace('/(home)');
         }}>
-        Index - just goes home for now
+        Sign In
       </ThemedText>
     </ThemedView>
   );
