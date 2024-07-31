@@ -1,8 +1,8 @@
 import BikeListComponent from "@/components/bikes/BikeListComponent";
 import { ThemedView } from "@/components/ThemedView";
-import { StyleSheet, View, Text } from "react-native";
+import { Text } from 'react-native-paper'
 
-const Settings = () => {
+const BikeList = () => {
   return (
     <ThemedView>
       <BikeListComponent/>
@@ -10,6 +10,4 @@ const Settings = () => {
   );
 };
 
-const styles = StyleSheet.create({});
-
-export default Settings;
+export default BikeList;
