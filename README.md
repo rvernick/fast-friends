@@ -15,7 +15,7 @@ There are two servers in FastFriends: [backend](https://github.com/rvernick/fast
 
 ## Stay in touch
 
-- Author - [Russ Vernick](mailto:rvernick@yahoo.com)<<<<<<< HEAD
+- Author - [Russ Vernick](mailto:rvernick@yahoo.com)
 - ToDo - [Trello FastFriends](https://trello.com/b/kyMVNEo0/fast-friends)
 - iOS App - Coming soon
 
