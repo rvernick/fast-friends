@@ -10,7 +10,7 @@ class BikeListController extends AppController {
     super(appContext);
   }
 
-  getBikes = async (username: string, appContext: AppContext): Promise<Bike[]>  => {
+  getBikesX = async (username: string, appContext: AppContext): Promise<Bike[]>  => {
     const result = [];
     result.push({
       id: 3,
@@ -38,7 +38,7 @@ class BikeListController extends AppController {
     return Promise.resolve(result);
   }
 
-  getBikesX = async (username: string, appContext: AppContext): Promise<Bike[]>  => {
+  getBikes = async (username: string, appContext: AppContext): Promise<Bike[]>  => {
     await sleep(20);
     if (appContext === null) {
       console.log('get bikes has no context: ' + username);

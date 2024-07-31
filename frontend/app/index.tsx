@@ -5,7 +5,7 @@ import { Button, useTheme, Text } from "react-native-paper";
 
 export default function Index() {
   const theme = useTheme();
-  const signIn = () => { router.push("(sign-in-sign-up)") };
+  const signIn = () => { router.replace("/sign-in") };
   
   return (
     <ThemedView

@@ -16,7 +16,7 @@ export default function SignUp() {
       <Text>We'll think about your bike needs so you don't have to</Text>
       <Text> </Text>
       <EmailPasswordComponent controller={new CreateAccountController(appContext)}/>
-      <Text onPress={() => router.replace('(sign-in)')} >
+      <Text onPress={() => router.replace('/(sign-in-sign-up)/sign-in')} >
         Already have an account? Sign In
       </Text>
     </ThemedView>

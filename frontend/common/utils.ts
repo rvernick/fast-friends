@@ -51,7 +51,7 @@ export async function login(username: string, password: string, appContext: AppC
         resp.json().then(body => {
           console.log('setting appContext.jwtToken to:' + body);
           console.log('body ' + body.access_token);
-          appContext.signIn(body, username);
+          appContext.signIn(body.access_token, username);
           console.log('setting appContext.email to:'+ username);
           return '';
         });

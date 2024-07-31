@@ -32,11 +32,12 @@ const BikeListComponent = () => {
   })
   
   const addBike = () => {
-    router.push({ pathname: "bike", params: {bike: 0 }});
+    router.push({ pathname: "0", params: {bikeid: 0 }});
   }
 
   const editBike = (id: number) => {
-    router.push({ pathname: 'bike', params: { bike: id }})
+    const idString = id.toString();
+    router.push({ pathname: idString})
   }
 
   const BikeList: React.FC<BikeListProps> = ({ bikes, isUpdating }) => {
