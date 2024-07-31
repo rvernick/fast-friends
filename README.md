@@ -18,3 +18,19 @@ There are two servers in FastFriends: [backend](https://github.com/rvernick/fast
 - Author - [Russ Vernick](mailto:rvernick@yahoo.com)
 - ToDo - [Trello FastFriends](https://trello.com/b/kyMVNEo0/fast-friends)
 - iOS App - Coming soon
+
+## Rebuilt with Expo Navigator and Paper
+Followed instructions on Themes with Expo Router https://hemanshum.medium.com/the-ultimate-guide-to-custom-theming-with-react-native-paper-expo-and-expo-router-8eba14adcab3
+Resetting the project move examples from app to app-example (super helpful)
+
+Started with the following steps:
+```
+npx create-expo-app@latest
+cd frontend/
+npm i @tanstack/react-query
+npm install react-native-safe-area-context
+npx expo install expo-secure-store
+npm run reset-project
+npm install react-native-paper
+```
+Tweaked index and layout files to incorporate light/dark modes and most of the theme info

@@ -7,14 +7,14 @@ import { MaintenanceItem } from './user/maintenance-item.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: 'localhost',
   port: 5432,
-  username: 'test',
-  password: 'test',
-  database: 'test',
+  host: process.env.DATABASE_HOST,
+  username: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
   synchronize: true,
   logging: false,
   entities: [User, Bike, MaintenanceItem, PasswordReset],
-  migrations: [],
+  migrations: ["./migrations/*"],
   subscribers: [],
 });
