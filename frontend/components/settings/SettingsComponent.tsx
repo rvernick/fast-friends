@@ -6,8 +6,11 @@ import StravaController from "./StravaController";
 import { ThemedView } from "../ThemedView";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { router } from "expo-router";
+import { useSession } from "@/ctx";
 
 export const SettingsComponent = () => {
+  const session = useSession();
+  const email = session.email ? session.email : '';
   const appContext  = useGlobalContext();
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
@@ -15,10 +18,7 @@ export const SettingsComponent = () => {
 
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
-  var email = appContext.getEmail() == null ? '' : appContext.getEmail();
-  if (email == null) {
-    email = '';
-  }
+  
   const blankUser = {username: email, firstName: '', lastName: '', mobile: '', stravaId: ''};
   var user = appContext.getUser();
   if (user == null) {
@@ -77,14 +77,11 @@ export const SettingsComponent = () => {
   }
 
   const updateAccount = function() {
-    if (email == null) {
-      email = '';
-    }
     if (!validate()) {
       console.log('Not valid');
       return;
     }
-    const response = controller.updateAccount(email, firstName, lastName, mobile);
+    const response = controller.updateAccount(session, email, firstName, lastName, mobile);
     response.then(msg => {
       console.log('setting names ' + firstName +'' + lastName +'' + msg);
       appContext.updateUser();

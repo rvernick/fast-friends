@@ -8,14 +8,10 @@ export const baseUrl = () => {
   return ensureNoSlash(result);
 }
 
-export const getInternal = async (url: string, parameters: any, jwtTokenPromise: Promise<any>) => {
-  var jwtToken = null;
-  if (jwtTokenPromise != null) {
-    jwtToken = await jwtTokenPromise;
-  }
+export const getInternal = async (url: string, parameters: any, jwtToken: string) => {
   console.log('getInternal url: ' + url);
   const fullUrl = baseUrl() + url;
-  return get(fullUrl, parameters, jwtToken.access_token);
+  return get(fullUrl, parameters, jwtToken);
 };
 
 export const get = (url: string, parameters: any, access_token: string | null) => {
@@ -48,23 +44,19 @@ function objToQueryString(obj: { [x: string]: string | number | boolean; }) {
   return keyValuePairs.join('&');
 }
 
-export const post = (endpoint: string, body: Object, jwtTokenPromise: Promise<any> | null) => {
-  return postExternal(baseUrl(), endpoint, body, jwtTokenPromise);
+export const post = (endpoint: string, body: Object, jwtToken: string | null) => {
+  return postExternal(baseUrl(), endpoint, body, jwtToken);
 };
 
-export const postExternal = async (urlBase: string, endpoint: string, args: Object, jwtTokenPromise: Promise<any> | null) => {
-  var jwtToken = null;
+export const postExternal = async (urlBase: string, endpoint: string, args: Object, jwtToken: string | null) => {
   var headers = {};
-  if (jwtTokenPromise != null) {
-    jwtToken = await jwtTokenPromise;
-  }
   const url = urlBase + endpoint;
   const body = JSON.stringify(args);
   console.log('Posting: ' + url + '\n' + body);
   if (jwtToken) {
     headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer '+ jwtToken.access_token,
+      'Authorization': 'Bearer '+ jwtToken,
     }
   } else {
     headers = {

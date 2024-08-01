@@ -35,8 +35,8 @@ class ChangePasswordController extends AppController {
         oldPassword: oldPassword,
         newPassword: newPassword,
       };
-
-      const response = await post('/auth/changePassword', body, this.getJwtTokenPromise());
+      const jwtToken = this.getJwtToken();
+      const response = await post('/auth/changePassword', body, jwtToken);
       if (response.ok) {
         return '';
       }

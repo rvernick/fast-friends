@@ -52,7 +52,7 @@ export const LoginScreen = () => {
           // loggedInMonitor(false);  // set the state to trigger a re-render
         } else {
           console.log('attemptLogin successful');
-          router.replace('(home)');
+          router.replace('/logging-in');
         }
       })
       .catch(error => {

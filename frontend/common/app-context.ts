@@ -20,6 +20,10 @@ class AppContext {
   public signIn(jwtToken: any, username: string) {
     this._session.signIn(jwtToken, username);
   }
+
+  public setSession(session: any) {
+    this._session = session;
+  }
   
   public ensureUpToDate() {
     if (this._session == null || this.testing) {
@@ -160,6 +164,7 @@ class AppContext {
   }
 
   public getJwtToken() {
+    console.log('getJwtToken: ' + JSON.stringify(this._session));
     return this._session.jwt_token
   }
 
