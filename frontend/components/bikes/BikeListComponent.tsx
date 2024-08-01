@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { ThemedView } from '../ThemedView';
 import { Button, List, Text } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
+import { useSession } from '@/ctx';
 
 type BikeListProps = {
   bikes: Bike[] | undefined;
@@ -14,18 +15,17 @@ type BikeListProps = {
 
 // Example component
 const BikeListComponent = () => {
+  const queryClient = useQueryClient();
+  const session = useSession();
+  const email = session.email ? session.email : '';
   const appContext = useGlobalContext();
   const router = useRouter();
   const controller = new BikeListController(appContext);
   const [isUpdating, setIsUpdating] = useState(true);
 
-  const email = controller.getEmail();
-
-  const queryClient = useQueryClient();
-
   const { status, data, error, isFetching } = useQuery({
     queryKey: [email, 'bikes'],
-    queryFn: () => controller.getBikes(email, appContext),
+    queryFn: () => controller.getBikes(session, email),
     refetchOnWindowFocus: 'always',
     refetchOnReconnect: 'always',
     refetchOnMount: 'always',

@@ -38,13 +38,13 @@ class BikeListController extends AppController {
     return Promise.resolve(result);
   }
 
-  getBikes = async (username: string, appContext: AppContext): Promise<Bike[]>  => {
+  getBikes = async (session: any, username: string): Promise<Bike[]>  => {
     await sleep(20);
-    if (appContext === null) {
+    if (session === null) {
       console.log('get bikes has no context: ' + username);
       return Promise.resolve([]);
     }
-    const jwtToken = await appContext.getJwtTokenPromise();
+    const jwtToken = await session.jwt_token;
     if (jwtToken == null) {
       console.log('get bikes has no token dying: ' + username);
       return Promise.resolve([]);
@@ -54,7 +54,8 @@ class BikeListController extends AppController {
       const parameters = {
         username: username,
       };
-      return getInternal('/user/bikes', parameters, appContext.getJwtTokenPromise());
+      console.log('get bikes');
+      return getInternal('/user/bikes', parameters, jwtToken);
     } catch(e: any) {
       console.log(e.message);
       return [];

@@ -9,12 +9,12 @@ class BikeController extends AppController {
     super(appContext);
   }
 
-  getBike = async (bikeid: number, username: string, appContext: AppContext): Promise<Bike | null>  => {
+  getBike = async (session: any, bikeid: number, username: string, appContext: AppContext): Promise<Bike | null>  => {
     if (appContext === null) {
       console.log('get bikes has no context: ' + username);
       return Promise.resolve(null);
     }
-    const jwtToken = await appContext.getJwtTokenPromise();
+    const jwtToken = session.jwt_token;
     if (jwtToken == null) {
       console.log('get bikes has no token dying: ' + username);
       return Promise.resolve(null);
@@ -25,7 +25,7 @@ class BikeController extends AppController {
         username: username,
         bikeid: bikeid,
       };
-      return getInternal('/user/bike', parameters, appContext.getJwtTokenPromise());
+      return getInternal('/user/bike', parameters, jwtToken);
     } catch(e: any) {
       console.log(e.message);
       return null;
@@ -33,6 +33,7 @@ class BikeController extends AppController {
   }
 
   updateBike = async (
+    session: any,
     username: string,
     id: number,
     name: string,
@@ -50,7 +51,7 @@ class BikeController extends AppController {
         isElectronic: isElectronic,
       };
 
-      const response = await post('/user/add-or-update-bike', body, this.appContext.getJwtTokenPromise());
+      const response = await post('/user/add-or-update-bike', body, session.jwt_token);
       if (response.ok) {
         return '';
       }
@@ -63,14 +64,14 @@ class BikeController extends AppController {
     }
   };
 
-  deleteBike = async (username: string, id: number): Promise<string> => {
+  deleteBike = async (session: any, username: string, id: number): Promise<string> => {
     try {
       const body = {
         username: username,
         id: id,
       };
 
-      const response = await post('/user/delete-bike', body, this.appContext.getJwtTokenPromise());
+      const response = await post('/user/delete-bike', body, session.jwt_token);
       if (response.ok) {
         return '';
       }

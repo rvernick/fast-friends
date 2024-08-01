@@ -4,8 +4,9 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useLocalSearchParams } from "expo-router";
 import { ThemedView } from "../ThemedView";
-import { Text, Button, Checkbox, HelperText, TextInput, ActivityIndicator } from "react-native-paper";
+import { Button, Checkbox, HelperText, TextInput, ActivityIndicator } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
+import { useSession } from "@/ctx";
 
 const groupsetBrands = [
   'Shimano',
@@ -27,6 +28,9 @@ type BikeProps = {
 };
 
 const BikeComponent: React.FC<BikeProps> = () => {
+  const session = useSession();
+  const email = session.email ? session.email : '';
+
   const appContext = useGlobalContext();
   const { bikeid } = useLocalSearchParams();
   var bikeId = 0;
@@ -45,12 +49,9 @@ const BikeComponent: React.FC<BikeProps> = () => {
   const [speed, setSpeeds] = useState(newBike.groupsetSpeed.toString());
   const [isElectronic, setIsElectronic] = useState(newBike.isElectronic);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isInitialized, setIsInitialized] = useState(!isNew);
+  const [isInitialized, setIsInitialized] = useState(isNew);
 
   const controller = new BikeController(appContext);
-
-  const email = controller.getEmail();
-  const user = appContext.getUser();
 
   const editOrDone = (value: any) => {
     if (!readOnly) {
@@ -61,6 +62,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
   }
 
   const resetBike = (bike: Bike) => {
+    console.log('reset bike: ' + JSON.stringify(bike));
     setBikeName(bike.name);
     setGroupsetBrand(bike.groupsetBrand);
     setSpeeds(bike.groupsetSpeed.toString());
@@ -69,7 +71,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
   }
   
   const updateBike = async function() {
-    const result = await controller.updateBike(email, bikeId, bikeName, groupsetBrand, speed, isElectronic);
+    const result = await controller.updateBike(session, email, bikeId, bikeName, groupsetBrand, speed, isElectronic);
     console.log('update bike result: ' + result);
     if (result == '') {
       router.back();
@@ -80,7 +82,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
 
   const deleteBike = async function() {
     setErrorMessage('');
-    const result = await controller.deleteBike(email, bikeId);
+    const result = await controller.deleteBike(session, email, bikeId);
     if (result == '') {
       if (router.canGoBack()) {
         router.back();
@@ -108,8 +110,8 @@ const BikeComponent: React.FC<BikeProps> = () => {
 
   useEffect(() => {
     if (!isInitialized) {
-      controller.getBike(bikeId, email, appContext).then(bike => {
-        if (bike!= null) {
+      controller.getBike(session, bikeId, email, appContext).then(bike => {
+        if (bike != null) {
           resetBike(bike);
           setIsInitialized(true);
         }
@@ -122,7 +124,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
 
   return (
     <ThemedView>
-      <ActivityIndicator animating={isInitialized} />
+      <ActivityIndicator animating={!isInitialized} />
       <TextInput label="Name" readOnly={readOnly} value={bikeName} onChangeText={updateName} placeholder="Name" />
       <HelperText type="error" >{errorMessage}</HelperText>
       <Dropdown

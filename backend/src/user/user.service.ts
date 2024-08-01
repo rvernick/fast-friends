@@ -90,15 +90,18 @@ export class UserService {
   }
 
   getBike(bikeId: number, username: string): Promise<Bike | null> {
-    const bikes = this.getBikes(username);
-    if (bikes == null) return null;
-    return bikes.then((bikes: Bike[]) => {
-      return bikes.find((bike: Bike) => bike.id === bikeId);
-    })
-    .catch((e: any) => {
+    if (username == null) return null;
+    try {
+      const result = this.bikesRepository.findOne({
+        where: {
+          id: bikeId,
+        },
+      });
+      return result;
+    } catch (e: any) {
       console.log(e.message);
       return null;
-    });
+    }
   }
 
   getBikes(username: string): Promise<Bike[] | null> {
@@ -112,7 +115,7 @@ export class UserService {
       })
       .catch((e: any) => {
         console.log(e.message);
-        return null;
+        return [];
       });
   }
 
@@ -243,22 +246,27 @@ export class UserService {
   };
 
   async updateOrAddBike(bikeDto: UpdateBikeDto): Promise<Bike> {
-    const user = await this.findUsername(bikeDto.username);
-    if (user == null) return null;
-    var bike: Bike;
-    if (bikeDto.id == 0) {
-      bike = new Bike();
-    } else {
-      const id = bikeDto.id;
-      bike = await this.bikesRepository.findOneBy({ id });
-      if (bike == null) return null;
+    try {
+      const user = await this.findUsername(bikeDto.username);
+      if (user == null) return null;
+      var bike: Bike;
+      if (bikeDto.id == 0) {
+        bike = new Bike();
+      } else {
+        const id = bikeDto.id;
+        bike = await this.bikesRepository.findOneBy({ id });
+        if (bike == null) return null;
+      }
+      bike.name = bikeDto.name;
+      bike.setGroupsetBrand(bikeDto.groupsetBrand);
+      bike.groupsetSpeed = bikeDto.groupsetSpeed;
+      bike.isElectronic = bikeDto.isElectronic;
+      bike.user = user;
+      this.bikesRepository.save(bike);
+    } catch (error) {
+      console.error('Error updating or adding bike: ', error);
+      return null;
     }
-    bike.name = bikeDto.name;
-    bike.setGroupsetBrand(bikeDto.groupsetBrand);
-    bike.groupsetSpeed = bikeDto.groupsetSpeed;
-    bike.isElectronic = bikeDto.isElectronic;
-    bike.user = user;
-    this.bikesRepository.save(bike);
   }
 
   async deleteBike(bikeDto: DeleteBikeDto): Promise<Bike> {

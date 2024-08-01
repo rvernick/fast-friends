@@ -40,7 +40,7 @@ export async function login(username: string, password: string, appContext: AppC
     username: username,
     password: password,
   };
-  const response = post('/auth/login', args, appContext.getJwtTokenPromise());
+  const response = post('/auth/login', args, appContext.getJwtToken());
   return response
     .then(resp => {
       if (resp.ok) {
@@ -75,7 +75,7 @@ export const fetchUser = async (username: string, appContext: AppContext): Promi
       username: username,
     };
     console.log('fetching user: ' + username);
-    return getInternal('/auth/user', parameters, appContext.getJwtTokenPromise()) as Promise<User | null>;
+    return getInternal('/auth/user', parameters, appContext.getJwtToken()) as Promise<User | null>;
   } catch(e: any) {
     console.log(e.message);
     return null;
@@ -88,7 +88,7 @@ export const fetchSecrets = async (appContext: AppContext): Promise<any | null> 
   try {
     const parameters = {};
     console.log('fetching secrets: ');
-    return getInternal('/secrets', parameters, appContext.getJwtTokenPromise()) as Promise<any | null>;
+    return getInternal('/secrets', parameters, appContext.getJwtToken()) as Promise<any | null>;
   } catch(e: any) {
     console.log(e.message);
     return null;

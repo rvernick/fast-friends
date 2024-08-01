@@ -8,15 +8,18 @@ class SettingsController extends AppController {
     super(appContext);
   }
 
-  public updateAccount(username: string, firstName: string, lastName: string, mobile: string) {
+  public updateAccount(session: any, username: string, firstName: string, lastName: string, mobile: string) {
     return this.callUpdateAccount(
+      session,
       username,
       firstName,
       lastName,
       strippedPhone(mobile));
   }
 
-  async callUpdateAccount(username: string,
+  async callUpdateAccount(
+    session: any,
+    username: string,
     firstName: string,
     lastName: string,
     mobile: string) {
@@ -29,7 +32,7 @@ class SettingsController extends AppController {
         mobile: mobile,
       };
 
-      const response = await post('/auth/update-user', body, this.appContext.getJwtTokenPromise());
+      const response = await post('/auth/update-user', body, session.jwt_token);
       this.appContext.updateUser();
       if (response.ok) {
         return '';

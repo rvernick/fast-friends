@@ -13,7 +13,7 @@ export default function Layout() {
         }} />
       <Stack.Screen name="[bikeid]" options={{
         title: 'Bike',
-        headerShown: false,
+        headerShown: true,
       }} />
     </Stack>
   );
