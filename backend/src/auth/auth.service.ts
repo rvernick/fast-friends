@@ -64,7 +64,7 @@ export class AuthService {
       user,
       updateUserDto.firstName,
       updateUserDto.lastName,
-      updateUserDto.mobile,
+      updateUserDto.cellPhone,
       null,
       null,
       null,

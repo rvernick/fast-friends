@@ -64,13 +64,13 @@ export class UserService {
       user: User,
       firstName: string,
       lastName: string,
-      mobilePhone: string,
+      cellPhone: string,
       stravaCode: string,
       stravaRefreshToken: string,
       stravaAccessToken: string) {
     if (firstName!= null) user.firstName = firstName;
     if (lastName!= null) user.lastName = lastName;
-    if (mobilePhone!= null) user.cellPhone = mobilePhone;
+    if (cellPhone!= null) user.cellPhone = cellPhone;
     if (stravaCode!= null) user.stravaCode = stravaCode;
     if (stravaRefreshToken!= null) user.stravaRefreshToken = stravaRefreshToken;
     if (stravaAccessToken!= null) user.stravaAccessToken = stravaAccessToken;
@@ -258,6 +258,7 @@ export class UserService {
         if (bike == null) return null;
       }
       bike.name = bikeDto.name;
+      bike.type = bikeDto.type;
       bike.setGroupsetBrand(bikeDto.groupsetBrand);
       bike.groupsetSpeed = bikeDto.groupsetSpeed;
       bike.isElectronic = bikeDto.isElectronic;

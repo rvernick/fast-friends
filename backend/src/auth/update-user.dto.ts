@@ -15,5 +15,5 @@ export class UpdateUserDto {
     /^(|[0-9]{10})$/,
     {message: 'Phone number should be exactly 10 digits.'}
   )
-  mobile: string;
+  cellPhone: string;
 }

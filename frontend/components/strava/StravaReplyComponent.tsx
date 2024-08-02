@@ -21,7 +21,7 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = () => {
 
   const controller = new StravaController(appContext);
   const email = session.email? session.email : '';
-
+  
   console.log('email: ' + email);
   console.log('state: ' + state);
   console.log('scope: ' + scope);
@@ -42,13 +42,14 @@ var message = 'Updating your Strava settings...';
 const updateStravaAndReturn = async (code: string) => {
   await controller.updateStravaCode(session, appContext, code);
   console.log('updated strava code: ');
-  router.replace('/settings');
+  appContext.invalidateUser(session);
 }
 
 useEffect(() => {
   if (code) {
     if (session.jwt_token) {
       updateStravaAndReturn(ensureString(code));
+      router.replace('/settings');
     } else {
       console.log('no token found');
     }

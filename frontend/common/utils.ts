@@ -66,13 +66,12 @@ export async function login(username: string, password: string, appContext: AppC
     });
 };
 
-export const fetchUser = async (username: string, session: any): Promise<User | null> => {
-  console.log('fetching user:' + username);
+export const fetchUser = async (session: any, username: string): Promise<User | null> => {
+  console.log('fetching user: ' + username);
   try {
     const parameters = {
       username: username,
     };
-    console.log('fetching user: ' + username);
     return getInternal('/auth/user', parameters, session.jwt_token) as Promise<User | null>;
   } catch(e: any) {
     console.log(e.message);
@@ -100,9 +99,12 @@ export const sleep = (timeout: number): Promise<void> => {
 
 export const invalidPasswordMessage = 'password must be at least 8 characters with a mix of special, upper and lower case'
 
-export const ensureString = (value: string | string[] | null | undefined): string => {
+export const ensureString = (value: string | string[] | null | undefined | number): string => {
   if (value == null || value === '') {
     return '';
+  }
+  if (typeof value === 'number') {
+    return value.toString();
   }
   if (Array.isArray(value)) {
     return value.join(', ');

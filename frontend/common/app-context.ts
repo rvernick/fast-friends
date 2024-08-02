@@ -56,6 +56,11 @@ class AppContext {
     return this.hotStringCache.get(key);
   }
 
+  public remove(key: string) {
+    this.hotStringCache.delete(key);
+    AsyncStorage.removeItem(key);
+  }
+
 // TODO: Should move this to use similar logic to ctx.tsx
   private syncCache() {
     AsyncStorage.getAllKeys()
@@ -90,59 +95,9 @@ class AppContext {
     return this.queryClient;
   }
 
-  public getUser(): User | null {
-    if (this.getUserFromCache() == null) {
-      this.updateUser(this._session);
-      const email = this.getEmail();
-      return {username: email == null ? '' : email, firstName: '', lastName: '', mobile: '', stravaId: ''};
-    }
-    return this.getUserFromCache() as User;
-  }
-
-  private getUserFromCache() {
-    const email = this.getEmail();
-    console.log('getting user from cache: ' + email);
-    const result = this.queryClient.getQueryData(['user', email]);
-    
-    return result;
-  }
-
-  public invalidateUser() {
-    console.log('context invalidating user');
-    this.queryClient.invalidateQueries({queryKey: ['user', this.getEmail()]});
-  }
-
-  async getUserPromise(session: any): Promise<User | null> {
-    if (session == null) {
-      return Promise.resolve(null);
-    }
-    this.setSession(session);
-    const email = this.getEmail();
-    if (email == null || email == '') {
-     return Promise.resolve(null);
-    }
-    return this.queryClient.fetchQuery({
-      queryKey: ['user', this.getEmail()],
-      queryFn: () => fetchUser(email, session)
-    });
-  }
-
-  public updateUser(session: any) {
-    if (session == null) {
-      return;
-    }
-    
-    this.setSession(session);
-    console.log('context updating user: ' + session.email);
-    const email = session.email;
-    if (email == null || email == '') {
-      return;
-    }
-
-    this.getQueryClient().prefetchQuery({
-      queryKey: ['user', email],
-      queryFn: () => fetchUser(email, session)
-    });
+  public invalidateUser(session: any) {
+    console.log('context invalidating user ' + session.email);
+    this.queryClient.removeQueries({queryKey: ['user', session.email]});
   }
 
   public async getSecrets(session: any): Promise<any> {

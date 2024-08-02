@@ -1,35 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
 import { ensureString, isValidPhone } from '../../common/utils';
 import StravaController from "./StravaController";
 import { ThemedView } from "../ThemedView";
-import { Button, HelperText, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, HelperText, Text, TextInput } from "react-native-paper";
 import { router, useFocusEffect } from "expo-router";
 import { useSession } from "@/ctx";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchUser } from "../../common/utils";
 
 export const SettingsComponent = () => {
   const session = useSession();
+  const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
   const appContext  = useGlobalContext();
   appContext.setSession(session);
+  const [errorMessage, setErrorMessage] = useState('');
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
-  const [userInvalid, setUserInvalid] = useState(false);
-  const [userIsResetting, setUserIsResetting] = useState(false);
 
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
   
-  const blankUser = {username: email, firstName: '', lastName: '', mobile: '', stravaId: ''};
-  var user = appContext.getUser();
-  if (user == null) {
-    user = blankUser
+  const blankUser = {username: email, firstName: '', lastName: '', cellPhone: '', stravaId: ''};
+  const { status, data, error, isFetching } = useQuery({
+    queryKey: ['user', email],
+    queryFn: () => fetchUser(session, email),
+    initialData: blankUser,
+    refetchOnWindowFocus: 'always',
+    refetchOnReconnect: 'always',
+    refetchOnMount: 'always',
+  });
+
+  const invalidateUser = () => {
+    console.log('Invalidate user: ' + email);
+    queryClient.removeQueries({queryKey: ['user', email]});
   }
-  const [firstName, setEnteredFirstName] = useState(user.firstName);
-  const [lastName, setEnteredLastName] = useState(user?.lastName);
-  const [mobile, setEnteredMobile] = useState(user.mobile);
-  const [stravaId, setStravaId] = useState(ensureString(user.stravaId));
+  
+  const [firstName, setEnteredFirstName] = useState(ensureString(data?.firstName));
+  const [lastName, setEnteredLastName] = useState(ensureString(data?.lastName));
+  const [cellPhone, setEnteredCellPhone] = useState(ensureString(data?.cellPhone));
+  const [stravaId, setStravaId] = useState(ensureString(data?.stravaId));
 
   const updateFirstName = function(newText: string) {
     setNameErrorMessage('');
@@ -43,7 +55,7 @@ export const SettingsComponent = () => {
     if (newText.length == 0 || isValidPhone(newText)) {
       setMobileErrorMessage('');
     }
-    setEnteredMobile(newText);
+    setEnteredCellPhone(newText);
   }
 
   const validateName = () => {
@@ -59,8 +71,8 @@ export const SettingsComponent = () => {
 
   const validatePhone = () => {
     // Simple phone number validation
-    console.log('validating: ' + mobile);
-    if (mobile.length == 0 || isValidPhone(mobile)) {
+    console.log('validating: ' + cellPhone);
+    if (cellPhone.length == 0 || isValidPhone(cellPhone)) {
       setMobileErrorMessage('');
       return true;
     } else {
@@ -74,7 +86,7 @@ export const SettingsComponent = () => {
     var result = true;
     result = result && validateName();
     result = result && validatePhone();
-    // console.log('name/mobile error:' + nameErrorMessage + mobileErrorMessage);
+    // console.log('name/cellPhone error:' + nameErrorMessage + mobileErrorMessage);
     return result;
   }
 
@@ -83,56 +95,53 @@ export const SettingsComponent = () => {
       console.log('Not valid');
       return;
     }
-    const response = controller.updateAccount(session, email, firstName, lastName, mobile);
-    response.then(msg => {
-      console.log('setting names ' + firstName +'' + lastName +'' + msg);
-      appContext.updateUser(session);
-      if (msg) {
-        setMobileErrorMessage(msg);
-      }
-    })
+    const response = controller.updateAccount(session, email, firstName, lastName, cellPhone);
+    invalidateUser();
   };
 
   const linkToStrava = async () => {
-    await stravaController.linkToStrava(session, user);
-    setUserInvalid(true);
+    await stravaController.linkToStrava(session);
+    invalidateUser();
   }
 
   const unlinkFromStrava = async () => {
-    await stravaController.unlinkFromStrava(session, user);
+    const msg = await stravaController.unlinkFromStrava(session, appContext, data);
+    setErrorMessage(msg);
+    invalidateUser();
     userUpdated();
   }
 
   const userUpdated = async () => {
-    appContext.invalidateUser();
-    var user = await appContext.getUserPromise(session);
-    if (user == null) {
-      user = blankUser;
-    }
-    console.log('user updated: ' + JSON.stringify(user));
-    setStravaId(user.stravaId == null ? '' : user.stravaId);
-    setEnteredFirstName(user.firstName == null ? '' : user.firstName);
-    setEnteredLastName(user.lastName == null ? '' : user.lastName);
-    setEnteredMobile(user.mobile == null ? '' : user.mobile);
+    console.log('user updated: ' + JSON.stringify(data));
+  
+    setStravaId(ensureString(data?.stravaId));
+    setEnteredFirstName(ensureString(data?.firstName));
+    setEnteredLastName(ensureString(data?.lastName));
+    setEnteredCellPhone(ensureString(data?.cellPhone));
   }
 
-  useFocusEffect(() => {
-    appContext.getUserPromise(session)
-     .then((user) => {
-      if (user == null) {
-        user = blankUser;
-      }
-      if (user.stravaId != null && stravaId.length == 0) {
-        console.log('linked to strava and resetting');
-        userUpdated();
-        setUserInvalid(false);
-      }});
-    if (userInvalid) {
-      userUpdated();
-      setUserInvalid(false);
-    }
-  });
+  // useFocusEffect(() => {
+  //   appContext.getUserPromise(session)
+  //    .then((user) => {
+  //     if (user == null) {
+  //       user = blankUser;
+  //     }
+  //     if (user.stravaId != null && stravaId.length == 0) {
+  //       console.log('linked to strava and resetting');
+  //       userUpdated();
+  //       setUserInvalid(false);
+  //     }});
+  //   if (userInvalid) {
+  //     userUpdated();
+  //     setUserInvalid(false);
+  //   }
+  // });
 
+  useEffect(() => {
+    userUpdated();
+  }, [data, isFetching]);
+
+  if (isFetching) return <ActivityIndicator />;
   return (
     <ThemedView>
       <Button onPress={ linkToStrava } disabled={stravaId.length > 0}>
@@ -160,13 +169,16 @@ export const SettingsComponent = () => {
         {nameErrorMessage}
       </HelperText>
       <TextInput label="Mobile"
-        value={mobile}
+        value={cellPhone}
         onChangeText={updateMobile}
         mode="outlined"
         keyboardType="phone-pad"
       />
       <HelperText type="error" visible={mobileErrorMessage.length > 0} style={{ marginTop: 10 }}>
         {mobileErrorMessage}
+      </HelperText>
+      <HelperText type="error" visible={errorMessage.length > 0} style={{ marginTop: 10 }}>
+        {errorMessage}
       </HelperText>
       <Button onPress={ updateAccount } disabled={mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}>
             Update Account

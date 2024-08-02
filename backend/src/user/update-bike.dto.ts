@@ -11,6 +11,9 @@ export class UpdateBikeDto {
   name: string;
 
   @IsString()
+  type: string;
+  
+  @IsString()
   groupsetBrand: string;
 
   @IsNumber()
