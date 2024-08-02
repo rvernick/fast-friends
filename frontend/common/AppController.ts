@@ -8,7 +8,7 @@ class AppController {
     }
 
   public getUser(appContext: AppContext): Promise<User | null> {
-    return this._appContext.getUserPromise();
+    return this._appContext.getUserPromise(appContext.getSession());
   }
 
   get appContext(): AppContext {

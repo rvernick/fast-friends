@@ -70,3 +70,19 @@ export const postExternal = async (urlBase: string, endpoint: string, args: Obje
     body: body
   });
 }
+
+/**
+ * Strips everything but the base URL from a given URL string.
+ * 
+ * @param {string} url - The full URL string.
+ * @returns {string} The base URL.
+ */
+export const getBaseUrl = (url: string): string => {
+  try {
+    const parsedUrl = new URL(url);
+    return `${parsedUrl.protocol}//${parsedUrl.host}`;
+  } catch (error) {
+    console.error('Invalid URL:', error);
+    return '';
+  }
+}

@@ -33,7 +33,7 @@ class SettingsController extends AppController {
       };
 
       const response = await post('/auth/update-user', body, session.jwt_token);
-      this.appContext.updateUser();
+      this.appContext.updateUser(session);
       if (response.ok) {
         return '';
       }

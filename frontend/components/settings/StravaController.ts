@@ -1,26 +1,26 @@
-import { Platform } from "react-native";
+import { Linking, Platform } from "react-native";
 import AppContext from "../../common/app-context";
 import AppController from "../../common/AppController";
 import { authorize } from 'react-native-app-auth';
-import { post, postExternal } from "../../common/http-utils";
+import { getBaseUrl, post, postExternal } from "../../common/http-utils";
 import { doTokenExchange, stravaBase } from "../strava/utils";
 
 class StravaController extends AppController {
 
-  async updateStravaCode(appContext: AppContext, stravaCode: string) {
-    this.saveStravaCode(appContext, stravaCode);
+  async updateStravaCode(session: any, appContext: AppContext, stravaCode: string) {
+    this.saveStravaCode(session, appContext, stravaCode);
     console.log('calling doTokenExchange');
-    doTokenExchange(appContext, stravaCode)
+    doTokenExchange(session, appContext, stravaCode)
       .then((resultString: string) => {
-        this.syncStravaInfo(appContext, stravaCode)
+        this.syncStravaInfo(session, appContext, stravaCode)
         appContext.invalidateUser()});
     ;
   }
 
 
-  async syncStravaInfo(appContext: AppContext, stravaCode: string) {
+  async syncStravaInfo(session: any, appContext: AppContext, stravaCode: string) {
     console.log('syncStravaInfo');
-    const username = appContext.getEmail();
+    const username = session.email;
     console.log('sync username:'+ username);
     try {
       const body = {
@@ -31,7 +31,7 @@ class StravaController extends AppController {
         stravaAthlete: appContext.get('stravaAthlete'),
       }
       console.log('sync body:'+ JSON.stringify(body));
-      const response = await post('/user/sync-strava', body, this.appContext.getJwtTokenPromise());
+      const response = await post('/user/sync-strava', body, session.jwt_token);
       if (response.ok) {
         console.log('sync response:'+ JSON.stringify(response));
         return '';
@@ -42,7 +42,7 @@ class StravaController extends AppController {
     }
   }
 
-  async saveStravaCode(appContext: AppContext, stravaCode: string) {
+  async saveStravaCode(session: any, appContext: AppContext, stravaCode: string) {
     console.log('saveStravaCode:'+ stravaCode);
     appContext.put('stravaCode ', stravaCode);
     const username = appContext.getEmail();
@@ -52,7 +52,7 @@ class StravaController extends AppController {
         stravaCode: stravaCode,
       };
 
-      const response = await post('/auth/update-strava', body, appContext.getJwtTokenPromise());
+      const response = await post('/auth/update-strava', body, session.jwt_token);
       if (response.ok) {
         return '';
       }
@@ -65,7 +65,9 @@ class StravaController extends AppController {
     };
   };
 
-  async callUpdateAccount(username: string,
+  async callUpdateAccount(
+    session: any,
+    username: string,
     firstName: string,
     lastName: string,
     mobile: string) {
@@ -78,7 +80,7 @@ class StravaController extends AppController {
         mobile: mobile,
       };
 
-      const response = await post('/auth/update-user', body, this.appContext.getJwtTokenPromise());
+      const response = await post('/auth/update-user', body, session.jwt_token);
       if (response.ok) {
         return '';
       }
@@ -91,24 +93,24 @@ class StravaController extends AppController {
     }
   };
 
-  async linkToStrava(user: any) {
+  async linkToStrava(session: any, user: any) {
     console.log('Sending account to Strava for linking... ' + JSON.stringify(user));
 
     if (Platform.OS === 'web') {
       console.log('Platform.OS:'+ Platform.OS);
-      this.linkToStravaWeb(user, this.appContext);
+      this.linkToStravaWeb(session, user);
     } else {
-      this.linkToStravaMobile(user, this.appContext);
+      this.linkToStravaMobile(session, user);
     }
   }
 
-  async unlinkFromStrava(user: any) {
+  async unlinkFromStrava(session: any, user: any) {
     try {
       const body = {
         username: user.username,
       };
 
-      const response = await post('/auth/unlink-from-strava', body, this.appContext.getJwtTokenPromise());
+      const response = await post('/auth/unlink-from-strava', body, session.jwt_token);
       if (response.ok) {
         return '';
       }
@@ -121,6 +123,14 @@ class StravaController extends AppController {
     }
 
   }
+
+  async getLocationBaseUrl(): Promise<string> {
+    const initialUrl = await Linking.getInitialURL();
+    if (initialUrl) {
+      return getBaseUrl(initialUrl);
+    }
+    return '';
+  }
   /**
    * ,
       redirect_uri: redirectUri
@@ -128,11 +138,12 @@ class StravaController extends AppController {
    * @param user
    * @param appContext
    */
-  async linkToStravaWeb(user: any, appContext: AppContext) {
-    const redirectUri = 'http://localhost:19000' + '/strava-reply';
-    const clientId = await appContext.getStravaClientId();
+  async linkToStravaWeb(session: any, user: any) {
+    const replyUrl = await this.getLocationBaseUrl();
+    const redirectUri = replyUrl + '/strava-reply';
+    const clientId = await this.appContext.getStravaClientId(session);
     console.log('redirect ' + redirectUri);
-    console.log('base: ' + appContext.baseUrl());
+    console.log('base: ' + this.appContext.baseUrl());
     const paramsObj = {
       client_id:  clientId ,
       response_type: 'code',
@@ -162,14 +173,17 @@ class StravaController extends AppController {
   * Connect to strava using: FormidableLabs SDK
   * https://github.com/FormidableLabs/react-native-app-auth/blob/main/docs/config-examples/strava.md
   */
-  async linkToStravaMobile(user: any, appContext: AppContext) {
-    const stravaId = await appContext.getStravaClientId();
+  async linkToStravaMobile(session: any, user: any) {
+    const appContext = this.appContext;
+    const stravaId = await appContext.getStravaClientId(session);
     console.log('Sending account to Strava for linking... ' + user);
     console.log(user.email);
+    const replyUrl = await this.getLocationBaseUrl();
+    const redirectUri = replyUrl + '/strava-reply';
     const config = {
-      clientId: await appContext.getStravaClientId(),
-      clientSecret: await appContext.getStravaClientSecret(),
-      redirectUrl: 'http://localhost:19000/strava-reply',
+      clientId: await appContext.getStravaClientId(session),
+      clientSecret: await appContext.getStravaClientSecret(session),
+      redirectUrl: redirectUri,
       serviceConfiguration: {
         authorizationEndpoint: 'https://www.strava.com/oauth/mobile/authorize',
         tokenEndpoint:

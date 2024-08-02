@@ -1,20 +1,22 @@
 import React, { useState } from "react";
 import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
-import { isValidPhone } from '../../common/utils';
+import { ensureString, isValidPhone } from '../../common/utils';
 import StravaController from "./StravaController";
 import { ThemedView } from "../ThemedView";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useSession } from "@/ctx";
 
 export const SettingsComponent = () => {
   const session = useSession();
   const email = session.email ? session.email : '';
   const appContext  = useGlobalContext();
+  appContext.setSession(session);
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
   const [userInvalid, setUserInvalid] = useState(false);
+  const [userIsResetting, setUserIsResetting] = useState(false);
 
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
@@ -27,7 +29,7 @@ export const SettingsComponent = () => {
   const [firstName, setEnteredFirstName] = useState(user.firstName);
   const [lastName, setEnteredLastName] = useState(user?.lastName);
   const [mobile, setEnteredMobile] = useState(user.mobile);
-  const [stravaId, setStravaId] = useState(user.stravaId);
+  const [stravaId, setStravaId] = useState(ensureString(user.stravaId));
 
   const updateFirstName = function(newText: string) {
     setNameErrorMessage('');
@@ -84,7 +86,7 @@ export const SettingsComponent = () => {
     const response = controller.updateAccount(session, email, firstName, lastName, mobile);
     response.then(msg => {
       console.log('setting names ' + firstName +'' + lastName +'' + msg);
-      appContext.updateUser();
+      appContext.updateUser(session);
       if (msg) {
         setMobileErrorMessage(msg);
       }
@@ -92,18 +94,18 @@ export const SettingsComponent = () => {
   };
 
   const linkToStrava = async () => {
-    await stravaController.linkToStrava(user);
+    await stravaController.linkToStrava(session, user);
     setUserInvalid(true);
   }
 
   const unlinkFromStrava = async () => {
-    await stravaController.unlinkFromStrava(user);
+    await stravaController.unlinkFromStrava(session, user);
     userUpdated();
   }
 
   const userUpdated = async () => {
     appContext.invalidateUser();
-    var user = await appContext.getUserPromise();
+    var user = await appContext.getUserPromise(session);
     if (user == null) {
       user = blankUser;
     }
@@ -114,22 +116,22 @@ export const SettingsComponent = () => {
     setEnteredMobile(user.mobile == null ? '' : user.mobile);
   }
 
-  // useFocusEffect(() => {
-  //   appContext.getUserPromise()
-  //    .then((user) => {
-  //     if (user == null) {
-  //       user = blankUser;
-  //     }
-  //     if (user.stravaId != null && stravaId.length == 0) {
-  //       console.log('linked to strava and resetting');
-  //       userUpdated();
-  //       setUserInvalid(false);
-  //     }});
-  //   if (userInvalid) {
-  //     userUpdated();
-  //     setUserInvalid(false);
-  //   }
-  // });
+  useFocusEffect(() => {
+    appContext.getUserPromise(session)
+     .then((user) => {
+      if (user == null) {
+        user = blankUser;
+      }
+      if (user.stravaId != null && stravaId.length == 0) {
+        console.log('linked to strava and resetting');
+        userUpdated();
+        setUserInvalid(false);
+      }});
+    if (userInvalid) {
+      userUpdated();
+      setUserInvalid(false);
+    }
+  });
 
   return (
     <ThemedView>

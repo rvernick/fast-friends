@@ -4,8 +4,10 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { ThemedView } from "../ThemedView";
 import { Button, HelperText, TextInput } from "react-native-paper";
 import { router } from "expo-router";
+import { useSession } from "@/ctx";
 
 export const ChangePasswordComponent = () => {
+  const session = useSession();
   const appContext  = useGlobalContext();
   const controller = new ChangePasswordController(appContext);
   const [oldPassword, setOldPassword] = useState('');
@@ -45,7 +47,7 @@ export const ChangePasswordComponent = () => {
 
   const changePassword = function() {
     if(accountInfoValid()) {
-      const response = controller.changePassword(oldPassword, password);
+      const response = controller.changePassword(session, oldPassword, password);
       response.then(msg => {
           console.log('create acct ' + msg);
           if (msg) {

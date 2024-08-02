@@ -82,10 +82,10 @@ export const getBike = async (bikeId: string, appContext: AppContext) => {
 // "summit":true,"created_at":"2010-08-17T17:40:48Z",
 // "updated_at":"2023-07-28T20:01:19Z","badge_type_id":1,"weight":74.8427,
 // "profile_medium":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/medium.jpg","profile":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/large.jpg","friend":null,"follower":null}}
-export const doTokenExchange = async (appContext: AppContext, stravaCode: string) => {
+export const doTokenExchange = async (session: any, appContext: AppContext, stravaCode: string) => {
   console.log('doTokenExchange');
-  const clientId = await appContext.getStravaClientId();
-  const clientSecret = await appContext.getStravaClientSecret();
+  const clientId = await appContext.getStravaClientId(session);
+  const clientSecret = await appContext.getStravaClientSecret(session);
   const params = {
     client_id: clientId,
     client_secret: clientSecret,

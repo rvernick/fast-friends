@@ -1,9 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectDataSource } from '@nestjs/typeorm';
 
 @Injectable()
 export class AppService {
+  private readonly logger = new Logger(AppService.name);
+
   @Inject(ConfigService)
   private readonly configService: ConfigService;
   constructor() {}

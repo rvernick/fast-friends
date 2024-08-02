@@ -31,6 +31,7 @@ services:
       fromDatabase:
         name: fast-friends-prod
         property: database
+    - fromGroup: Fast Friends Production
 - type: web
   name: fast-friends
   runtime: static

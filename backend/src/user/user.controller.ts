@@ -25,6 +25,10 @@ export class UserController {
   @Get('bike')
   getBike(@Query('bikeid') bikeId: number, @Query('username') username: string): Promise<Bike | null> {
     console.log(bikeId + ' user/bike username: '+ username);
+    if (!bikeId || isNaN(bikeId)) {
+      console.log('Invalid bikeId:'+ bikeId);
+      return Promise.resolve(null);
+    }
     const result = this.userService.getBike(bikeId, username);
     console.log('user/bike result:'+ result);
     return result;
