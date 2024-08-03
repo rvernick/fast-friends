@@ -45,9 +45,6 @@ services:
     - www.fast-friends.biz
   routes:
   - type: redirect
-    source: /strava-reply
-    destination: /strava-reply.html
-  - type: redirect
     source: /*
     destination: /index.html
   envVars:
