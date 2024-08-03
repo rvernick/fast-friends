@@ -1,9 +1,6 @@
 import { IsEmail, IsString, Matches, MinLength } from 'class-validator'
 
 export class ResetPasswordDto {
-  @IsEmail({}, {message: 'Invalid email'})
-  username: string;
-
   @IsString()
   @MinLength(8)
   @Matches(

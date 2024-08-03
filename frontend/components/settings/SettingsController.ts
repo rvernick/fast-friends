@@ -8,13 +8,13 @@ class SettingsController extends AppController {
     super(appContext);
   }
 
-  public updateAccount(session: any, username: string, firstName: string, lastName: string, mobile: string) {
+  public updateAccount(session: any, username: string, firstName: string, lastName: string, cellPhone: string) {
     return this.callUpdateAccount(
       session,
       username,
       firstName,
       lastName,
-      strippedPhone(mobile));
+      strippedPhone(cellPhone));
   }
 
   async callUpdateAccount(
@@ -22,18 +22,17 @@ class SettingsController extends AppController {
     username: string,
     firstName: string,
     lastName: string,
-    mobile: string) {
+    cellPhone: string) {
 
     try {
       const body = {
         username: username,
         firstName: firstName,
         lastName: lastName,
-        mobile: mobile,
+        cellPhone: cellPhone,
       };
 
       const response = await post('/auth/update-user', body, session.jwt_token);
-      this.appContext.updateUser();
       if (response.ok) {
         return '';
       }

@@ -1,6 +1,6 @@
 services:
 - type: web
-  plan: free
+  plan: standard
   name: fast-friends-be
   env: node
   rootDir: backend
@@ -31,6 +31,12 @@ services:
       fromDatabase:
         name: fast-friends-prod
         property: database
+    - key: CLIENT_URL
+      fromService:
+        type: web
+        name: fast-friends
+        property: url
+    - fromGroup: Fast Friends Production
 - type: web
   name: fast-friends
   runtime: static

@@ -47,13 +47,13 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('changePassword')
+  @Post('change-password')
   changePassword(@Body() changePassword: ChangePasswordDto) {
     return this.authService.changePassword(
       changePassword.username,
       changePassword.oldPassword,
       changePassword.newPassword
-      );
+    );
   }
 
   @HttpCode(HttpStatus.OK)
@@ -100,10 +100,4 @@ export class AuthController {
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
   }
-
-  // @UseGuards(AuthGuard)
-  // @Get('profile')
-  // getProfile(@Request() req) {
-  //   return req.user;
-  // };
 }

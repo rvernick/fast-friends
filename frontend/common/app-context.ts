@@ -21,6 +21,10 @@ class AppContext {
     this._session.signIn(jwtToken, username);
   }
 
+  public getSession(): any {
+    return this._session;
+  }
+
   public setSession(session: any) {
     this._session = session;
   }
@@ -50,6 +54,11 @@ class AppContext {
   public get(key: string) {
     this.syncCache();
     return this.hotStringCache.get(key);
+  }
+
+  public remove(key: string) {
+    this.hotStringCache.delete(key);
+    AsyncStorage.removeItem(key);
   }
 
 // TODO: Should move this to use similar logic to ctx.tsx
@@ -86,69 +95,32 @@ class AppContext {
     return this.queryClient;
   }
 
-  public getUser(): User | null {
-    if (this.getUserFromCache() == null) {
-      this.updateUser();
-      const email = this.getEmail();
-      return {username: email == null ? '' : email, firstName: '', lastName: '', mobile: '', stravaId: ''};
-    }
-    return this.getUserFromCache() as User;
+  public invalidateUser(session: any) {
+    console.log('context invalidating user ' + session.email);
+    this.queryClient.removeQueries({queryKey: ['user', session.email]});
   }
 
-  private getUserFromCache() {
-    const email = this.getEmail();
-    console.log('getting user from cache: ' + email);
-    const result = this.queryClient.getQueryData(['user', email]);
-    
-    return result;
-  }
-
-  public invalidateUser() {
-    this.queryClient.invalidateQueries({queryKey: ['user', this.getEmail()]});
-  }
-
-  async getUserPromise(): Promise<User | null> {
-    const email = this.getEmail();
-    if (email == null || email == '') {
-     return Promise.resolve(null);
-    }
-    return this.queryClient.fetchQuery({
-      queryKey: ['user', this.getEmail()],
-      queryFn: () => fetchUser(email, this)
-    });
-  }
-
-  public updateUser() {
-    console.log('context updating user: ' + this.getEmail());
-    const email = this.getEmail();
-    if (email == null || email == '') {
-      return;
-    }
-
-    this.getQueryClient().prefetchQuery({
-      queryKey: ['user', email],
-      queryFn: () => fetchUser(email, this)
-    });
-  }
-
-  public async getSecrets(): Promise<any> {
-    if (!this.isLoggedIn()) { return; }
-    const email = this.getEmail();
+  public async getSecrets(session: any): Promise<any> {
+    this.setSession(session);
+    if (!session.jwt_token) { return; }
+    const email = session.email;
     console.log('context updating secrets: ' + email);
     return this.getQueryClient().fetchQuery({
       queryKey: ['secrets', email],
-      queryFn: () => fetchSecrets(this)
+      queryFn: () => fetchSecrets(session)
     });
   }
 
-  public async getStravaClientId(): Promise<string> {
-    const secrets = await this.getSecrets();
+  public async getStravaClientId(session: any): Promise<string> {
+    this.setSession(session);
+    const secrets = await this.getSecrets(session);
     console.log('secrets:'+ JSON.stringify(secrets));
     return secrets['stravaClientId'];
   }
 
-  public async getStravaClientSecret(): Promise<string> {
-    const secrets = await this.getSecrets();
+  public async getStravaClientSecret(session: any): Promise<string> {
+    this.setSession(session);
+    const secrets = await this.getSecrets(session);
     return secrets['stravaSecret'];
   }
 
@@ -157,10 +129,6 @@ class AppContext {
       return null;
     }
     return this._session.email;
-  }
-
-  public getEmailPromise(): Promise<any> {
-    return AsyncStorage.getItem('email');
   }
 
   public getJwtToken() {

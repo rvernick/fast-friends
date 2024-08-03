@@ -4,8 +4,10 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { ThemedView } from "../ThemedView";
 import { Button, HelperText, TextInput } from "react-native-paper";
 import { router } from "expo-router";
+import { useSession } from "@/ctx";
 
 export const ChangePasswordComponent = () => {
+  const session = useSession();
   const appContext  = useGlobalContext();
   const controller = new ChangePasswordController(appContext);
   const [oldPassword, setOldPassword] = useState('');
@@ -13,7 +15,8 @@ export const ChangePasswordComponent = () => {
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');  
-  
+  const [backLabel, setBackLabel] = useState('Cancel');
+
   const updateOldPassword = function(newText: string) {
     setOldPassword(newText);
   }
@@ -44,21 +47,38 @@ export const ChangePasswordComponent = () => {
   };
 
   const changePassword = function() {
+    console.log('change password');
     if(accountInfoValid()) {
-      const response = controller.changePassword(oldPassword, password);
+      console.log('validated: ' + password);
+      const response = controller.changePassword(session, oldPassword, password);
       response.then(msg => {
           console.log('create acct ' + msg);
           if (msg) {
             setPasswordErrorMessage(msg);
           } else {
-            router.back();
+            setBackLabel('Back to Settings');
+            setPasswordConfirmErrorMessage('Password changed successfully');
+            setOldPassword('');
+            setEnteredPassword('');
+            setEnteredPasswordConfirm('');
           }
         })
+    } else {
+      setPasswordConfirmErrorMessage('Invalid password or password confirmation');
     }
   };
   
   return (
     <ThemedView>
+      <TextInput
+        label="Current Password"
+        value={oldPassword}
+        onChangeText={updateOldPassword}
+        mode="outlined"
+        secureTextEntry={true}
+        autoCapitalize="none"
+        autoCorrect={false}
+      />
       <TextInput
         label="Password"
         value={password}
@@ -82,8 +102,14 @@ export const ChangePasswordComponent = () => {
       <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
         {passwordErrorMessage}
       </HelperText>
+      <HelperText type="error" visible={passwordConfirmErrorMessage.length > 0} style={{ marginTop: 10 }}>
+        {passwordConfirmErrorMessage}
+      </HelperText>
       <Button mode="contained" onPress={changePassword}>
         Update Password
+      </Button>
+      <Button onPress={() => router.back()}>
+        {backLabel}
       </Button>
     </ThemedView>
   ); 

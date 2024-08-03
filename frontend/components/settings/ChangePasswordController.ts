@@ -7,11 +7,10 @@ class ChangePasswordController extends AppController {
     super(appContext);
   }
 
-  public changePassword(oldPassword: string, newPassword: string) {
-    const username = this.getEmail();
-
+  public changePassword(session: any, oldPassword: string, newPassword: string) {
+  
     this.verifyPassword(newPassword);
-    return this.callChangePassword(username, oldPassword, newPassword);
+    return this.callChangePassword(session, session.email, oldPassword, newPassword);
   }
 
   verifyPassword(password: string) {
@@ -28,15 +27,15 @@ class ChangePasswordController extends AppController {
     return '';
   }
 
-  async callChangePassword(username: string, oldPassword: string, newPassword: string) {
+  async callChangePassword(session: any, username: string, oldPassword: string, newPassword: string) {
     try {
       const body = {
         username: username,
         oldPassword: oldPassword,
         newPassword: newPassword,
       };
-      const jwtToken = this.getJwtToken();
-      const response = await post('/auth/changePassword', body, jwtToken);
+      const jwtToken = session.jwt_token;
+      const response = await post('/auth/change-password', body, jwtToken);
       if (response.ok) {
         return '';
       }

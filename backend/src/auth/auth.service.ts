@@ -42,14 +42,15 @@ export class AuthService {
     this.userService.createUser(username, pass);
   }
 
-  async changePassword(username: string, oldPassword: string, newPassword: string) {
+  async changePassword(username: string, oldPassword: string, newPassword: string): Promise<string> {
     const user = await this.userService.findUsername(username);
-    if (user == null || user?.password != oldPassword) {
+    if (user == null || !user.comparePassword(oldPassword)) {
       this.logger.log('info', 'failed change password attempt: ' + username);
-      throw new UnauthorizedException();
+      return 'Invalid Password'
     }
     this.logger.log('info', 'password changed for: ' + username);
     this.userService.updatePassword(user, newPassword);
+    return '';
   }
 
   async updateUser(updateUserDto: UpdateUserDto) {
@@ -64,7 +65,7 @@ export class AuthService {
       user,
       updateUserDto.firstName,
       updateUserDto.lastName,
-      updateUserDto.mobile,
+      updateUserDto.cellPhone,
       null,
       null,
       null,
@@ -110,7 +111,6 @@ export class AuthService {
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     this.userService.resetPassword(
-      resetPasswordDto.username,
       resetPasswordDto.token,
       resetPasswordDto.password);
   }

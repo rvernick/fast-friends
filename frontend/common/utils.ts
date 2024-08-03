@@ -66,29 +66,25 @@ export async function login(username: string, password: string, appContext: AppC
     });
 };
 
-export const fetchUser = async (username: string, appContext: AppContext): Promise<User | null> => {
-  console.log('fetching user:' + username);
-  console.log(appContext);
-  console.log(appContext.getJwtToken());
+export const fetchUser = async (session: any, username: string): Promise<User | null> => {
+  console.log('fetching user: ' + username);
   try {
     const parameters = {
       username: username,
     };
-    console.log('fetching user: ' + username);
-    return getInternal('/auth/user', parameters, appContext.getJwtToken()) as Promise<User | null>;
+    return getInternal('/auth/user', parameters, session.jwt_token) as Promise<User | null>;
   } catch(e: any) {
     console.log(e.message);
     return null;
   }
 }
 
-export const fetchSecrets = async (appContext: AppContext): Promise<any | null> => {
-  console.log('fetchSecrets ' + appContext);
-  console.log('fetchSecrets jwt: ' + appContext.getJwtToken());
+export const fetchSecrets = async (session: any): Promise<any | null> => {
+  console.log('fetchSecrets jwt: ' + session.jwt_token);
   try {
     const parameters = {};
     console.log('fetching secrets: ');
-    return getInternal('/secrets', parameters, appContext.getJwtToken()) as Promise<any | null>;
+    return getInternal('/secrets', parameters, session.jwt_token) as Promise<any | null>;
   } catch(e: any) {
     console.log(e.message);
     return null;
@@ -102,3 +98,16 @@ export const sleep = (timeout: number): Promise<void> => {
 };
 
 export const invalidPasswordMessage = 'password must be at least 8 characters with a mix of special, upper and lower case'
+
+export const ensureString = (value: string | string[] | null | undefined | number): string => {
+  if (value == null || value === '') {
+    return '';
+  }
+  if (typeof value === 'number') {
+    return value.toString();
+  }
+  if (Array.isArray(value)) {
+    return value.join(', ');
+  }
+  return value;
+}

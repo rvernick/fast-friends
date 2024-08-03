@@ -37,6 +37,7 @@ class BikeController extends AppController {
     username: string,
     id: number,
     name: string,
+    type: string,
     groupsetBrand: string,
     groupsetSpeed: string,
     isElectronic: boolean): Promise<string> => {
@@ -46,6 +47,7 @@ class BikeController extends AppController {
         username: username,
         id: id,
         name: name,
+        type: type,
         groupsetBrand: groupsetBrand,
         groupsetSpeed: Number(groupsetSpeed),
         isElectronic: isElectronic,

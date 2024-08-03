@@ -7,6 +7,7 @@ import { ThemedView } from "../ThemedView";
 import { Button, Checkbox, HelperText, TextInput, ActivityIndicator } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
+import { ensureString } from "@/common/utils";
 
 const groupsetBrands = [
   'Shimano',
@@ -15,10 +16,11 @@ const groupsetBrands = [
   'Other',
 ]
 const groupsetSpeeds = ['1', '9', '10', '11', '12', '13'];
-
+const types = ['Road', 'Mountain', 'Hybrid', 'Cruiser', 'Electric', 'Cargo', 'Gravel'].sort();
 const newBike = {
       id: 0,
       name: '',
+      type: 'Road',
       groupsetBrand: 'Shimano',
       groupsetSpeed: 11,
       isElectronic: false,
@@ -47,6 +49,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
   const [readOnly, setReadOnly] = useState(!isNew);
   const [groupsetBrand, setGroupsetBrand] = useState(newBike.groupsetBrand);
   const [speed, setSpeeds] = useState(newBike.groupsetSpeed.toString());
+  const [type, setType] = useState(newBike.type);
   const [isElectronic, setIsElectronic] = useState(newBike.isElectronic);
   const [errorMessage, setErrorMessage] = useState('');
   const [isInitialized, setIsInitialized] = useState(isNew);
@@ -63,15 +66,16 @@ const BikeComponent: React.FC<BikeProps> = () => {
 
   const resetBike = (bike: Bike) => {
     console.log('reset bike: ' + JSON.stringify(bike));
-    setBikeName(bike.name);
-    setGroupsetBrand(bike.groupsetBrand);
-    setSpeeds(bike.groupsetSpeed.toString());
+    setBikeName(ensureString(bike.name));
+    setType(ensureString(bike.type));
+    setGroupsetBrand(ensureString(bike.groupsetBrand));
+    setSpeeds(ensureString(bike.groupsetSpeed));
     setIsElectronic(bike.isElectronic);
     setReadOnly(true);
   }
   
   const updateBike = async function() {
-    const result = await controller.updateBike(session, email, bikeId, bikeName, groupsetBrand, speed, isElectronic);
+    const result = await controller.updateBike(session, email, bikeId, bikeName, type, groupsetBrand, speed, isElectronic);
     console.log('update bike result: ' + result);
     if (result == '') {
       router.back();
@@ -121,6 +125,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
   
   const groupsetOptions = groupsetBrands.map(brand => ({ label: brand, value: brand }));
   const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
+  const typeOptions = types.map(type => ({ label: type, value: type }));
 
   return (
     <ThemedView>
@@ -134,6 +139,14 @@ const BikeComponent: React.FC<BikeProps> = () => {
         options={groupsetOptions}
         value={groupsetBrand}
         onSelect={(value) => setGroupsetBrand(value ? value : '')}
+      />
+      <Dropdown
+        disabled={readOnly}
+        label="Type"
+        placeholder="Road"
+        options={typeOptions}
+        value={type}
+        onSelect={(value) => setType(value ? value : '')}
       />
       <Dropdown
         disabled={readOnly}

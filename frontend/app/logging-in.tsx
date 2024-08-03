@@ -13,7 +13,7 @@ export default function LoggingIn() {
     if (session.jwt_token != null) {
       router.replace('/(home)');
     }
-  }, [session.jwt_token]);
+  }, [session]);
 
   return (
     <ThemedView>

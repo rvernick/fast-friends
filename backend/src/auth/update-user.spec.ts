@@ -12,14 +12,14 @@ const getStarterDTO = (): UpdateUserDto => {
 describe('UpdateUserDto', () => {
   it('should accept a valid 10-digit phone number', async () => {
     const dto = getStarterDTO();
-    dto.mobile = '1234567890';
+    dto.cellPhone = '1234567890';
     const errors = await validate(dto);
     expect(errors.length).toBe(0);
   });
 
   it('should reject a phone number with less than 10 digits', async () => {
     const dto = getStarterDTO();
-    dto.mobile = '123456789';
+    dto.cellPhone = '123456789';
     const errors = await validate(dto);
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].constraints).toMatchObject({
@@ -29,7 +29,7 @@ describe('UpdateUserDto', () => {
 
   it('should reject a phone number with more than 10 digits', async () => {
     const dto = getStarterDTO();
-    dto.mobile = '12345678901';
+    dto.cellPhone = '12345678901';
     const errors = await validate(dto);
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].constraints).toMatchObject({
@@ -39,14 +39,14 @@ describe('UpdateUserDto', () => {
 
   it('should accept an empty string as a valid phone number', async () => {
     const dto = getStarterDTO();
-    dto.mobile = '';
+    dto.cellPhone = '';
     const errors = await validate(dto);
     expect(errors.length).toBe(0);
   });
 
   it('should reject a phone number with non-numeric characters', async () => {
     const dto = getStarterDTO();
-    dto.mobile = '12345a7890';
+    dto.cellPhone = '12345a7890';
     const errors = await validate(dto);
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0].constraints).toMatchObject({
