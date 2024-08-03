@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useContext, useState } from "react";
-import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
+import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData, TextInputSubmitEditingEventData } from "react-native";
 import { useGlobalContext } from "../../common/GlobalContext";
 import { login, sleep } from "../../common/utils";
 import { baseUrl } from "../../common/http-utils";
@@ -8,7 +8,7 @@ import { Button, HelperText } from "react-native-paper";
 import { router } from "expo-router";
 import { Card, TextInput } from 'react-native-paper';
 
-export const LoginScreen = () => {
+export const LoginComponent = () => {
   const appContext = useGlobalContext();
   var user = '';
   var pword = '';
@@ -32,15 +32,15 @@ export const LoginScreen = () => {
     setEnteredPassword(newText);
   }
 
-  const loginSubmit = function(e: NativeSyntheticEvent<TextInputChangeEventData>) {
-    e.preventDefault();
-    attemptLogin();
-  };
-
   const loginButton = function(e: GestureResponderEvent) {
     e.preventDefault();
     attemptLogin();
   };
+
+  const loginSubmit = function(e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
+      e.preventDefault();
+      attemptLogin();
+    };
 
   const attemptLogin = function() {
     const loginAttempt = login(email, password, appContext);
@@ -49,7 +49,6 @@ export const LoginScreen = () => {
         console.log('loginAttempt: ' + msg);
         if (msg) {
           setLoginErrorMessage(msg);
-          // loggedInMonitor(false);  // set the state to trigger a re-render
         } else {
           console.log('attemptLogin successful');
           router.replace('/logging-in');
@@ -67,7 +66,10 @@ export const LoginScreen = () => {
           <Card.Title title="Fast Friends"></Card.Title>
           <Card.Content>
               <TextInput label="Email" keyboardType="email-address" onChangeText={updateEmail}></TextInput>
-              <TextInput label="Password" secureTextEntry={true} onChangeText={updatePassword} ></TextInput>
+              <TextInput label="Password"
+                secureTextEntry={true}
+                onChangeText={updatePassword}
+                onSubmitEditing={loginSubmit}/>
               <HelperText type="error" visible={loginErrorMessage.length > 0}>{loginErrorMessage}</HelperText>
               <Button mode="contained" onPress={loginButton}>
                 Confirm

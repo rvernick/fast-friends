@@ -49,7 +49,7 @@ useEffect(() => {
   if (code) {
     if (session.jwt_token) {
       updateStravaAndReturn(ensureString(code));
-      router.replace('/settings');
+//     router.replace('/settings');
     } else {
       console.log('no token found');
     }
