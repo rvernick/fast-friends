@@ -12,15 +12,12 @@ interface EmailPasswordComponentProps {
 }
 
 export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ controller }) => {
-  const authContext = useSession();
   const [email, setEnteredEmail] = useState('');
   const [password, setEnteredPassword] = useState('');
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');
-
-  console.log('email password context: ' +  authContext);
 
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
@@ -92,6 +89,7 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
         autoCorrect={false}
         textContentType="emailAddress"
         keyboardType="email-address"
+        onBlur={verifyEmail}
         testID="emailInput"
       />
       <HelperText type="error" disabled={emailErrorMessage.length == 0} visible={emailErrorMessage.length > 0}>
@@ -105,6 +103,7 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
         secureTextEntry={true}
         autoCapitalize="none"
         autoCorrect={false}
+        onBlur={verifyPassword}
         testID="passwordInput"
       />
       <TextInput
@@ -115,6 +114,7 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
         secureTextEntry={true}
         autoCapitalize="none"
         autoCorrect={false}
+        testID="passwordConfirmInput"
       />
       <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
         {passwordErrorMessage}

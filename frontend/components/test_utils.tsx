@@ -1,5 +1,5 @@
 import { GlobalStateProvider } from "../common/GlobalContext";
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MD3DarkTheme, MD3LightTheme, PaperProvider, ThemeProvider } from "react-native-paper";
 import { SessionProvider } from "../ctx";
 
@@ -25,12 +25,14 @@ export const ProviderWrapper = ({ children }: ProviderWrapperProps) => {
   };
 
   return (
-    <PaperProvider theme={colorScheme}> 
-      <SessionProvider>
-        <GlobalStateProvider>
-          {children}
-        </GlobalStateProvider>
-      </SessionProvider>
+    <PaperProvider theme={colorScheme}>
+      <QueryClientProvider client={queryClient}>
+        <SessionProvider>
+          <GlobalStateProvider>
+            {children}
+          </GlobalStateProvider>
+        </SessionProvider>
+      </QueryClientProvider>
     </PaperProvider>
   );
 };

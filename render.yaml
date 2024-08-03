@@ -35,7 +35,7 @@ services:
       fromService:
         type: web
         name: fast-friends
-        property: url
+        property: host
     - fromGroup: Fast Friends Production
 - type: web
   name: fast-friends
