@@ -44,9 +44,12 @@ services:
     - fast-friends.biz
     - www.fast-friends.biz
   routes:
-    - type: redirect
-      source: /*
-      destination: /index.html
+  - type: redirect
+    source: /strava-reply
+    destination: /strava-reply.html
+  - type: redirect
+    source: /*
+    destination: /index.html
   envVars:
     - key: BASE_URL
       value: https://fast-friends-be.onrender.com
