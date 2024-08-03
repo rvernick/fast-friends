@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
-import { ensureString, isValidPhone } from '../../common/utils';
+import { ensureString, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
 import { ThemedView } from "../ThemedView";
 import { ActivityIndicator, Button, HelperText, Text, TextInput } from "react-native-paper";
@@ -55,7 +55,7 @@ export const SettingsComponent = () => {
     if (newText.length == 0 || isValidPhone(newText)) {
       setMobileErrorMessage('');
     }
-    setEnteredCellPhone(newText);
+    setEnteredCellPhone(strippedPhone(newText));
   }
 
   const validateName = () => {
@@ -120,22 +120,22 @@ export const SettingsComponent = () => {
     setEnteredCellPhone(ensureString(data?.cellPhone));
   }
 
-  // useFocusEffect(() => {
-  //   appContext.getUserPromise(session)
-  //    .then((user) => {
-  //     if (user == null) {
-  //       user = blankUser;
-  //     }
-  //     if (user.stravaId != null && stravaId.length == 0) {
-  //       console.log('linked to strava and resetting');
-  //       userUpdated();
-  //       setUserInvalid(false);
-  //     }});
-  //   if (userInvalid) {
-  //     userUpdated();
-  //     setUserInvalid(false);
-  //   }
-  // });
+  const phoneFormat = (phoneWithEverything: string) => {
+    const phone = strippedPhone(phoneWithEverything);
+    if (phone.length == 0) {
+      return '';
+    }
+    if (phone.length < 4) {
+      return "(" + phone;
+    }
+    if (phone.length <= 6) {
+      return '(' + phone.slice(0, 3) + ') '+ phone.slice(3);
+    }
+    if (phone.length <= 10) {
+      return '(' + phone.slice(0, 3) + ') '+ phone.slice(3, 6) + '-' + phone.slice(6);
+    }
+    return phone;
+  }
 
   useEffect(() => {
     userUpdated();
@@ -169,7 +169,7 @@ export const SettingsComponent = () => {
         {nameErrorMessage}
       </HelperText>
       <TextInput label="Mobile"
-        value={cellPhone}
+        value={phoneFormat(cellPhone)}
         onChangeText={updateMobile}
         mode="outlined"
         keyboardType="phone-pad"
@@ -184,7 +184,7 @@ export const SettingsComponent = () => {
             Update Account
           </Button>
          <Button onPress={ () => router.push('change-password') }>
-            Update Password
+            Change Password
           </Button>
     </ThemedView>
   )

@@ -2,8 +2,7 @@ import { Logger, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, createNewUser } from './user.entity';
-import { Bike, GroupsetBrand } from './bike.entity';
-import { StravaUserDto } from './strava-user';
+import { Bike,  } from './bike.entity';
 import { StravaAuthenticationDto } from './strava-authentication';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
@@ -183,18 +182,15 @@ export class UserService {
     await this.usersRepository.softDelete(id);
   }
 
-  async resetPassword(username: string, token: string, newPassword: string): Promise<void> {
+  async resetPassword(token: string, newPassword: string): Promise<void> {
     const passwordReset = await this.passwordResetRepository.findOne({
       where: {
         token: token,
       },
     });
     if (passwordReset != null
-      && passwordReset.expiresOn > new Date()
-      && passwordReset.user.username === username) {
+      && passwordReset.expiresOn > new Date()) {
         const user = passwordReset.user;
-        this.logger.log('Resetting password for:'+ username);
-        this.logger.log('token', 'Resetting password for:'+ token);
         console.log('passwordReset', 'Resetting password for:'+ JSON.stringify(passwordReset));
         user.setRawPassword(newPassword);
         this.usersRepository.save(user);

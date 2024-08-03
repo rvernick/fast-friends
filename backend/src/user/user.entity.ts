@@ -48,7 +48,7 @@ export class User {
   password: string;
 
   setRawPassword(rawPassword: string) {
-    this.password =  bcrypt.hashSync(rawPassword, 10);
+    this.password = bcrypt.hashSync(rawPassword, 10);
   }
 
   @Column({
