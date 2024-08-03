@@ -11,7 +11,7 @@ interface GlobalStateProviderProps {
 }
 
 export function useGlobalContext(): AppContext {
-  const { appContext} = useContext(GlobalStateContext);
+  const { appContext } = useContext(GlobalStateContext);
   return appContext;
 }
 
