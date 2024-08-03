@@ -144,7 +144,7 @@ class StravaController extends AppController {
    */
   async linkToStravaWeb(session: any) {
     const replyUrl = await this.getLocationBaseUrl();
-    const redirectUri = replyUrl + '/strava-reply';
+    const redirectUri = replyUrl + '/strava-reply.html';
     const clientId = await this.appContext.getStravaClientId(session);
     console.log('redirect ' + redirectUri);
 
