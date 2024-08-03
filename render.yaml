@@ -1,6 +1,6 @@
 services:
 - type: web
-  plan: free
+  plan: standard
   name: fast-friends-be
   env: node
   rootDir: backend
