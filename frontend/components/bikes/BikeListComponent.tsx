@@ -24,7 +24,7 @@ const BikeListComponent = () => {
   const [isUpdating, setIsUpdating] = useState(true);
 
   const { status, data, error, isFetching } = useQuery({
-    queryKey: [email, 'bikes'],
+    queryKey: ['bikes'],
     queryFn: () => controller.getBikes(session, email),
     refetchOnWindowFocus: 'always',
     refetchOnReconnect: 'always',
@@ -32,6 +32,7 @@ const BikeListComponent = () => {
   })
   
   const addBike = () => {
+    queryClient.removeQueries({ queryKey: ['bikes'] });
     router.push({ pathname: "0", params: {bikeid: 0 }});
   }
 

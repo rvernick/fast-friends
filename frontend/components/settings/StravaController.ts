@@ -7,14 +7,15 @@ import { stravaBase } from "../strava/utils";
 
 class StravaController extends AppController {
 
-  async updateStravaCode(session: any, appContext: AppContext, stravaCode: string) {
+  async updateStravaCode(session: any, appContext: AppContext, stravaCode: string): Promise<any> {
     this.saveStravaCode(session, appContext, stravaCode);
     console.log('calling doTokenExchange');
-    this.doTokenExchange(session, appContext, stravaCode)
-      .then((resultString: string) => {
+    return this.doTokenExchange(session, appContext, stravaCode)
+      .then((result: any) => {
         this.syncStravaInfo(session, appContext, stravaCode)
-        appContext.invalidateUser(session)});
-    ;
+        appContext.invalidateUser(session)
+        return result;
+      });
   }
 
 
@@ -159,7 +160,7 @@ class StravaController extends AppController {
       + searchParams.toString()
       + '&redirect_uri=' + redirectUri;
     console.log('url:'+ url);
-    window.location.href = url;
+    window.open(url);
   };
 
 
@@ -212,7 +213,7 @@ class StravaController extends AppController {
 // "summit":true,"created_at":"2010-08-17T17:40:48Z",
 // "updated_at":"2023-07-28T20:01:19Z","badge_type_id":1,"weight":74.8427,
 // "profile_medium":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/medium.jpg","profile":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/large.jpg","friend":null,"follower":null}}
-  async doTokenExchange(session: any, appContext: AppContext, stravaCode: string) {
+  async doTokenExchange(session: any, appContext: AppContext, stravaCode: string): Promise<any> {
     console.log('doTokenExchange');
     const clientId = await appContext.getStravaClientId(session);
     const clientSecret = await appContext.getStravaClientSecret(session);
@@ -233,7 +234,7 @@ class StravaController extends AppController {
         appContext.put('stravaExpiresAt', result.expires_at);
         appContext.put('stravaTokenType', result.token_type);
         appContext.put('stravaAthlete', '' + result.athlete.id);
-        return '';
+        return result;
       } else {
         return response.statusText;
       }

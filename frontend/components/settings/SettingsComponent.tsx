@@ -5,13 +5,21 @@ import { ensureString, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
 import { ThemedView } from "../ThemedView";
 import { ActivityIndicator, Button, HelperText, Text, TextInput } from "react-native-paper";
-import { router, useFocusEffect } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchUser } from "../../common/utils";
 
-export const SettingsComponent = () => {
+type SettingsProps = {
+  strava_id: string;
+};
+
+export const SettingsComponent: React.FC<SettingsProps> = () => {
   const session = useSession();
+  const { strava_id } = useLocalSearchParams();
+  const [providedStravaId, setProvidedStravaId] = useState(ensureString(strava_id));
+
+  console.log('SettingsComponent strava_id: '+ strava_id);
   const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
   const appContext  = useGlobalContext();
@@ -23,9 +31,9 @@ export const SettingsComponent = () => {
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
   
-  const blankUser = {username: email, firstName: '', lastName: '', cellPhone: '', stravaId: ''};
+  const blankUser = {username: email, firstName: '', lastName: '', cellPhone: '', stravaId: providedStravaId};
   const { status, data, error, isFetching } = useQuery({
-    queryKey: ['user', email],
+    queryKey: ['user'],
     queryFn: () => fetchUser(session, email),
     initialData: blankUser,
     refetchOnWindowFocus: 'always',
@@ -35,13 +43,14 @@ export const SettingsComponent = () => {
 
   const invalidateUser = () => {
     console.log('Invalidate user: ' + email);
-    queryClient.removeQueries({queryKey: ['user', email]});
+    queryClient.removeQueries({queryKey: ['user']});
+    queryClient.removeQueries({ queryKey: ['bikes'] });
   }
   
   const [firstName, setEnteredFirstName] = useState(ensureString(data?.firstName));
   const [lastName, setEnteredLastName] = useState(ensureString(data?.lastName));
   const [cellPhone, setEnteredCellPhone] = useState(ensureString(data?.cellPhone));
-  const [stravaId, setStravaId] = useState(ensureString(data?.stravaId));
+  const [stravaId, setStravaId] = useState(providedStravaId);
 
   const updateFirstName = function(newText: string) {
     setNameErrorMessage('');
@@ -101,20 +110,25 @@ export const SettingsComponent = () => {
 
   const linkToStrava = async () => {
     await stravaController.linkToStrava(session);
+    setStravaId('Connecting to Strava...');
     invalidateUser();
   }
 
   const unlinkFromStrava = async () => {
     const msg = await stravaController.unlinkFromStrava(session, appContext, data);
+    setProvidedStravaId('');
     setErrorMessage(msg);
     invalidateUser();
     userUpdated();
   }
 
   const userUpdated = async () => {
-    console.log('user updated: ' + JSON.stringify(data));
-  
-    setStravaId(ensureString(data?.stravaId));
+    if (providedStravaId.length > 0) {
+      setStravaId(providedStravaId);
+    } else {
+      const userStravaId = ensureString(data?.stravaId);
+      setStravaId(userStravaId);
+    }
     setEnteredFirstName(ensureString(data?.firstName));
     setEnteredLastName(ensureString(data?.lastName));
     setEnteredCellPhone(ensureString(data?.cellPhone));
