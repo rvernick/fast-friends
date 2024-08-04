@@ -44,7 +44,7 @@ services:
     - fast-friends.biz
     - www.fast-friends.biz
   routes:
-  - type: redirect
+  - type: rewrite
     source: /*
     destination: /index.html
   envVars:
