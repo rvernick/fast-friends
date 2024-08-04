@@ -97,7 +97,7 @@ class AppContext {
 
   public invalidateUser(session: any) {
     console.log('context invalidating user ' + session.email);
-    this.queryClient.removeQueries({queryKey: ['user', session.email]});
+    this.queryClient.removeQueries({queryKey: ['user']});
   }
 
   public async getSecrets(session: any): Promise<any> {
@@ -106,7 +106,7 @@ class AppContext {
     const email = session.email;
     console.log('context updating secrets: ' + email);
     return this.getQueryClient().fetchQuery({
-      queryKey: ['secrets', email],
+      queryKey: ['secrets'],
       queryFn: () => fetchSecrets(session)
     });
   }

@@ -27,44 +27,40 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = () => {
   console.log('scope: ' + scope);
   console.log('code: ' + code);
 
-const refresh = () => {
-  if (appContext.isLoggedIn()) {
-    console.log('refreshing is logged in');
-  } else {
-    console.log('refreshing...' + window.parent.location.origin);
-    console.log(window.parent);
-    window.parent.location = window.parent.location.origin;
-  }
-};
+  var message = 'Updating your Strava settings...';
 
-var message = 'Updating your Strava settings...';
-
-const updateStravaAndReturn = async (code: string) => {
-  await controller.updateStravaCode(session, appContext, code);
-  console.log('updated strava code: ');
-  appContext.invalidateUser(session);
-}
-
-useEffect(() => {
-  if (code) {
-    if (session.jwt_token) {
-      updateStravaAndReturn(ensureString(code));
-      router.replace('/settings');
+  const updateStravaAndReturn = async (code: string) => {
+    const stravaInfo = await controller.updateStravaCode(session, appContext, code);
+    console.log('updated strava code: ' + JSON.stringify(stravaInfo));
+    appContext.invalidateUser(session);
+    if (stravaInfo?.athlete?.id) {
+      // window.close();
+      router.replace('/settings?strava_id=' + stravaInfo?.athlete?.id);
     } else {
-      console.log('no token found');
+      router.replace('/settings');
     }
-  } else {
-    console.log('no code found');
   }
-}, [session]);
+
+  useEffect(() => {
+    if (code) {
+      if (session.jwt_token) {
+        updateStravaAndReturn(ensureString(code));
+      } else {
+        console.log('no token found');
+      }
+    } else {
+      console.log('no code found');
+    }
+  }, [session]);
 
   return (
     <ThemedView>
       <ActivityIndicator size="large"/>
-      <Text>Strava Reply Component Connection successful. Please return to Settings.</Text>
-      <Text>Code: {ensureString(code)}</Text>
+      <Text>Strava Connection successful. Syncing Now.</Text>
+      <Text>Window will stay open when finished</Text>
+      {/* <Text>Code: {ensureString(code)}</Text>
       <Text>Scope:  {ensureString(scope)}</Text>
-      <Text>State:  {ensureString(state)}</Text>
+      <Text>State:  {ensureString(state)}</Text> */}
     </ThemedView>
     );
   };

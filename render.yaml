@@ -32,10 +32,7 @@ services:
         name: fast-friends-prod
         property: database
     - key: CLIENT_URL
-      fromService:
-        type: web
-        name: fast-friends
-        property: host
+      value: https://fast-friends.onrender.com
     - fromGroup: Fast Friends Production
 - type: web
   name: fast-friends
@@ -47,15 +44,12 @@ services:
     - fast-friends.biz
     - www.fast-friends.biz
   routes:
-    - type: redirect
-      source: /*
-      destination: /index.html
+  - type: rewrite
+    source: /*
+    destination: /index.html
   envVars:
     - key: BASE_URL
-      fromService:
-        type: web
-        name: fast-friends
-        property: host
+      value: https://fast-friends-be.onrender.com
 
 databases:
   - name: fast-friends-prod
