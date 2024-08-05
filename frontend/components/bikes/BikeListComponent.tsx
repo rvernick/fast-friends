@@ -73,7 +73,7 @@ const BikeListComponent = () => {
   return (
     <ThemedView>
         <BikeList bikes={data} isUpdating={isUpdating}/>
-        <Button onPress={addBike}> Add Bike</Button>
+        <Button mode="contained" onPress={addBike}> Add Bike</Button>
     </ThemedView>
   );
 };

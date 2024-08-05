@@ -4,7 +4,7 @@ import SettingsController from "./SettingsController";
 import { ensureString, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
 import { ThemedView } from "../ThemedView";
-import { ActivityIndicator, Button, HelperText, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, Card, HelperText, Text, TextInput } from "react-native-paper";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -158,13 +158,9 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   if (isFetching) return <ActivityIndicator />;
   return (
     <ThemedView>
-      <Button onPress={ linkToStrava } disabled={stravaId.length > 0}>
-        {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : 'Connect to Strava'}
-      </Button>
-      <Button onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
-        Unlink
-      </Button>
-      <Text variant="headlineSmall">Email: {appContext.getEmail()}</Text>
+      <Card>
+        <Card.Title title={firstName + ': ' + email} />
+        <Card.Content>
       <TextInput label="First Name"
         value={firstName}
         onChangeText={updateFirstName}
@@ -194,12 +190,26 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
       <HelperText type="error" visible={errorMessage.length > 0} style={{ marginTop: 10 }}>
         {errorMessage}
       </HelperText>
-      <Button onPress={ updateAccount } disabled={mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}>
+      <Card>
+        <Card.Content>
+          <Button onPress={ linkToStrava } disabled={stravaId.length > 0}>
+              {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : 'Connect to Strava'}
+            </Button>
+            <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
+              Unlink
+            </Button>    
+        </Card.Content>
+      </Card>
+      <HelperText type="error"> </HelperText>
+      <Button mode="contained" onPress={ updateAccount } disabled={mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}>
             Update Account
           </Button>
-         <Button onPress={ () => router.push('change-password') }>
+          <HelperText type="error"> </HelperText>
+         <Button mode="contained" onPress={ () => router.push('change-password') }>
             Change Password
           </Button>
+        </Card.Content>
+      </Card>
     </ThemedView>
   )
 };

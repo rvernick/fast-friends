@@ -4,7 +4,7 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useLocalSearchParams } from "expo-router";
 import { ThemedView } from "../ThemedView";
-import { Button, Checkbox, HelperText, TextInput, ActivityIndicator } from "react-native-paper";
+import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
 import { ensureString } from "@/common/utils";
@@ -130,41 +130,50 @@ const BikeComponent: React.FC<BikeProps> = () => {
   return (
     <ThemedView>
       <ActivityIndicator animating={!isInitialized} />
-      <TextInput label="Name" readOnly={readOnly} value={bikeName} onChangeText={updateName} placeholder="Name" />
-      <HelperText type="error" >{errorMessage}</HelperText>
-      <Dropdown
-        disabled={readOnly}
-        label="Groupset"
-        placeholder="SRAM"
-        options={groupsetOptions}
-        value={groupsetBrand}
-        onSelect={(value) => setGroupsetBrand(value ? value : '')}
-      />
-      <Dropdown
-        disabled={readOnly}
-        label="Type"
-        placeholder="Road"
-        options={typeOptions}
-        value={type}
-        onSelect={(value) => setType(value ? value : '')}
-      />
-      <Dropdown
-        disabled={readOnly}
-        label="Speeds"
-        placeholder="11"
-        options={speedOptions}
-        value={speed}
-        onSelect={(value) => setSpeeds(value ? value : '')}
-      />
-      <Checkbox.Item label="Electric"
-        disabled={readOnly}
-        status={isElectronic ? "checked" : "unchecked"} 
-        onPress={values => setIsElectronic(!isElectronic)}/>
-        <Button onPress={ editOrDone }>
-          { readOnly? 'Edit' : 'Done' }
-        </Button>
-        { (readOnly || isNew) ? null : <Button onPress={ cancel }> Cancel </Button>}
-        { (readOnly || isNew) ? null : <Button onPress={ deleteBike }> Delete </Button>}
+      <Card>
+        <Card.Title title={ bikeName || 'New Bike'} />
+        <TextInput label="Name" readOnly={readOnly}
+          value={bikeName}
+          onChangeText={updateName}
+          disabled={readOnly}
+          placeholder="Name" />
+        <HelperText type="error" >{errorMessage}</HelperText>
+        <Dropdown
+          disabled={readOnly}
+          label="Groupset"
+          placeholder="SRAM"
+          options={groupsetOptions}
+          value={groupsetBrand}
+          onSelect={(value) => setGroupsetBrand(value ? value : '')}
+        />
+        <Dropdown
+          disabled={readOnly}
+          label="Type"
+          placeholder="Road"
+          options={typeOptions}
+          value={type}
+          onSelect={(value) => setType(value ? value : '')}
+        />
+        <Dropdown
+          disabled={readOnly}
+          label="Speeds"
+          placeholder="11"
+          options={speedOptions}
+          value={speed}
+          onSelect={(value) => setSpeeds(value ? value : '')}
+        />
+        <Checkbox.Item label="Electric"
+          disabled={readOnly}
+          status={isElectronic ? "checked" : "unchecked"} 
+          onPress={values => setIsElectronic(!isElectronic)}/>
+        </Card>
+        <Card>
+          <Button mode="contained" onPress={ editOrDone }>
+            { readOnly? 'Edit' : 'Done' }
+          </Button>
+          { (readOnly || isNew) ? null : <Button mode="contained" onPress={ cancel }> Cancel </Button>}
+          { (readOnly || isNew) ? null : <Button mode="contained" onPress={ deleteBike }> Delete </Button>}
+      </Card>
     </ThemedView>
   )
 };

@@ -1,22 +1,24 @@
-import {render, fireEvent} from '@testing-library/react-native';
+import {render, screen, fireEvent, cleanup } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
-import { EmailPasswordComponent } from '../EmailPasswordComponent';
-import { invalidPasswordMessage } from '../../../common/utils';
-import CreateAccountController from '../CreateAccountController';
-import AppContext from '@/common/app-context';
-import { QueryClient } from '@tanstack/react-query';
-import { defaultAuthState } from '@/ctx';
 import { LoginComponent } from '../LoginComponent';
 
+jest.useFakeTimers();
+afterEach(cleanup);
 
-describe('CreateAccount Component', () => {
+describe('Login Component', () => {
+  
   it('displays an error message for invalid email', () => {
-    const { getByTestId, getByText, findByText, queryByText } = render(
+    render(
       <ProviderWrapper>
         <LoginComponent />
       </ProviderWrapper>
     );
+    const emailInput = screen.getByTestId('emailInput');
+    const passwordInput = screen.getByTestId('passwordInput');
+    fireEvent.changeText(emailInput, 'test');
+    fireEvent.changeText(passwordInput, 'weak');
+    expect(screen.getByDisplayValue('test')).not.toBeNull();
+    // expect(screen.getByText('weak')).toBeNull();
   });
 
 });
-

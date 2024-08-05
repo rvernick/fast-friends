@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { invalidPasswordMessage, isValidEmail, isValidPassword, login } from '../../common/utils';
 import { ThemedView } from "../ThemedView";
-import { Button, TextInput, HelperText } from "react-native-paper";
+import { Button, TextInput, HelperText, Card } from "react-native-paper";
 import { router } from "expo-router";
 import CreateAccountController from "./CreateAccountController";
 import { useSession } from "@/ctx";
@@ -80,48 +80,53 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
 
   return (
     <ThemedView>
-      <TextInput
-        label="Email"
-        value={email}
-        onChangeText={updateEmail}
-        mode="outlined"
-        autoCapitalize="none"
-        autoCorrect={false}
-        textContentType="emailAddress"
-        keyboardType="email-address"
-        onBlur={verifyEmail}
-        testID="emailInput"
-      />
-      <HelperText type="error" disabled={emailErrorMessage.length == 0} visible={emailErrorMessage.length > 0}>
-        {emailErrorMessage}
-      </HelperText>
-      <TextInput
-        label="Password"
-        value={password}
-        onChangeText={updatePassword}
-        mode="outlined"
-        secureTextEntry={true}
-        autoCapitalize="none"
-        autoCorrect={false}
-        onBlur={verifyPassword}
-        testID="passwordInput"
-      />
-      <TextInput
-        label="Confirm Password"
-        value={passwordConfirm}
-        mode="outlined"
-        onChangeText={updatePasswordConfirm}
-        secureTextEntry={true}
-        autoCapitalize="none"
-        autoCorrect={false}
-        testID="passwordConfirmInput"
-      />
-      <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
-        {passwordErrorMessage}
-      </HelperText>
-      <Button mode="contained" onPress={apply}>
-        Sign Up
-      </Button>
+      <Card>
+        <Card.Title title="New Account"></Card.Title>
+        <Card.Content>
+          <TextInput
+            label="Email"
+            value={email}
+            onChangeText={updateEmail}
+            mode="outlined"
+            autoCapitalize="none"
+            autoCorrect={false}
+            textContentType="emailAddress"
+            keyboardType="email-address"
+            onBlur={verifyEmail}
+            testID="emailInput"
+          />
+          <HelperText type="error" disabled={emailErrorMessage.length == 0} visible={emailErrorMessage.length > 0}>
+            {emailErrorMessage}
+          </HelperText>
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={updatePassword}
+            mode="outlined"
+            secureTextEntry={true}
+            autoCapitalize="none"
+            autoCorrect={false}
+            onBlur={verifyPassword}
+            testID="passwordInput"
+          />
+          <TextInput
+            label="Confirm Password"
+            value={passwordConfirm}
+            mode="outlined"
+            onChangeText={updatePasswordConfirm}
+            secureTextEntry={true}
+            autoCapitalize="none"
+            autoCorrect={false}
+            testID="passwordConfirmInput"
+          />
+          <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
+            {passwordErrorMessage}
+          </HelperText>
+          <Button mode="contained" onPress={apply}>
+            Sign Up
+          </Button>
+        </Card.Content>
+      </Card>
     </ThemedView>
     );
 };
