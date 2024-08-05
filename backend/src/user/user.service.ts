@@ -2,15 +2,15 @@ import { Logger, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, createNewUser } from './user.entity';
-import { Bike,  } from './bike.entity';
+import { Bike,  } from '../bike/bike.entity';
 import { StravaAuthenticationDto } from './strava-authentication';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
-import { UpdateBikeDto } from './update-bike.dto';
-import { DeleteBikeDto } from './delete-bike.dto';
+import { UpdateBikeDto } from '../bike/update-bike.dto';
+import { DeleteBikeDto } from '../bike/delete-bike.dto';
 
 @Injectable()
 export class UserService {
