@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ChangePasswordController from "./ChangePasswordController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { ThemedView } from "../ThemedView";
-import { Button, HelperText, TextInput } from "react-native-paper";
+import { Button, Card, HelperText, TextInput } from "react-native-paper";
 import { router } from "expo-router";
 import { useSession } from "@/ctx";
 
@@ -70,47 +70,52 @@ export const ChangePasswordComponent = () => {
   
   return (
     <ThemedView>
-      <TextInput
-        label="Current Password"
-        value={oldPassword}
-        onChangeText={updateOldPassword}
-        mode="outlined"
-        secureTextEntry={true}
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
-      <TextInput
-        label="Password"
-        value={password}
-        onChangeText={updatePassword}
-        mode="outlined"
-        secureTextEntry={true}
-        autoCapitalize="none"
-        autoCorrect={false}
-        testID="passwordInput"
-      />
-      <TextInput
-        label="Confirm Password"
-        value={passwordConfirm}
-        mode="outlined"
-        onChangeText={updatePasswordConfirm}
-        secureTextEntry={true}
-        autoCapitalize="none"
-        autoCorrect={false}
-        testID="passwordConfirmInput"
-      />
-      <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
-        {passwordErrorMessage}
-      </HelperText>
-      <HelperText type="error" visible={passwordConfirmErrorMessage.length > 0} style={{ marginTop: 10 }}>
-        {passwordConfirmErrorMessage}
-      </HelperText>
-      <Button mode="contained" onPress={changePassword}>
-        Update Password
-      </Button>
-      <Button onPress={() => router.back()}>
-        {backLabel}
-      </Button>
+      <Card>
+        <Card.Title title="Change Password"></Card.Title>
+        <Card.Content>      
+          <TextInput
+            label="Current Password"
+            value={oldPassword}
+            onChangeText={updateOldPassword}
+            mode="outlined"
+            secureTextEntry={true}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={updatePassword}
+            mode="outlined"
+            secureTextEntry={true}
+            autoCapitalize="none"
+            autoCorrect={false}
+            testID="passwordInput"
+          />
+          <TextInput
+            label="Confirm Password"
+            value={passwordConfirm}
+            mode="outlined"
+            onChangeText={updatePasswordConfirm}
+            secureTextEntry={true}
+            autoCapitalize="none"
+            autoCorrect={false}
+            testID="passwordConfirmInput"
+          />
+          <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
+            {passwordErrorMessage}
+          </HelperText>
+          <HelperText type="error" visible={passwordConfirmErrorMessage.length > 0} style={{ marginTop: 10 }}>
+            {passwordConfirmErrorMessage}
+          </HelperText>
+          <Button mode="contained" onPress={changePassword}>
+            Update Password
+          </Button>
+          <Button onPress={() => router.back()}>
+            {backLabel}
+          </Button>
+        </Card.Content>
+      </Card>
     </ThemedView>
   ); 
 };

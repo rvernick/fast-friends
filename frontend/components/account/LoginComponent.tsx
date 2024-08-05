@@ -65,11 +65,16 @@ export const LoginComponent = () => {
         <Card>
           <Card.Title title="Fast Friends"></Card.Title>
           <Card.Content>
-              <TextInput label="Email" keyboardType="email-address" onChangeText={updateEmail}></TextInput>
+              <TextInput
+                label="Email"
+                keyboardType="email-address"
+                onChangeText={updateEmail}
+                testID="emailInput"/>
               <TextInput label="Password"
                 secureTextEntry={true}
                 onChangeText={updatePassword}
-                onSubmitEditing={loginSubmit}/>
+                onSubmitEditing={loginSubmit}
+                testID="passwordInput"/>
               <HelperText type="error" visible={loginErrorMessage.length > 0}>{loginErrorMessage}</HelperText>
               <Button mode="contained" onPress={loginButton}>
                 Confirm
