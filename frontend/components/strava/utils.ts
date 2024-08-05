@@ -13,12 +13,13 @@ export enum MaintenanceItemType {
   FRONT_SUSPENSION = "Replace Front Suspension",
   REAR_TIRE = "Replace Rear Tire",
   FRONT_TIRE = "Replace Front Tire",
+  FRONT_DERAILLEUR_BATTERY = "Front Derailleur Battery",
+  REAR_DERAILLEUR_BATTERY = "Rear Derailleur Battery",
 }
 
 export const stravaBase = () => {
   return 'https://www.strava.com';
 }
-
 
 /**
  * https://developers.strava.com/docs/reference/#api-Athletes-getLoggedInAthlete

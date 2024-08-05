@@ -8,7 +8,7 @@ import {
   DeleteDateColumn,
   OneToMany,
 } from 'typeorm';
-import { User } from './user.entity';
+import { User } from '../user/user.entity';
 import { MaintenanceItem } from './maintenance-item.entity';
 
 export enum GroupsetBrand {
