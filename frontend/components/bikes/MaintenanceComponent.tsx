@@ -4,7 +4,7 @@ import { useGlobalContext } from '@/common/GlobalContext';
 import BikeListController from './BikeListController';
 import { useRouter } from 'expo-router';
 import { ThemedView } from '../ThemedView';
-import { Button, Card, List, Text } from 'react-native-paper';
+import { Button, Card, List, Text, useTheme } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
 import { MaintenanceItem } from '@/models/MaintenanceItem';
@@ -15,6 +15,10 @@ type MaintenanceListProps = {
   maintenanceItems: MaintenanceItem[] | undefined;
   isUpdating: boolean;
 };
+
+type MaintenanceItemProps = {
+  maintenanceItem: MaintenanceItem;
+}
 
 const MaintenanceComponent = () => {
   const queryClient = useQueryClient();
@@ -44,25 +48,65 @@ const MaintenanceComponent = () => {
     const idString = id.toString();
     router.push({ pathname: idString})
   }
+
   const MaintenanceList: React.FC<MaintenanceListProps> = ({ maintenanceItems, isUpdating }) => {
     return (
       <List.Section>
         {maintenanceItems && maintenanceItems.length > 0 ? (
           maintenanceItems.map(maintenanceItem => (
-            <Card key={maintenanceItem.id} style={{ marginBottom: 10 }}>
-              <Card.Title title={maintenanceItem.name} />
-              <Card.Content>
-                <Text>Due Distance: {maintenanceItem.dueDistance}</Text>
-              </Card.Content>
-              <Card.Actions>
-                <Button onPress={() => editMaintenanceItem(maintenanceItem.id)}>Edit</Button>
-              </Card.Actions>
-            </Card>
+            <List.Item
+              title={maintenanceItem.part}
+              description={maintenanceItem.dueDistanceMeters}
+              left={props => <BikePartIcon maintenanceItem={maintenanceItem} />}
+            />
           ))
         ) : (
           <Text>No MaintenanceItems Found</Text>
         )}
       </List.Section>
+    );
+  };
+
+  /**
+   * 
+   * @param param0 CHAIN = "Chain",
+  CASSETTE = "Cassette",
+  FRONT_TIRE = "Front Tire",
+  REAR_TIRE = "Rear Tire",
+  CRANKSET = "Crankset",
+  FRONT_BRAKE_CABLE = "Front Brake Cable",
+  REAR_BRAKE_CABLE = "Rear Brake Cable",
+  FRONT_BRAKE_PADS = "Front Brake Pads",
+  REAR_BRAKE_PADS = "Rear Brake Pads",
+  REAR_SHIFTER_CABLE = "Rear Shifter Cable",
+  FRONT_SHIFTER_CABLE = "Front Shifter Cable",
+  BAR_TAPER = "Bar Tape",
+  TUNE_UP = "Tune Up",
+   * @returns 
+   */
+  const BikePartIcon: React.FC<MaintenanceItemProps> = ({ maintenanceItem }) => {
+    const theme = useTheme();
+    const part = maintenanceItem.part;
+    console.log('part ', part);
+    if (part === "Chain") {
+      return (
+        <List.Icon
+          icon={require('../../assets/images/chain.svg')}
+          color={theme.colors.primary}
+        />
+      );
+    }
+    if (part === "Cassette") {
+      return (
+        <List.Icon
+          icon={require('../../assets/images/cassette.svg')}
+        />
+      );
+    }
+    return (
+      <List.Icon
+        icon="bike"
+      />
     );
   };
 

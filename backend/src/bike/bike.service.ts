@@ -1,13 +1,14 @@
 import { Logger, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Bike,  } from './bike.entity';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { UpdateBikeDto } from './update-bike.dto';
 import { DeleteBikeDto } from './delete-bike.dto';
-import { UserService } from '../user/user.service';
+import { MaintenanceItem } from './maintenance-item.entity';
+import { InjectDataSource } from '@nestjs/typeorm';
 
 @Injectable()
 export class BikeService {
@@ -21,6 +22,8 @@ export class BikeService {
     @Inject(ConfigService)
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
 
   findAll(): Promise<Bike[]> {
@@ -124,6 +127,26 @@ export class BikeService {
     this.bikesRepository.softDelete(bike.id);
   }
 
+  async getMaintenanceItems(username: string, bikeId: number = null, latest: boolean = true): Promise<MaintenanceItem[]> {
+    const user = await this.findUsername(username);
+    const queryBuilder = await this.dataSource.manager
+    .createQueryBuilder(MaintenanceItem, "maintenanceItem")
+    .innerJoin("maintenanceItem.bike", "bike")
+    .innerJoin("bike.user", "user")
+    .where("user.id = :id", { id: user.id })
+    
+    if (bikeId!= null) {
+      queryBuilder.andWhere("bike.id = :bikeId", { bikeId: bikeId });
+    }
+
+    if (latest) {
+      queryBuilder.andWhere("maintenanceItem.completed = false");
+    }
+    const result = await queryBuilder.getMany();
+    this.logger.log('info', 'Maintenance items for user'+ username + ':'+ result.length);
+    return queryBuilder.getMany();
+  };
+  
   private findUsername(username: string): Promise<User | null> {
     if (username == null) return null;
     const result = this.usersRepository.findOne({

@@ -17,6 +17,10 @@ export enum MaintenanceItemType {
   REAR_DERAILLEUR_BATTERY = "Rear Derailleur Battery",
 }
 
+export const initializeMaintenanceItemTypes = (): MaintenanceItemType[] => {
+  return Object.values(MaintenanceItemType);
+};
+
 export const stravaBase = () => {
   return 'https://www.strava.com';
 }

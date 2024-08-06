@@ -28,7 +28,7 @@ class MaintenanceListController extends AppController {
         username: username,
       };
       console.log('get maintenance items');
-      return getInternal('/user/maintenance-items', parameters, jwtToken);
+      return getInternal('/bike/maintenance-items', parameters, jwtToken);
     } catch(e: any) {
       console.log(e.message);
       return [];

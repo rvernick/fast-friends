@@ -7,6 +7,7 @@ import {
   ManyToOne,
   DeleteDateColumn,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { MaintenanceItem } from './maintenance-item.entity';
@@ -32,6 +33,7 @@ export class Bike {
     eager: true,
     cascade: true,
   })
+  @JoinColumn()
   maintenanceItems: MaintenanceItem[];
 
   @Column({
@@ -65,6 +67,12 @@ export class Bike {
 
   @Column({nullable: true})
   groupsetSpeed: number;
+
+  @Column({
+    default: 0,
+    nullable: false,
+  })
+  odometerMeters: number;
 
   @DeleteDateColumn({nullable: true})
   deletedOn: Date;
