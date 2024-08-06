@@ -7,10 +7,11 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from '../auth/auth.guard';
 import { BikeController } from './bike.controller';
 import { BikeService } from './bike.service';
+import { MaintenanceItem } from './maintenance-item.entity';
 
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike])],
+  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, MaintenanceItem])],
   providers: [
     {
       provide: APP_GUARD,

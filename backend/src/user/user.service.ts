@@ -11,6 +11,7 @@ import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
 import { UpdateBikeDto } from '../bike/update-bike.dto';
 import { DeleteBikeDto } from '../bike/delete-bike.dto';
+import { defaultMaintenanceItems } from '../bike/maintenance-item.entity';
 
 @Injectable()
 export class UserService {
@@ -148,16 +149,19 @@ export class UserService {
     return user;
   }
 
-  private addStravaBike(user: User, bike: any) {
+  addStravaBike(user: User, bike: any): Bike {
     const newBike = new Bike();
     newBike.name = bike.name;
     newBike.stravaId = bike.id;
     newBike.type = bike.type;
     newBike.user = user;
+    newBike.odometerMeters = bike.distance;
+    newBike.maintenanceItems = defaultMaintenanceItems(newBike);
 //    user.addBike(newBike);
     this.bikesRepository.save(newBike);
     this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
     console.log('created and added: ' + JSON.stringify(newBike));
+    return newBike;
   }
 
   private async getStravaAthlete(stravaAccessToken: string): Promise<any> {
