@@ -2,8 +2,8 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { User } from './user/user.entity';
 import { PasswordReset } from './user/password-reset.entity';
-import { Bike } from './user/bike.entity';
-import { MaintenanceItem } from './user/maintenance-item.entity';
+import { Bike } from './bike/bike.entity';
+import { MaintenanceItem } from './bike/maintenance-item.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',

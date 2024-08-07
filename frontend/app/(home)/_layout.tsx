@@ -31,6 +31,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="(maintenanceItems)"
+        options={{
+          title: "Maintenance",
+          headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="wrench" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="(settings)"
         options={{
           title: "Settings",

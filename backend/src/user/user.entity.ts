@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { EncryptionTransformer } from 'typeorm-encrypted';
 import * as bcrypt from 'bcrypt';
-import { Bike } from './bike.entity';
+import { Bike } from '../bike/bike.entity';
 
 export const createNewUser = (username: string, password: string) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
