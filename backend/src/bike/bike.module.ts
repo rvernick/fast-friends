@@ -8,16 +8,21 @@ import { AuthGuard } from '../auth/auth.guard';
 import { BikeController } from './bike.controller';
 import { BikeService } from './bike.service';
 import { MaintenanceItem } from './maintenance-item.entity';
-
+import { StravaService } from './strava.service';
+import { UserService } from '../user/user.service';
+import { PasswordReset } from '../user/password-reset.entity';
+import { Notification } from './notification';
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, MaintenanceItem])],
+  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, MaintenanceItem, PasswordReset, Notification])],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    BikeService
+    BikeService,
+    UserService,
+    StravaService,
   ],
   controllers: [BikeController],
   exports: [BikeService],

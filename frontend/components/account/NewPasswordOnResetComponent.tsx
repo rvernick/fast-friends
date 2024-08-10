@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { invalidPasswordMessage, isValidPassword } from '../../common/utils';
-import { ThemedView } from "../ThemedView";
-import { Button, TextInput, HelperText, Text } from "react-native-paper";
+import { Button, TextInput, HelperText, Text, Surface } from "react-native-paper";
 import { router, useLocalSearchParams } from "expo-router";
 import { post } from "@/common/http-utils";
 
@@ -74,7 +73,7 @@ export const NewPasswordOnResetComponent: React.FC<NewPasswordOnResetProps> = ()
   }
 
   return (
-    <ThemedView>
+    <Surface>
       <Text> {token} </Text>
       <TextInput
         label="Password"
@@ -104,6 +103,6 @@ export const NewPasswordOnResetComponent: React.FC<NewPasswordOnResetProps> = ()
       <Button mode="contained" onPress={callResetPassword}>
         Set Password
       </Button>
-    </ThemedView>
+    </Surface>
     );
 };

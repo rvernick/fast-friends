@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useSession } from "@/ctx";
 import { useGlobalContext } from "@/common/GlobalContext";
 import ResetPasswordController from "./ResetPasswordController";
-import { ThemedView } from "../ThemedView";
-import { Button, Card, TextInput } from "react-native-paper";
+import { Button, Card, TextInput, Surface } from "react-native-paper";
 import { isValidEmail } from "@/common/utils";
 
 export const PasswordResetComponent = () => {
@@ -21,7 +20,7 @@ export const PasswordResetComponent = () => {
   };
 
   return (
-    <ThemedView>
+    <Surface>
       <Card>
         <Card.Title title="New Account"></Card.Title>
         <Card.Content>
@@ -34,7 +33,7 @@ export const PasswordResetComponent = () => {
           </Button>
       </Card.Content>
       </Card>
-    </ThemedView>
+    </Surface>
   
   );
 };

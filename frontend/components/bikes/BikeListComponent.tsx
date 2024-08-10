@@ -3,8 +3,7 @@ import { useQuery, useQueryClient } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
 import BikeListController from './BikeListController';
 import { useRouter } from 'expo-router';
-import { ThemedView } from '../ThemedView';
-import { Button, List, Text } from 'react-native-paper';
+import { Button, List, Text, Surface } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
 
@@ -71,10 +70,10 @@ const BikeListComponent = () => {
     )
   }
   return (
-    <ThemedView>
+    <Surface>
         <BikeList bikes={data} isUpdating={isUpdating}/>
         <Button mode="contained" onPress={addBike}> Add Bike</Button>
-    </ThemedView>
+    </Surface>
   );
 };
 

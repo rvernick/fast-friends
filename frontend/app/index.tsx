@@ -1,15 +1,14 @@
-import { ThemedView } from "@/components/ThemedView";
 import { router, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Linking } from "react-native";
-import { Button, useTheme, Text } from "react-native-paper";
+import { Button, useTheme, Text, Surface } from "react-native-paper";
 
 export default function Index() {
   const theme = useTheme();
   const signIn = () => { router.replace("/sign-in") };
   
   return (
-    <ThemedView
+    <Surface
       style={{
         flex: 1,
         justifyContent: "center",
@@ -24,6 +23,6 @@ export default function Index() {
       <Button icon="bike-fast" mode="contained" onPress={signIn}>
         Get Started
       </Button>
-    </ThemedView>
+    </Surface>
   );
 }

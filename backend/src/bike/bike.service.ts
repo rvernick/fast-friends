@@ -3,25 +3,31 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Bike,  } from './bike.entity';
-import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { UpdateBikeDto } from './update-bike.dto';
 import { DeleteBikeDto } from './delete-bike.dto';
 import { MaintenanceItem } from './maintenance-item.entity';
 import { InjectDataSource } from '@nestjs/typeorm';
+import { MaintenanceChecker } from './maintenance-checker';
+import { StravaService } from './strava.service';
+import { UserService } from '../user/user.service';
+import { Notification } from './notification';
 
 @Injectable()
 export class BikeService {
   private readonly logger = new Logger(BikeService.name);
 
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
     @InjectRepository(Bike)
     private bikesRepository: Repository<Bike>,
+    @InjectRepository(Notification)
+    private notificationRepository: Repository<Notification>,
+    @Inject(UserService)
+    private userService: UserService,
+    @Inject(StravaService)
+    private stravaService: StravaService,
     @Inject(ConfigService)
     private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
@@ -35,23 +41,34 @@ export class BikeService {
     this.logger.log('info', 'Searching for: ' + id + ' found: ' + result);
     return result;
   }
+
+  save(bike: Bike): Promise<Bike> {
+    return this.bikesRepository.save(bike);
+  }
+
   
   unlinkFromStrava(user: User) {
     user.stravaId = null;
     user.stravaCode = null;
     user.stravaAccessToken = null;
     user.stravaRefreshToken = null;
-    this.usersRepository.save(user);
+    this.userService.save(user);
     for (const bike of user.bikes) {
       bike.stravaId = null;
       this.bikesRepository.save(bike);
     }
   }
 
-  getBike(bikeId: number, username: string): Promise<Bike | null> {
+  async getBike(bikeId: number, username: string): Promise<Bike | null> {
     if (username == null) return null;
+    const result = await this.getBikeById(bikeId);
+    if (username !== result.user.username) return null;
+    return result;
+  }
+
+  async getBikeById(bikeId: number): Promise<Bike | null> {
     try {
-      const result = this.bikesRepository.findOne({
+      const result = await this.bikesRepository.findOne({
         where: {
           id: bikeId,
         },
@@ -67,6 +84,12 @@ export class BikeService {
   getBikes(username: string): Promise<Bike[] | null> {
     const userPromise = this.findUsername(username);
     if (userPromise == null) return null;
+
+    if (username.match(/strava/)) {
+      this.logger.log('getBike: using strava API');
+      const mc = new MaintenanceChecker(this.stravaService, this.userService, this.notificationRepository);
+      mc.runChecks();
+    }
 
     return userPromise
       .then((user: User) => {
@@ -148,12 +171,6 @@ export class BikeService {
   };
   
   private findUsername(username: string): Promise<User | null> {
-    if (username == null) return null;
-    const result = this.usersRepository.findOne({
-      where: {
-        username: username.toLocaleLowerCase(),
-      },
-    });
-    return result;
+    return this.userService.findUsername(username)
   }
 }

@@ -32,7 +32,7 @@ services:
         name: fast-friends-prod
         property: database
     - key: CLIENT_URL
-      value: https://fast-friends.onrender.com
+      value: https://fastfriends.biz
     - fromGroup: Fast Friends Production
 - type: web
   name: fast-friends

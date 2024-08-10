@@ -16,7 +16,7 @@ import { PasswordReset } from './password-reset.entity';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    UserService
+    UserService,
   ],
   controllers: [UserController],
   exports: [UserService],
