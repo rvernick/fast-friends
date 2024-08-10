@@ -25,7 +25,7 @@ class BikeController extends AppController {
         username: username,
         bikeid: bikeid,
       };
-      return getInternal('/user/bike', parameters, jwtToken);
+      return getInternal('/bike/bike', parameters, jwtToken);
     } catch(e: any) {
       console.log(e.message);
       return null;

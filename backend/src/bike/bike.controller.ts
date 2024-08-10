@@ -24,21 +24,22 @@ export class BikeController {
   @HttpCode(HttpStatus.OK)
   @Get('bike')
   getBike(@Query('bikeid') bikeId: number, @Query('username') username: string): Promise<Bike | null> {
-    console.log(bikeId + ' user/bike username: '+ username);
-    if (!bikeId || isNaN(bikeId)) {
-      console.log('Invalid bikeId:'+ bikeId);
-      return Promise.resolve(null);
-    }
-    const result = this.bikeService.getBike(bikeId, username);
-    console.log('user/bike result:'+ result);
+    try {
+      console.log(bikeId + ' bike/bike username: '+ username);
+      const result = this.bikeService.getBike(bikeId, username);
+      console.log('bike/bike result:'+ result);
     return result;
+    } catch (error) {
+      console.error('bike/bike error:', error);
+      return null;
+    }
   }
 
 
   @HttpCode(HttpStatus.OK)
   @Get('bikes')
   getBikes(@Query('username') username: string): Promise<Bike[] | null> {
-    console.log('user/bikes user:'+ username);
+    console.log('bike/bikes user:'+ username);
     return this.bikeService.getBikes(username);
   }
 

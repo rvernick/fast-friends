@@ -60,10 +60,18 @@ export class BikeService {
   }
 
   async getBike(bikeId: number, username: string): Promise<Bike | null> {
-    if (username == null) return null;
-    const result = await this.getBikeById(bikeId);
-    if (username !== result.user.username) return null;
-    return result;
+    try {
+      const result = await this.bikesRepository.findOne({
+        where: {
+          id: bikeId,
+          user: { username },
+        },
+      });
+      return result;
+    } catch (e: any) {
+      console.log(e.message);
+      return null;
+    }
   }
 
   async getBikeById(bikeId: number): Promise<Bike | null> {
@@ -93,8 +101,8 @@ export class BikeService {
 
     return userPromise
       .then((user: User) => {
-        console.log('user/bikes user: '+ user.bikes.length);
-        console.log('user/bikes user: '+ JSON.stringify(user));
+        console.log('getBikes: '+ user.bikes.length);
+        console.log('getBikes user: '+ JSON.stringify(user));
         return user.bikes;
       })
       .catch((e: any) => {

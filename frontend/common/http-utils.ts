@@ -25,7 +25,7 @@ export const get = (url: string, parameters: any, access_token: string | null) =
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer '+ access_token,
+      'Authorization': 'Bearer ' + access_token,
     },
   })
   .then((res) => res.json())
