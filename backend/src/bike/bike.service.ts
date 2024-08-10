@@ -161,10 +161,10 @@ export class BikeService {
   async getMaintenanceItems(username: string, bikeId: number = null, latest: boolean = true): Promise<MaintenanceItem[]> {
     const user = await this.findUsername(username);
     const queryBuilder = await this.dataSource.manager
-    .createQueryBuilder(MaintenanceItem, "maintenanceItem")
-    .innerJoin("maintenanceItem.bike", "bike")
-    .innerJoin("bike.user", "user")
-    .where("user.id = :id", { id: user.id })
+      .createQueryBuilder(MaintenanceItem, "maintenanceItem")
+      .innerJoin("maintenanceItem.bike", "bike")
+      .innerJoin("bike.user", "user")
+      .where("user.id = :id", { id: user.id })
     
     if (bikeId!= null) {
       queryBuilder.andWhere("bike.id = :bikeId", { bikeId: bikeId });
