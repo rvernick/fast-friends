@@ -118,6 +118,9 @@ export class MaintenanceItem {
   link: string;
 
   @Column({nullable: true})
+  lastPerformedDistanceMeters: number;
+
+  @Column({nullable: true})
   dueDistanceMeters: number;
 
   @Column({nullable: true})

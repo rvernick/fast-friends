@@ -39,7 +39,7 @@ class BikeListController extends AppController {
   }
 
   getBikes = async (session: any, username: string): Promise<Bike[]>  => {
-    await sleep(20);
+    await sleep(1);
     if (session === null) {
       console.log('get bikes has no context: ' + username);
       return Promise.resolve([]);
@@ -55,7 +55,7 @@ class BikeListController extends AppController {
         username: username,
       };
       console.log('get bikes');
-      return getInternal('/user/bikes', parameters, jwtToken);
+      return getInternal('/bike/bikes', parameters, jwtToken);
     } catch(e: any) {
       console.log(e.message);
       return [];

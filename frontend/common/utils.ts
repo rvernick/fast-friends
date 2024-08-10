@@ -91,9 +91,9 @@ export const fetchSecrets = async (session: any): Promise<any | null> => {
   }
 }
 
-export const sleep = (timeout: number): Promise<void> => {
+export const sleep = (seconds: number): Promise<void> => {
   return new Promise(resolve => {
-    setTimeout(resolve, timeout);
+    setTimeout(resolve, 1000*seconds);
   });
 };
 

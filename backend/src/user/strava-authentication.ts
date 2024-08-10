@@ -14,5 +14,11 @@ export class StravaAuthenticationDto {
   stravaTokenType: string;
 
   @IsString()
+  stravaRefreshToken: string;
+
+  @IsString()
+  stravaExpiresAt: string;
+
+  @IsString()
   stravaAthlete: string;
 }

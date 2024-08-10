@@ -1,14 +1,14 @@
 import BikeComponent from "@/components/bikes/BikeComponent";
-import { ThemedView } from "@/components/ThemedView";
 import { useLocalSearchParams } from "expo-router";
+import { Surface } from "react-native-paper";
 
 const Settings = () => {
   const search = useLocalSearchParams();
   const bikeId = new Number(search.bikeid) || 0;
   return (
-    <ThemedView>
+    <Surface>
       <BikeComponent bikeid={bikeId.valueOf()}/>
-    </ThemedView>
+    </Surface>
   );
 };
 

@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import { invalidPasswordMessage, isValidEmail, isValidPassword, login } from '../../common/utils';
-import { ThemedView } from "../ThemedView";
-import { Button, TextInput, HelperText, Card } from "react-native-paper";
+import { Button, TextInput, HelperText, Card, Surface } from "react-native-paper";
 import { router } from "expo-router";
 import CreateAccountController from "./CreateAccountController";
 import { useSession } from "@/ctx";
@@ -79,7 +78,7 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
   };
 
   return (
-    <ThemedView>
+    <Surface>
       <Card>
         <Card.Title title="New Account"></Card.Title>
         <Card.Content>
@@ -127,6 +126,6 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
           </Button>
         </Card.Content>
       </Card>
-    </ThemedView>
+    </Surface>
     );
 };

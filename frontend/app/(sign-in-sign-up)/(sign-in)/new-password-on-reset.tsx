@@ -1,15 +1,15 @@
 import { ensureString } from "@/common/utils";
 import { NewPasswordOnResetComponent } from "@/components/account/NewPasswordOnResetComponent";
-import { ThemedView } from "@/components/ThemedView";
 import { useLocalSearchParams } from "expo-router";
+import { Surface } from "react-native-paper";
 
 const NewPasswordOnReset = () => {
   const resetInfo = useLocalSearchParams();
 
   return (
-    <ThemedView>
+    <Surface>
       <NewPasswordOnResetComponent token={ensureString(resetInfo.token)}/>
-    </ThemedView>
+    </Surface>
   );
   
 };

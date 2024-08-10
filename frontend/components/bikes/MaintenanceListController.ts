@@ -12,7 +12,7 @@ class MaintenanceListController extends AppController {
   }
 
   getMaintenanceItems = async (session: any, username: string): Promise<MaintenanceItem[]>  => {
-    await sleep(20);
+    await sleep(1);
     if (session === null) {
       console.log('get maintenanceItems has no context: ' + username);
       return Promise.resolve([]);

@@ -1,10 +1,10 @@
-import { ThemedView } from '@/components/ThemedView';
 import { PasswordResetComponent } from '@/components/account/PasswordResetComponent';
+import { Surface } from 'react-native-paper';
 
 export default function PasswordReset() {
   return (
-    <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Surface style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <PasswordResetComponent/>
-    </ThemedView>
+    </Surface>
   );
 }

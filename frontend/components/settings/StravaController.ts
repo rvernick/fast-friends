@@ -12,14 +12,22 @@ class StravaController extends AppController {
     console.log('calling doTokenExchange');
     return this.doTokenExchange(session, appContext, stravaCode)
       .then((result: any) => {
-        this.syncStravaInfo(session, appContext, stravaCode)
+        this.syncStravaInfo(session, result, stravaCode)
         appContext.invalidateUser(session)
         return result;
       });
   }
 
+  //appContext.put('stravaToken', result.access_token);
+  // appContext.put('stravaRefreshToken', result.refresh_token);
+  // appContext.put('stravaExpiresAt', result.expires_at);
+  // appContext.put('stravaTokenType', result.token_type);
+  // appContext.put('stravaAthlete', '' + result.athlete.id);
+//"refresh_token":"xxxxxx",
+// "access_token":"xxxxx",
+// "athlete":
 
-  async syncStravaInfo(session: any, appContext: AppContext, stravaCode: string) {
+  async syncStravaInfo(session: any, info: any, stravaCode: string) {
     console.log('syncStravaInfo');
     const username = session.email;
     console.log('sync username:'+ username);
@@ -27,9 +35,11 @@ class StravaController extends AppController {
       const body = {
         username: username,
         stravaCode: stravaCode,
-        stravaToken: appContext.get('stravaToken'),
-        stravaTokenType: appContext.get('stravaTokenType'),
-        stravaAthlete: appContext.get('stravaAthlete'),
+        stravaToken: info.access_token,
+        stravaTokenType: info.token_type,
+        stravaAthlete: info.athlete.id.toString(),
+        stravaRefreshToken: info.refresh_token,
+        stravaExpiresAt: '', // info.expires_at,
       }
       console.log('sync body:'+ JSON.stringify(body));
       const response = await post('/user/sync-strava', body, session.jwt_token);
@@ -222,6 +232,7 @@ class StravaController extends AppController {
       client_secret: clientSecret,
       code: stravaCode,
       grant_type: 'authorization_code',
+      f: 'json',
     };
 
     try {

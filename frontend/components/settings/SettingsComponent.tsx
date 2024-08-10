@@ -3,8 +3,7 @@ import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
 import { ensureString, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
-import { ThemedView } from "../ThemedView";
-import { ActivityIndicator, Button, Card, HelperText, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, Card, HelperText, Surface, Text, TextInput } from "react-native-paper";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -157,7 +156,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
 
   if (isFetching) return <ActivityIndicator />;
   return (
-    <ThemedView>
+    <Surface>
       <Card>
         <Card.Title title={firstName + ': ' + email} />
         <Card.Content>
@@ -210,6 +209,6 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           </Button>
         </Card.Content>
       </Card>
-    </ThemedView>
+    </Surface>
   )
 };

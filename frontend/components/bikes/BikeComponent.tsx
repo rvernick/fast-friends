@@ -3,8 +3,7 @@ import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useLocalSearchParams } from "expo-router";
-import { ThemedView } from "../ThemedView";
-import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card } from "react-native-paper";
+import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
 import { ensureString } from "@/common/utils";
@@ -128,7 +127,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
   const typeOptions = types.map(type => ({ label: type, value: type }));
 
   return (
-    <ThemedView>
+    <Surface>
       <ActivityIndicator animating={!isInitialized} />
       <Card>
         <Card.Title title={ bikeName || 'New Bike'} />
@@ -174,7 +173,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
           { (readOnly || isNew) ? null : <Button mode="contained" onPress={ cancel }> Cancel </Button>}
           { (readOnly || isNew) ? null : <Button mode="contained" onPress={ deleteBike }> Delete </Button>}
       </Card>
-    </ThemedView>
+    </Surface>
   )
 };
 

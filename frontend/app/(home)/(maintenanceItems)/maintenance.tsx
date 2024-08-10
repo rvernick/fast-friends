@@ -1,10 +1,10 @@
-import { ThemedView } from '@/components/ThemedView';
+import { Surface } from 'react-native-paper'
 import MaintenanceComponent from '@/components/bikes/MaintenanceComponent';
 
 export default function SignIn() {
   return (
-    <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Surface style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <MaintenanceComponent/>
-    </ThemedView>
+    </Surface>
   );
 }

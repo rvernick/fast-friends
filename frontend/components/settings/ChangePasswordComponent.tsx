@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import ChangePasswordController from "./ChangePasswordController";
 import { useGlobalContext } from "@/common/GlobalContext";
-import { ThemedView } from "../ThemedView";
-import { Button, Card, HelperText, TextInput } from "react-native-paper";
+import { Button, Card, HelperText, TextInput, Surface } from "react-native-paper";
 import { router } from "expo-router";
 import { useSession } from "@/ctx";
 
@@ -69,7 +68,7 @@ export const ChangePasswordComponent = () => {
   };
   
   return (
-    <ThemedView>
+    <Surface>
       <Card>
         <Card.Title title="Change Password"></Card.Title>
         <Card.Content>      
@@ -116,6 +115,6 @@ export const ChangePasswordComponent = () => {
           </Button>
         </Card.Content>
       </Card>
-    </ThemedView>
+    </Surface>
   ); 
 };

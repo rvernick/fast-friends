@@ -1,9 +1,7 @@
-import { ThemedView } from '@/components/ThemedView';
-import { LoginScreen } from '@/components/account/LoginComponent';
 import { useSession } from '@/ctx';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { ActivityIndicator, Text } from 'react-native-paper';
+import { ActivityIndicator, Text, Surface } from 'react-native-paper';
 
 export default function LoggingIn() {
   const session = useSession();
@@ -16,9 +14,9 @@ export default function LoggingIn() {
   }, [session]);
 
   return (
-    <ThemedView>
+    <Surface>
       <ActivityIndicator animating={true} />
       <Text>Setting Up</Text>
-      </ThemedView>
+      </Surface>
   );
 };

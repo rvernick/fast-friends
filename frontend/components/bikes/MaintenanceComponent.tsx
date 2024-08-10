@@ -3,8 +3,7 @@ import { useQuery, useQueryClient } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
 import BikeListController from './BikeListController';
 import { useRouter } from 'expo-router';
-import { ThemedView } from '../ThemedView';
-import { Button, Card, List, Text, useTheme } from 'react-native-paper';
+import { Button, Card, List, Text, useTheme, Surface } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
 import { MaintenanceItem } from '@/models/MaintenanceItem';
@@ -127,7 +126,7 @@ const MaintenanceComponent = () => {
     )
   }
   return (
-    <ThemedView>
+    <Surface>
       <Card>
         <Card.Actions>
           <Dropdown 
@@ -141,7 +140,7 @@ const MaintenanceComponent = () => {
       </Card>
         <MaintenanceList maintenanceItems={data} isUpdating={isUpdating}/>
         <Button mode="contained" onPress={addMaintenanceItem}> Add Maintenance Item</Button>
-    </ThemedView>
+    </Surface>
   );
 };
 
