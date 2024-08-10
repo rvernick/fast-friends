@@ -5,4 +5,4 @@ interface User {
   lastName: string;
   cellPhone: string;
   stravaId: string;
-}
+};

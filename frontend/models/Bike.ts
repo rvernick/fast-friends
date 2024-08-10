@@ -6,4 +6,4 @@ export interface Bike {
   groupsetSpeed: number;
   groupsetBrand: string;
   isElectronic: boolean;
-}
+};
