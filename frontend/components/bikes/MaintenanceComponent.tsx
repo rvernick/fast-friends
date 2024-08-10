@@ -90,7 +90,7 @@ const MaintenanceComponent = () => {
     if (part === "Chain") {
       return (
         <List.Icon
-          icon={require('../../assets/images/chain.svg')}
+          icon="link"
           color={theme.colors.primary}
         />
       );
@@ -98,13 +98,31 @@ const MaintenanceComponent = () => {
     if (part === "Cassette") {
       return (
         <List.Icon
-          icon={require('../../assets/images/cassette.svg')}
+          icon="cog"
+          color={theme.colors.primary}
+        />
+      );
+    }
+    if (part === "Front Tire" || part === "Rear Tire") {
+      return (
+        <List.Icon
+          icon="car-tire-alert"
+          color={theme.colors.primary}
+        />
+      );
+    }
+    if (part === "Front Brake Pads" || part === "Rear Brake Pads") {
+      return (
+        <List.Icon
+          icon="lungs"
+          color={theme.colors.primary}
         />
       );
     }
     return (
       <List.Icon
         icon="bike"
+        color={theme.colors.primary}
       />
     );
   };
