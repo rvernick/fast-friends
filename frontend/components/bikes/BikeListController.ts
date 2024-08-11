@@ -10,34 +10,6 @@ class BikeListController extends AppController {
     super(appContext);
   }
 
-  getBikesX = async (username: string, appContext: AppContext): Promise<Bike[]>  => {
-    const result = [];
-    result.push({
-      id: 3,
-      name: 'Three Bike',
-      groupsetBrand: 'Shimano',
-      groupsetSpeed: 10,
-      isElectronic: true,
-      type: 'Road',
-    });
-    result.push({id: 2,
-      name: 'Two Bike',
-      groupsetBrand: 'Shimano',
-      groupsetSpeed: 11,
-      isElectronic: false,
-      type: 'Mountain',
-    });
-    result.push({id: 1,
-      name: 'Test Bike',
-      groupsetBrand: 'Shimano',
-      groupsetSpeed: 12,
-      isElectronic: true,
-      type: 'Road',
-    });
-
-    return Promise.resolve(result);
-  }
-
   getBikes = async (session: any, username: string): Promise<Bike[]>  => {
     await sleep(1);
     if (session === null) {

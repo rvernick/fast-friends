@@ -158,7 +158,7 @@ export class BikeService {
     this.bikesRepository.softDelete(bike.id);
   }
 
-  async getMaintenanceItems(username: string, bikeId: number = null, latest: boolean = true): Promise<MaintenanceItem[]> {
+  async getMaintenanceItems(username: string, bikeId: number = 0, latest: boolean = true): Promise<MaintenanceItem[]> {
     const user = await this.findUsername(username);
     const queryBuilder = await this.dataSource.manager
       .createQueryBuilder(MaintenanceItem, "maintenanceItem")
@@ -166,7 +166,7 @@ export class BikeService {
       .innerJoin("bike.user", "user")
       .where("user.id = :id", { id: user.id })
     
-    if (bikeId!= null) {
+    if (bikeId!= 0) {
       queryBuilder.andWhere("bike.id = :bikeId", { bikeId: bikeId });
     }
 
