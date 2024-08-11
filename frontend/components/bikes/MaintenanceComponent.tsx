@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
-import BikeListController from './BikeListController';
 import { useRouter } from 'expo-router';
 import { Button, Card, List, Text, useTheme, Surface } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
@@ -10,8 +9,7 @@ import { MaintenanceItem } from '@/models/MaintenanceItem';
 import MaintenanceListController from './MaintenanceListController';
 
 type MaintenanceListProps = {
-  maintenanceItems: MaintenanceItem[] | undefined;
-  bikes: Bike[] | undefined;
+  bikes: Bike[] | null | undefined;
   isUpdating: boolean;
 };
 
@@ -31,8 +29,8 @@ const MaintenanceComponent = () => {
   const [sortOption, setSortOption] = useState('dueDate');
 
   const { status, data, error, isFetching } = useQuery({
-    queryKey: ['maintenanceItems'],
-    queryFn: () => controller.getMaintenanceItems(session, email),
+    queryKey: ['bikes'],
+    queryFn: () => controller.getBikes(session, email),
     refetchOnWindowFocus: 'always',
     refetchOnReconnect: 'always',
     refetchOnMount: 'always',
@@ -48,72 +46,73 @@ const MaintenanceComponent = () => {
     router.push({ pathname: idString})
   }
 
+  type MaintenanceListItemProps = {
+    maintenanceItem: MaintenanceItem;
+    bikeId: number;
+  }
+
+  const MaintenanceListItem: React.FC<MaintenanceListItemProps> = ({ maintenanceItem, bikeId }) => {
+    return (
+      <List.Item
+        key={'mi' + maintenanceItem.id}
+        title={maintenanceItem.part}
+        id={'MLI' + bikeId}         
+        description={convertUnits(maintenanceItem.dueDistanceMeters)}
+        left={props => <BikePartIcon maintenanceItem={maintenanceItem}/>}
+      />
+    );
+  }
+
   type BikeAccordainProps = {
     bike: Bike;
+    forceOpen?: boolean;
   };
 
-  const BikeAccordian: React.FC<BikeAccordainProps> = ({bike}) => {
+  const BikeAccordian: React.FC<BikeAccordainProps> = ({ bike, forceOpen}) => {
     if (!bike.maintenanceItems || bike.maintenanceItems.length ==0) return null;
-    return (
-      <List.Accordion title={bike.name} description={convertUnits(bike.odometerMeters)} key={'bike' + bike.id} id={'bike' + bike.id}>
+    console.log('forceOpen: '+ forceOpen);
+    if (forceOpen) {
+      console.log('force open: '+ forceOpen);
+      return (
+      <List.Accordion
+          expanded={forceOpen}
+          title={bike.name}
+          description={convertUnits(bike.odometerMeters)}
+          key={'bike exa' + bike.id}
+          id={'bike exa' + bike.id}>
         {bike.maintenanceItems.map(maintenanceItem => (
-          <List.Item
-                key={'mi' + maintenanceItem.id}
-                title={maintenanceItem.part}
-                id={'bike' + maintenanceItem.bikeId}         
-                description={convertUnits(maintenanceItem.dueDistanceMeters)}
-                left={props => <BikePartIcon maintenanceItem={maintenanceItem}/>}
-          />
+          <MaintenanceListItem maintenanceItem={maintenanceItem} bikeId={bike.id} key={'mlie' + maintenanceItem.id}/>
         ))}
       </List.Accordion>
-    )
-  }
-
-  const MaintenanceList: React.FC<MaintenanceListProps> = ({ maintenanceItems, bikes, isUpdating }) => {
-    if (!maintenanceItems || maintenanceItems?.length == 0) {
-      return <Text>No Maintenance Items Found</Text>
-    }
-    if (bikes && bikes.length > 1) {
-      return (
-      <List.AccordionGroup >
-        {bikes.map(bike => (
-          <BikeAccordian bike={bike} key={bike.id}/>
-        ))}
-      </List.AccordionGroup>
-      );
+      )
     } else {
       return (
-        <List.Section> 
-          {maintenanceItems && maintenanceItems.length > 0 ? (
-            maintenanceItems.map(maintenanceItem => (
-              <List.Item
-                key={'limi' + maintenanceItem.id}
-                title={maintenanceItem.part}
-                description={convertUnits(maintenanceItem.dueDistanceMeters)}                
-                left={props => <BikePartIcon maintenanceItem={maintenanceItem} />}
-              />
-            ))
-          ) : (
-            <Text>No MaintenanceItems Found</Text>
-          )}
-        </List.Section>
+        <List.Accordion
+          expanded={true}
+          title={bike.name}
+          description={convertUnits(bike.odometerMeters)}
+          key={'bikeAccordian' + bike.id}
+          id={'bikeAccordian' + bike.id}>
+        {bike.maintenanceItems.map(maintenanceItem => (
+            <MaintenanceListItem maintenanceItem={maintenanceItem} bikeId={bike.id} key={'mlie' + maintenanceItem.id}/>
+          ))}
+        </List.Accordion>
       )
     }
-  };
-
-  const ensureBikesUpToDate = async () => {
-    if (!data) return;
-    var newBikes = bikes;
-    for (const maintenanceItem of data) {
-      if (!bikes.some(bike => bike.id === maintenanceItem.bikeId)) {
-        const bike = await controller.getBike(session, maintenanceItem.bikeId, email);
-        if (bike) {
-          newBikes.push(bike);
-          setBikes(newBikes);
-        }
-      }
-    }
   }
+
+  const MaintenanceList: React.FC<MaintenanceListProps> = ({ bikes, isUpdating }) => {
+    if (!bikes || bikes?.length == 0) {
+      return <Text>No Maintenance Items Found - Add a bike or sync with Strava</Text>
+    }
+    return (
+      <List.AccordionGroup >
+        {bikes.map(bike => (
+          <BikeAccordian bike={bike} forceOpen={bikes.length == 1} key={bike.id}/>
+        ))}
+      </List.AccordionGroup>
+    );
+  };
   
   /**
    * 
@@ -175,14 +174,6 @@ const MaintenanceComponent = () => {
     );
   };
 
-  useEffect(() => {
-    if (isUpdating && !isFetching) {
-      console.log('sync updating bikes');
-      setIsUpdating(false);
-      ensureBikesUpToDate();
-    }
-  });
-
   const sortOptions = ["dueDate", "lastUpdate", "A-Z"].map(option => ({ label: option, value: option}));
 
   if (error) {
@@ -205,7 +196,7 @@ const MaintenanceComponent = () => {
           />
         </Card.Actions>
       </Card> */}
-        <MaintenanceList maintenanceItems={data} bikes={bikes} isUpdating={isUpdating}/>
+        <MaintenanceList bikes={data} isUpdating={isUpdating}/>
         <Button mode="contained" onPress={addMaintenanceItem}> Add Maintenance Item</Button>
         </Card>
     </Surface>

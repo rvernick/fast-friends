@@ -4,13 +4,12 @@ import { getInternal } from "@/common/http-utils";
 import { Bike } from "@/models/Bike";
 import { MaintenanceItem } from "@/models/MaintenanceItem";
 
-
 class MaintenanceListController extends AppController {
   constructor(appContext: AppContext) {
     super(appContext);
   }
 
-  getBike = async (session: any, bikeId: number, username: string): Promise<Bike | null> => {
+  getBikes = async (session: any, username: string): Promise<Bike[] | null> => {
     if (session === null) {
       console.log('get maintenanceItems has no context: ' + username);
       return Promise.resolve(null);
@@ -23,11 +22,10 @@ class MaintenanceListController extends AppController {
 
     try {
       const parameters = {
-        bikeid: bikeId,
         username: username,
       };
-      console.log('get bike ' + bikeId +'username:'+ username);
-      return getInternal('/bike/bike', parameters, jwtToken);
+      console.log('get bikes ' +'username:'+ username);
+      return getInternal('/bike/bikes', parameters, jwtToken);
     } catch(e: any) {
       console.log(e.message);
       return null;
