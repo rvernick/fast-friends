@@ -84,12 +84,6 @@ export class MaintenanceItem {
   @ManyToOne((type) => Bike, (bike) => bike.maintenanceItems, { nullable: false })
   @JoinColumn()
   bike: Promise<Bike>;
-
-  @Column({
-    type: 'int',
-    nullable: false,
-  })
-  bikeId: number;
   
   @Column({
     type: "enum",
