@@ -11,7 +11,7 @@ class BikeListController extends AppController {
   }
 
   getBikes = async (session: any, username: string): Promise<Bike[]>  => {
-    await sleep(1);
+    await sleep(0.1);
     if (session === null) {
       console.log('get bikes has no context: ' + username);
       return Promise.resolve([]);
