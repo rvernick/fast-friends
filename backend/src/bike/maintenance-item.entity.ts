@@ -86,6 +86,12 @@ export class MaintenanceItem {
   bike: Promise<Bike>;
 
   @Column({
+    type: 'int',
+    nullable: false,
+  })
+  bikeId: number;
+  
+  @Column({
     type: "enum",
     enum: Part,
     default: Part.CHAIN,

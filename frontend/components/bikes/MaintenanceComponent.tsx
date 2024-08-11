@@ -8,10 +8,10 @@ import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
 import { MaintenanceItem } from '@/models/MaintenanceItem';
 import MaintenanceListController from './MaintenanceListController';
-import { Dropdown } from 'react-native-paper-dropdown';
 
 type MaintenanceListProps = {
   maintenanceItems: MaintenanceItem[] | undefined;
+  bikes: Bike[] | undefined;
   isUpdating: boolean;
 };
 
@@ -27,7 +27,7 @@ const MaintenanceComponent = () => {
   const router = useRouter();
   const controller = new MaintenanceListController(appContext);
   const [isUpdating, setIsUpdating] = useState(true);
-
+  const [bikes, setBikes] = useState<Bike[]>([]);
   const [sortOption, setSortOption] = useState('dueDate');
 
   const { status, data, error, isFetching } = useQuery({
@@ -48,24 +48,73 @@ const MaintenanceComponent = () => {
     router.push({ pathname: idString})
   }
 
-  const MaintenanceList: React.FC<MaintenanceListProps> = ({ maintenanceItems, isUpdating }) => {
-    return (
-      <List.Section>
-        {maintenanceItems && maintenanceItems.length > 0 ? (
-          maintenanceItems.map(maintenanceItem => (
-            <List.Item
-              title={maintenanceItem.part}
-              description={maintenanceItem.dueDistanceMeters}
-              left={props => <BikePartIcon maintenanceItem={maintenanceItem} />}
-            />
-          ))
-        ) : (
-          <Text>No MaintenanceItems Found</Text>
-        )}
-      </List.Section>
-    );
+  type BikeAccordainProps = {
+    bike: Bike;
   };
 
+  const BikeAccordian: React.FC<BikeAccordainProps> = ({bike}) => {
+    if (!bike.maintenanceItems || bike.maintenanceItems.length ==0) return null;
+    return (
+      <List.Accordion title={bike.name} description={convertUnits(bike.odometerMeters)} key={'bike' + bike.id} id={'bike' + bike.id}>
+        {bike.maintenanceItems.map(maintenanceItem => (
+          <List.Item
+                key={'mi' + maintenanceItem.id}
+                title={maintenanceItem.part}
+                id={'bike' + maintenanceItem.bikeId}         
+                description={convertUnits(maintenanceItem.dueDistanceMeters)}
+                left={props => <BikePartIcon maintenanceItem={maintenanceItem}/>}
+          />
+        ))}
+      </List.Accordion>
+    )
+  }
+
+  const MaintenanceList: React.FC<MaintenanceListProps> = ({ maintenanceItems, bikes, isUpdating }) => {
+    if (!maintenanceItems || maintenanceItems?.length == 0) {
+      return <Text>No Maintenance Items Found</Text>
+    }
+    if (bikes && bikes.length > 1) {
+      return (
+      <List.AccordionGroup >
+        {bikes.map(bike => (
+          <BikeAccordian bike={bike} key={bike.id}/>
+        ))}
+      </List.AccordionGroup>
+      );
+    } else {
+      return (
+        <List.Section> 
+          {maintenanceItems && maintenanceItems.length > 0 ? (
+            maintenanceItems.map(maintenanceItem => (
+              <List.Item
+                key={'limi' + maintenanceItem.id}
+                title={maintenanceItem.part}
+                description={convertUnits(maintenanceItem.dueDistanceMeters)}                
+                left={props => <BikePartIcon maintenanceItem={maintenanceItem} />}
+              />
+            ))
+          ) : (
+            <Text>No MaintenanceItems Found</Text>
+          )}
+        </List.Section>
+      )
+    }
+  };
+
+  const ensureBikesUpToDate = async () => {
+    if (!data) return;
+    var newBikes = bikes;
+    for (const maintenanceItem of data) {
+      if (!bikes.some(bike => bike.id === maintenanceItem.bikeId)) {
+        const bike = await controller.getBike(session, maintenanceItem.bikeId, email);
+        if (bike) {
+          newBikes.push(bike);
+          setBikes(newBikes);
+        }
+      }
+    }
+  }
+  
   /**
    * 
    * @param param0 CHAIN = "Chain",
@@ -86,7 +135,6 @@ const MaintenanceComponent = () => {
   const BikePartIcon: React.FC<MaintenanceItemProps> = ({ maintenanceItem }) => {
     const theme = useTheme();
     const part = maintenanceItem.part;
-    console.log('part ', part);
     if (part === "Chain") {
       return (
         <List.Icon
@@ -106,7 +154,7 @@ const MaintenanceComponent = () => {
     if (part === "Front Tire" || part === "Rear Tire") {
       return (
         <List.Icon
-          icon="car-tire-alert"
+          icon="atom-variant"
           color={theme.colors.primary}
         />
       );
@@ -131,6 +179,7 @@ const MaintenanceComponent = () => {
     if (isUpdating && !isFetching) {
       console.log('sync updating bikes');
       setIsUpdating(false);
+      ensureBikesUpToDate();
     }
   });
 
@@ -146,7 +195,7 @@ const MaintenanceComponent = () => {
   return (
     <Surface>
       <Card>
-        <Card.Actions>
+        {/* <Card.Actions>
           <Dropdown 
             label="Sort by"
             placeholder="dueDate"
@@ -155,13 +204,18 @@ const MaintenanceComponent = () => {
             onSelect={(value) => setSortOption(value ? value : '')}
           />
         </Card.Actions>
-      </Card>
-        <MaintenanceList maintenanceItems={data} isUpdating={isUpdating}/>
+      </Card> */}
+        <MaintenanceList maintenanceItems={data} bikes={bikes} isUpdating={isUpdating}/>
         <Button mode="contained" onPress={addMaintenanceItem}> Add Maintenance Item</Button>
+        </Card>
     </Surface>
   );
 };
 
 // navigation.push('Bike', { bike })
+
+const convertUnits = (meters: number): string => {
+  return (meters / 1609).toFixed(0);
+}
 
 export default MaintenanceComponent;

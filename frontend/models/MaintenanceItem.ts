@@ -9,4 +9,5 @@ export interface MaintenanceItem {
   link: string;
   bikeDistance: number;
   dueDistanceMeters: number;
+  bikeId: number;
 };
