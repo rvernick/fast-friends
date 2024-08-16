@@ -6,12 +6,13 @@ import { Bike,  } from './bike.entity';
 import { ConfigService } from '@nestjs/config';
 import { UpdateBikeDto } from './update-bike.dto';
 import { DeleteBikeDto } from './delete-bike.dto';
-import { MaintenanceItem } from './maintenance-item.entity';
+import { MaintenanceItem, Part } from './maintenance-item.entity';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { MaintenanceChecker } from './maintenance-checker';
 import { StravaService } from './strava.service';
 import { UserService } from '../user/user.service';
 import { Notification } from './notification';
+import { UpdateMaintenanceItemDto } from './update-maintenance-item.dto';
 
 @Injectable()
 export class BikeService {
@@ -22,6 +23,8 @@ export class BikeService {
     private bikesRepository: Repository<Bike>,
     @InjectRepository(Notification)
     private notificationRepository: Repository<Notification>,
+    @InjectRepository(MaintenanceItem)
+    private maintenanceItemsRepository: Repository<MaintenanceItem>,
     @Inject(UserService)
     private userService: UserService,
     @Inject(StravaService)
@@ -177,7 +180,75 @@ export class BikeService {
     this.logger.log('info', 'Maintenance items for user'+ username + ':'+ result.length);
     return queryBuilder.getMany();
   };
-  
+
+// TODO: this should use username to ensure the maintenanceItems are only for the user
+  async getMaintenanceItem(maintenanceId: number, username: string): Promise<MaintenanceItem> {
+    try {
+      const result = await this.maintenanceItemsRepository.findOne({
+        where: {
+          id: maintenanceId,
+        },
+      });
+      return result;
+    } catch (e: any) {
+      console.log(e.message);
+      return null;
+    }
+  };
+
+  getPartFor(partCode: string): Part | null {
+    const vals = Object.values(Part);
+    const keys = Object.keys(Part)
+    for (const checkKey in keys) {
+      this.logger.log('info', 'checking: ' + checkKey + ' vs ' + vals[checkKey])
+      if (vals[checkKey] === partCode) {
+        this.logger.log('info', 'Found part: ' + checkKey + ' from ' + partCode)
+        this.logger.log('info', 'Returning: ' + Part[keys[checkKey]])
+        return Part[keys[checkKey]];
+      }
+    }
+    this.logger.log('error', 'Part not found for code'+ partCode);
+    return null;
+  }
+
+  async updateMaintenanceItem(maintenanceInfo: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
+    try {
+      const maintenanceItem = await this.getMaintenanceItem(maintenanceInfo.id, maintenanceInfo.username);
+      if (maintenanceItem == null) {
+        console.error('Maintenance item not found for user '+ maintenanceInfo.username +' and id '+ maintenanceInfo.id);
+        return null;
+      }
+      const part = this.getPartFor(maintenanceInfo.part);
+      if (part !== null) {
+        maintenanceItem.part = part;
+      }
+      maintenanceItem.dueDistanceMeters = maintenanceInfo.duemiles;
+      maintenanceItem.brand = maintenanceInfo.brand;
+      maintenanceItem.model = maintenanceInfo.model;
+      maintenanceItem.link = maintenanceInfo.link;
+
+      await this.maintenanceItemsRepository.save(maintenanceItem);
+      return maintenanceItem;
+    } catch (error) {
+      console.error('Error updating or adding bike: ', error);
+      return null;
+    }
+  }
+
+  async deleteMaintenanceItem(maintenanceId: number, username): Promise<void> {
+    try {
+      const maintenanceItem = await this.getMaintenanceItem(maintenanceId, username);
+      if (maintenanceItem == null) {
+        console.error('Maintenance item not found for user '+ username +' and id '+ maintenanceId);
+        return;
+      }
+      await this.maintenanceItemsRepository.softDelete(maintenanceItem.id);
+    } catch (error) {
+      console.error('Error deleting maintenance item: ', error);
+      throw error;
+    }
+  }
+
   private findUsername(username: string): Promise<User | null> {
     return this.userService.findUsername(username)
   }

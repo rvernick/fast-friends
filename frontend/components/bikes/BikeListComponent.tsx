@@ -37,7 +37,7 @@ const BikeListComponent = () => {
 
   const editBike = (id: number) => {
     const idString = id.toString();
-    router.push({ pathname: idString})
+    router.push({ pathname: '/(bikes)/' + idString });
   }
 
   const BikeList: React.FC<BikeListProps> = ({ bikes, isUpdating }) => {
