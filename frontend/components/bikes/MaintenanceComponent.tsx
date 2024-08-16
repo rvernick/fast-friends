@@ -38,12 +38,13 @@ const MaintenanceComponent = () => {
   
   const addMaintenanceItem = () => {
     queryClient.removeQueries({ queryKey: ['maintenanceItems'] });
-    router.push({ pathname: "0", params: {maintenanceItem: 0 }});
+    router.push({ pathname: "0", params: {bikeid: 0 }});
   }
 
-  const editMaintenanceItem = (id: number) => {
+  const editMaintenanceItem = (id: number, bikeId: number) => {
     const idString = id.toString();
-    router.push({ pathname: idString})
+    const bikeIdString = bikeId.toString();
+    router.push({ pathname: '/(maintenanceItems)/' + idString,  params: {bikeid: bikeIdString }});
   }
 
   type MaintenanceListItemProps = {
@@ -56,8 +57,9 @@ const MaintenanceComponent = () => {
       <List.Item
         key={'mi' + maintenanceItem.id}
         title={maintenanceItem.part}
-        id={'MLI' + bikeId}         
+        id={'MLI' + bikeId}
         description={convertUnits(maintenanceItem.dueDistanceMeters)}
+        onPress={() => editMaintenanceItem(maintenanceItem.id, bikeId)}
         left={props => <BikePartIcon maintenanceItem={maintenanceItem}/>}
       />
     );

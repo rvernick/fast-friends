@@ -11,10 +11,10 @@ export default function Layout() {
           title: "Maintenance Items",
           headerShown: false,
         }} />
-      {/* <Stack.Screen name="[maintenanceItem]" options={{
+      <Stack.Screen name="[maintenanceItem]" options={{
         title: 'Maintenance Item',
         headerShown: true,
-      }} /> */}
+      }} />
     </Stack>
   );
 }
