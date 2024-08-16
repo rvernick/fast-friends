@@ -136,7 +136,8 @@ export class UserService {
     this.logger.log('info', 'Syncing user:'+ JSON.stringify(user));
     console.log('bikes: ' + JSON.stringify(athlete.bikes));
     for (const bike of athlete.bikes) {
-      this.addStravaBike(user, bike);
+      var newBike = this.addStravaBike(user, bike);
+      this.bikesRepository.save(newBike);
     }
     return user;
   }
@@ -150,7 +151,7 @@ export class UserService {
     newBike.odometerMeters = bike.distance;
     newBike.maintenanceItems = defaultMaintenanceItems(newBike);
 //    user.addBike(newBike);
-    this.bikesRepository.save(newBike);
+//    this.bikesRepository.save(newBike);
     this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
     console.log('created and added: ' + JSON.stringify(newBike));
     return newBike;
