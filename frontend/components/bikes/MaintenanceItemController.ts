@@ -86,7 +86,7 @@ class BikeController extends AppController {
     }
   }
 
-  updateMaintenanceItem = async (
+  updateOrAddMaintenanceItem = async (
       session: any,
       username: string,
       maintenanceItemId: number,
@@ -121,8 +121,8 @@ class BikeController extends AppController {
         link: ensureString(link),
       };
       console.log('update maintenanceItem ' + maintenanceItemId);
-      console.log('/bike/update-maintenance-item', JSON.stringify(parameters));
-      const response = await post('/bike/update-maintenance-item', parameters, jwtToken);
+      console.log('/bike/update-or-add-maintenance-item', JSON.stringify(parameters));
+      const response = await post('/bike/update-or-add-maintenance-item', parameters, jwtToken);
       return response.ok;
     } catch(e: any) {
       console.log(e.message);

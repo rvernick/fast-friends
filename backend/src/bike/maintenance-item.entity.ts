@@ -81,9 +81,9 @@ export class MaintenanceItem {
 
   @PrimaryGeneratedColumn()
   id: number;
+
   @ManyToOne((type) => Bike, (bike) => bike.maintenanceItems, { nullable: false })
-  @JoinColumn()
-  bike: Promise<Bike>;
+  bike: Bike;
   
   @Column({
     type: "enum",

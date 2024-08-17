@@ -211,13 +211,31 @@ export class BikeService {
     return null;
   }
 
-  async updateMaintenanceItem(maintenanceInfo: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
+  async updateOrAddMaintenanceItem(maintenanceInfo: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
     try {
-      const maintenanceItem = await this.getMaintenanceItem(maintenanceInfo.id, maintenanceInfo.username);
-      if (maintenanceItem == null) {
-        console.error('Maintenance item not found for user '+ maintenanceInfo.username +' and id '+ maintenanceInfo.id);
-        return null;
+      var maintenanceItem = new MaintenanceItem();
+      if (maintenanceInfo.id == 0) {
+        const bike = await this.findOne(maintenanceInfo.bikeid);
+        if (bike == null) {
+          console.error('Bike not found for user '+ maintenanceInfo.username +' and bikeid '+ maintenanceInfo.bikeid);
+          return null;
+        }
+        // console.log('Updating bike: ' + bike.maintenanceItems.length);
+        // bike.maintenanceItems = [...bike.maintenanceItems, maintenanceItem];
+        // console.log('Updating bike: ' + bike.maintenanceItems.length);
+        maintenanceItem.bike = bike;
+        // this.bikesRepository.save(bike);
+        console.log('Updated maintenance item: ', JSON.stringify(bike));
+        console.log('Updated maintenance item: ', JSON.stringify(maintenanceItem));
+        console.log('Updated maintenance item id: ', maintenanceItem.id);
+      } else {
+        maintenanceItem = await this.getMaintenanceItem(maintenanceInfo.id, maintenanceInfo.username);
+        if (maintenanceItem == null) {
+          console.error('Maintenance item not found for user '+ maintenanceInfo.username +' and id '+ maintenanceInfo.id);
+          return null;
+        }
       }
+
       const part = this.getPartFor(maintenanceInfo.part);
       if (part !== null) {
         maintenanceItem.part = part;
@@ -228,6 +246,8 @@ export class BikeService {
       maintenanceItem.link = maintenanceInfo.link;
 
       await this.maintenanceItemsRepository.save(maintenanceItem);
+      console.log('Updated maintenance item: ', JSON.stringify(maintenanceItem));
+      console.log('Returning maintenance item: ', maintenanceItem.id);
       return maintenanceItem;
     } catch (error) {
       console.error('Error updating or adding bike: ', error);

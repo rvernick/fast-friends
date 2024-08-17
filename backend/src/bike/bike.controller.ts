@@ -78,10 +78,10 @@ export class BikeController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('update-maintenance-item')
+  @Post('update-or-add-maintenance-item')
   updateMaintenanceItem(@Body() maintenanceItem: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
-    console.log('user/update-maintenance-item user:'+ maintenanceItem.username +' id: '+ maintenanceItem.id);
-    return this.bikeService.updateMaintenanceItem(maintenanceItem);
+    console.log('user/update-or-add-maintenance-item user:'+ maintenanceItem.username +' id: '+ maintenanceItem.id);
+    return this.bikeService.updateOrAddMaintenanceItem(maintenanceItem);
   }
 
   @HttpCode(HttpStatus.OK)
