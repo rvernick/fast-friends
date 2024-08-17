@@ -10,7 +10,6 @@ import { ensureString } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { MaintenanceItem, Part } from "@/models/MaintenanceItem";
-import { NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
 
 const groupsetBrands = [
   'Shimano',
@@ -88,8 +87,8 @@ const BikeComponent: React.FC<MaintenanceItemProps> = () => {
     queryFn: () => controller.getBikes(session, email),
   });
 
-  const updateMaintenanceItem = async function() {
-    const successful = await controller.updateMaintenanceItem(
+  const updateOrAddMaintenanceItem = async function() {
+    const successful = await controller.updateOrAddMaintenanceItem(
       session,
       email,
       maintenanceItem.id,
@@ -109,7 +108,7 @@ const BikeComponent: React.FC<MaintenanceItemProps> = () => {
  
   const editOrDone = (value: any) => {
     if (!readOnly) {
-      updateMaintenanceItem();
+      updateOrAddMaintenanceItem();
     } else {
       setReadOnly(false);
     }
@@ -134,16 +133,17 @@ const BikeComponent: React.FC<MaintenanceItemProps> = () => {
       setMaintenanceItem(item);
       if (item.id === 0) {
         setIsNew(true);
+        console.log('Reset mi new with: ' + bikes.length);
+        if (bikes && bikes.length > 0) {
+          const latestBike = bikes[bikes.length - 1];
+          selectBike(ensureString(latestBike.id));
+        }
       } else {
         setIsNew(false);
         for (const bikeItem of bikes) {
           console.log('Reset checking bikeItems: ', JSON.stringify(bikeItem));
           if (bikeItem.maintenanceItems.some(mi => mi.id === item.id)) {
-            console.log('Found bike item: ', bikeItem.id);
-            setBike(bikeItem);
-            setBikeName(bikeItem.name + ' (' + (bikeItem.odometerMeters / 1609).toFixed(0) +'miles)');
-            setBikeIdString(ensureString(bikeItem.id));
-            updatePartsList(bikeItem);
+            selectBike(ensureString(bikeItem.id));
           }
         }
       }
@@ -164,19 +164,30 @@ const BikeComponent: React.FC<MaintenanceItemProps> = () => {
     const names = Object.values(Part);
     const keys = Object.keys(Part);
     console.log('Update parts for bike: ', JSON.stringify(bike));
+    var substitutePartIfNeeded = '';
+    var isSubstitutePartNeeded = false;
     for (const possible in Object.values(Part)) {
       var unused = true;
       for (const mi of thisBike.maintenanceItems) {
         if (mi.id !== maintenanceId && (possible == mi.part || names[possible] == mi.part)) {
           unused = false;
-          console.log('Found used part: ', possible);
+          if (!part || part.length === 0 || part === names[possible]) {
+            isSubstitutePartNeeded = true;
+          }
         }
       }
       if (unused) {
-          result.push({ label: names[possible], value: names[possible] });
+        result.push({ label: names[possible], value: names[possible] });
+        if (substitutePartIfNeeded == '') {
+          substitutePartIfNeeded = names[possible];
+        }
       }
     }
     setAvailabileParts(result);
+    if (isSubstitutePartNeeded) {
+      console.log('Setting substitute part: ', substitutePartIfNeeded);
+      setPart(substitutePartIfNeeded);
+    }
   }
 
   const selectBike = (idString: string | undefined) => {
@@ -294,7 +305,7 @@ const BikeComponent: React.FC<MaintenanceItemProps> = () => {
           onChangeText={(text) => setLink(text)}/>
         </Card>
         <Card>
-          <Button mode="contained" onPress={ editOrDone }>
+          <Button mode="contained" onPress={ editOrDone } disabled={!readOnly && (part == null || bikeIdString == '0') }>
             { readOnly? 'Edit' : 'Done' }
           </Button>
           { (readOnly || isNew) ? null : <Button mode="contained" onPress={ cancel }> Cancel </Button>}
@@ -305,58 +316,3 @@ const BikeComponent: React.FC<MaintenanceItemProps> = () => {
 };
 
 export default BikeComponent;
-
-
-
-/** 
-const defaultLongevity = (part: Part): number => {
-  if (part === Part.FRONT_BRAKE_PADS || part === Part.REAR_BRAKE_PADS) {
-    return oneThousandMilesInMeters;
-  }
-  return threeThousandMilesInMeters;
-}
-
-const oneThousandMilesInMeters = 1609344;
-const threeThousandMilesInMeters = 4828032;
-
-export const defaultMaintenanceItems = (bike: Bike): MaintenanceItem[] => {
-  const maintenanceItems: MaintenanceItem[] = [];
-  const odometerMeters = bike.odometerMeters == null ? 0 : bike.odometerMeters;
-  const oneThousandMiles = odometerMeters + oneThousandMilesInMeters;
-  const threeThousandMiles = odometerMeters + threeThousandMilesInMeters;
-  maintenanceItems.push(createMaintenanceItem(Part.CHAIN, threeThousandMiles));
-  maintenanceItems.push(createMaintenanceItem(Part.CASSETTE, threeThousandMiles));
-  maintenanceItems.push(createMaintenanceItem(Part.FRONT_TIRE, threeThousandMiles));
-  maintenanceItems.push(createMaintenanceItem(Part.REAR_TIRE, threeThousandMiles));
-  maintenanceItems.push(createMaintenanceItem(Part.FRONT_BRAKE_PADS, oneThousandMiles));
-  maintenanceItems.push(createMaintenanceItem(Part.REAR_BRAKE_PADS, oneThousandMiles));
-  return maintenanceItems;
-}
-
-const createMaintenanceItem = (part: Part, distance: number): MaintenanceItem => {
-  const maintenanceItem = new MaintenanceItem();
-  maintenanceItem.part = part;
-  maintenanceItem.dueDistanceMeters = distance;
-  return maintenanceItem;
-}
-
-  bike: Promise<Bike>;
-  
-  @Column({
-    type: "enum",
-    enum: Part,
-    default: Part.CHAIN,
-    nullable: false,
-  })
-  part: Part;
-  type: string;
-  brand: string;
-  model: string;
-  link: string;
-  lastPerformedDistanceMeters: number;
-  dueDistanceMeters: number;
-  dueDate: Date;
-  @Column({default: false})
-  completed: boolean;
-
- */

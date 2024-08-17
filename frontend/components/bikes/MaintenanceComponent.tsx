@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useQueryClient } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
 import { useRouter } from 'expo-router';
@@ -25,8 +25,7 @@ const MaintenanceComponent = () => {
   const router = useRouter();
   const controller = new MaintenanceListController(appContext);
   const [isUpdating, setIsUpdating] = useState(true);
-  const [bikes, setBikes] = useState<Bike[]>([]);
-  const [sortOption, setSortOption] = useState('dueDate');
+  // const [sortOption, setSortOption] = useState('dueDate');
 
   const { status, data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
@@ -38,7 +37,7 @@ const MaintenanceComponent = () => {
   
   const addMaintenanceItem = () => {
     queryClient.removeQueries({ queryKey: ['maintenanceItems'] });
-    router.push({ pathname: "0", params: {bikeid: 0 }});
+    router.push({ pathname: '/(maintenanceItems)/0', params: {bikeid: '0' }});
   }
 
   const editMaintenanceItem = (id: number, bikeId: number) => {
