@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useLocalSearchParams } from "expo-router";
-import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface } from "react-native-paper";
+import { Button, TextInput, ActivityIndicator, Card, Surface } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
 import { ensureString } from "@/common/utils";
@@ -72,11 +71,6 @@ const BikeComponent: React.FC<MaintenanceItemProps> = () => {
   const partOptions = Object.entries(Part).map(([key, val]) => ({ label: val, value: val }));
   const [availabileParts, setAvailabileParts] = useState(partOptions);
 
-  // const [groupsetBrand, setGroupsetBrand] = useState(newBike.groupsetBrand);
-  // const [speed, setSpeeds] = useState(newBike.groupsetSpeed.toString());
-  // const [type, setType] = useState(newBike.type);
-  // const [isElectronic, setIsElectronic] = useState(newBike.isElectronic);
-  const [errorMessage, setErrorMessage] = useState('');
   const [isInitialized, setIsInitialized] = useState(isNew);
 
   const controller = new MaintenanceItemController(appContext);
