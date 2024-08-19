@@ -1,7 +1,6 @@
 import { Redirect, Tabs } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSession } from "@/ctx";
-import { sleep } from "@/common/utils";
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
 
@@ -27,6 +26,16 @@ export default function TabLayout() {
           headerShown: true,
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="bike-fast" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="(maintenanceItems)"
+        options={{
+          title: "Maintenance",
+          headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="wrench" color={color} />
           ),
         }}
       />

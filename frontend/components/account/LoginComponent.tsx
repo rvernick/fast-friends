@@ -1,12 +1,11 @@
-import React, { ChangeEvent, useContext, useState } from "react";
+import React, { useState } from "react";
 import { GestureResponderEvent, NativeSyntheticEvent, TextInputChangeEventData, TextInputSubmitEditingEventData } from "react-native";
 import { useGlobalContext } from "../../common/GlobalContext";
-import { login, sleep } from "../../common/utils";
+import { login } from "../../common/utils";
 import { baseUrl } from "../../common/http-utils";
-import { ThemedView } from "../ThemedView";
 import { Button, HelperText } from "react-native-paper";
 import { router } from "expo-router";
-import { Card, TextInput } from 'react-native-paper';
+import { Card, TextInput, Surface } from 'react-native-paper';
 
 export const LoginComponent = () => {
   const appContext = useGlobalContext();
@@ -61,7 +60,7 @@ export const LoginComponent = () => {
   };
 
   return (
-    <ThemedView>
+    <Surface>
         <Card>
           <Card.Title title="Fast Friends"></Card.Title>
           <Card.Content>
@@ -87,6 +86,6 @@ export const LoginComponent = () => {
               </Button>
           </Card.Content>
         </Card>  
-    </ThemedView>
+    </Surface>
   );
 }

@@ -2,15 +2,17 @@ import { Logger, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, createNewUser } from './user.entity';
-import { Bike,  } from './bike.entity';
+import { Bike,  } from '../bike/bike.entity';
 import { StravaAuthenticationDto } from './strava-authentication';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
-import { UpdateBikeDto } from './update-bike.dto';
-import { DeleteBikeDto } from './delete-bike.dto';
+import { UpdateBikeDto } from '../bike/update-bike.dto';
+import { DeleteBikeDto } from '../bike/delete-bike.dto';
+import { defaultMaintenanceItems } from '../bike/maintenance-item.entity';
+import { sendEmail } from '../utils/utils';
 
 @Injectable()
 export class UserService {
@@ -25,6 +27,7 @@ export class UserService {
     private passwordResetRepository: Repository<PasswordReset>,
     @Inject(ConfigService)
     private readonly configService: ConfigService,
+    @Inject(HttpService)
     private readonly httpService: HttpService,
   ) {}
 
@@ -59,6 +62,10 @@ export class UserService {
     this.usersRepository.save(user);
   }
 
+  save(user: User) {
+    this.usersRepository.save(user);
+  }
+
   updateUser(
       user: User,
       firstName: string,
@@ -88,34 +95,17 @@ export class UserService {
     }
   }
 
-  getBike(bikeId: number, username: string): Promise<Bike | null> {
-    if (username == null) return null;
+  async getUserIdsWithStravaLinked(): Promise<number[]> {
     try {
-      const result = this.bikesRepository.findOne({
-        where: {
-          id: bikeId,
-        },
-      });
-      return result;
-    } catch (e: any) {
+      const queryBuilder = this.usersRepository.createQueryBuilder("user");
+      queryBuilder.select("user.id", "id");
+      queryBuilder.where("user.stravaId IS NOT NULL");
+      const result = await queryBuilder.getRawMany();
+      return result.map((row) => row.id);
+    } catch (e) {
       console.log(e.message);
-      return null;
     }
-  }
-
-  getBikes(username: string): Promise<Bike[] | null> {
-    const userPromise = this.findUsername(username);
-    if (userPromise == null) return null;
-    return userPromise
-      .then((user: User) => {
-        console.log('user/bikes user: '+ user.bikes.length);
-        console.log('user/bikes user: '+ JSON.stringify(user));
-        return user.bikes;
-      })
-      .catch((e: any) => {
-        console.log(e.message);
-        return [];
-      });
+    return Promise.resolve([]);
   }
 
   syncStravaUser(stravaAuthDto: StravaAuthenticationDto): Promise<User> {
@@ -134,7 +124,10 @@ export class UserService {
   private async syncUserToStrava(user: User, stravaAuthDto: StravaAuthenticationDto): Promise<User> {
     const athlete = await this.getStravaAthlete(stravaAuthDto.stravaToken);
     user.stravaId = athlete.id;
+    user.stravaCode = stravaAuthDto.stravaCode;
+    user.stravaRefreshToken = stravaAuthDto.stravaRefreshToken;
     console.log('setting stravaId: ' + user.stravaId);
+    console.log('setting userWith: ' + JSON.stringify(stravaAuthDto));
     this.usersRepository.save(user);
 
     if (user.bikes != null && user.bikes.length > 0) {
@@ -143,21 +136,25 @@ export class UserService {
     this.logger.log('info', 'Syncing user:'+ JSON.stringify(user));
     console.log('bikes: ' + JSON.stringify(athlete.bikes));
     for (const bike of athlete.bikes) {
-      this.addStravaBike(user, bike);
+      var newBike = this.addStravaBike(user, bike);
+      this.bikesRepository.save(newBike);
     }
     return user;
   }
 
-  private addStravaBike(user: User, bike: any) {
+  addStravaBike(user: User, bike: any): Bike {
     const newBike = new Bike();
     newBike.name = bike.name;
     newBike.stravaId = bike.id;
     newBike.type = bike.type;
     newBike.user = user;
+    newBike.odometerMeters = bike.distance;
+    newBike.maintenanceItems = defaultMaintenanceItems(newBike);
 //    user.addBike(newBike);
-    this.bikesRepository.save(newBike);
+//    this.bikesRepository.save(newBike);
     this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
     console.log('created and added: ' + JSON.stringify(newBike));
+    return newBike;
   }
 
   private async getStravaAthlete(stravaAccessToken: string): Promise<any> {
@@ -220,25 +217,11 @@ export class UserService {
   };
 
   sendPasswordResetEmail(email: string, passwordResetLink: string): void {
-    const sgMail = require('@sendgrid/mail');
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
-    const msg = {
-      to: email,
-      from: 'support@fastfriends.biz',
-      subject: 'FastFriends Password Reset',
-      text: 'Use the following link to reset your password: ' + passwordResetLink,
-      html: 'Use the following link to reset your password: <a href="' + passwordResetLink + '"> Reset Password</a>',
-    }
-    sgMail
-      .send(msg)
-      .then(() => {
-        console.log('Email sent')
-      })
-      .catch((error) => {
-        this.logger.error("Error sending email: " + error.message);
-        console.error(error)
-      })
+    const msg = 'Use the following link to reset your password: ' + passwordResetLink;
+    const htmlMsg = 'Use the following link to reset your password: <a href="' + passwordResetLink + '"> Reset Password</a>';
+    
+    sendEmail(email, 'FastFriends Password Reset', msg, htmlMsg);
   };
 
   async updateOrAddBike(bikeDto: UpdateBikeDto): Promise<Bike> {

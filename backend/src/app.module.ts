@@ -5,15 +5,19 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './user/user.module';
+import { BikeModule } from './bike/bike.module';
 import { User } from './user/user.entity';
 import { PasswordReset } from './user/password-reset.entity';
-import { Bike } from './user/bike.entity';
-import { MaintenanceItem } from './user/maintenance-item.entity';
+import { Bike } from './bike/bike.entity';
+import { MaintenanceItem } from './bike/maintenance-item.entity';
+import { StravaModule } from './bike/strava.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
+    BikeModule,
+    StravaModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `config/env/${process.env.NODE_ENV}.env`,

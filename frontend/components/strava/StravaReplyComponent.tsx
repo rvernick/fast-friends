@@ -3,9 +3,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/ctx";
 import { useGlobalContext } from "@/common/GlobalContext";
 import StravaController from "../settings/StravaController";
-import { ensureString } from "@/common/utils";
-import { ActivityIndicator, Text } from "react-native-paper";
-import { ThemedView } from "../ThemedView";
+import { ensureString, sleep } from "@/common/utils";
+import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
 type StravaReplyProps = {
   code: string;
@@ -35,6 +34,7 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = () => {
     appContext.invalidateUser(session);
     if (stravaInfo?.athlete?.id) {
       // window.close();
+      sleep(10);
       router.replace('/settings?strava_id=' + stravaInfo?.athlete?.id);
     } else {
       router.replace('/settings');
@@ -54,14 +54,14 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = () => {
   }, [session]);
 
   return (
-    <ThemedView>
+    <Surface>
       <ActivityIndicator size="large"/>
-      <Text>Strava Connection successful. Syncing Now.</Text>
-      <Text>Window will stay open when finished</Text>
+      <Text variant="displayLarge">Strava Connection successful. Syncing Now.</Text>
+      <Text variant="displayMedium">Window will stay open when finished</Text>
       {/* <Text>Code: {ensureString(code)}</Text>
       <Text>Scope:  {ensureString(scope)}</Text>
       <Text>State:  {ensureString(state)}</Text> */}
-    </ThemedView>
+    </Surface>
     );
   };
 

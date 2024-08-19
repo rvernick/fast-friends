@@ -91,15 +91,15 @@ export const fetchSecrets = async (session: any): Promise<any | null> => {
   }
 }
 
-export const sleep = (timeout: number): Promise<void> => {
+export const sleep = (seconds: number): Promise<void> => {
   return new Promise(resolve => {
-    setTimeout(resolve, timeout);
+    setTimeout(resolve, 1000*seconds);
   });
 };
 
 export const invalidPasswordMessage = 'password must be at least 8 characters with a mix of special, upper and lower case'
 
-export const ensureString = (value: string | string[] | null | undefined | number): string => {
+export const ensureString = (value: string | string[] | null | undefined | number | any): string => {
   if (value == null || value === '') {
     return '';
   }
@@ -109,5 +109,8 @@ export const ensureString = (value: string | string[] | null | undefined | numbe
   if (Array.isArray(value)) {
     return value.join(', ');
   }
-  return value;
+  if (typeof value === 'string') {
+    return value;
+  }
+  return '';
 }

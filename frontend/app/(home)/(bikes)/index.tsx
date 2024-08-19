@@ -1,11 +1,11 @@
 import BikeListComponent from "@/components/bikes/BikeListComponent";
-import { ThemedView } from "@/components/ThemedView";
+import { Surface } from "react-native-paper"
 
 const BikeList = () => {
   return (
-    <ThemedView>
+    <Surface>
       <BikeListComponent/>
-    </ThemedView>
+    </Surface>
   );
 };
 

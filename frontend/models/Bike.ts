@@ -1,3 +1,4 @@
+import { MaintenanceItem } from "./MaintenanceItem";
 
 export interface Bike {
   id: number;
@@ -6,4 +7,6 @@ export interface Bike {
   groupsetSpeed: number;
   groupsetBrand: string;
   isElectronic: boolean;
-}
+  odometerMeters: number;
+  maintenanceItems: MaintenanceItem[];
+};

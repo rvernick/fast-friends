@@ -1,36 +1,35 @@
 import { ensureString } from "@/common/utils";
 import StravaReplyComponent from "@/components/strava/StravaReplyComponent";
-import { ThemedView } from "@/components/ThemedView";
 import { useLocalSearchParams } from "expo-router";
-import { Text } from "react-native-paper";
+import { Surface, Text } from "react-native-paper";
 
 const StravaReply = () => {
   const reply = useLocalSearchParams();
   if (reply.error) {
     return (
-      <ThemedView>
+      <Surface>
         <Text>Error: {reply.error}</Text>
-      </ThemedView>
+      </Surface>
 
     );
   }
 
   // return (
-  //   <ThemedView>
+  //   <Surface>
   //     <Text>Strava Connection successful. Please return to Settings.</Text>
   //     <Text>Code: {ensureString(reply.code)}</Text>
   //     <Text>Scope:  {ensureString(reply.scope)}</Text>
   //     <Text>State:  {ensureString(reply.state)}</Text>
-  //   </ThemedView>
+  //   </Surface>
   // );
 
   return (
-    <ThemedView>
+    <Surface>
       <StravaReplyComponent 
         code={ensureString(reply.code)} 
         scope={ensureString(reply.scope)} 
         state={ensureString(reply.state)} />
-    </ThemedView>
+    </Surface>
   );
 };
 

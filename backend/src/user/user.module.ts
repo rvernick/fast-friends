@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserService } from './user.service';
 import { User } from './user.entity';
-import { Bike } from './bike.entity';
+import { Bike } from '../bike/bike.entity';
 import { HttpModule } from '@nestjs/axios';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from '../auth/auth.guard';
@@ -16,7 +16,7 @@ import { PasswordReset } from './password-reset.entity';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    UserService
+    UserService,
   ],
   controllers: [UserController],
   exports: [UserService],
