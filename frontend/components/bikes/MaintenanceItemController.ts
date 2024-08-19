@@ -7,7 +7,7 @@ import { MaintenanceItemType } from "../strava/utils";
 import { MaintenanceItem } from "@/models/MaintenanceItem";
 
 
-class BikeController extends AppController {
+class MaintenanceItemController extends AppController {
   constructor(appContext: AppContext) {
     super(appContext);
   }
@@ -132,4 +132,4 @@ class BikeController extends AppController {
 
 }
 
-export default BikeController;
+export default MaintenanceItemController;

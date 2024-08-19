@@ -220,11 +220,7 @@ export class BikeService {
           console.error('Bike not found for user '+ maintenanceInfo.username +' and bikeid '+ maintenanceInfo.bikeid);
           return null;
         }
-        // console.log('Updating bike: ' + bike.maintenanceItems.length);
-        // bike.maintenanceItems = [...bike.maintenanceItems, maintenanceItem];
-        // console.log('Updating bike: ' + bike.maintenanceItems.length);
         maintenanceItem.bike = bike;
-        // this.bikesRepository.save(bike);
         console.log('Updated maintenance item: ', JSON.stringify(bike));
         console.log('Updated maintenance item: ', JSON.stringify(maintenanceItem));
         console.log('Updated maintenance item id: ', maintenanceItem.id);

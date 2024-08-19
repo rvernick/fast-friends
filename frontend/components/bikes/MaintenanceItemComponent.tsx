@@ -47,7 +47,7 @@ type MaintenanceItemProps = {
   bikeid: number,
 };
 
-const BikeComponent: React.FC<MaintenanceItemProps> = () => {
+const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const session = useSession();
   const queryClient = useQueryClient();
   const appContext = useGlobalContext();
@@ -309,4 +309,4 @@ const BikeComponent: React.FC<MaintenanceItemProps> = () => {
   )
 };
 
-export default BikeComponent;
+export default MaintenanceItemComponent;
