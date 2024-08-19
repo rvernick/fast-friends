@@ -9,4 +9,5 @@ export interface Bike {
   isElectronic: boolean;
   odometerMeters: number;
   maintenanceItems: MaintenanceItem[];
+  stravaId: string;
 };

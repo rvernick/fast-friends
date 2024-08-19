@@ -23,6 +23,7 @@ const newBike = {
       groupsetBrand: 'Shimano',
       groupsetSpeed: 11,
       isElectronic: false,
+      odometerMeters: 0,
   }
 type BikeProps = {
   bikeid: number
@@ -52,6 +53,8 @@ const BikeComponent: React.FC<BikeProps> = () => {
   const [isElectronic, setIsElectronic] = useState(newBike.isElectronic);
   const [errorMessage, setErrorMessage] = useState('');
   const [isInitialized, setIsInitialized] = useState(isNew);
+  const [stravaId, setStravaId] = useState('');
+  const [milage, setMileage] = useState(newBike.odometerMeters.toFixed(0));
 
   const controller = new BikeController(appContext);
 
@@ -70,11 +73,19 @@ const BikeComponent: React.FC<BikeProps> = () => {
     setGroupsetBrand(ensureString(bike.groupsetBrand));
     setSpeeds(ensureString(bike.groupsetSpeed));
     setIsElectronic(bike.isElectronic);
+    setMileage((bike.odometerMeters / 1609).toFixed(0));
+    setStravaId(ensureString(bike.stravaId));
     setReadOnly(true);
   }
   
   const updateBike = async function() {
-    const result = await controller.updateBike(session, email, bikeId, bikeName, type, groupsetBrand, speed, isElectronic);
+    const result = await controller.updateBike(session, email, bikeId,
+      bikeName,
+      parseInt(milage) * 1609,
+      type,
+      groupsetBrand,
+      speed,
+      isElectronic);
     console.log('update bike result: ' + result);
     if (result == '') {
       router.back();
@@ -121,6 +132,12 @@ const BikeComponent: React.FC<BikeProps> = () => {
       });
     }
   });
+
+  const connectedToStrava = () => {
+    return stravaId !== null 
+      && stravaId !== ''
+      && stravaId!= '0';
+  }
   
   const groupsetOptions = groupsetBrands.map(brand => ({ label: brand, value: brand }));
   const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
@@ -137,6 +154,11 @@ const BikeComponent: React.FC<BikeProps> = () => {
           disabled={readOnly}
           placeholder="Name" />
         <HelperText type="error" >{errorMessage}</HelperText>
+        <TextInput label="Milage"
+          disabled={readOnly || connectedToStrava()}
+          value={milage}
+          onChangeText={(value) => setMileage(value ? value : '')}
+        />
         <Dropdown
           disabled={readOnly}
           label="Groupset"

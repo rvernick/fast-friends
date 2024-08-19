@@ -40,6 +40,7 @@ const newBike = {
   isElectronic: false,
   odometerMeters: 0,
   maintenanceItems: [],
+  stravaId: '',
 }
 
 type MaintenanceItemProps = {
@@ -71,11 +72,11 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const partOptions = Object.entries(Part).map(([key, val]) => ({ label: val, value: val }));
   const [availabileParts, setAvailabileParts] = useState(partOptions);
 
-  const [isInitialized, setIsInitialized] = useState(isNew);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const controller = new MaintenanceItemController(appContext);
 
-  const { data: bikes, status, error, isFetching } = useQuery({
+  const { data: bikes } = useQuery({
     queryKey: ['bikes'],
     initialData: [],
     queryFn: () => controller.getBikes(session, email),
@@ -194,6 +195,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
         setBikeName(bikeById.name + ' (' + (bikeById.odometerMeters / 1609).toFixed(0) +'miles)');
         setBikeIdString(idString);
         updatePartsList(bikeById);
+        ensureDueMilageAhead();
         console.log('Selected bikeById id: ', id);
       } else {
         console.log('Bike not found: ', idString);
@@ -201,7 +203,18 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     }
   }
 
-  const reset = () => {
+  const ensureDueMilageAhead = () => {
+    if (isNew || !readOnly) {
+      const currentMiles = bike.odometerMeters / 1609;
+      const nextDueMiles = parseInt(dueMiles);
+      if (currentMiles > nextDueMiles) {
+        const forwardMiles = currentMiles + 3000;
+        setDueMiles(forwardMiles.toFixed(0));
+      }
+    }
+  };
+
+  const reset = () => { 
     console.log('useEffect initialize maintenance item: ', maintenanceId);
     controller.getMaintenanceItem(session, maintenanceId, email, appContext).then(item => {
       if (item != null) {
@@ -209,12 +222,28 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
         setIsInitialized(true);
       }
     });
+  };
+
+  const selectDefaultBike = () => {
+    const roomForMore = Object.keys(Part).length;
+    const defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);
+    if (defaultBike) {
+      selectBike(ensureString(defaultBike.id));
+    } else {
+      console.log('No default bike found');
+      selectBike(ensureString(bikes[0].id));
+    }
   }
 
   useEffect(() => {
     console.log('useEffect initialize bike: ', bikes.length);
     if (!isInitialized && bikes.length > 0) {
-      reset();
+      if (isNew) {
+        selectDefaultBike();
+        setIsInitialized(true);
+      } else {
+        reset();
+      }
     }
   }, [bikes, maintenanceItem]);
   

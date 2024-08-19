@@ -131,6 +131,10 @@ export class BikeService {
         bike = await this.bikesRepository.findOneBy({ id });
         if (bike == null) return null;
       }
+      const stravaId = bike.stravaId
+      if (stravaId == null || stravaId.length == 0) {
+        bike.odometerMeters = bikeDto.odometerMeters;
+      }
       bike.name = bikeDto.name;
       bike.type = bikeDto.type;
       bike.setGroupsetBrand(bikeDto.groupsetBrand);
