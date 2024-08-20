@@ -103,12 +103,12 @@ const MaintenanceComponent = () => {
   }
 
   const MaintenanceList: React.FC<MaintenanceListProps> = ({ bikes, isUpdating }) => {
-    if (!bikes || bikes?.length == 0) {
+    if (!bikes || bikes == null || bikes?.length == 0) {
       return <Text>No Maintenance Items Found - Add a bike or sync with Strava</Text>
     }
     return (
       <List.AccordionGroup >
-        {bikes.map(bike => (
+        {bikes?.map(bike => (
           <BikeAccordian bike={bike} forceOpen={bikes.length == 1} key={bike.id}/>
         ))}
       </List.AccordionGroup>

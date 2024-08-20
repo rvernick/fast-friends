@@ -208,20 +208,24 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       const currentMiles = bike.odometerMeters / 1609;
       const nextDueMiles = parseInt(dueMiles);
       if (currentMiles > nextDueMiles) {
-        const forwardMiles = currentMiles + 3000;
+        const forwardMiles = currentMiles + 1500;
         setDueMiles(forwardMiles.toFixed(0));
       }
     }
   };
 
-  const reset = () => { 
-    console.log('useEffect initialize maintenance item: ', maintenanceId);
-    controller.getMaintenanceItem(session, maintenanceId, email, appContext).then(item => {
-      if (item != null) {
-        resetMaintenanceItem(item);
-        setIsInitialized(true);
-      }
-    });
+  const reset = () => {
+    try {
+      console.log('useEffect initialize maintenance item: ', maintenanceId);
+      controller.getMaintenanceItem(session, maintenanceId, email, appContext).then(item => {
+        if (item != null) {
+          resetMaintenanceItem(item);
+          setIsInitialized(true);
+        }
+      });
+    } catch (error) {
+      console.error('Error initializing maintenance item: ', error);
+    }
   };
 
   const selectDefaultBike = () => {
@@ -236,14 +240,18 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   }
 
   useEffect(() => {
-    console.log('useEffect initialize bike: ', bikes.length);
-    if (!isInitialized && bikes.length > 0) {
-      if (isNew) {
-        selectDefaultBike();
-        setIsInitialized(true);
-      } else {
-        reset();
+    try {
+      console.log('useEffect initialize bike: ', bikes.length);
+      if (!isInitialized && bikes.length > 0) {
+        if (isNew) {
+          selectDefaultBike();
+          setIsInitialized(true);
+        } else {
+          reset();
+        }
       }
+    } catch (error) {
+      console.error('Error initializing maintenance item: ', error);
     }
   }, [bikes, maintenanceItem]);
   
@@ -251,31 +259,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   // const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
   // const typeOptions = types.map(type => ({ label: type, value: type }));
 
-  type BikeDropdownProps = {
-    bikes: Bike[] | null | undefined;
-    value: string;
-    readonly: boolean;
-    onSelect: (value: string) => void;
-  };
-
-  const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readonly, onSelect }) => {
-    if (!bikes) return null;
-    const bikeOptions = bikes.map(bike => ({ label: bike.name, value: ensureString(bike.id) }));
-    console.log('BikeDropdown set: ', value);
-    console.log('BikeDropdown options: ', JSON.stringify(bikeOptions));
-    return (
-      <Dropdown
-          disabled={readonly}
-          label="Bike"
-          placeholder={ensureString(value)}
-          options={bikeOptions}
-          value={ensureString(value)}
-          onSelect={(value) => selectBike(value)}
-        />
-    )
-  }
-
   const partSelected = (part: string | undefined) => {
+    console.log('partSelected: ', part);
     if (null === part) return;
     console.log('PartSelected: ', part);
     setPart(ensureString(part));
@@ -304,12 +289,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
           placeholder='Select Part'
           options={availabileParts}
           onSelect={partSelected}
+          testID="partDropdown"
         />
         <TextInput 
           label="Due Distance (miles)"
           value={dueMiles.toString()}
           disabled={readOnly}
           onChangeText={dueMilesChange}
+          testID="dueMilesInput"
        />
         <TextInput
           label={"Brand"}
@@ -337,5 +324,32 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     </Surface>
   )
 };
+
+type BikeDropdownProps = {
+  bikes: Bike[] | null | undefined;
+  value: string;
+  readonly: boolean;
+  onSelect: (value: string) => void;
+};
+
+export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readonly, onSelect }) => {
+    if (!bikes || bikes == null || bikes.length == 0) return null;
+    if (!bikes) return null;
+    console.log('BikeDropdown bikes: ', bikes);
+    console.log('BikeDropdown bikes: ', JSON.stringify(bikes));
+    const bikeOptions = bikes?.map(bike => ({ label: bike.name, value: ensureString(bike.id) }));
+    console.log('BikeDropdown set: ', value);
+    console.log('BikeDropdown options: ', JSON.stringify(bikeOptions));
+    return (
+      <Dropdown
+          disabled={readonly}
+          label="Bike"
+          placeholder={ensureString(value)}
+          options={bikeOptions}
+          value={ensureString(value)}
+          onSelect={(value) => onSelect(ensureString(value))}
+        />
+    )
+  }
 
 export default MaintenanceItemComponent;

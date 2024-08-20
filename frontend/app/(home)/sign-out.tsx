@@ -11,8 +11,12 @@ export default function SignOut() {
     session.signOut();
   }
 
-  useEffect(() => {  
-    signOut();
+  useEffect(() => {
+    try {
+      signOut();
+    } catch (error) {
+      console.log('error during logout: ', error);
+    }
   }, []);
 
   return (

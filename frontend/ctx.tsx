@@ -1,5 +1,7 @@
-import { useContext, createContext, type PropsWithChildren } from 'react';
+import { useContext, createContext, type PropsWithChildren, useEffect } from 'react';
 import { useStorageState } from './useStorageState';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { confirmLogin } from './common/utils';
 
 export const defaultAuthState = {
   signIn: (jwtToken: string, email: string) => null,
@@ -17,6 +19,8 @@ const AuthContext = createContext<{
   isLoading: boolean;
 }>(defaultAuthState);
 
+const LoginConfirmation = createContext('not-logged-in');
+
 // This hook can be used to access the user info.
 export function useSession() {
   const value = useContext(AuthContext);
@@ -27,6 +31,33 @@ export function useSession() {
   }
 
   return value;
+}
+
+function LoginConfirmationWrapper({ children }: PropsWithChildren) {
+  const session = useSession();
+  const queryClient = useQueryClient();
+  const { data, isFetching, isError } = useQuery({
+    queryKey: ['loginConfirmation'],
+    queryFn: async () => confirmLogin(session),
+    initialData: 'logged-in',
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchOnMount: true,
+    refetchInterval: 30*1000,
+  });
+
+  useEffect(() => {
+    if (session && session.jwt_token && !isFetching && ('not-logged-in' === data || isError)) {
+      console.log('Signing out.... ' + session.jwt_token + ' ' + data);
+      session.signOut();
+    }
+  }, [session, data, isFetching, isError]);
+
+  return (
+    <LoginConfirmation.Provider value={'aString'}>
+      { children }
+    </LoginConfirmation.Provider>
+  );
 }
 
 export function SessionProvider({ children }: PropsWithChildren) {
@@ -40,7 +71,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
           // Perform sign-in logic here
           setSession(jwtToken);
           setEmail(email);
-        },  
+        },
         signOut: () => {
           setSession(null);
           setEmail(null);
@@ -49,7 +80,9 @@ export function SessionProvider({ children }: PropsWithChildren) {
         email,
         isLoading,
       }}>
-      {children}
+      <LoginConfirmationWrapper>
+        {children}
+      </LoginConfirmationWrapper>
     </AuthContext.Provider>
   );
 }

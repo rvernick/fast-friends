@@ -42,14 +42,18 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = () => {
   }
 
   useEffect(() => {
-    if (code) {
-      if (session.jwt_token) {
-        updateStravaAndReturn(ensureString(code));
+    try {
+      if (code) {
+        if (session.jwt_token) {
+          updateStravaAndReturn(ensureString(code));
+        } else {
+          console.log('no token found');
+        }
       } else {
-        console.log('no token found');
+        console.log('no code found');
       }
-    } else {
-      console.log('no code found');
+    } catch (error) {
+      console.log('error during login: ', error);
     }
   }, [session]);
 

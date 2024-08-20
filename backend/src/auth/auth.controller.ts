@@ -64,6 +64,13 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Get('check-session')
+  checkSession() {
+    return { "status": 'logged-in' };
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Public()
   @Get('healthCheck')
   health() {
