@@ -9,7 +9,7 @@ export const baseUrl = () => {
 }
 
 export const getInternal = async (url: string, parameters: any, jwtToken: string) => {
-  console.log('getInternal url: ' + url);
+  // console.log('getInternal url: ' + url);
   const fullUrl = baseUrl() + url;
   return get(fullUrl, parameters, jwtToken);
 };
@@ -19,8 +19,8 @@ export const get = (url: string, parameters: any, access_token: string | null) =
   if (parameters != null && Object.keys(parameters).length > 0) {
     fullUrl = fullUrl + '?' + objToQueryString(parameters);
   }
-  console.log('fullUrl: ' + fullUrl);
-  console.log('jwtToken ' + access_token);
+  // console.log('fullUrl: ' + fullUrl);
+  // console.log('jwtToken ' + access_token);
   return fetch(fullUrl, {
     method: 'GET',
     headers: {
@@ -52,7 +52,7 @@ export const postExternal = async (urlBase: string, endpoint: string, args: Obje
   var headers = {};
   const url = urlBase + endpoint;
   const body = JSON.stringify(args);
-  console.log('Posting: ' + url + '\n' + body);
+  // console.log('Posting: ' + url + '\n' + body);
   if (jwtToken) {
     headers = {
       'Content-Type': 'application/json',

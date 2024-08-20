@@ -7,6 +7,7 @@ import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
 import { MaintenanceItem } from '@/models/MaintenanceItem';
 import MaintenanceListController from './MaintenanceListController';
+import { Dropdown } from 'react-native-paper-dropdown';
 
 type MaintenanceListProps = {
   bikes: Bike[] | null | undefined;
@@ -25,6 +26,8 @@ const MaintenanceComponent = () => {
   const router = useRouter();
   const controller = new MaintenanceListController(appContext);
   const [isUpdating, setIsUpdating] = useState(true);
+  const [sortOption, setSortOption] = useState('A-Z');
+  const [expandedBike, setExpandedBike] = useState(1);
   // const [sortOption, setSortOption] = useState('dueDate');
 
   const { status, data, error, isFetching } = useQuery({
@@ -66,52 +69,71 @@ const MaintenanceComponent = () => {
 
   type BikeAccordainProps = {
     bike: Bike;
-    forceOpen?: boolean;
+    isOpen?: boolean;
+    sortBy: string;
   };
 
-  const BikeAccordian: React.FC<BikeAccordainProps> = ({ bike, forceOpen}) => {
+  const sortOptions = ["A-Z", "Due"].map(option => ({ label: option, value: option}));
+
+  const sortItems = (items: MaintenanceItem[]): MaintenanceItem[] => {
+    if (sortOption === 'A-Z') {
+      return items.sort((a, b) => a.part.localeCompare(b.part));
+    } else if (sortOption === 'Due') {
+      return items.sort((a, b) => a.dueDistanceMeters - b.dueDistanceMeters);
+    }
+    return items;
+  }
+
+  const handleBikePress = (bikeId: number) => {
+   if (bikeId === expandedBike) {
+     setExpandedBike(0);
+   } else {
+    setExpandedBike(bikeId);
+   }
+  }
+  const BikeAccordian: React.FC<BikeAccordainProps> = ({ bike, isOpen}) => {
     if (!bike.maintenanceItems || bike.maintenanceItems.length ==0) return null;
-    console.log('forceOpen: '+ forceOpen);
-    if (forceOpen) {
-      console.log('force open: '+ forceOpen);
-      return (
+    const sortedItems = sortItems(bike.maintenanceItems);
+    return (
       <List.Accordion
-          expanded={forceOpen}
+          expanded={bike.id === expandedBike}
           title={bike.name}
           description={convertUnits(bike.odometerMeters)}
+          onPress={() => handleBikePress(bike.id)}
           key={'bike exa' + bike.id}
           id={'bike exa' + bike.id}>
-        {bike.maintenanceItems.map(maintenanceItem => (
+        {sortedItems.map(maintenanceItem => (
           <MaintenanceListItem maintenanceItem={maintenanceItem} bikeId={bike.id} key={'mlie' + maintenanceItem.id}/>
         ))}
       </List.Accordion>
-      )
-    } else {
-      return (
-        <List.Accordion
-          expanded={true}
-          title={bike.name}
-          description={convertUnits(bike.odometerMeters)}
-          key={'bikeAccordian' + bike.id}
-          id={'bikeAccordian' + bike.id}>
-        {bike.maintenanceItems.map(maintenanceItem => (
-            <MaintenanceListItem maintenanceItem={maintenanceItem} bikeId={bike.id} key={'mlie' + maintenanceItem.id}/>
-          ))}
-        </List.Accordion>
-      )
-    }
-  }
-
+    );
+  };
+  
   const MaintenanceList: React.FC<MaintenanceListProps> = ({ bikes, isUpdating }) => {
     if (!bikes || bikes == null || bikes?.length == 0) {
       return <Text>No Maintenance Items Found - Add a bike or sync with Strava</Text>
     }
     return (
-      <List.AccordionGroup >
-        {bikes?.map(bike => (
-          <BikeAccordian bike={bike} forceOpen={bikes.length == 1} key={bike.id}/>
-        ))}
-      </List.AccordionGroup>
+      <Card>
+        <Card.Title title="Sort By" right={() =>
+          <Dropdown 
+            value={sortOption}
+            options={sortOptions}
+            onSelect={(value) => setSortOption(value ? value : '')}
+            />      
+        }/>
+        <Card.Content>
+          <List.Section >
+            {bikes?.map(bike => (
+              <BikeAccordian
+                bike={bike}
+                sortBy={sortOption}
+                isOpen={bike.id === expandedBike}
+                key={bike.id}/>
+            ))}
+          </List.Section>
+        </Card.Content>
+      </Card>
     );
   };
   
@@ -174,8 +196,6 @@ const MaintenanceComponent = () => {
       />
     );
   };
-
-  const sortOptions = ["dueDate", "lastUpdate", "A-Z"].map(option => ({ label: option, value: option}));
 
   if (error) {
     return (

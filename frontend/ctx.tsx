@@ -43,7 +43,7 @@ function LoginConfirmationWrapper({ children }: PropsWithChildren) {
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
     refetchOnMount: true,
-    refetchInterval: 30*1000,
+    refetchInterval: 2*60*1000,
   });
 
   useEffect(() => {

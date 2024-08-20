@@ -34,7 +34,7 @@ export const isValidEmail = (email: string): boolean => {
 
 export async function confirmLogin(session: any): Promise<string> {
   if (session === null || session.jwt_token === null) {
-    return 'not-logged-in';
+    return '';
   }
   try {
     const result = await getInternal('/auth/check-session', {  }, session.jwt_token);
