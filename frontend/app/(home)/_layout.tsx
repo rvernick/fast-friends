@@ -1,21 +1,33 @@
-import { Redirect, Tabs } from "expo-router";
+import { router, Tabs, useLocalSearchParams } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSession } from "@/ctx";
+import { useEffect, useState } from "react";
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
 
 export default function TabLayout() {
   const session = useSession();
+  const route = useLocalSearchParams();
+  // Cannot redirect until render is finished.  Use redirect to trigger useEffect when session is not authenticated
+  const [redirected, setRedirected] = useState(false);
 
-  console.log("session: " + session.jwt_token);
-  if (!session.jwt_token) {
+  if (!session.jwt_token && !redirected) {
     // On web, static rendering will stop here as the user is not authenticated
     // in the headless Node process that the pages are rendered in.
     console.log("User not authenticated, redirecting to login");
-    return <Redirect href="/" />;
+    setRedirected(true);
   }
 
   console.log("User authenticated " + session + " " + session.email);
+
+  useEffect(() => {
+    if (!session.jwt_token) {
+    // On web, static rendering will stop here as the user is not authenticated
+    // in the headless Node process that the pages are rendered in.
+    console.log("User not authenticated, redirecting to login");
+    router.replace('/(sign-in-sign-up)/(sign-in)/sign-in')
+  }
+  }, [redirected]);
 
   return (
     <Tabs>
