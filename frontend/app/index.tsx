@@ -1,6 +1,4 @@
-import { router, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { Linking } from "react-native";
+import { router } from "expo-router";
 import { Button, useTheme, Text, Surface } from "react-native-paper";
 
 export default function Index() {

@@ -151,7 +151,11 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   }
 
   useEffect(() => {
-    userUpdated();
+    try {
+      userUpdated();
+    } catch (error) {
+      console.error('Error updating user', error);
+    }
   }, [data, isFetching]);
 
   if (isFetching) return <ActivityIndicator />;

@@ -40,6 +40,7 @@ const newBike = {
   isElectronic: false,
   odometerMeters: 0,
   maintenanceItems: [],
+  stravaId: '',
 }
 
 type MaintenanceItemProps = {
@@ -71,11 +72,11 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const partOptions = Object.entries(Part).map(([key, val]) => ({ label: val, value: val }));
   const [availabileParts, setAvailabileParts] = useState(partOptions);
 
-  const [isInitialized, setIsInitialized] = useState(isNew);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const controller = new MaintenanceItemController(appContext);
 
-  const { data: bikes, status, error, isFetching } = useQuery({
+  const { data: bikes } = useQuery({
     queryKey: ['bikes'],
     initialData: [],
     queryFn: () => controller.getBikes(session, email),
@@ -194,6 +195,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
         setBikeName(bikeById.name + ' (' + (bikeById.odometerMeters / 1609).toFixed(0) +'miles)');
         setBikeIdString(idString);
         updatePartsList(bikeById);
+        ensureDueMilageAhead();
         console.log('Selected bikeById id: ', id);
       } else {
         console.log('Bike not found: ', idString);
@@ -201,20 +203,55 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     }
   }
 
-  const reset = () => {
-    console.log('useEffect initialize maintenance item: ', maintenanceId);
-    controller.getMaintenanceItem(session, maintenanceId, email, appContext).then(item => {
-      if (item != null) {
-        resetMaintenanceItem(item);
-        setIsInitialized(true);
+  const ensureDueMilageAhead = () => {
+    if (isNew || !readOnly) {
+      const currentMiles = bike.odometerMeters / 1609;
+      const nextDueMiles = parseInt(dueMiles);
+      if (currentMiles > nextDueMiles) {
+        const forwardMiles = currentMiles + 1500;
+        setDueMiles(forwardMiles.toFixed(0));
       }
-    });
+    }
+  };
+
+  const reset = () => {
+    try {
+      console.log('useEffect initialize maintenance item: ', maintenanceId);
+      controller.getMaintenanceItem(session, maintenanceId, email, appContext).then(item => {
+        if (item != null) {
+          resetMaintenanceItem(item);
+          setIsInitialized(true);
+        }
+      });
+    } catch (error) {
+      console.error('Error initializing maintenance item: ', error);
+    }
+  };
+
+  const selectDefaultBike = () => {
+    const roomForMore = Object.keys(Part).length;
+    const defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);
+    if (defaultBike) {
+      selectBike(ensureString(defaultBike.id));
+    } else {
+      console.log('No default bike found');
+      selectBike(ensureString(bikes[0].id));
+    }
   }
 
   useEffect(() => {
-    console.log('useEffect initialize bike: ', bikes.length);
-    if (!isInitialized && bikes.length > 0) {
-      reset();
+    try {
+      console.log('useEffect initialize bike: ', bikes.length);
+      if (!isInitialized && bikes.length > 0) {
+        if (isNew) {
+          selectDefaultBike();
+          setIsInitialized(true);
+        } else {
+          reset();
+        }
+      }
+    } catch (error) {
+      console.error('Error initializing maintenance item: ', error);
     }
   }, [bikes, maintenanceItem]);
   
@@ -222,31 +259,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   // const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
   // const typeOptions = types.map(type => ({ label: type, value: type }));
 
-  type BikeDropdownProps = {
-    bikes: Bike[] | null | undefined;
-    value: string;
-    readonly: boolean;
-    onSelect: (value: string) => void;
-  };
-
-  const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readonly, onSelect }) => {
-    if (!bikes) return null;
-    const bikeOptions = bikes.map(bike => ({ label: bike.name, value: ensureString(bike.id) }));
-    console.log('BikeDropdown set: ', value);
-    console.log('BikeDropdown options: ', JSON.stringify(bikeOptions));
-    return (
-      <Dropdown
-          disabled={readonly}
-          label="Bike"
-          placeholder={ensureString(value)}
-          options={bikeOptions}
-          value={ensureString(value)}
-          onSelect={(value) => selectBike(value)}
-        />
-    )
-  }
-
   const partSelected = (part: string | undefined) => {
+    console.log('partSelected: ', part);
     if (null === part) return;
     console.log('PartSelected: ', part);
     setPart(ensureString(part));
@@ -275,12 +289,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
           placeholder='Select Part'
           options={availabileParts}
           onSelect={partSelected}
+          testID="partDropdown"
         />
         <TextInput 
           label="Due Distance (miles)"
           value={dueMiles.toString()}
           disabled={readOnly}
           onChangeText={dueMilesChange}
+          testID="dueMilesInput"
        />
         <TextInput
           label={"Brand"}
@@ -308,5 +324,32 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     </Surface>
   )
 };
+
+type BikeDropdownProps = {
+  bikes: Bike[] | null | undefined;
+  value: string;
+  readonly: boolean;
+  onSelect: (value: string) => void;
+};
+
+export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readonly, onSelect }) => {
+    if (!bikes || bikes == null || bikes.length == 0) return null;
+    if (!bikes) return null;
+    console.log('BikeDropdown bikes: ', bikes);
+    console.log('BikeDropdown bikes: ', JSON.stringify(bikes));
+    const bikeOptions = bikes?.map(bike => ({ label: bike.name, value: ensureString(bike.id) }));
+    console.log('BikeDropdown set: ', value);
+    console.log('BikeDropdown options: ', JSON.stringify(bikeOptions));
+    return (
+      <Dropdown
+          disabled={readonly}
+          label="Bike"
+          placeholder={ensureString(value)}
+          options={bikeOptions}
+          value={ensureString(value)}
+          onSelect={(value) => onSelect(ensureString(value))}
+        />
+    )
+  }
 
 export default MaintenanceItemComponent;

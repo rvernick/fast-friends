@@ -32,6 +32,24 @@ export const isValidEmail = (email: string): boolean => {
     email.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/) != null);
 }
 
+export async function confirmLogin(session: any): Promise<string> {
+  if (session === null || session.jwt_token === null) {
+    return '';
+  }
+  try {
+    const result = await getInternal('/auth/check-session', {  }, session.jwt_token);
+    if (result.status === 'logged-in') {
+      return 'logged-in';
+    } else {
+      console.log('Failed to check session with get: ' + result.ok + JSON.stringify(result));
+      return 'not-logged-in';
+    }
+  } catch (error) {
+    console.log('Failed to check session: ' + error);
+    return 'not-logged-in';
+  }
+}
+
 export async function login(username: string, password: string, appContext: AppContext) {
   console.log('Logging in... ' + appContext);
   console.log('Logging in... ' + appContext.getEmail());

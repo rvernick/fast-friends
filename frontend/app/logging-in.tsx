@@ -7,9 +7,13 @@ export default function LoggingIn() {
   const session = useSession();
  
   useEffect(() => {
-    console.log('redirecting if: ', session.jwt_token);
-    if (session.jwt_token != null) {
-      router.replace('/(home)');
+    try {
+      console.log('redirecting if: ', session.jwt_token);
+      if (session.jwt_token != null) {
+        router.replace('/(home)');
+      }
+    } catch (error) {
+      console.log('error during login: ', error);
     }
   }, [session]);
 

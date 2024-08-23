@@ -10,6 +10,9 @@ export class UpdateBikeDto {
   @IsString()
   name: string;
 
+  @IsNumber()
+  odometerMeters: number;
+  
   @IsString()
   type: string;
   

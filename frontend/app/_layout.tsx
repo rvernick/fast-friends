@@ -1,4 +1,4 @@
-import { Slot } from 'expo-router';
+import { router, Slot } from 'expo-router';
 import { SessionProvider } from "../ctx";
 import {
   adaptNavigationTheme,
@@ -18,6 +18,7 @@ import { Colors } from "../constants/Colors";
 import { useColorScheme } from 'react-native';
 import { GlobalStateProvider } from '@/common/GlobalContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ErrorBoundary from 'react-native-error-boundary';
 
 const customDarkTheme = { ...MD3DarkTheme, colors: Colors.dark };
 const customLightTheme = { ...MD3LightTheme, colors: Colors.light };
@@ -30,6 +31,15 @@ const { LightTheme, DarkTheme } = adaptNavigationTheme({
 const CombinedLightTheme = merge(LightTheme, customLightTheme);
 const CombinedDarkTheme = merge(DarkTheme, customDarkTheme);
 
+const onError = (error: Error, stackTrace: string) => {
+  console.error(error, stackTrace);
+};
+
+const retry = async () => {
+  console.log('Retrying... after an error occurred');
+  router.replace('/');
+}
+
 export default function RootLayout() {
   const systemColorScheme = useColorScheme();
   const colorScheme = systemColorScheme === 'dark' ? CombinedDarkTheme : CombinedLightTheme;
@@ -37,16 +47,18 @@ export default function RootLayout() {
   
   console.log(systemColorScheme);
   return (
-    <PaperProvider theme={colorScheme}> 
-      <ThemeProvider value={colorScheme}>
-        <QueryClientProvider client={queryClient}>
-          <SessionProvider>
-            <GlobalStateProvider>
-              <Slot />
-            </GlobalStateProvider>
-          </SessionProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </PaperProvider>
+    <ErrorBoundary onError={onError}>
+      <PaperProvider theme={colorScheme}> 
+        <ThemeProvider value={colorScheme}>
+          <QueryClientProvider client={queryClient}>
+            <SessionProvider>
+              <GlobalStateProvider>
+                <Slot />
+              </GlobalStateProvider>
+            </SessionProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
+      </PaperProvider>
+    </ErrorBoundary>
   )
 }

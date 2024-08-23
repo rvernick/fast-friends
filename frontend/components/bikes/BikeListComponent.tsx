@@ -44,7 +44,7 @@ const BikeListComponent = () => {
     return (
     <List.Section>
           {bikes && bikes.length > 0? (
-            bikes.map(bike => (
+            bikes?.map(bike => (
               <List.Item key={bike.id} title={bike.name} description={bike.type}
                 onPress={() => editBike(bike.id)}/>
           ))) : (
