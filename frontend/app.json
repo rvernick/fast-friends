@@ -13,13 +13,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "biz.fastfriends"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "biz.fastfriends"
     },
     "web": {
       "bundler": "metro",
@@ -28,7 +30,13 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "react-native-auth0",
+        {
+          "domain": "https://dev-v0lrn3tnvlx6uq3n.us.auth0.com"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

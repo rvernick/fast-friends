@@ -2,13 +2,19 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  InternalServerErrorException,
+  SetMetadata,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
-import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
-import { SetMetadata } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Request, Response } from 'express';
+import {
+  auth,
+  InvalidTokenError,
+  UnauthorizedError,
+} from 'express-oauth2-jwt-bearer';
+import { promisify } from 'util';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
@@ -21,39 +27,34 @@ export class AuthGuard implements CanActivate {
     if (await this.isPublic(context)) {
       return true;
     }
-    return this.isTokenValid(context);
+    const request = context.switchToHttp().getRequest<Request>();
+    const response = context.switchToHttp().getResponse<Response>();
+
+    const validateAccessToken = promisify(auth());
+
+    try {
+      await validateAccessToken(request, response);
+
+      return true;
+    } catch (error) {
+      if (error instanceof InvalidTokenError) {
+        throw new UnauthorizedException('Bad credentials');
+      }
+
+      if (error instanceof UnauthorizedError) {
+        throw new UnauthorizedException('Requires authentication');
+      }
+
+      throw new InternalServerErrorException();
+    }
   }
 
-  async isPublic(context: ExecutionContext): Promise<boolean> {
+  private async isPublic(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
 
     return isPublic;
-  }
-
-  async isTokenValid(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      throw new UnauthorizedException();
-    }
-    try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: jwtConstants.secret,
-      });
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
-      request['user'] = payload;
-    } catch {
-      throw new UnauthorizedException();
-    }
-    return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }

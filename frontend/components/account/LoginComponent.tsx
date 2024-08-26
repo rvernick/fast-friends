@@ -6,9 +6,15 @@ import { baseUrl } from "../../common/http-utils";
 import { Button, HelperText } from "react-native-paper";
 import { router } from "expo-router";
 import { Card, TextInput, Surface } from 'react-native-paper';
+import { useAuth0 } from "react-native-auth0";
+import * as WebBrowser from 'expo-web-browser';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export const LoginComponent = () => {
   const appContext = useGlobalContext();
+  const { authorize } = useAuth0();
+  
   var user = '';
   var pword = '';
 
@@ -59,6 +65,16 @@ export const LoginComponent = () => {
       });
   };
 
+  const onLogin = async () => {
+    try {
+      console.log('Logging in with Auth0...');
+      await authorize();
+      console.log('Logged in with Auth0');
+    } catch (e) {
+      console.log('authorize failed' + e);
+    }
+  };
+
   return (
     <Surface>
         <Card>
@@ -78,10 +94,13 @@ export const LoginComponent = () => {
               <Button mode="contained" onPress={loginButton}>
                 Confirm
               </Button>
-              <Button onPress={() => router.push('password-reset')}>
+              <Button onPress={onLogin}>
+                Sign In with Auth0
+              </Button>
+              <Button onPress={() => router.push('/(sign-in)/password-reset')}>
               Forgot email/password
               </Button>
-              <Button onPress={() => router.replace('sign-up')}>
+              <Button onPress={() => router.replace('/(sign-in-sign-up)/sign-up')}>
                 Sign Up
               </Button>
           </Card.Content>

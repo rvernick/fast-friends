@@ -1,5 +1,6 @@
 import { getInternal, post } from "./http-utils";
 import AppContext from "./app-context";
+import { Credentials } from "react-native-auth0";
 
 export const strippedPhone = (formattedPhone: string) => {
   if (!formattedPhone) {
@@ -32,12 +33,12 @@ export const isValidEmail = (email: string): boolean => {
     email.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/) != null);
 }
 
-export async function confirmLogin(session: any): Promise<string> {
-  if (session === null || session.jwt_token === null) {
+export async function confirmLogin(session: Credentials | undefined): Promise<string> {
+  if (!session || session === null || session.accessToken === null) {
     return '';
   }
   try {
-    const result = await getInternal('/auth/check-session', {  }, session.jwt_token);
+    const result = await getInternal('/auth/check-session', {  }, session.accessToken);
     if (result.status === 'logged-in') {
       return 'logged-in';
     } else {
