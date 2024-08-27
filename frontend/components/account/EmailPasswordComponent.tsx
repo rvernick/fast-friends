@@ -73,7 +73,7 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
     if (msg) {
       setEmailErrorMessage(msg);
     } else {
-      router.replace('sign-in');
+      router.replace('/sign-in');
     }
   };
 
