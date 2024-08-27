@@ -78,10 +78,10 @@ export const LoginComponent = () => {
               <Button mode="contained" onPress={loginButton}>
                 Confirm
               </Button>
-              <Button onPress={() => router.push('password-reset')}>
-              Forgot email/password
+              <Button onPress={() => router.push('/(sign-in)/password-reset')}>
+                Forgot email/password
               </Button>
-              <Button onPress={() => router.replace('sign-up')}>
+              <Button onPress={() => router.replace('/(sign-in-sign-up)/sign-up')}>
                 Sign Up
               </Button>
           </Card.Content>
