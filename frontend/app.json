@@ -1,11 +1,12 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "Fast Friends",
+    "slug": "fast-friends",
+    "owner": "fast-friends",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "biz.fastfriends",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -19,7 +20,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "biz.fastfriends"
     },
     "web": {
       "bundler": "metro",
@@ -28,10 +30,25 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "./plugins/withAndroidManifest",
+          {
+            "android:showWhenLocked": true,
+            "android:turnScreenOn": true
+          }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "21616515-6293-4025-b6c8-56e8faabefb5"
+      }
     }
   }
 }
