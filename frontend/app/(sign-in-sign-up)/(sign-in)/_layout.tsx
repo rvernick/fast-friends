@@ -11,7 +11,7 @@ export default function Layout() {
           title: "Sign In",
           headerShown: false,
         }} />
-      <Stack.Screen name="forgot-password" options={{
+      <Stack.Screen name="password-reset" options={{
         title: 'Password Reset',
         headerShown: false,
       }} />

@@ -7,11 +7,11 @@ import { useSession } from "@/ctx";
 export default function Layout() {
   return (
     <Stack >
-      <Stack.Screen name="maintenanceItems" options={{
+      <Stack.Screen name="maintenance" options={{
           title: "Maintenance Items",
           headerShown: false,
         }} />
-      <Stack.Screen name="[maintenanceItem]" options={{
+      <Stack.Screen name="[maintenanceid]" options={{
         title: 'Maintenance Item',
         headerShown: true,
       }} />
