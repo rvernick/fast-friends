@@ -25,21 +25,4 @@ module.exports = function withSetPlaceholders(config) {
     return config;
   })
 
-  // return withAndroidManifest(config, async config => {
-  //   let androidManifest = config.modResults.manifest
-
-  //   androidManifest["data"]
-    
-  //   // add remove property to the audio record permission
-  //   androidManifest["uses-permission"] = androidManifest["uses-permission"].map(
-  //     perm => {
-  //       if (perm.$["android:name"] === "android.permission.RECORD_AUDIO") {
-  //         perm.$["tools:node"] = "remove"
-  //       }
-  //       return perm
-  //     }
-  //   )
-
-  //   return config
-  // })
 }
