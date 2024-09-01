@@ -3,7 +3,7 @@ import { Button, useTheme, Text, Surface } from "react-native-paper";
 
 export default function Index() {
   const theme = useTheme();
-  const signIn = () => { router.replace("/sign-in") };
+  const signIn = () => { router.replace("/(sign-in-sign-up)/(sign-in)/sign-in") };
   
   return (
     <Surface

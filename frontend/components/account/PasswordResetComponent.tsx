@@ -22,7 +22,7 @@ export const PasswordResetComponent = () => {
   return (
     <Surface>
       <Card>
-        <Card.Title title="New Account"></Card.Title>
+        <Card.Title title="Send Password Reset"></Card.Title>
         <Card.Content>
           <TextInput value={email} onChangeText={updateEmail} placeholder="Email" />
           <Button 
