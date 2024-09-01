@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "Fast Friends",
+    "slug": "fast-friends",
+    "owner": "fast-friends",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -13,13 +14,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "biz.fastfriends"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "biz.fastfriends"
     },
     "web": {
       "bundler": "metro",
@@ -28,10 +31,24 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "./plugins/withSetPlaceholders.js"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "21616515-6293-4025-b6c8-56e8faabefb5"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/21616515-6293-4025-b6c8-56e8faabefb5"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

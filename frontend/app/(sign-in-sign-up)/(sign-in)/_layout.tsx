@@ -1,6 +1,7 @@
-import { Redirect, Stack, Tabs } from "expo-router";
+import { Redirect, Stack, Tabs, router } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSession } from "@/ctx";
+import { Button } from "react-native-paper";
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
 
@@ -9,11 +10,13 @@ export default function Layout() {
     <Stack >
       <Stack.Screen name="sign-in" options={{
           title: "Sign In",
-          headerShown: false,
+          headerShown: true,
         }} />
-      <Stack.Screen name="forgot-password" options={{
+      <Stack.Screen name="password-reset" options={{
         title: 'Password Reset',
-        headerShown: false,
+        
+        headerLeft: () => <Button onPress={() => router.back()} icon="arrow-left">{""}</Button>,
+
       }} />
     </Stack>
   );

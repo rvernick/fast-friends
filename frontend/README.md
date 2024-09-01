@@ -42,6 +42,19 @@ Install Frontend package.json
 npm run reset-project
 ```
 
+Building:
+For testing
+```
+eas build -p android --profile development
+```
+Checking that the plugins work:
+```
+npx expo prebuild -p android --clean
+```
+BTW, we have an expo plugin for adding a manifest placeholder to the build.grails file (needed for Strava OAuth use)
+
+https://expo.dev/accounts/fast-friends/projects/fast-friends
+
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
 ## Learn more
@@ -67,10 +80,13 @@ Started with the following steps:
 npx create-expo-app@latest
 cd frontend/
 npm i @tanstack/react-query
-npm install react-native-safe-area-context
+# npm install react-native-safe-area-context
 npx expo install expo-secure-store
 npm run reset-project
 npm install react-native-paper
-npm i react-native-app-auth
+# npm i react-native-app-auth
+npm i react-native-error-boundary
+npm i @react-native-async-storage/async-storage
+npm i react-native-paper-dropdown
 ```
 Tweaked index and layout files to incorporate light/dark modes and most of the theme info

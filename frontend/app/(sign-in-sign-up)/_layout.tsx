@@ -12,7 +12,7 @@ export default function SignInSignUp() {
         name="(sign-in)"
         options={{
           title: "Sign In",
-          headerShown: true,
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="login" color={color} />
           ),
