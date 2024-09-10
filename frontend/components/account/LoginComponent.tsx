@@ -12,7 +12,7 @@ export const LoginComponent = () => {
   var user = '';
   var pword = '';
 
-  if (baseUrl().includes('localhost:')) {
+  if (baseUrl().includes('localhost:') || baseUrl().includes('')) {
     user = 't5@t.com';
     pword = 'h@ppyHappy';
   }

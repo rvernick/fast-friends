@@ -1,6 +1,10 @@
+import { Platform } from "react-native";
 
 export const baseUrl = () => {
-  var defaultBase = 'http://localhost:4000';
+  var defaultBase = 'http://10.0.2.2:4000';  // Android emulator
+  if (Platform.OS === 'web') {
+    defaultBase = 'http://localhost:4000';
+  }
   if (process.env.NODE_ENV === 'production') {
     defaultBase = 'https://fast-friends-be.onrender.com';
   }
@@ -52,7 +56,7 @@ export const postExternal = async (urlBase: string, endpoint: string, args: Obje
   var headers = {};
   const url = urlBase + endpoint;
   const body = JSON.stringify(args);
-  // console.log('Posting: ' + url + '\n' + body);
+  console.log('Posting: ' + url + '\n' + body);
   if (jwtToken) {
     headers = {
       'Content-Type': 'application/json',

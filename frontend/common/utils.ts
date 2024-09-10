@@ -51,8 +51,8 @@ export async function confirmLogin(session: any): Promise<string> {
 }
 
 export async function login(username: string, password: string, appContext: AppContext) {
-  console.log('Logging in... ' + appContext);
-  console.log('Logging in... ' + appContext.getEmail());
+  console.log('Logging in... ' + username);
+  console.log('Logging in... ' + password);
 
   const args = {
     username: username,
