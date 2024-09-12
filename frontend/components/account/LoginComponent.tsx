@@ -3,7 +3,7 @@ import { GestureResponderEvent, NativeSyntheticEvent, Platform, TextInputChangeE
 import { useGlobalContext } from "../../common/GlobalContext";
 import { forget, login, remind } from "../../common/utils";
 import { baseUrl } from "../../common/http-utils";
-import { Button, HelperText, Text } from "react-native-paper";
+import { ActivityIndicator, Button, HelperText, Text } from "react-native-paper";
 import { router } from "expo-router";
 import { Card, TextInput, Surface } from 'react-native-paper';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -137,9 +137,9 @@ export const LoginComponent = () => {
     if (!canUseFaceId) {
       confirmUseFaceRecognition();
     }
-  }, []);
+  }, [useFaceRecognition, canUseFaceId]);
 
-  if (useFaceRecognition) {
+  if (useFaceRecognition && canUseFaceId) {
     return (
       <Surface>
         <Text>Face Recognition</Text>
@@ -148,25 +148,31 @@ export const LoginComponent = () => {
   }
   return (
     <Surface>
+      <ActivityIndicator animating={useFaceRecognition} testID="activity"></ActivityIndicator>
         <Card>
           <Card.Title title="Fast Friends"></Card.Title>
           <Card.Content>
               <TextInput
-                label="Email"
-                keyboardType="email-address"
-                onChangeText={updateEmail}
-                testID="emailInput"/>
+                  label="Email"
+                  keyboardType="email-address"
+                  onChangeText={updateEmail}
+                  testID="emailInput"/>
               <TextInput label="Password"
-                secureTextEntry={true}
-                onChangeText={updatePassword}
-                onSubmitEditing={loginSubmit}
-                testID="passwordInput"/>
-              <HelperText type="error" visible={loginErrorMessage.length > 0}>{loginErrorMessage}</HelperText>
+                  secureTextEntry={true}
+                  onChangeText={updatePassword}
+                  onSubmitEditing={loginSubmit}
+                  testID="passwordInput"/>
+              <HelperText 
+                  type="error"
+                  visible={loginErrorMessage.length > 0}
+                  testID="loginError">
+                {loginErrorMessage}
+              </HelperText>
               <Button mode="contained" onPress={loginButton}>
                 Confirm
               </Button>
               <Button onPress={() => router.push('/(sign-in)/password-reset')}>
-              Forgot email/password
+                Forgot email/password
               </Button>
               <Button onPress={() => router.replace('/(sign-in-sign-up)/sign-up')}>
                 Sign Up

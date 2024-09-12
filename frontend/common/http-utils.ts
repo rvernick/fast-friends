@@ -2,6 +2,7 @@ import { Platform } from "react-native";
 
 export const baseUrl = () => {
   var defaultBase = 'http://10.0.2.2:4000';  // Android emulator
+  defaultBase = 'https://fast-friends-be.onrender.com';
   if (Platform.OS === 'web') {
     defaultBase = 'http://localhost:4000';
   }
