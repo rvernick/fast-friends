@@ -85,7 +85,6 @@ export const LoginComponent = () => {
     }
   }
 
-
   const confirmUseFaceRecognition = async () => {
     if (!isMobile) {
       setUseFaceRecognition(false);
@@ -97,8 +96,7 @@ export const LoginComponent = () => {
     const hasBiometrics = await LocalAuthentication.isEnrolledAsync();
     const lastUser =  await remind('ff.username');
     const lastPass = await remind('ff.password');
-    if ( !isMobile
-      || !hasHardware
+    if ( !hasHardware
       || !hasBiometrics
       || !types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)
       || !(lastUser && lastUser.length > 0)
