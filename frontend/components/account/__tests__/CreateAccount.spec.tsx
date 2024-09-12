@@ -12,32 +12,33 @@ const createController = () => {
 }
 
 describe('CreateAccount Component', () => {
-  it('displays an error message for invalid email', () => {
-    const { getByTestId, getByText, findByText, queryByText } = render(
+  it('displays an error message for invalid email', async () => {
+    const { findByTestId, queryByText, findByText } = render(
       <ProviderWrapper>
         <EmailPasswordComponent controller={createController()}/>
       </ProviderWrapper>
     );
 
-    // const emailForm = getByTestId('emailForm');
-    const emailInput = getByTestId('emailInput');
+    // const emailForm = await findByTestId('emailForm');
+    const emailInput = await findByTestId('emailInput');
     // console.log('emailInput: ' + emailInput);
     // console.log('query by: ' + queryByText('Please enter valid email'));
     expect(queryByText('Please enter valid email')).toBeNull();
     fireEvent.changeText(emailInput, 'testwithoutAmpersand');
     fireEvent(emailInput, 'blur');
+    const errorText = await findByText('Please enter valid email');
     // console.log('emailInput: ' + emailInput);
-    expect(queryByText('Please enter valid email')).not.toBeNull();
+    expect(errorText).not.toBeNull();
   });
 
-  it('displays an error message for invalid password', () => {
-    const { getByTestId, queryByText } = render(
+  it('displays an error message for invalid password', async () => {
+    const { findByTestId, queryByText } = render(
       <ProviderWrapper>
         <EmailPasswordComponent controller={createController()}/>
       </ProviderWrapper>
     );
 
-    const passwordInput = getByTestId('passwordInput');
+    const passwordInput = await findByTestId('passwordInput');
     expect(queryByText(invalidPasswordMessage)).toBeNull();
     fireEvent.changeText(passwordInput, 'tooShort');
     fireEvent(passwordInput, 'blur');

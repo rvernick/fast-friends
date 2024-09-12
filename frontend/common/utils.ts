@@ -1,5 +1,8 @@
 import { getInternal, post } from "./http-utils";
 import AppContext from "./app-context";
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const strippedPhone = (formattedPhone: string) => {
   if (!formattedPhone) {
@@ -11,6 +14,34 @@ export const strippedPhone = (formattedPhone: string) => {
 export const isValidPhone = (phone: string) => {
   return strippedPhone(phone).length == 10;
 };
+
+export const isMobile = (): boolean => {
+  return Platform.OS === 'android' || Platform.OS === 'ios';
+}
+
+export const remember = (key: string, value: string) => {
+  if (isMobile()) {
+    SecureStore.setItemAsync(key, value);
+  } else {
+    AsyncStorage.setItem(key, value);
+  }
+}
+
+export const forget = (key: string) => {
+  if (isMobile()) {
+    SecureStore.deleteItemAsync(key);
+  } else {
+    AsyncStorage.removeItem(key);
+  }
+}
+
+export const remind = async (key: string): Promise<string> => {
+  if (isMobile()) {
+    return ensureString(SecureStore.getItem(key));
+  } else {
+    return ensureString(await AsyncStorage.getItem(key));
+  }
+}
 
 /**
  * ensures password is at least 8 characters long
@@ -51,8 +82,8 @@ export async function confirmLogin(session: any): Promise<string> {
 }
 
 export async function login(username: string, password: string, appContext: AppContext) {
-  console.log('Logging in... ' + appContext);
-  console.log('Logging in... ' + appContext.getEmail());
+  console.log('Logging in... ' + username);
+  console.log('Logging in... ' + password);
 
   const args = {
     username: username,
@@ -69,6 +100,10 @@ export async function login(username: string, password: string, appContext: AppC
         resp.json().then(body => {
           console.log('setting appContext.jwtToken to:' + body);
           console.log('body ' + body.access_token);
+          if (isMobile()) {
+            remember("ff.username", username);
+            remember("ff.password", password);
+          }
           appContext.signIn(body.access_token, username);
           console.log('setting appContext.email to:'+ username);
           return '';

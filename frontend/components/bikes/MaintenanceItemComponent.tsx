@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { Button, TextInput, ActivityIndicator, Card, Surface } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
@@ -52,6 +52,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const session = useSession();
   const queryClient = useQueryClient();
   const appContext = useGlobalContext();
+  const router = useNavigation();
   const email = session.email ? session.email : '';
   const searchParams = useLocalSearchParams();
 
@@ -113,7 +114,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     if (await controller.deleteMaintenanceItem(session, email, maintenanceItem.id)) {
       bike.maintenanceItems = bike.maintenanceItems.filter(mi => mi.id!== maintenanceItem.id);
       queryClient.removeQueries({ queryKey: ['bikes'] });
-      router.back();
+      router.goBack();
     }
   }
 
@@ -192,7 +193,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       if (bikeById) {
         console.log('Selected bike id: ', id);
         setBike(bikeById);
-        setBikeName(bikeById.name + ' (' + (bikeById.odometerMeters / 1609).toFixed(0) +'miles)');
+        const title = bikeById.name + ' (' + (bikeById.odometerMeters / 1609).toFixed(0) +' miles)'
+        setBikeName(title);
         setBikeIdString(idString);
         updatePartsList(bikeById);
         ensureDueMilageAhead();
@@ -275,11 +277,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     }
   }
 
+  useEffect(() => {
+    router.setOptions({ title: ensureString(part) +' : '+ bikeName });
+  }), [part, bikeName];
+
   return (
     <Surface>
       <ActivityIndicator animating={!isInitialized} />
       <Card>
-        <Card.Title title={ 'Maintenance Item for: ' + bikeName } />
         <BikeDropdown bikes={bikes} value={bikeIdString} readonly={readOnly || !isNew} onSelect={selectBike} />
         <Dropdown
           label="Part"

@@ -1,6 +1,5 @@
-import { Redirect, Stack, Tabs } from "expo-router";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useSession } from "@/ctx";
+import { router, Stack } from "expo-router";
+import { Button } from "react-native-paper";
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
 
@@ -13,7 +12,7 @@ export default function Layout() {
         }} />
       <Stack.Screen name="[maintenanceid]" options={{
         title: 'Maintenance Item',
-        headerShown: true,
+        headerLeft: () => <Button onPress={() => router.back()} icon="arrow-left">{""}</Button>,
       }} />
     </Stack>
   );

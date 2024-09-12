@@ -6,6 +6,7 @@ import { SessionProvider } from "../ctx";
 import { Colors } from "../constants/Colors";
 import { useColorScheme } from 'react-native';
 import { ReactNode } from "react";
+import ErrorBoundary from 'react-native-error-boundary';
 
 interface ProviderWrapperProps {
   children: ReactNode;
@@ -24,15 +25,21 @@ export const ProviderWrapper = ({ children }: ProviderWrapperProps) => {
     insets: { top: 0, left: 0, right: 0, bottom: 0 },
   };
 
+  const onError = (error: Error, stackTrace: string) => {
+    console.error(error, stackTrace);
+  };
+
   return (
-    <PaperProvider theme={colorScheme}>
-      <QueryClientProvider client={queryClient}>
-        <SessionProvider>
-          <GlobalStateProvider>
-            {children}
-          </GlobalStateProvider>
-        </SessionProvider>
-      </QueryClientProvider>
-    </PaperProvider>
+    <ErrorBoundary onError={onError}>
+      <PaperProvider theme={colorScheme}>
+        <QueryClientProvider client={queryClient}>
+          <SessionProvider>
+            <GlobalStateProvider>
+              {children}
+            </GlobalStateProvider>
+          </SessionProvider>
+        </QueryClientProvider>
+      </PaperProvider>
+    </ErrorBoundary>
   );
 };

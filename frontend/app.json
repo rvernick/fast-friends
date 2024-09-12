@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "biz.fastfriends"
+      "bundleIdentifier": "biz.fastfriends",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -34,6 +37,12 @@
       "expo-secure-store",
       [
         "./plugins/withSetPlaceholders.js"
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow FastFriends to use Face ID."
+        }
       ]
     ],
     "experiments": {

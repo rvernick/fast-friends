@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
-import { useRouter } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
 import { Button, Card, List, Text, useTheme, Surface } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
@@ -24,6 +24,7 @@ const MaintenanceComponent = () => {
   const email = session.email ? session.email : '';
   const appContext = useGlobalContext();
   const router = useRouter();
+  const navigation = useNavigation();
   const controller = new MaintenanceListController(appContext);
   const [isUpdating, setIsUpdating] = useState(true);
   const [sortOption, setSortOption] = useState('A-Z');
@@ -196,6 +197,10 @@ const MaintenanceComponent = () => {
       />
     );
   };
+
+  useEffect(() => {
+    navigation.setOptions({ title: 'Maintenance' });
+  });
 
   if (error) {
     return (

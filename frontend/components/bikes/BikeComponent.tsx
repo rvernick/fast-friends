@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { router, useLocalSearchParams } from "expo-router";
-import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface } from "react-native-paper";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface, Appbar } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
 import { ensureString } from "@/common/utils";
+import AppbarHeader from "react-native-paper/lib/typescript/components/Appbar/AppbarHeader";
 
 const groupsetBrands = [
   'Shimano',
@@ -31,6 +32,8 @@ type BikeProps = {
 
 const BikeComponent: React.FC<BikeProps> = () => {
   const session = useSession();
+  const navigation = useNavigation();
+  
   const email = session.email ? session.email : '';
 
   const appContext = useGlobalContext();
@@ -69,6 +72,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
   const resetBike = (bike: Bike) => {
     console.log('reset bike: ' + JSON.stringify(bike));
     setBikeName(ensureString(bike.name));
+    navigation.setOptions({ title: ensureString(bike.name) });
     setType(ensureString(bike.type));
     setGroupsetBrand(ensureString(bike.groupsetBrand));
     setSpeeds(ensureString(bike.groupsetSpeed));
@@ -119,6 +123,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
 
   const updateName = (name: string) => {
     setBikeName(name);
+    navigation.setOptions({ title: name });
     setErrorMessage('');
   }
 
@@ -145,9 +150,8 @@ const BikeComponent: React.FC<BikeProps> = () => {
 
   return (
     <Surface>
-      <ActivityIndicator animating={!isInitialized} />
+      <ActivityIndicator animating={!isInitialized} />      
       <Card>
-        <Card.Title title={ bikeName || 'New Bike'} />
         <TextInput label="Name" readOnly={readOnly}
           value={bikeName}
           onChangeText={updateName}
