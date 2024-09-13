@@ -34,3 +34,16 @@ npm run reset-project
 npm install react-native-paper
 ```
 Tweaked index and layout files to incorporate light/dark modes and most of the theme info
+
+For testing, Installed Detox and upgraded things:
+
+https://docs.expo.dev/archive/e2e-tests/
+also installed/upgraded cocoapods
+```
+npx expo prebuild --clean
+npm install --safe-dev @config-plugins/detox
+gem install cocoapods
+npx expo prebuild --clean
+```
+
+

@@ -57,6 +57,8 @@ https://expo.dev/accounts/fast-friends/projects/fast-friends
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
+E2E testing worked for Android build using the on-success hook implementation.  Need to fix for iOS still.
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:

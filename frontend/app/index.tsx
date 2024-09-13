@@ -18,7 +18,7 @@ export default function Index() {
       <Text>We'll think about your bike needs so you don't have to</Text>
       <Text> </Text>
       <Text> </Text>
-      <Button icon="bike-fast" mode="contained" onPress={signIn}>
+      <Button icon="bike-fast" mode="contained" onPress={signIn} testID="getStarted">
         Get Started
       </Button>
     </Surface>
