@@ -6,6 +6,8 @@ import { useRouter } from 'expo-router';
 import { Button, List, Text, Surface } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
+import { styles } from '@/common/styles';
+import { ScrollView } from 'react-native';
 
 type BikeListProps = {
   bikes: Bike[] | undefined;
@@ -69,10 +71,13 @@ const BikeListComponent = () => {
       </Text>
     )
   }
+
   return (
     <Surface>
+      <ScrollView style={styles.containerOneBottom}>
         <BikeList bikes={data} isUpdating={isUpdating}/>
-        <Button mode="contained" onPress={addBike}> Add Bike</Button>
+      </ScrollView>
+      <Button mode="contained" onPress={addBike}> Add Bike</Button>
     </Surface>
   );
 };

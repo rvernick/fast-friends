@@ -4,6 +4,7 @@ import AppController from "../../common/AppController";
 import { authorize } from 'react-native-app-auth';
 import { getBaseUrl, post, postExternal } from "../../common/http-utils";
 import { stravaBase } from "../strava/utils";
+import { isMobile } from "@/common/utils";
 
 class StravaController extends AppController {
 
@@ -107,11 +108,10 @@ class StravaController extends AppController {
   async linkToStrava(session: any) {
     console.log('Sending account to Strava for linking... ');
 
-    if (Platform.OS === 'web') {
-      console.log('Platform.OS:'+ Platform.OS);
-      this.linkToStravaWeb(session);
-    } else {
+    if (isMobile()) {
       this.linkToStravaMobile(session);
+    } else {
+      this.linkToStravaWeb(session);
     }
   }
 
