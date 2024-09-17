@@ -5,6 +5,8 @@ import { authorize } from 'react-native-app-auth';
 import { getBaseUrl, post, postExternal } from "../../common/http-utils";
 import { stravaBase } from "../strava/utils";
 import { isMobile } from "@/common/utils";
+import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 
 class StravaController extends AppController {
 
@@ -175,42 +177,75 @@ class StravaController extends AppController {
 
 
   /*
-  * Connect to strava using: FormidableLabs SDK
-  * https://github.com/FormidableLabs/react-native-app-auth/blob/main/docs/config-examples/strava.md
+  * switch to: https://docs.expo.dev/guides/authentication/#strava
   */
   async linkToStravaMobile(session: any) {
     const appContext = this.appContext;
     const stravaId = await appContext.getStravaClientId(session);
-    const replyUrl = await this.getLocationBaseUrl();
-    const redirectUri = replyUrl + '/strava-reply';
-    const config = {
-      clientId: await appContext.getStravaClientId(session),
-      clientSecret: await appContext.getStravaClientSecret(session),
-      redirectUrl: redirectUri,
-      serviceConfiguration: {
-        authorizationEndpoint: 'https://www.strava.com/oauth/cellPhone/authorize',
-        tokenEndpoint:
-          'https://www.strava.com/oauth/token?client_id=CLIENT_ID&client_secret=CLIENT_SECRET',
-      },
-      scopes: ['read_all,profile:read_all,activity:read_all'],
+    const stravaSecret = await appContext.getStravaClientSecret(session);
+
+    WebBrowser.maybeCompleteAuthSession();
+
+    // Endpoint
+    const discovery = {
+      authorizationEndpoint: 'https://www.strava.com/oauth/mobile/authorize',
+      tokenEndpoint: 'https://www.strava.com/oauth/token',
+      revocationEndpoint: 'https://www.strava.com/oauth/deauthorize',
     };
+    const [request, response, promptAsync] = useAuthRequest(
+      {
+        clientId: stravaId,
+        scopes: ['read_all,profile:read_all,activity:read_all'],
+        redirectUri: makeRedirectUri({
+          // the "redirect" must match your "Authorization Callback Domain" in the Strava dev console.
+          native: 'biz.fastfriends://strava-reply',
+        }),
+      },
+      discovery
+    );
 
     try {
-      const authState = authorize(config);
-      authState.then((authState) => {
-        console.log('authState: ' + authState);
-        console.log(authState);
-        console.log(authState.authorizationCode);
-        console.log(authState.accessToken);
-        console.log(authState.refreshToken);
-        console.log(authState.idToken);
-        console.log(authState.accessTokenExpirationDate);
-      }).catch((error) => {
-        console.log(error);
-      });
+    const result = await promptAsync();
+    console.log('Result: ', result);
+    console.log('Response: ', JSON.stringify(response));
     } catch (error) {
-      console.log(error);
+      console.error('Error during authorization', error);
+      return;
     }
+
+//     const replyUrl = await this.getLocationBaseUrl();
+//     const redirectUri =  'biz.fastfriends://strava-reply';
+// // &code=${authState.authorizationCode}&grant_type
+//     const tokenEndpoint = `https://www.strava.com/oauth/token?client_id=${stravaId}&client_secret=${stravaSecret}`    
+//     const config = {
+//       clientId: stravaId,
+//       clientSecret: stravaSecret,
+//       redirectUrl: redirectUri,
+//       serviceConfiguration: {
+//         authorizationEndpoint: 'https://www.strava.com/oauth/mobile/authorize',
+//         tokenEndpoint: tokenEndpoint,
+//       },
+//       scopes: ['read_all,profile:read_all,activity:read_all'],
+//     };
+
+//     try {
+// // &code=${authState.authorizationCode}&grant_type
+//       console.log('Strava Config: ' + JSON.stringify(config));
+//       const authState = authorize(config);
+//       authState.then((authState) => {
+//         console.log('authState: ' + authState);
+//         console.log(authState);
+//         console.log(authState.authorizationCode);
+//         console.log(authState.accessToken);
+//         console.log(authState.refreshToken);
+//         console.log(authState.idToken);
+//         console.log(authState.accessTokenExpirationDate);
+//       }).catch((error) => {
+//         console.log(error);
+//       });
+//     } catch (error) {
+//       console.log(error);
+//     }
   }
 
   // https://developers.strava.com/docs/authentication/#tokenexchange

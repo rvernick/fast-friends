@@ -6,8 +6,9 @@ import { useLocalSearchParams } from "expo-router";
 export default function SettingsScreen() {
   const search = useLocalSearchParams();
   const stravaid = search.stravaid || '';
+  console.log("SettingsScreen stravaid: " + stravaid);
   return (
-    <Surface style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Surface>
       <SettingsComponent strava_id={ensureString(stravaid)} />
     </Surface>
   )

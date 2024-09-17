@@ -121,19 +121,27 @@ export class BikeService {
   async updateOrAddBike(bikeDto: UpdateBikeDto): Promise<Bike> {
     try {
       const user = await this.findUsername(bikeDto.username);
-      if (user == null) return null;
-
+      if (user == null) {
+        console.log('User not found: ', bikeDto.username);
+        return null;
+      }
       var bike: Bike;
       if (bikeDto.id == 0) {
         bike = new Bike();
       } else {
         const id = bikeDto.id;
         bike = await this.bikesRepository.findOneBy({ id });
-        if (bike == null) return null;
+        if (bike == null) {
+          console.log('Bike not found: ', id);
+          return null;
+        }
       }
       const stravaId = bike.stravaId
       if (stravaId == null || stravaId.length == 0) {
         bike.odometerMeters = bikeDto.odometerMeters;
+        console.log("updating odometer because stravaId is null:" + bikeDto.odometerMeters);
+      } else {
+        console.log("not updating odometer because stravaId is not null:" + stravaId);
       }
       bike.name = bikeDto.name;
       bike.type = bikeDto.type;

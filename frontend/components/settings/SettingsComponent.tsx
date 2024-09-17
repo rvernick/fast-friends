@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
-import { ensureString, isValidPhone, strippedPhone } from '../../common/utils';
+import { ensureString, isMobile, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
 import { ActivityIndicator, Button, Card, HelperText, Surface, Text, TextInput } from "react-native-paper";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchUser } from "../../common/utils";
-import { ScrollView, StyleSheet } from "react-native";
-import { styles } from "@/common/styles";
+import { Dimensions, ScrollView, StyleSheet } from "react-native";
+import { createStyles, styles } from "@/common/styles";
 
 type SettingsProps = {
   strava_id: string;
@@ -20,6 +20,8 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const { strava_id } = useLocalSearchParams();
   const [providedStravaId, setProvidedStravaId] = useState(ensureString(strava_id));
 
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
   console.log('SettingsComponent strava_id: '+ strava_id);
   const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
@@ -162,20 +164,22 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
 
   if (isFetching) return <ActivityIndicator />;
   return (
-    <Surface style={styles.container}>
-      <ScrollView style={styles.container}>
-        <Card>
+    <Surface style={useStyle.containerScreen}>
+     
+        <Card >
           <Card.Title title={firstName + ': ' + email} />
           <Card.Content>
 
-        <TextInput label="First Name"
+        <TextInput style={useStyle.input}
+          label="First Name"
           value={firstName}
           onChangeText={updateFirstName}
           mode="outlined"
           autoCapitalize="words"
           autoCorrect={false}
         />
-        <TextInput label="Last Name"
+        <TextInput style={useStyle.input}
+           label="Last Name"
           value={lastName}
           onChangeText={updateLastName}
           mode="outlined"
@@ -185,7 +189,8 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
         <HelperText type="error" visible={nameErrorMessage.length > 0} style={{ marginTop: 10 }}>
           {nameErrorMessage}
         </HelperText>
-        <TextInput label="Mobile"
+        <TextInput style={useStyle.input}
+           label="Mobile"
           value={phoneFormat(cellPhone)}
           onChangeText={updateMobile}
           mode="outlined"
@@ -197,27 +202,23 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
         <HelperText type="error" visible={errorMessage.length > 0} style={{ marginTop: 10 }}>
           {errorMessage}
         </HelperText>
-        <Card>
-          <Card.Content>
-            <Button onPress={ linkToStrava } disabled={stravaId.length > 0}>
-                {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : 'Connect to Strava'}
-              </Button>
-              <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
-                Unlink
-              </Button>    
-          </Card.Content>
-        </Card>
+        <Button 
+          onPress={ linkToStrava } disabled={stravaId.length > 0}>
+            {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : 'Connect to Strava'}
+          </Button>
         <HelperText type="error"> </HelperText>
-        <Button mode="contained" onPress={ updateAccount } disabled={mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}>
+        <Button 
+           mode="contained" onPress={ updateAccount } disabled={mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}>
               Update Account
             </Button>
             <HelperText type="error"> </HelperText>
-          <Button mode="contained" onPress={ () => router.push('change-password') }>
+        <Button 
+           mode="contained" onPress={ () => router.push('change-password') }>
               Change Password
-            </Button>
-          </Card.Content>
-        </Card>
-      </ScrollView>
+        </Button>
+        </Card.Content>
+      </Card>
+      
     </Surface>
   )
 };
