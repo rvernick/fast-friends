@@ -8,8 +8,9 @@ import { useSession } from '@/ctx';
 import { MaintenanceItem } from '@/models/MaintenanceItem';
 import MaintenanceListController from './MaintenanceListController';
 import { Dropdown } from 'react-native-paper-dropdown';
-import { ScrollView } from 'react-native';
-import { styles } from '@/common/styles';
+import { Dimensions, ScrollView, View } from 'react-native';
+import { createStyles, styles } from '@/common/styles';
+import { isMobile } from '@/common/utils';
 
 type MaintenanceListProps = {
   bikes: Bike[] | null | undefined;
@@ -32,6 +33,9 @@ const MaintenanceComponent = () => {
   const [sortOption, setSortOption] = useState('A-Z');
   const [expandedBike, setExpandedBike] = useState(1);
   // const [sortOption, setSortOption] = useState('dueDate');
+
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
 
   const { status, data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
@@ -117,31 +121,33 @@ const MaintenanceComponent = () => {
       return <Text>No Maintenance Items Found - Add a bike or sync with Strava</Text>
     }
     return (
-      <Surface style={styles.container}>
-        <Card style={styles.input}>
+      <Surface style={useStyle.containerScreen} > 
+        <Card style={useStyle.input} >
           <Card.Title title="Sort By" right={() =>
             <Dropdown 
               value={sortOption}
               options={sortOptions}
-              onSelect={(value) => setSortOption(value ? value : '')}
+              onSelect={(value) => setSortOption(value ? value : 'A-Z')}
               />      
           }/>
         </Card>
-        <ScrollView style={styles.scrollView}>
-          <Card style={styles.container}>
-            <Card.Content>
-                <List.Section >
+        {/* <Surface style={{position: 'absolute', top: 95, bottom: 75, left:16, right: 16}}> */}
+        <Surface style={useStyle.containerBody}>
+         <ScrollView contentContainerStyle={{flexGrow:1}}>
+    
+                <List.AccordionGroup>
                   {bikes?.map(bike => (
                     <BikeAccordian
                       bike={bike}
                       sortBy={sortOption}
-                      isOpen={bike.id === expandedBike}
+                      // isOpen={bike.id === expandedBike}
+                      isOpen={true}
                       key={bike.id}/>
                   ))}
-                </List.Section>
-            </Card.Content>
-          </Card>
+                </List.AccordionGroup>
+            
         </ScrollView>
+       </Surface>
       </Surface>
     );
   };
@@ -218,22 +224,30 @@ const MaintenanceComponent = () => {
     )
   }
   return (
-    <Surface style={styles.container}>
-      <Card style={styles.containerOneBottom}>
-        {/* <Card.Actions>
+    <Surface style={useStyle.containerScreen}>
+      <Card style={useStyle.input} >
+        <Card.Title title="Sort By:" right={() =>
           <Dropdown 
-            label="Sort by"
-            placeholder="dueDate"
-            options={sortOptions}
             value={sortOption}
-            onSelect={(value) => setSortOption(value ? value : '')}
-          />
-        </Card.Actions>
-      </Card> */}
-        <MaintenanceList bikes={data} isUpdating={isUpdating}/>
+            options={sortOptions}
+            onSelect={(value) => setSortOption(value ? value : 'A-Z')}
+            />      
+        }/>
       </Card>
+        <ScrollView  style={useStyle.containerBody}>
+          <List.Section>
+            {data?.map(bike => (
+              <BikeAccordian
+                bike={bike}
+                sortBy={sortOption}
+                isOpen={true}
+                // isOpen={bike.id === expandedBike}
+                key={bike.id}/>
+            ))}
+          </List.Section>
+      </ScrollView>
       <Button
-        style={styles.button}
+        style={useStyle.bottomButton} 
         mode="contained"
         onPress={addMaintenanceItem}>
           Add Maintenance Item

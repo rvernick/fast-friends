@@ -2,7 +2,6 @@ import { StyleSheet } from "react-native";
 
 export function createStyles(width: number, height: number) {
 
-  console.log(`Creating styles for width: ${width}, height: ${height}`);
   return StyleSheet.create({
     containerScreen: {
       position: 'absolute',
@@ -22,58 +21,34 @@ export function createStyles(width: number, height: number) {
       flex: 1,
       top: 5,
       left: 1,
-      bottom: 575,
-      
+      marginBottom: 225,
     },
-  containerThreeBottom: {
-    flex: 1,
-    paddingBottom: 125,
-  },
-  container: {
-    flex: 1,
-    // paddingTop: StatusBar.currentHeight,
-  },
-  input: {
-    margin: 4,
-  },
-  scrollView: {
-    flex: 1,
-    marginHorizontal: 16,
-  },
-  button: {
-    position: 'absolute',
-    bottom: 16,
-    left: 16,
-    right: 16,
-  },
-  thirdButton: {
-    position: 'absolute',
-    bottom: 64,
-    left: 16,
-    right: 16,
-  },
-  upperButton: {
-    position: 'absolute',
-    bottom: 64,
-    left: 16,
-    right: 16,
-  },
-  bottomButton: {
-    position: 'absolute',
-    top: height-225,
-    left: 16,
-    right: 16,
-  },
-  text: {
-    fontSize: 42,
-  },
+    container: {
+      flex: 1,
+      // paddingTop: StatusBar.currentHeight,
+    },
+    input: {
+      margin: 4,
+    },
+    scrollView: {
+      flex: 1,
+      marginHorizontal: 16,
+    },
+    bottomButton: {
+      position: 'absolute',
+      top: height-225,
+      left: 16,
+      right: 16,
+    },
+    text: {
+      fontSize: 42,
+    },
   });
-
 };
 
 export const styles = StyleSheet.create({
   containerScreen: {
-    position: 'relative',
+    flex: 1,
     marginBottom: 0,
   },
   containerOneBottom: {
@@ -82,14 +57,10 @@ export const styles = StyleSheet.create({
   },
   containerBody: {
       flex: 1,
-      top: 1,
+      top: 5,
       left: 1,
-      bottom: 10,
+      marginBottom: 75,
     },
-  containerThreeBottom: {
-    flex: 1,
-    paddingBottom: 125,
-  },
   container: {
     flex: 1,
     // paddingTop: StatusBar.currentHeight,
@@ -100,24 +71,6 @@ export const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     marginHorizontal: 16,
-  },
-  button: {
-    position: 'absolute',
-    bottom: 16,
-    left: 16,
-    right: 16,
-  },
-  thirdButton: {
-    position: 'absolute',
-    bottom: 64,
-    left: 16,
-    right: 16,
-  },
-  upperButton: {
-    position: 'absolute',
-    bottom: 64,
-    left: 16,
-    right: 16,
   },
   bottomButton: {
     position: 'absolute',
