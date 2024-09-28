@@ -3,7 +3,7 @@ import { GestureResponderEvent, NativeSyntheticEvent, Platform, TextInputChangeE
 import { useGlobalContext } from "../../common/GlobalContext";
 import { forget, login, remind } from "../../common/utils";
 import { baseUrl } from "../../common/http-utils";
-import { ActivityIndicator, Button, HelperText, Text } from "react-native-paper";
+import { ActivityIndicator, Button, HelperText, IconButton, Text } from "react-native-paper";
 import { router } from "expo-router";
 import { Card, TextInput, Surface } from 'react-native-paper';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -24,10 +24,12 @@ export const LoginComponent = () => {
   const isMobile = Platform.OS === 'android' || Platform.OS === 'ios';
   const [useFaceRecognition, setUseFaceRecognition] = useState(isMobile);
   const [canUseFaceId, setCanUseFaceId] = useState(false);
+  const [passwordHidden, setPasswordHidden] = useState(true);
+
 
   const updateEmail = function(newText: string) {
     setLoginErrorMessage('');
-    setEnteredEmail(newText);
+    setEnteredEmail(newText.toLocaleLowerCase());
   }
 
   const updatePassword = function(newText: string) {
@@ -154,11 +156,15 @@ export const LoginComponent = () => {
                   label="Email"
                   keyboardType="email-address"
                   onChangeText={updateEmail}
+                  value={email}
+                  autoComplete="email"
                   testID="emailInput"/>
               <TextInput label="Password"
-                  secureTextEntry={true}
+                  secureTextEntry={passwordHidden}
                   onChangeText={updatePassword}
                   onSubmitEditing={loginSubmit}
+                  value={password}
+                  right={<TextInput.Icon icon="eye" onPress={() => setPasswordHidden(!passwordHidden)}/>}
                   testID="passwordInput"/>
               <HelperText 
                   type="error"

@@ -29,7 +29,12 @@ export const PasswordResetComponent = () => {
       <Card>
         <Card.Title title="Send Password Reset"></Card.Title>
         <Card.Content>
-          <TextInput value={email} onChangeText={updateEmail} placeholder="Email" />
+          <TextInput
+            autoComplete="email"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={updateEmail} 
+            placeholder="Email" />
           <Button 
             disabled={!(isValidEmail(email) || email === DEVELOPER)}
             mode={isValidEmail(email) ? "contained" : "outlined"}

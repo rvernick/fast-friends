@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "biz.fastfriends",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -16,6 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "biz.fastfriends",
+      "associatedDomains": ["applinks:fastfriends.biz"],  // https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_associated-domains
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -37,6 +38,10 @@
       "expo-secure-store",
       [
         "./plugins/withSetPlaceholders.js"
+      ],
+      [
+        "./plugins/withInfoPlist.js"
+
       ],
       [
         "expo-local-authentication",

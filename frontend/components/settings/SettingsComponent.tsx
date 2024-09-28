@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
-import { ensureString, isValidPhone, strippedPhone } from '../../common/utils';
+import { ensureString, isMobile, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
-import { ActivityIndicator, Button, Card, HelperText, Surface, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, Card, Dialog, HelperText, Portal, Surface, Text, TextInput } from "react-native-paper";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -28,6 +28,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
+  const [warnAgainstLinking, setWarnAgainstLinking] = useState(false);
 
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
@@ -110,11 +111,19 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   };
 
   const linkToStrava = async () => {
-    await stravaController.linkToStrava(session);
-    setStravaId('Connecting to Strava...');
-    invalidateUser();
+    if (isMobile()) {
+      setWarnAgainstLinking(true);
+    } else {
+      await stravaController.linkToStrava(session);
+      setStravaId('Connecting to Strava...');
+      invalidateUser();
+    }
   }
 
+  const hideWarnAgainstLinking = () => {
+    setWarnAgainstLinking(false);
+  }
+  
   const unlinkFromStrava = async () => {
     const msg = await stravaController.unlinkFromStrava(session, appContext, data);
     setProvidedStravaId('');
@@ -162,8 +171,8 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
 
   if (isFetching) return <ActivityIndicator />;
   return (
-    <Surface style={styles.container}>
-      <ScrollView style={styles.container}>
+    <Surface >
+      {/* <ScrollView style={styles.container}> */}
         <Card>
           <Card.Title title={firstName + ': ' + email} />
           <Card.Content>
@@ -204,7 +213,18 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
               </Button>
               <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
                 Unlink
-              </Button>    
+              </Button>
+              <Portal>
+                <Dialog visible={warnAgainstLinking} onDismiss={hideWarnAgainstLinking}>
+                  <Dialog.Title>Alert</Dialog.Title>
+                  <Dialog.Content>
+                    <Text variant="bodyMedium">Log in through browser to link with Strava https://www.fastfriends.biz</Text>
+                  </Dialog.Content>
+                  <Dialog.Actions>
+                    <Button onPress={hideWarnAgainstLinking}>Done</Button>
+                  </Dialog.Actions>
+                </Dialog>
+              </Portal> 
           </Card.Content>
         </Card>
         <HelperText type="error"> </HelperText>
@@ -217,7 +237,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             </Button>
           </Card.Content>
         </Card>
-      </ScrollView>
+      {/* </ScrollView> */}
     </Surface>
   )
 };
