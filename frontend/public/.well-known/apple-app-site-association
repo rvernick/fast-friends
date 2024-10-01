@@ -1,0 +1,27 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "796238AVYL.biz.fastfriends"
+        ],
+        "components": [
+          {
+            "/": "*",
+            "comment": "Matches all routes"
+          }
+        ]
+      }
+    ]
+  },
+  "activitycontinuation": {
+    "apps": [
+      "796238AVYL.biz.fastfriends"
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "796238AVYL.biz.fastfriends"
+    ]
+  }
+}

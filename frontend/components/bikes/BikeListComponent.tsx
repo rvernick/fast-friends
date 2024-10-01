@@ -3,9 +3,11 @@ import { useQuery, useQueryClient } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
 import BikeListController from './BikeListController';
 import { useRouter } from 'expo-router';
-import { Button, List, Text, Surface } from 'react-native-paper';
+import { Button, List, Text, Surface, Card } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
+import { styles } from '@/common/styles';
+import { ScrollView } from 'react-native';
 
 type BikeListProps = {
   bikes: Bike[] | undefined;
@@ -32,12 +34,12 @@ const BikeListComponent = () => {
   
   const addBike = () => {
     queryClient.removeQueries({ queryKey: ['bikes'] });
-    router.push({ pathname: "0", params: {bikeid: 0 }});
+    router.push({ pathname: "/(home)/(bikes)/[bikeid]", params: {bikeid: 0 }});
   }
 
   const editBike = (id: number) => {
     const idString = id.toString();
-    router.push({ pathname: '/(bikes)/' + idString });
+    router.push({ pathname: '/(home)/(bikes)/[bikeid]', params: { bikeid: idString } });
   }
 
   const BikeList: React.FC<BikeListProps> = ({ bikes, isUpdating }) => {
@@ -69,10 +71,13 @@ const BikeListComponent = () => {
       </Text>
     )
   }
+
   return (
     <Surface>
+      {/* <ScrollView style={styles.containerOneBottom}> */}
         <BikeList bikes={data} isUpdating={isUpdating}/>
-        <Button mode="contained" onPress={addBike}> Add Bike</Button>
+      {/* </ScrollView> */}
+      <Button mode="contained" onPress={addBike}> Add Bike</Button>
     </Surface>
   );
 };

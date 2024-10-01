@@ -4,6 +4,9 @@ import AppController from "../../common/AppController";
 import { authorize } from 'react-native-app-auth';
 import { getBaseUrl, post, postExternal } from "../../common/http-utils";
 import { stravaBase } from "../strava/utils";
+import { isMobile } from "@/common/utils";
+import * as WebBrowser from 'expo-web-browser';
+import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 
 class StravaController extends AppController {
 
@@ -107,11 +110,10 @@ class StravaController extends AppController {
   async linkToStrava(session: any) {
     console.log('Sending account to Strava for linking... ');
 
-    if (Platform.OS === 'web') {
-      console.log('Platform.OS:'+ Platform.OS);
-      this.linkToStravaWeb(session);
-    } else {
+    if (isMobile()) {
       this.linkToStravaMobile(session);
+    } else {
+      this.linkToStravaWeb(session);
     }
   }
 
@@ -173,6 +175,33 @@ class StravaController extends AppController {
     window.open(url);
   };
 
+  async linkToStravaMobileExpo(session: any, appContext: AppContext, code: string) {
+
+    WebBrowser.maybeCompleteAuthSession();
+
+    // Endpoint
+    const discovery = {
+      authorizationEndpoint: 'https://www.strava.com/oauth/mobile/authorize',
+      tokenEndpoint: 'https://www.strava.com/oauth/token',
+      revocationEndpoint: 'https://www.strava.com/oauth/deauthorize',
+    };
+
+    const [request, response, promptAsync] = useAuthRequest(
+      {
+        clientId: 'CLIENT_ID',
+        scopes: ['activity:read_all'],
+        redirectUri: makeRedirectUri({
+          // the "redirect" must match your "Authorization Callback Domain" in the Strava dev console.
+          native: 'your.app://redirect',
+        }),
+      },
+      discovery
+    );
+
+    if (response?.type === 'success') {
+      const { code } = response.params;
+    }
+  };
 
   /*
   * Connect to strava using: FormidableLabs SDK
@@ -180,23 +209,33 @@ class StravaController extends AppController {
   */
   async linkToStravaMobile(session: any) {
     const appContext = this.appContext;
-    const stravaId = await appContext.getStravaClientId(session);
-    const replyUrl = await this.getLocationBaseUrl();
-    const redirectUri = replyUrl + '/strava-reply';
+    const redirectUri = 'https://fastfriends.biz/strava-reply';
+    const authEndpoint = 'https://www.strava.com/oauth/cellPhone/authorize';
+    const clientId = await appContext.getStravaClientId(session);
+    const clientSecret = await appContext.getStravaClientSecret(session);
+    const tokenEndpoint = 'https://www.strava.com/oauth/token?client_id=' + clientId + '&client_secret=' + clientSecret;
     const config = {
-      clientId: await appContext.getStravaClientId(session),
-      clientSecret: await appContext.getStravaClientSecret(session),
+      issuer: 'https://www.strava.com/oauth/mobile/authorize',
+      clientId: clientId,
+      clientSecret: clientSecret,
       redirectUrl: redirectUri,
       serviceConfiguration: {
-        authorizationEndpoint: 'https://www.strava.com/oauth/cellPhone/authorize',
-        tokenEndpoint:
-          'https://www.strava.com/oauth/token?client_id=CLIENT_ID&client_secret=CLIENT_SECRET',
+        authorizationEndpoint: authEndpoint,
+        tokenEndpoint: tokenEndpoint,
+      },
+      additionalParameters: {
+        response_type: 'code',
+        approval_prompt: 'force',
+        grant_type: 'authorization_code',
       },
       scopes: ['read_all,profile:read_all,activity:read_all'],
     };
 
+    console.log('linkToStravaMobile: ' + JSON.stringify(config));
     try {
+      console.log('calling authorize');
       const authState = authorize(config);
+      console.log('authorize promise');
       authState.then((authState) => {
         console.log('authState: ' + authState);
         console.log(authState);
@@ -206,10 +245,10 @@ class StravaController extends AppController {
         console.log(authState.idToken);
         console.log(authState.accessTokenExpirationDate);
       }).catch((error) => {
-        console.log(error);
+        console.log('authState promise error: ' + error);
       });
     } catch (error) {
-      console.log(error);
+      console.log('authorize call error: ' + error);
     }
   }
 

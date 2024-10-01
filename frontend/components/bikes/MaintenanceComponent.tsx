@@ -8,6 +8,9 @@ import { useSession } from '@/ctx';
 import { MaintenanceItem } from '@/models/MaintenanceItem';
 import MaintenanceListController from './MaintenanceListController';
 import { Dropdown } from 'react-native-paper-dropdown';
+import { Dimensions, ScrollView, View } from 'react-native';
+import { createStyles, styles } from '@/common/styles';
+import { isMobile } from '@/common/utils';
 
 type MaintenanceListProps = {
   bikes: Bike[] | null | undefined;
@@ -31,6 +34,9 @@ const MaintenanceComponent = () => {
   const [expandedBike, setExpandedBike] = useState(1);
   // const [sortOption, setSortOption] = useState('dueDate');
 
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
+
   const { status, data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
     queryFn: () => controller.getBikes(session, email),
@@ -41,14 +47,14 @@ const MaintenanceComponent = () => {
   
   const addMaintenanceItem = () => {
     queryClient.removeQueries({ queryKey: ['maintenanceItems'] });
-    router.push({ pathname: '/(maintenanceItems)/0', params: {bikeid: '0' }});
+    router.push('/(home)/(maintenanceItems)/0');
   }
 
-  const editMaintenanceItem = (id: number, bikeId: number) => {
-    const idString = id.toString();
-    const bikeIdString = bikeId.toString();
-    router.push({ pathname: '/(maintenanceItems)/' + idString,  params: {bikeid: bikeIdString }});
-  }
+    const editMaintenanceItem = (id: number, bikeId: number) => {
+      const idString = id.toString();
+      const bikeIdString = bikeId.toString();
+      router.push('/(home)/(maintenanceItems)/' + idString + '?bikeid=' + bikeIdString);
+    }
 
   type MaintenanceListItemProps = {
     maintenanceItem: MaintenanceItem;
@@ -109,32 +115,40 @@ const MaintenanceComponent = () => {
       </List.Accordion>
     );
   };
-  
+
   const MaintenanceList: React.FC<MaintenanceListProps> = ({ bikes, isUpdating }) => {
     if (!bikes || bikes == null || bikes?.length == 0) {
       return <Text>No Maintenance Items Found - Add a bike or sync with Strava</Text>
     }
     return (
-      <Card>
-        <Card.Title title="Sort By" right={() =>
-          <Dropdown 
-            value={sortOption}
-            options={sortOptions}
-            onSelect={(value) => setSortOption(value ? value : '')}
-            />      
-        }/>
-        <Card.Content>
-          <List.Section >
-            {bikes?.map(bike => (
-              <BikeAccordian
-                bike={bike}
-                sortBy={sortOption}
-                isOpen={bike.id === expandedBike}
-                key={bike.id}/>
-            ))}
-          </List.Section>
-        </Card.Content>
-      </Card>
+      <Surface style={useStyle.containerScreen} > 
+        <Card style={useStyle.input} >
+          <Card.Title title="Sort By" right={() =>
+            <Dropdown 
+              value={sortOption}
+              options={sortOptions}
+              onSelect={(value) => setSortOption(value ? value : 'A-Z')}
+              />      
+          }/>
+        </Card>
+        {/* <Surface style={{position: 'absolute', top: 95, bottom: 75, left:16, right: 16}}> */}
+        <Surface style={useStyle.containerBody}>
+         <ScrollView contentContainerStyle={{flexGrow:1}}>
+    
+                <List.AccordionGroup>
+                  {bikes?.map(bike => (
+                    <BikeAccordian
+                      bike={bike}
+                      sortBy={sortOption}
+                      // isOpen={bike.id === expandedBike}
+                      isOpen={true}
+                      key={bike.id}/>
+                  ))}
+                </List.AccordionGroup>
+            
+        </ScrollView>
+       </Surface>
+      </Surface>
     );
   };
   
@@ -210,21 +224,34 @@ const MaintenanceComponent = () => {
     )
   }
   return (
-    <Surface>
-      <Card>
-        {/* <Card.Actions>
+    <Surface style={useStyle.containerScreen}>
+      <Card style={useStyle.input} >
+        <Card.Title title="Sort By:" right={() =>
           <Dropdown 
-            label="Sort by"
-            placeholder="dueDate"
-            options={sortOptions}
             value={sortOption}
-            onSelect={(value) => setSortOption(value ? value : '')}
-          />
-        </Card.Actions>
-      </Card> */}
-        <MaintenanceList bikes={data} isUpdating={isUpdating}/>
-        <Button mode="contained" onPress={addMaintenanceItem}> Add Maintenance Item</Button>
-        </Card>
+            options={sortOptions}
+            onSelect={(value) => setSortOption(value ? value : 'A-Z')}
+            />      
+        }/>
+      </Card>
+        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
+          <List.Section>
+            {data?.map(bike => (
+              <BikeAccordian
+                bike={bike}
+                sortBy={sortOption}
+                isOpen={true}
+                // isOpen={bike.id === expandedBike}
+                key={bike.id}/>
+            ))}
+          </List.Section>
+      </ScrollView>
+      <Button
+        style={useStyle.bottomButton} 
+        mode="contained"
+        onPress={addMaintenanceItem}>
+          Add Maintenance Item
+      </Button>
     </Surface>
   );
 };

@@ -35,7 +35,7 @@ export default function TabLayout() {
         name="(bikes)"
         options={{
           title: "Bikes",
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="bike-fast" color={color} />
           ),
@@ -45,7 +45,7 @@ export default function TabLayout() {
         name="(maintenanceItems)"
         options={{
           title: "Maintenance",
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="wrench" color={color} />
           ),

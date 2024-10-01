@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
-import { ensureString, isValidPhone, strippedPhone } from '../../common/utils';
+import { ensureString, isMobile, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
-import { ActivityIndicator, Button, Card, HelperText, Surface, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, Card, Dialog, HelperText, Portal, Surface, Text, TextInput } from "react-native-paper";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchUser } from "../../common/utils";
+import { ScrollView, StyleSheet } from "react-native";
+import { styles } from "@/common/styles";
 
 type SettingsProps = {
   strava_id: string;
@@ -26,6 +28,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
+  const [warnAgainstLinking, setWarnAgainstLinking] = useState(false);
 
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
@@ -108,11 +111,19 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   };
 
   const linkToStrava = async () => {
-    await stravaController.linkToStrava(session);
-    setStravaId('Connecting to Strava...');
-    invalidateUser();
+    if (isMobile()) {
+      setWarnAgainstLinking(true);
+    } else {
+      await stravaController.linkToStrava(session);
+      setStravaId('Connecting to Strava...');
+      invalidateUser();
+    }
   }
 
+  const hideWarnAgainstLinking = () => {
+    setWarnAgainstLinking(false);
+  }
+  
   const unlinkFromStrava = async () => {
     const msg = await stravaController.unlinkFromStrava(session, appContext, data);
     setProvidedStravaId('');
@@ -160,59 +171,73 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
 
   if (isFetching) return <ActivityIndicator />;
   return (
-    <Surface>
-      <Card>
-        <Card.Title title={firstName + ': ' + email} />
-        <Card.Content>
-      <TextInput label="First Name"
-        value={firstName}
-        onChangeText={updateFirstName}
-        mode="outlined"
-        autoCapitalize="words"
-        autoCorrect={false}
-      />
-      <TextInput label="Last Name"
-        value={lastName}
-        onChangeText={updateLastName}
-        mode="outlined"
-        autoCapitalize="words"
-        autoCorrect={false}
-      />
-      <HelperText type="error" visible={nameErrorMessage.length > 0} style={{ marginTop: 10 }}>
-        {nameErrorMessage}
-      </HelperText>
-      <TextInput label="Mobile"
-        value={phoneFormat(cellPhone)}
-        onChangeText={updateMobile}
-        mode="outlined"
-        keyboardType="phone-pad"
-      />
-      <HelperText type="error" visible={mobileErrorMessage.length > 0} style={{ marginTop: 10 }}>
-        {mobileErrorMessage}
-      </HelperText>
-      <HelperText type="error" visible={errorMessage.length > 0} style={{ marginTop: 10 }}>
-        {errorMessage}
-      </HelperText>
-      <Card>
-        <Card.Content>
-          <Button onPress={ linkToStrava } disabled={stravaId.length > 0}>
-              {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : 'Connect to Strava'}
+    <Surface >
+      {/* <ScrollView style={styles.container}> */}
+        <Card>
+          <Card.Title title={firstName + ': ' + email} />
+          <Card.Content>
+
+        <TextInput label="First Name"
+          value={firstName}
+          onChangeText={updateFirstName}
+          mode="outlined"
+          autoCapitalize="words"
+          autoCorrect={false}
+        />
+        <TextInput label="Last Name"
+          value={lastName}
+          onChangeText={updateLastName}
+          mode="outlined"
+          autoCapitalize="words"
+          autoCorrect={false}
+        />
+        <HelperText type="error" visible={nameErrorMessage.length > 0} style={{ marginTop: 10 }}>
+          {nameErrorMessage}
+        </HelperText>
+        <TextInput label="Mobile"
+          value={phoneFormat(cellPhone)}
+          onChangeText={updateMobile}
+          mode="outlined"
+          keyboardType="phone-pad"
+        />
+        <HelperText type="error" visible={mobileErrorMessage.length > 0} style={{ marginTop: 10 }}>
+          {mobileErrorMessage}
+        </HelperText>
+        <HelperText type="error" visible={errorMessage.length > 0} style={{ marginTop: 10 }}>
+          {errorMessage}
+        </HelperText>
+        <Card>
+          <Card.Content>
+            <Button onPress={ linkToStrava } disabled={stravaId.length > 0}>
+                {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : 'Connect to Strava'}
+              </Button>
+              <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
+                Unlink
+              </Button>
+              <Portal>
+                <Dialog visible={warnAgainstLinking} onDismiss={hideWarnAgainstLinking}>
+                  <Dialog.Title>Alert</Dialog.Title>
+                  <Dialog.Content>
+                    <Text variant="bodyMedium">Log in through browser to link with Strava https://www.fastfriends.biz</Text>
+                  </Dialog.Content>
+                  <Dialog.Actions>
+                    <Button onPress={hideWarnAgainstLinking}>Done</Button>
+                  </Dialog.Actions>
+                </Dialog>
+              </Portal> 
+          </Card.Content>
+        </Card>
+        <HelperText type="error"> </HelperText>
+        <Button mode="contained" onPress={ updateAccount } disabled={mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}>
+              Update Account
             </Button>
-            <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
-              Unlink
-            </Button>    
-        </Card.Content>
-      </Card>
-      <HelperText type="error"> </HelperText>
-      <Button mode="contained" onPress={ updateAccount } disabled={mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}>
-            Update Account
-          </Button>
-          <HelperText type="error"> </HelperText>
-         <Button mode="contained" onPress={ () => router.push('change-password') }>
-            Change Password
-          </Button>
-        </Card.Content>
-      </Card>
+            <HelperText type="error"> </HelperText>
+          <Button mode="contained" onPress={ () => router.push('change-password') }>
+              Change Password
+            </Button>
+          </Card.Content>
+        </Card>
+      {/* </ScrollView> */}
     </Surface>
   )
 };
