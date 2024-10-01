@@ -5,11 +5,11 @@
     "owner": "fast-friends",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/spiral-gears.jpg",
     "scheme": "biz.fastfriends",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/spiral-gears.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -23,7 +23,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/spiral-gears.jpg",
         "backgroundColor": "#ffffff"
       },
       "package": "biz.fastfriends"
@@ -31,7 +31,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/spiral-gears.jpg"
     },
     "plugins": [
       "expo-router",

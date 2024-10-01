@@ -67,6 +67,14 @@ export const ChangePasswordComponent = () => {
     }
   };
   
+  const backToSettings = function() {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.push('/(home)/(settings)');
+    }
+  };
+
   return (
     <Surface>
       <Card>
@@ -110,7 +118,7 @@ export const ChangePasswordComponent = () => {
           <Button mode="contained" onPress={changePassword}>
             Update Password
           </Button>
-          <Button onPress={() => router.back()}>
+          <Button onPress={backToSettings}>
             {backLabel}
           </Button>
         </Card.Content>

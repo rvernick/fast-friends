@@ -7,7 +7,7 @@ import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surfa
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
 import { ensureString } from "@/common/utils";
-import AppbarHeader from "react-native-paper/lib/typescript/components/Appbar/AppbarHeader";
+import { useQueryClient } from "@tanstack/react-query";
 
 const groupsetBrands = [
   'Shimano',
@@ -33,7 +33,8 @@ type BikeProps = {
 const BikeComponent: React.FC<BikeProps> = () => {
   const session = useSession();
   const navigation = useNavigation();
-  
+  const queryClient = useQueryClient();
+
   const email = session.email ? session.email : '';
 
   const appContext = useGlobalContext();
@@ -91,6 +92,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
       speed,
       isElectronic);
     console.log('update bike result: ' + result);
+    queryClient.invalidateQueries({ queryKey: ['bikes'] });
     if (result == '') {
       router.back();
     } else {
@@ -101,6 +103,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
   const deleteBike = async function() {
     setErrorMessage('');
     const result = await controller.deleteBike(session, email, bikeId);
+    queryClient.invalidateQueries({ queryKey: ['bikes'] });
     if (result == '') {
       if (router.canGoBack()) {
         router.back();
