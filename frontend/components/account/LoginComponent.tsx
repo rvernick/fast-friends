@@ -149,10 +149,11 @@ export const LoginComponent = () => {
     );
   }
   return (
-    <Surface style={useStyle.containerScreen}>
+    <Surface>
+      <Text style={{textAlign: "center"}} variant="headlineMedium">Fast Friends</Text>
+
       <ActivityIndicator animating={useFaceRecognition} testID="activity"></ActivityIndicator>
-        <Card>
-          <Card.Title title="Fast Friends"></Card.Title>
+        <Card >
           <Card.Content>
               <TextInput
                   label="Email"

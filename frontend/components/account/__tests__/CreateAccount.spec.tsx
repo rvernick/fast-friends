@@ -1,6 +1,6 @@
 import {render, fireEvent} from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
-import { EmailPasswordComponent } from '../EmailPasswordComponent';
+import { CreateAccountComponent } from '../CreateAccountComponent';
 import { invalidPasswordMessage } from '../../../common/utils';
 import CreateAccountController from '../CreateAccountController';
 import AppContext from '@/common/app-context';
@@ -15,7 +15,7 @@ describe('CreateAccount Component', () => {
   it('displays an error message for invalid email', async () => {
     const { findByTestId, queryByText, findByText } = render(
       <ProviderWrapper>
-        <EmailPasswordComponent controller={createController()}/>
+        <CreateAccountComponent controller={createController()}/>
       </ProviderWrapper>
     );
 
@@ -34,7 +34,7 @@ describe('CreateAccount Component', () => {
   it('displays an error message for invalid password', async () => {
     const { findByTestId, queryByText } = render(
       <ProviderWrapper>
-        <EmailPasswordComponent controller={createController()}/>
+        <CreateAccountComponent controller={createController()}/>
       </ProviderWrapper>
     );
 
