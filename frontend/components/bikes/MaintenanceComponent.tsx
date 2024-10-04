@@ -226,6 +226,9 @@ const MaintenanceComponent = () => {
 
   useEffect(() => {
     navigation.setOptions({ title: 'Maintenance' });
+    if (expandedBike === 1 && data && data.length > 1) {
+      handleBikePress(1);
+    }
   });
 
   if (error) {
