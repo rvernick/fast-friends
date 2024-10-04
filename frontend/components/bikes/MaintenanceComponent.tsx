@@ -92,12 +92,24 @@ const MaintenanceComponent = () => {
   }
 
   const handleBikePress = (bikeId: number) => {
-   if (bikeId === expandedBike) {
-     setExpandedBike(0);
-   } else {
+   if (!data || data.length == 0) return;
+   if (data?.length == 1) {
     setExpandedBike(bikeId);
+    return;
    }
-  }
+   if (expandedBike != bikeId) {
+     setExpandedBike(bikeId);
+     return;
+   }
+   if (expandedBike === bikeId) {
+    const nextBike = data.find(bike => bike.id != expandedBike);
+    if (nextBike) {
+      setExpandedBike(nextBike.id);
+      return;
+    }
+   }
+  };
+
   const BikeAccordian: React.FC<BikeAccordainProps> = ({ bike, isOpen}) => {
     if (!bike.maintenanceItems || bike.maintenanceItems.length ==0) return null;
     const sortedItems = sortItems(bike.maintenanceItems);
