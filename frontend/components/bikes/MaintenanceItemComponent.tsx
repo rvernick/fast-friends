@@ -340,11 +340,11 @@ type BikeDropdownProps = {
 export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readonly, onSelect }) => {
     if (!bikes || bikes == null || bikes.length == 0) return null;
     if (!bikes) return null;
-    console.log('BikeDropdown bikes: ', bikes);
-    console.log('BikeDropdown bikes: ', JSON.stringify(bikes));
+    // console.log('BikeDropdown bikes: ', bikes);
+    // console.log('BikeDropdown bikes: ', JSON.stringify(bikes));
     const bikeOptions = bikes?.map(bike => ({ label: bike.name, value: ensureString(bike.id) }));
-    console.log('BikeDropdown set: ', value);
-    console.log('BikeDropdown options: ', JSON.stringify(bikeOptions));
+    // console.log('BikeDropdown set: ', value);
+    // console.log('BikeDropdown options: ', JSON.stringify(bikeOptions));
     return (
       <Dropdown
           disabled={readonly}

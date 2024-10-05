@@ -2,11 +2,9 @@ import { StyleSheet } from "react-native";
 
 export function createStyles(width: number, height: number) {
 
-  console.log(`Creating styles for width: ${width}, height: ${height}`);
   const tenth = Math.round(0.1*height);
   const third = Math.round(0.3*height);
   const twoThirds = Math.round(0.7*height);
-  console.log(`Third of height: ${third}`);
 
   return StyleSheet.create({
     containerScreen: {
