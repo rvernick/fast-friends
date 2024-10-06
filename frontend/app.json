@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Pedal Assistant",
-    "slug": "pedal-assistant",
-    "owner": "pedal-assistant",
+    "slug": "fast-friends",
+    "owner": "fast-friends",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/spiral-gears.jpg",
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.pedal-assistant",
+      "bundleIdentifier": "biz.fastfriends",
       "associatedDomains": ["applinks:pedal-assistant.com"],  // https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_associated-domains
       "config": {
         "usesNonExemptEncryption": false

@@ -16,7 +16,6 @@ export default function SignOut() {
   useEffect(() => {
     try {
       signOut();
-      console.log('User signed out');
       queryClient.clear();
     } catch (error) {
       console.log('error during logout: ', error);
