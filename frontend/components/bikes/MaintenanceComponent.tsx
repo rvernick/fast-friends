@@ -40,6 +40,7 @@ const MaintenanceComponent = () => {
   const { status, data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
     queryFn: () => controller.getBikes(session, email),
+    initialData: [],
     refetchOnWindowFocus: 'always',
     refetchOnReconnect: 'always',
     refetchOnMount: 'always',
@@ -231,44 +232,51 @@ const MaintenanceComponent = () => {
     }
   });
 
-  if (error) {
+  if (!data || isFetching || data.length === 0) {
+    return (
+      <Text>
+        No bikes found. Add a bike or sync with Strava.
+      </Text>
+    )
+  } else if (error) {
     return (
       <Text>
         An error occured!
       </Text>
     )
+  } else {
+    return (
+      <Surface style={useStyle.containerScreen}>
+        <Card style={useStyle.input} >
+          <Card.Title title="Sort By:" right={() =>
+            <Dropdown 
+              value={sortOption}
+              options={sortOptions}
+              onSelect={(value) => setSortOption(value ? value : 'A-Z')}
+              />      
+          }/>
+        </Card>
+          <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
+            <List.Section>
+              {data?.map(bike => (
+                <BikeAccordian
+                  bike={bike}
+                  sortBy={sortOption}
+                  isOpen={true}
+                  // isOpen={bike.id === expandedBike}
+                  key={bike.id}/>
+              ))}
+            </List.Section>
+        </ScrollView>
+        <Button
+          style={useStyle.bottomButton} 
+          mode="contained"
+          onPress={addMaintenanceItem}>
+            Add Maintenance Item
+        </Button>
+      </Surface>
+    );
   }
-  return (
-    <Surface style={useStyle.containerScreen}>
-      <Card style={useStyle.input} >
-        <Card.Title title="Sort By:" right={() =>
-          <Dropdown 
-            value={sortOption}
-            options={sortOptions}
-            onSelect={(value) => setSortOption(value ? value : 'A-Z')}
-            />      
-        }/>
-      </Card>
-        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
-          <List.Section>
-            {data?.map(bike => (
-              <BikeAccordian
-                bike={bike}
-                sortBy={sortOption}
-                isOpen={true}
-                // isOpen={bike.id === expandedBike}
-                key={bike.id}/>
-            ))}
-          </List.Section>
-      </ScrollView>
-      <Button
-        style={useStyle.bottomButton} 
-        mode="contained"
-        onPress={addMaintenanceItem}>
-          Add Maintenance Item
-      </Button>
-    </Surface>
-  );
 };
 
 // navigation.push('Bike', { bike })
