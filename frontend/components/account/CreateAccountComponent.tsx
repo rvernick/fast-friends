@@ -1,22 +1,25 @@
 import React, { useContext, useState } from "react";
-import { invalidPasswordMessage, isValidEmail, isValidPassword, login } from '../../common/utils';
-import { Button, TextInput, HelperText, Card, Surface } from "react-native-paper";
+import { invalidPasswordMessage, isMobile, isValidEmail, isValidPassword, login } from '../../common/utils';
+import { Text, Button, TextInput, HelperText, Card, Surface } from "react-native-paper";
 import { router } from "expo-router";
 import CreateAccountController from "./CreateAccountController";
-import { useSession } from "@/ctx";
+import { Dimensions } from "react-native";
+import { createStyles, styles } from "@/common/styles";
 
-
-interface EmailPasswordComponentProps {
+interface CreateAccountComponentProps {
   controller: CreateAccountController;
 }
 
-export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ controller }) => {
+export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ controller }) => {
   const [email, setEnteredEmail] = useState('');
   const [password, setEnteredPassword] = useState('');
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');
+
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles;
 
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);
@@ -77,9 +80,15 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
     }
   };
 
+  
   return (
-    <Surface>
-      <Card>
+    <Surface style={useStyle.container}>
+      <Text style={{textAlign: "center"}} variant="headlineMedium">Fast Friends</Text>
+      <Text style={{textAlign: "center"}}>Welcome to Fast Friends, the on-line platform to assist you with bike maintenance</Text>
+      <Text style={{textAlign: "center"}}>You think about your rides and who you want to ride with next.</Text>
+      <Text style={{textAlign: "center"}}>We'll think about your bike needs so you don't have to</Text>
+      <Text> </Text>
+      <Card >
         <Card.Title title="New Account"></Card.Title>
         <Card.Content>
           <TextInput
@@ -124,8 +133,13 @@ export const EmailPasswordComponent: React.FC<EmailPasswordComponentProps> = ({ 
           <Button mode="contained" onPress={apply}>
             Sign Up
           </Button>
+          <Text> </Text>
+      <Text style={{textAlign: "center"}} onPress={() => router.replace('/(sign-in-sign-up)/sign-in')} >
+        Already have an account? Sign In
+      </Text>
         </Card.Content>
       </Card>
+
     </Surface>
     );
 };

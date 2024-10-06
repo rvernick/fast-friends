@@ -18,10 +18,12 @@ export const ChangePasswordComponent = () => {
 
   const updateOldPassword = function(newText: string) {
     setOldPassword(newText);
+    setPasswordErrorMessage('');
   }
   const updatePassword = function(newText: string) {
     setEnteredPassword(newText);
     setPasswordErrorMessage('');
+    setPasswordConfirmErrorMessage('');
   }
   const updatePasswordConfirm = function(newText: string) {
     setEnteredPasswordConfirm(newText);
@@ -115,10 +117,15 @@ export const ChangePasswordComponent = () => {
           <HelperText type="error" visible={passwordConfirmErrorMessage.length > 0} style={{ marginTop: 10 }}>
             {passwordConfirmErrorMessage}
           </HelperText>
-          <Button mode="contained" onPress={changePassword}>
+          <Button 
+            mode="contained" onPress={changePassword}
+            disabled={passwordConfirmErrorMessage.length > 0 || passwordConfirmErrorMessage.length > 0}>
             Update Password
           </Button>
-          <Button onPress={backToSettings}>
+          <HelperText type="error" visible={false}>
+            {backLabel}
+          </HelperText>
+          <Button mode="contained" onPress={backToSettings}>
             {backLabel}
           </Button>
         </Card.Content>

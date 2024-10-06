@@ -1,26 +1,32 @@
+import { createStyles, styles } from "@/common/styles";
+import { isMobile } from "@/common/utils";
 import { router } from "expo-router";
-import { Button, useTheme, Text, Surface } from "react-native-paper";
+import { Dimensions } from "react-native";
+import { Button, useTheme, Text, Surface, Card } from "react-native-paper";
 
 export default function Index() {
   const theme = useTheme();
+
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
+
   const signIn = () => { router.replace("/(sign-in-sign-up)/(sign-in)/sign-in") };
-  
+
   return (
-    <Surface
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}>
-      <Text variant="headlineMedium">Fast Friends</Text>
-      <Text>Welcome to Fast Friends, the on-line platform to assist you with bike maintenance</Text>
-      <Text>You think about your rides and who you want to ride with next.</Text>
-      <Text>We'll think about your bike needs so you don't have to</Text>
-      <Text> </Text>
-      <Text> </Text>
-      <Button icon="bike-fast" mode="contained" onPress={signIn}>
-        Get Started
-      </Button>
+    <Surface style={useStyle.container}>
+      <Card style={useStyle.containerScreen}>
+        <Text style={{textAlign: "center"}} variant="headlineMedium">Fast Friends</Text>
+        {/* <Card style={useStyle.centerScreen}> */}
+          <Text style={{textAlign: "center"}}>Welcome to Fast Friends, the on-line platform to assist you with bike maintenance</Text>
+          <Text style={{textAlign: "center"}}>You think about your rides and who you want to ride with next.</Text>
+          <Text style={{textAlign: "center"}}>We'll think about your bike needs so you don't have to</Text>
+          <Text> </Text>
+          <Text> </Text>
+          <Button icon="bike-fast" mode="contained" onPress={signIn}>
+            Get Started
+          </Button>
+        </Card>
+      {/* </Card> */}
     </Surface>
   );
 }

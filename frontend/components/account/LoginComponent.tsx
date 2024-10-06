@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { GestureResponderEvent, NativeSyntheticEvent, Platform, TextInputChangeEventData, TextInputSubmitEditingEventData } from "react-native";
+import { Dimensions, GestureResponderEvent, NativeSyntheticEvent, TextInputSubmitEditingEventData } from "react-native";
 import { useGlobalContext } from "../../common/GlobalContext";
-import { forget, login, remind } from "../../common/utils";
+import { forget, login, remind, isMobile } from '@/common/utils';
 import { baseUrl } from "../../common/http-utils";
 import { ActivityIndicator, Button, HelperText, IconButton, Text } from "react-native-paper";
 import { router } from "expo-router";
 import { Card, TextInput, Surface } from 'react-native-paper';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { createStyles, styles } from "@/common/styles";
 
 export const LoginComponent = () => {
   const appContext = useGlobalContext();
@@ -21,11 +22,12 @@ export const LoginComponent = () => {
   const [email, setEnteredEmail] = useState(user);
   const [password, setEnteredPassword] = useState(pword);
   const [loginErrorMessage, setLoginErrorMessage] = useState('');
-  const isMobile = Platform.OS === 'android' || Platform.OS === 'ios';
-  const [useFaceRecognition, setUseFaceRecognition] = useState(isMobile);
+  const [useFaceRecognition, setUseFaceRecognition] = useState(isMobile());
   const [canUseFaceId, setCanUseFaceId] = useState(false);
   const [passwordHidden, setPasswordHidden] = useState(true);
 
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles;
 
   const updateEmail = function(newText: string) {
     setLoginErrorMessage('');
@@ -88,7 +90,7 @@ export const LoginComponent = () => {
   }
 
   const confirmUseFaceRecognition = async () => {
-    if (!isMobile) {
+    if (!isMobile()) {
       setUseFaceRecognition(false);
       setCanUseFaceId(false);
       return false;
@@ -148,9 +150,10 @@ export const LoginComponent = () => {
   }
   return (
     <Surface>
+      <Text style={{textAlign: "center"}} variant="headlineMedium">Fast Friends</Text>
+
       <ActivityIndicator animating={useFaceRecognition} testID="activity"></ActivityIndicator>
-        <Card>
-          <Card.Title title="Fast Friends"></Card.Title>
+        <Card >
           <Card.Content>
               <TextInput
                   label="Email"

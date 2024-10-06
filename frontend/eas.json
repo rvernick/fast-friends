@@ -10,6 +10,9 @@
     "preview": {
       "distribution": "internal"
     },
+    "testFlight": {
+      "distribution": "internal"
+    },
     "simulator": {
       "developmentClient": true,
       "distribution": "internal",
