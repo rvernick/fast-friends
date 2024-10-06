@@ -150,7 +150,7 @@ export const LoginComponent = () => {
   }
   return (
     <Surface>
-      <Text style={{textAlign: "center"}} variant="headlineMedium">Fast Friends</Text>
+      <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
 
       <ActivityIndicator animating={useFaceRecognition} testID="activity"></ActivityIndicator>
         <Card >

@@ -14,7 +14,7 @@ export default function Index() {
         justifyContent: "center",
         alignItems: "center",
       }}>
-      <Text variant="headlineMedium">Fast Friends</Text>
+      <Text variant="headlineMedium">Pedal Assistant</Text>
       <Text>baseURL: {baseUrl()}</Text>
       <List.Section>
         {

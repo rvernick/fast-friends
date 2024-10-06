@@ -209,7 +209,7 @@ class StravaController extends AppController {
   */
   async linkToStravaMobile(session: any) {
     const appContext = this.appContext;
-    const redirectUri = 'https://fastfriends.biz/strava-reply';
+    const redirectUri = 'https://pedal-assistant.com/strava-reply';
     const authEndpoint = 'https://www.strava.com/oauth/cellPhone/authorize';
     const clientId = await appContext.getStravaClientId(session);
     const clientSecret = await appContext.getStravaClientSecret(session);
