@@ -21,6 +21,13 @@ npm install
 npm run typeorm migration:run -- -d src/data-source.ts
 ```
 
+Create Migrations
+We use a database just for migration creation.  The idea is that a dev database will automatically add tables/columns.  Having a DB that just takes an install and then creates the delta for migrating is better
+using --dryrun is handy for testing
+```bash
+npm run typeorm migration:generate -- -d src/migration-source.ts ./migrations/<NameOfMigration>
+```
+
 ## 
 
 ## Running the app

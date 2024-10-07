@@ -4,6 +4,8 @@ import { User } from './user/user.entity';
 import { PasswordReset } from './user/password-reset.entity';
 import { Bike } from './bike/bike.entity';
 import { MaintenanceItem } from './bike/maintenance-item.entity';
+import { BatchProcess } from './batch/batch-process.entity';
+import { Notification } from './bike/notification';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -14,7 +16,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DATABASE_NAME,
   synchronize: true,
   logging: false,
-  entities: [User, Bike, MaintenanceItem, PasswordReset],
+  entities: [User, Bike, MaintenanceItem, PasswordReset, Notification, BatchProcess],
   migrations: ["./migrations/*"],
   subscribers: [],
 });

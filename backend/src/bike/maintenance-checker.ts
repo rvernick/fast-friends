@@ -5,28 +5,49 @@ import { sendEmail } from "../utils/utils";
 import { MaintenanceItem } from "./maintenance-item.entity";
 import { Notification, NotificationStatus } from "./notification";
 import { StravaService } from "./strava.service";
+import { BatchProcessService } from "../batch/batch-process.service";
+import { BatchProcess } from "../batch/batch-process.entity";
 
+const last_run_maintenance = "MaintenanceChecker";
 
 export class MaintenanceChecker {
   private stravaService: StravaService;
   private userService: UserService;
   private notificationRepository: Repository<Notification>;
+  private batchProcessService: BatchProcessService;
   
-  constructor(theStravaService: StravaService, userService: UserService, notificationRepository: Repository<Notification>) {
+  constructor(theStravaService: StravaService,
+      userService: UserService,
+      notificationRepository: Repository<Notification>,
+      lastRunService: BatchProcessService) {
     this.stravaService = theStravaService;
     this.userService = userService;
     this.notificationRepository = notificationRepository;
+    this.batchProcessService = lastRunService;
+  }
+
+  isReady() {
+    return this.stravaService != null
+      && this.userService != null
+      && this.notificationRepository != null
+      && this.batchProcessService != null;
   }
 
   async runChecks() {
+    var lockedBatchProcess: BatchProcess;
     try {
-      console.log('Running maintenance checks...');
-      if (this.shouldRunChecks()) {
-        console.log('Maintenance checks are enabled');
+      lockedBatchProcess = await this.attemptToLockBatchProcess();
+      if (lockedBatchProcess) {
+        console.log('Running maintenance checks...');
         this.doChecks();
-    }
+        this.finish(lockedBatchProcess);
+      } 
     } catch (error) {
       console.error('Error running maintenance checks:', error);
+    } finally {
+      if (lockedBatchProcess) {
+        this.unlock(lockedBatchProcess);
+      }
     }
   }
 
@@ -104,14 +125,39 @@ export class MaintenanceChecker {
     this.stravaService.updateBikes(user);
   }
 
-  private shouldRunChecks(): boolean {
-    return true; // TODO: Implement this logic.  
-                 // Relying on only running when a user named "strava" has logged in.
+  private async attemptToLockBatchProcess(): Promise<BatchProcess> {
+    const lastRun = await this.batchProcessService.findByName(last_run_maintenance);
+    if (this.shouldRunChecks(lastRun)) {
+      console.log('Attempting to lock maintenance checks...');
+      const lockedBatchProcess = await this.batchProcessService.attemptToLock(lastRun);
+      if (lockedBatchProcess) {
+        console.log('Maintenance checks locked');
+        return lastRun;
+      }
+    }
+    return null;
   }
 
-  private checksNeedRunning(): boolean {
-    // should track last run time and check if it's been more than 1 day
-    // could also check if any bikes have not been updated in the last 24 hours
-    return false; // TODO: Implement this logic
+  private shouldRunChecks(batchProcess: BatchProcess): boolean {
+    // console.log('Checking if maintenance checks should run...' + JSON.stringify(batchProcess) + '\n');
+    if (batchProcess.lockedKey != null) {
+      return this.isOverdue(batchProcess.lockedOn);
+    }
+    return this.isOverdue(batchProcess.lastRan);
   }
+
+  private isOverdue(referenceDate: Date): boolean {
+    if (!referenceDate) return true;  // No last run, always overdue
+    const yesterday = new Date().getTime() - 24*60*60*1000;
+    return referenceDate.getTime() < yesterday;
+  }
+
+  private async finish(batchProcess: BatchProcess) {
+    await this.batchProcessService.finish(batchProcess);
+  }
+
+  private async unlock(batchProcess: BatchProcess) {
+    this.batchProcessService.unlock(batchProcess)
+  }
+
 }

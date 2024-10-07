@@ -14,11 +14,13 @@ import { UserService } from '../user/user.service';
 import { Notification } from './notification';
 import { UpdateMaintenanceItemDto } from './update-maintenance-item.dto';
 import { Part } from './part';
+import { BatchProcessService } from '../batch/batch-process.service';
 
 
 @Injectable()
 export class BikeService {
   private readonly logger = new Logger(BikeService.name);
+  private maintenanceChecker: MaintenanceChecker;
 
   constructor(
     @InjectRepository(Bike)
@@ -27,6 +29,8 @@ export class BikeService {
     private notificationRepository: Repository<Notification>,
     @InjectRepository(MaintenanceItem)
     private maintenanceItemsRepository: Repository<MaintenanceItem>,
+    @Inject(BatchProcessService)
+    private lastRunService: BatchProcessService,
     @Inject(UserService)
     private userService: UserService,
     @Inject(StravaService)
@@ -36,6 +40,18 @@ export class BikeService {
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
+
+  getMaintenanceChecker(): MaintenanceChecker {
+    if (!this.maintenanceChecker || !this.maintenanceChecker.isReady()) {
+      this.maintenanceChecker = new MaintenanceChecker(
+        this.stravaService,
+        this.userService,
+        this.notificationRepository,
+        this.lastRunService,
+      );
+    }
+    return this.maintenanceChecker;
+  }
 
   findAll(): Promise<Bike[]> {
     return this.bikesRepository.find();
@@ -66,6 +82,7 @@ export class BikeService {
 
   async getBike(bikeId: number, username: string): Promise<Bike | null> {
     try {
+      this.runMaintenanceChecks();
       const result = await this.bikesRepository.findOne({
         where: {
           id: bikeId,
@@ -79,17 +96,11 @@ export class BikeService {
     }
   }
 
-  async getBikeById(bikeId: number): Promise<Bike | null> {
+  private runMaintenanceChecks() {
     try {
-      const result = await this.bikesRepository.findOne({
-        where: {
-          id: bikeId,
-        },
-      });
-      return result;
+     this.getMaintenanceChecker().runChecks();
     } catch (e: any) {
-      console.log(e.message);
-      return null;
+      console.log('Error running maintenance checks:', e.message);
     }
   }
 
@@ -97,12 +108,6 @@ export class BikeService {
   getBikes(username: string): Promise<Bike[] | null> {
     const userPromise = this.findUsername(username);
     if (userPromise == null) return null;
-
-    if (username.match(/strava/)) {
-      this.logger.log('getBike: using strava API');
-      const mc = new MaintenanceChecker(this.stravaService, this.userService, this.notificationRepository);
-      mc.runChecks();
-    }
 
     return userPromise
       .then((user: User) => {
