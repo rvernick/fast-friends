@@ -57,5 +57,5 @@ databases:
   - name: fast-friends-prod
     databaseName: fast_friends_prod
     user: fast_friends_prod_user
-    plan: free
+    plan: starter
 
