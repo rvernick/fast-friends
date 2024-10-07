@@ -12,15 +12,18 @@ import { StravaService } from './strava.service';
 import { UserService } from '../user/user.service';
 import { PasswordReset } from '../user/password-reset.entity';
 import { Notification } from './notification';
+import { BatchProcess } from '../batch/batch-process.entity';
+import { BatchProcessService } from '../batch/batch-process.service';
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, MaintenanceItem, PasswordReset, Notification])],
+  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, MaintenanceItem, PasswordReset, Notification, BatchProcess])],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
     BikeService,
+    BatchProcessService,
     UserService,
     StravaService,
   ],

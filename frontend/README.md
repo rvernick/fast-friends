@@ -51,6 +51,12 @@ Checking that the plugins work:
 ```
 npx expo prebuild -p android --clean
 ```
+iOS production creation
+```
+eas build --profile production --platform ios
+```
+
+
 BTW, we have an expo plugin for adding a manifest placeholder to the build.grails file (needed for Strava OAuth use)
 
 https://expo.dev/accounts/fast-friends/projects/fast-friends

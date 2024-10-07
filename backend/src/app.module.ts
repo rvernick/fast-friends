@@ -11,9 +11,13 @@ import { PasswordReset } from './user/password-reset.entity';
 import { Bike } from './bike/bike.entity';
 import { MaintenanceItem } from './bike/maintenance-item.entity';
 import { StravaModule } from './bike/strava.module';
+import { BatchProcessModule } from './batch/batch-process.module';
+import { BatchProcess } from './batch/batch-process.entity';
+import { Notification } from './bike/notification';
 
 @Module({
   imports: [
+    BatchProcessModule,
     AuthModule,
     UsersModule,
     BikeModule,
@@ -32,7 +36,7 @@ import { StravaModule } from './bike/strava.module';
         database: configService.get('DATABASE_NAME', 'fast-friends-dev'),
         username: configService.get('DATABASE_USER', 'fast_friends_dev'),
         password: configService.get('DATABASE_PASSWORD'),
-        entities: [User, Bike, MaintenanceItem, PasswordReset],
+        entities: [User, Bike, MaintenanceItem, PasswordReset, Notification, BatchProcess],
         synchronize: true,
       }),
     }),
