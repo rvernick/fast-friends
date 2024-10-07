@@ -6,7 +6,7 @@ export const sendEmail = (email: string,
     subject: string,
     body: string,
     htmlBody: string = '',
-    from: string = 'support@fastfriends.biz'): boolean => {
+    from: string = 'support@pedal-assistant.com'): boolean => {
 
   const sgMail = require('@sendgrid/mail');
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);

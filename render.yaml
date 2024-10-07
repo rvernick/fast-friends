@@ -43,6 +43,8 @@ services:
   domains:
     - fast-friends.biz
     - www.fast-friends.biz
+    - pedal-assistant.com
+    - www.pedal-assistant.com
   routes:
   - type: rewrite
     source: /*

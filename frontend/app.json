@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "Fast Friends",
+    "name": "Pedal Assistant",
     "slug": "fast-friends",
     "owner": "fast-friends",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/spiral-gears.jpg",
-    "scheme": "biz.fastfriends",
+    "scheme": "com.pedal-assistant",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/spiral-gears.jpg",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "biz.fastfriends",
-      "associatedDomains": ["applinks:fastfriends.biz"],  // https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_associated-domains
+      "associatedDomains": ["applinks:pedal-assistant.com"],  // https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_associated-domains
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -26,7 +26,7 @@
         "foregroundImage": "./assets/images/spiral-gears.jpg",
         "backgroundColor": "#ffffff"
       },
-      "package": "biz.fastfriends"
+      "package": "com.pedal_assistant"
     },
     "web": {
       "bundler": "metro",
@@ -46,7 +46,7 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Allow FastFriends to use Face ID."
+          "faceIDPermission": "Allow Pedal Assistant to use Face ID."
         }
       ]
     ],

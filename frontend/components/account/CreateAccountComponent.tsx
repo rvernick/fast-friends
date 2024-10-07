@@ -83,8 +83,8 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
   
   return (
     <Surface style={useStyle.container}>
-      <Text style={{textAlign: "center"}} variant="headlineMedium">Fast Friends</Text>
-      <Text style={{textAlign: "center"}}>Welcome to Fast Friends, the on-line platform to assist you with bike maintenance</Text>
+      <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
+      <Text style={{textAlign: "center"}}>Welcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
       <Text style={{textAlign: "center"}}>You think about your rides and who you want to ride with next.</Text>
       <Text style={{textAlign: "center"}}>We'll think about your bike needs so you don't have to</Text>
       <Text> </Text>

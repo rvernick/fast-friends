@@ -221,7 +221,7 @@ export class UserService {
     const msg = 'Use the following link to reset your password: ' + passwordResetLink;
     const htmlMsg = 'Use the following link to reset your password: <a href="' + passwordResetLink + '"> Reset Password</a>';
     
-    sendEmail(email, 'FastFriends Password Reset', msg, htmlMsg);
+    sendEmail(email, 'Pedal Assistant Password Reset', msg, htmlMsg);
   };
 
   async updateOrAddBike(bikeDto: UpdateBikeDto): Promise<Bike> {

@@ -12,14 +12,14 @@ module.exports = function withSetPlaceholders(config) {
     if (initialIndex === -1) {  // append a defaultConfig section
       config.modResults.contents = config.modResults.contents + 
       `defaultConfig {\n// place correct redirect scheme~
-        manifestPlaceholders = [appAuthRedirectScheme: 'biz.fastfriends']\n
+        manifestPlaceholders = [appAuthRedirectScheme: 'com.pedal-assistant']\n
       }`;
     } else {
       // Add the billing dependency
       config.modResults.contents =
         config.modResults.contents.slice(0, continueIndex) + 
         `\n// placed appAuthRedirectScheme placeholder for AndroidManifest.xml
-      manifestPlaceholders = [appAuthRedirectScheme: 'biz.fastfriends']\n` +
+      manifestPlaceholders = [appAuthRedirectScheme: 'com.pedal-assistant']\n` +
         config.modResults.contents.slice(continueIndex);
       }
     return config;

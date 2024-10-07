@@ -218,7 +218,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
                 <Dialog visible={warnAgainstLinking} onDismiss={hideWarnAgainstLinking}>
                   <Dialog.Title>Alert</Dialog.Title>
                   <Dialog.Content>
-                    <Text variant="bodyMedium">Log in through browser to link with Strava https://www.fastfriends.biz</Text>
+                    <Text variant="bodyMedium">Log in through browser to link with Strava https://www.pedal-assistant.com</Text>
                   </Dialog.Content>
                   <Dialog.Actions>
                     <Button onPress={hideWarnAgainstLinking}>Done</Button>
