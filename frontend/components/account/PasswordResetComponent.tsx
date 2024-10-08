@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useSession } from "@/ctx";
 import { useGlobalContext } from "@/common/GlobalContext";
 import ResetPasswordController from "./ResetPasswordController";
 import { Button, Card, TextInput, Surface } from "react-native-paper";
@@ -7,7 +6,6 @@ import { isValidEmail } from "@/common/utils";
 import { router } from "expo-router";
 
 export const PasswordResetComponent = () => {
-  const session = useSession();
   const appContext = useGlobalContext();
   const controller = new ResetPasswordController(appContext);
   const [email, setEnteredEmail] = useState('');

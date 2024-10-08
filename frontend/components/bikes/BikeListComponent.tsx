@@ -6,8 +6,6 @@ import { useRouter } from 'expo-router';
 import { Button, List, Text, Surface, Card } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
-import { styles } from '@/common/styles';
-import { ScrollView } from 'react-native';
 
 type BikeListProps = {
   bikes: Bike[] | undefined;

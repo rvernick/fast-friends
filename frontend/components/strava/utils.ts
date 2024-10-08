@@ -1,4 +1,4 @@
-import { get, postExternal } from '../../common/http-utils';
+import { get } from '../../common/http-utils';
 import AppContext from '../../common/app-context';
 
 export enum MaintenanceItemType {
