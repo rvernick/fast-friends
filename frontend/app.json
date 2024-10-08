@@ -16,10 +16,13 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "biz.fastfriends",
-      "associatedDomains": ["applinks:pedal-assistant.com"],  // https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_associated-domains
+      "associatedDomains": [
+        "applinks:pedal-assistant.com"
+      ],
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
@@ -41,7 +44,6 @@
       ],
       [
         "./plugins/withInfoPlist.js"
-
       ],
       [
         "expo-local-authentication",
