@@ -2,7 +2,7 @@ import { Logger, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, createNewUser } from './user.entity';
-import { Bike,  } from '../bike/bike.entity';
+import { Bike  } from '../bike/bike.entity';
 import { StravaAuthenticationDto } from './strava-authentication';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
@@ -53,7 +53,7 @@ export class UserService {
   }
 
   createUser(username: string, password: string) {
-    const newUser = createNewUser(username, password);
+    const newUser = createNewUser(username.toLocaleLowerCase(), password);
     this.usersRepository.insert(newUser);
   }
 

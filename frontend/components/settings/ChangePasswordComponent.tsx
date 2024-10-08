@@ -80,7 +80,6 @@ export const ChangePasswordComponent = () => {
   return (
     <Surface>
       <Card>
-        <Card.Title title="Change Password"></Card.Title>
         <Card.Content>      
           <TextInput
             label="Current Password"

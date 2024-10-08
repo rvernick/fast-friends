@@ -8,8 +8,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchUser } from "../../common/utils";
-import { ScrollView, StyleSheet } from "react-native";
-import { styles } from "@/common/styles";
 
 type SettingsProps = {
   strava_id: string;

@@ -6,6 +6,6 @@ export default function SignUp() {
   const appContext = useGlobalContext();
 
   return (
-      <CreateAccountComponent controller={new CreateAccountController(appContext)}/>
+    <CreateAccountComponent controller={new CreateAccountController(appContext)}/>
   );
 }

@@ -1,6 +1,5 @@
-import { Redirect, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useSession } from "@/ctx";
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
 

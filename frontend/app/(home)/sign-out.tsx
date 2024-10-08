@@ -1,5 +1,3 @@
-import { Redirect, router } from 'expo-router';
-
 import { useSession } from '@/ctx';
 import { Surface, Text } from 'react-native-paper';
 import { useEffect } from 'react';

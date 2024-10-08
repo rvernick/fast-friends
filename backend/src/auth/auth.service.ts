@@ -101,7 +101,7 @@ export class AuthService {
   }
 
   async requestPasswordReset(email: string) {
-    const user = await this.userService.findUsername(email);
+    const user = await this.userService.findUsername(email.toLocaleLowerCase());
     if (user == null) {
       this.logger.log('info', 'failed reset password attempt:' + email + ' ' + user);
       throw new UnauthorizedException();
