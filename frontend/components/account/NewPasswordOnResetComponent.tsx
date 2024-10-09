@@ -84,6 +84,8 @@ export const NewPasswordOnResetComponent: React.FC<NewPasswordOnResetProps> = ()
         autoCapitalize="none"
         autoCorrect={false}
         testID="passwordInput"
+        accessibilityLabel="Password Input"
+        accessibilityHint="New password for account"
       />
       <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
         {passwordErrorMessage}
@@ -96,11 +98,17 @@ export const NewPasswordOnResetComponent: React.FC<NewPasswordOnResetProps> = ()
         secureTextEntry={true}
         autoCapitalize="none"
         autoCorrect={false}
+        accessibilityLabel="Password Confirmation Input"
+        accessibilityHint="Re-enter new password to confirm"
       />
       <HelperText type="error" visible={passwordConfirmErrorMessage.length > 0} style={{ marginTop: 10 }}>
         {passwordConfirmErrorMessage}
       </HelperText>
-      <Button mode="contained" onPress={callResetPassword}>
+      <Button
+        mode="contained" 
+        onPress={callResetPassword}
+        accessibilityLabel="Submit New Password"
+        accessibilityHint="Validates and updates passord for the account">
         Set Password
       </Button>
     </Surface>

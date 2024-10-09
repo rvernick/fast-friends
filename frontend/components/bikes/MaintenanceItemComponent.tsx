@@ -302,29 +302,50 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
           disabled={readOnly}
           onChangeText={dueMilesChange}
           testID="dueMilesInput"
+          accessibilityLabel="Due Milage"
+          accessibilityHint="Milage when this maintenance should be performed"
        />
         <TextInput
           label={"Brand"}
           value={brand}
           disabled={readOnly}
-          onChangeText={(text) => setBrand(text)}/>
+          onChangeText={(text) => setBrand(text)}
+          accessibilityLabel="Brand"
+          accessibilityHint="Brand of part used"/>
         <TextInput
           label={"Model"}
           value={model}
           disabled={readOnly}
-          onChangeText={(text) => setModel(text)}/>
+          onChangeText={(text) => setModel(text)}
+          accessibilityLabel="Model"
+          accessibilityHint="Model of part used"/>
         <TextInput
           label={"Link"}
           value={link}
           disabled={readOnly}
-          onChangeText={(text) => setLink(text)}/>
+          onChangeText={(text) => setLink(text)}
+          accessibilityLabel="Link"
+          accessibilityHint="URL of part used"/>
         </Card>
         <Card>
-          <Button mode="contained" onPress={ editOrDone } disabled={!readOnly && (part == null || bikeIdString == '0') }>
+          <Button
+            mode="contained"
+            onPress={ editOrDone }
+            disabled={!readOnly && (part == null || bikeIdString == '0') }
+            accessibilityLabel="Finished"
+            accessibilityHint="Save any changes and go back">
             { readOnly? 'Edit' : 'Done' }
           </Button>
-          { (readOnly || isNew) ? null : <Button mode="contained" onPress={ cancel }> Cancel </Button>}
-          { (readOnly || isNew) ? null : <Button mode="contained" onPress={ deleteMaintenanceItem }> Delete </Button>}
+          { (readOnly || isNew) ? null : <Button 
+            mode="contained" onPress={ cancel }
+            accessibilityLabel="Cancel"
+            accessibilityHint="Go back without saving changes">
+          Cancel </Button>}
+          { (readOnly || isNew) ? null : <Button
+            mode="contained"
+            onPress={ deleteMaintenanceItem }
+            accessibilityLabel="Delete"
+            accessibilityHint="Delete maintenance item"> Delete </Button>}
       </Card>
     </Surface>
   )

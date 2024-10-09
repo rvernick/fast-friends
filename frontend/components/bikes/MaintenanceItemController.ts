@@ -6,7 +6,6 @@ import { Bike } from "@/models/Bike";
 import { MaintenanceItemType } from "../strava/utils";
 import { MaintenanceItem } from "@/models/MaintenanceItem";
 
-
 class MaintenanceItemController extends AppController {
   constructor(appContext: AppContext) {
     super(appContext);

@@ -6,8 +6,6 @@ import { useRouter } from 'expo-router';
 import { Button, List, Text, Surface, Card } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
-import { styles } from '@/common/styles';
-import { ScrollView } from 'react-native';
 
 type BikeListProps = {
   bikes: Bike[] | undefined;
@@ -47,8 +45,13 @@ const BikeListComponent = () => {
     <List.Section>
           {bikes && bikes.length > 0? (
             bikes?.map(bike => (
-              <List.Item key={bike.id} title={bike.name} description={bike.type}
-                onPress={() => editBike(bike.id)}/>
+              <List.Item
+                key={bike.id}
+                title={bike.name}
+                description={bike.type}
+                onPress={() => editBike(bike.id)}
+                accessibilityLabel={"List item for bike: " + bike.name}
+                accessibilityHint={"Click for details on bike: " + bike.name}/>
           ))) : (
             <Text> No Bikes Found</Text>
           )

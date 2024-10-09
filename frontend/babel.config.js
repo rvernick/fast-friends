@@ -3,9 +3,9 @@ module.exports = function(api) {
   return {
     presets: ['babel-preset-expo'],
     env: { 
-      production: {
-        plugins: ['react-native-paper/babel'],
-      },
+      // production: {
+      //   plugins: ['react-native-paper/babel'],  // This seems to break the production build for DropdownPicker.
+      // },
     },
   };
 };

@@ -2,7 +2,6 @@ import AppContext from "@/common/app-context";
 import AppController from "@/common/AppController";
 import { post } from "@/common/http-utils";
 
-
 class ResetPasswordController extends AppController {
   constructor(context: AppContext) {
     super(context);

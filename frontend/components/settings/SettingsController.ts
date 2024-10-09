@@ -1,6 +1,6 @@
 import AppContext from "../../common/app-context";
 import AppController from "../../common/AppController";
-import { fetchUser, strippedPhone } from "../../common/utils";
+import { strippedPhone } from "../../common/utils";
 import { post } from "../../common/http-utils";
 
 class SettingsController extends AppController {
@@ -46,6 +46,5 @@ class SettingsController extends AppController {
   }
 
 };
-
 
 export default SettingsController;

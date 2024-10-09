@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useSession } from "@/ctx";
 import { useGlobalContext } from "@/common/GlobalContext";
 import ResetPasswordController from "./ResetPasswordController";
 import { Button, Card, TextInput, Surface } from "react-native-paper";
@@ -7,7 +6,6 @@ import { isValidEmail } from "@/common/utils";
 import { router } from "expo-router";
 
 export const PasswordResetComponent = () => {
-  const session = useSession();
   const appContext = useGlobalContext();
   const controller = new ResetPasswordController(appContext);
   const [email, setEnteredEmail] = useState('');
@@ -34,11 +32,15 @@ export const PasswordResetComponent = () => {
             keyboardType="email-address"
             value={email}
             onChangeText={updateEmail} 
-            placeholder="Email" />
+            placeholder="Email"
+            accessibilityLabel="Email Address"
+            accessibilityHint="Email address for account which needs a password reset" />
           <Button 
             disabled={!(isValidEmail(email) || email === DEVELOPER)}
             mode={isValidEmail(email) ? "contained" : "outlined"}
-            onPress={resetPassword}>
+            onPress={resetPassword}
+            accessibilityLabel="Send Password Reset"
+            accessibilityHint="An email with reset information will be sent on press">
             Reset Password
           </Button>
       </Card.Content>

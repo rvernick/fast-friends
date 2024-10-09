@@ -80,7 +80,6 @@ export const ChangePasswordComponent = () => {
   return (
     <Surface>
       <Card>
-        <Card.Title title="Change Password"></Card.Title>
         <Card.Content>      
           <TextInput
             label="Current Password"
@@ -90,6 +89,8 @@ export const ChangePasswordComponent = () => {
             secureTextEntry={true}
             autoCapitalize="none"
             autoCorrect={false}
+            accessibilityLabel="Current Password"
+            accessibilityHint="Enter your current password"
           />
           <TextInput
             label="Password"
@@ -100,6 +101,8 @@ export const ChangePasswordComponent = () => {
             autoCapitalize="none"
             autoCorrect={false}
             testID="passwordInput"
+            accessibilityLabel="New Password"
+            accessibilityHint="Enter your new password"
           />
           <TextInput
             label="Confirm Password"
@@ -110,6 +113,8 @@ export const ChangePasswordComponent = () => {
             autoCapitalize="none"
             autoCorrect={false}
             testID="passwordConfirmInput"
+            accessibilityLabel="Confirm Password"
+            accessibilityHint="Re-enter your new password"
           />
           <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
             {passwordErrorMessage}
@@ -119,13 +124,19 @@ export const ChangePasswordComponent = () => {
           </HelperText>
           <Button 
             mode="contained" onPress={changePassword}
-            disabled={passwordConfirmErrorMessage.length > 0 || passwordConfirmErrorMessage.length > 0}>
+            disabled={passwordConfirmErrorMessage.length > 0 || passwordConfirmErrorMessage.length > 0}
+            accessibilityLabel="Submit Password Change"
+            accessibilityHint="Submits the new password for verification and changing">
             Update Password
           </Button>
           <HelperText type="error" visible={false}>
             {backLabel}
           </HelperText>
-          <Button mode="contained" onPress={backToSettings}>
+          <Button
+            mode="contained"
+            onPress={backToSettings}
+            accessibilityLabel="Cancel Password Change"
+            accessibilityHint="Cancel password change">
             {backLabel}
           </Button>
         </Card.Content>

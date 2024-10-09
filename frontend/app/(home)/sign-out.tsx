@@ -1,15 +1,16 @@
-import { Redirect, router } from 'expo-router';
-
 import { useSession } from '@/ctx';
 import { Surface, Text } from 'react-native-paper';
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { forget } from '@/common/utils';
 
 export default function SignOut() {
   const session = useSession();
   const queryClient = useQueryClient();
 
   const signOut = () => {
+    forget("ff.username");
+    forget("ff.password");
     session.signOut();
   }
 

@@ -161,27 +161,41 @@ export const LoginComponent = () => {
                   onChangeText={updateEmail}
                   value={email}
                   autoComplete="email"
-                  testID="emailInput"/>
+                  testID="emailInput"
+                  accessibilityLabel="email input"
+                  accessibilityHint="The email address for the account being logged in"/>
               <TextInput label="Password"
                   secureTextEntry={passwordHidden}
                   onChangeText={updatePassword}
                   onSubmitEditing={loginSubmit}
                   value={password}
                   right={<TextInput.Icon icon="eye" onPress={() => setPasswordHidden(!passwordHidden)}/>}
-                  testID="passwordInput"/>
+                  testID="passwordInput"
+                  accessibilityLabel="password input"
+                  accessibilityHint="The password for the account being logged in"/>
               <HelperText 
                   type="error"
                   visible={loginErrorMessage.length > 0}
                   testID="loginError">
                 {loginErrorMessage}
               </HelperText>
-              <Button mode="contained" onPress={loginButton}>
+              <Button
+                mode="contained"
+                onPress={loginButton}
+                accessibilityLabel="confirm button"
+                accessibilityHint="Will attempt to login based on the user and password entered">
                 Confirm
               </Button>
-              <Button onPress={() => router.push('/(sign-in)/password-reset')}>
+              <Button
+                onPress={() => router.push('/(sign-in)/password-reset')}
+                accessibilityLabel="forgot password button"
+                accessibilityHint="Go to the screen to request a password reset">
                 Forgot email/password
               </Button>
-              <Button onPress={() => router.replace('/(sign-in-sign-up)/sign-up')}>
+              <Button
+                onPress={() => router.replace('/(sign-in-sign-up)/sign-up')}
+                accessibilityLabel="Sign Up button"
+                accessibilityHint="Go to the create account screen">
                 Sign Up
               </Button>
               {canUseFaceId ? (

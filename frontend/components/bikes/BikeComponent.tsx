@@ -159,13 +159,16 @@ const BikeComponent: React.FC<BikeProps> = () => {
           value={bikeName}
           onChangeText={updateName}
           disabled={readOnly}
-          placeholder="Name" />
+          placeholder="Name"
+          accessibilityLabel="Bike Name"
+          accessibilityHint="Name of the bike" />
         <HelperText type="error" >{errorMessage}</HelperText>
         <TextInput label="Milage"
           disabled={readOnly || connectedToStrava()}
           value={milage}
           onChangeText={(value) => setMileage(value ? value : '')}
-        />
+          accessibilityLabel="Milage"
+          accessibilityHint="Mileage of the bike"/>
         <Dropdown
           disabled={readOnly}
           label="Groupset"
@@ -193,10 +196,14 @@ const BikeComponent: React.FC<BikeProps> = () => {
         <Checkbox.Item label="Electric"
           disabled={readOnly}
           status={isElectronic ? "checked" : "unchecked"} 
-          onPress={values => setIsElectronic(!isElectronic)}/>
+          onPress={values => setIsElectronic(!isElectronic)}
+          accessibilityLabel="Has Electric Assist"/>
         </Card>
         <Card>
-          <Button mode="contained" onPress={ editOrDone }>
+          <Button mode="contained"
+            onPress={ editOrDone }
+            accessibilityLabel="Finished editing"
+            accessibilityHint="Will save any changes and go back">
             { readOnly? 'Edit' : 'Done' }
           </Button>
           { (readOnly || isNew) ? null : <Button mode="contained" onPress={ cancel }> Cancel </Button>}

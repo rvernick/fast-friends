@@ -48,17 +48,17 @@ export default function RootLayout() {
   console.log(systemColorScheme);
   return (
     <ErrorBoundary onError={onError}>
-      <PaperProvider theme={colorScheme}> 
-        <ThemeProvider value={colorScheme}>
-          <QueryClientProvider client={queryClient}>
-            <SessionProvider>
-              <GlobalStateProvider>
+      <QueryClientProvider client={queryClient}>
+        <SessionProvider>
+          <GlobalStateProvider>
+            <ThemeProvider value={colorScheme}>
+              <PaperProvider theme={colorScheme}> 
                 <Slot />
-              </GlobalStateProvider>
-            </SessionProvider>
-          </QueryClientProvider>
-        </ThemeProvider>
-      </PaperProvider>
+              </PaperProvider>
+            </ThemeProvider>
+          </GlobalStateProvider>
+        </SessionProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   )
 }

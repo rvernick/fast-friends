@@ -5,7 +5,7 @@ import { Button } from "react-native-paper";
 
 export default function Layout() {
   return (
-    <Stack >
+    <Stack>
       <Stack.Screen name="maintenance" options={{
           title: "Maintenance Items",
           headerShown: false,

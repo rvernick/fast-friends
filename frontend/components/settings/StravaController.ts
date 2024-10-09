@@ -1,4 +1,4 @@
-import { Linking, Platform } from "react-native";
+import { Linking } from "react-native";
 import AppContext from "../../common/app-context";
 import AppController from "../../common/AppController";
 import { authorize } from 'react-native-app-auth';
