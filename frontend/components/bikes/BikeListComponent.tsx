@@ -45,8 +45,13 @@ const BikeListComponent = () => {
     <List.Section>
           {bikes && bikes.length > 0? (
             bikes?.map(bike => (
-              <List.Item key={bike.id} title={bike.name} description={bike.type}
-                onPress={() => editBike(bike.id)}/>
+              <List.Item
+                key={bike.id}
+                title={bike.name}
+                description={bike.type}
+                onPress={() => editBike(bike.id)}
+                accessibilityLabel={"List item for bike: " + bike.name}
+                accessibilityHint={"Click for details on bike: " + bike.name}/>
           ))) : (
             <Text> No Bikes Found</Text>
           )

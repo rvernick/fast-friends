@@ -102,6 +102,8 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
             keyboardType="email-address"
             onBlur={verifyEmail}
             testID="emailInput"
+            accessibilityLabel="email"
+            accessibilityHint="The email address of the user being created"
           />
           <HelperText type="error" disabled={emailErrorMessage.length == 0} visible={emailErrorMessage.length > 0}>
             {emailErrorMessage}
@@ -116,6 +118,8 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
             autoCorrect={false}
             onBlur={verifyPassword}
             testID="passwordInput"
+            accessibilityLabel="password"
+            accessibilityHint="A password of at least 8 characters with a mix of special, upper and lower case'"
           />
           <TextInput
             label="Confirm Password"
@@ -126,11 +130,17 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
             autoCapitalize="none"
             autoCorrect={false}
             testID="passwordConfirmInput"
+            accessibilityLabel="password confirm"
+            accessibilityHint="Re-enter the password to confirm it"
           />
           <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
             {passwordErrorMessage}
           </HelperText>
-          <Button mode="contained" onPress={apply}>
+          <Button
+            mode="contained"
+            onPress={apply}
+            accessibilityLabel="Sign Up Button"
+            accessibilityHint="The button to submit the info to create the new account">
             Sign Up
           </Button>
           <Text> </Text>

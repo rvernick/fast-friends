@@ -181,6 +181,8 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           mode="outlined"
           autoCapitalize="words"
           autoCorrect={false}
+          accessibilityLabel="First Name"
+          accessibilityHint="First Name"
         />
         <TextInput label="Last Name"
           value={lastName}
@@ -188,6 +190,8 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           mode="outlined"
           autoCapitalize="words"
           autoCorrect={false}
+          accessibilityLabel="Last Name"
+          accessibilityHint="Last Name"
         />
         <HelperText type="error" visible={nameErrorMessage.length > 0} style={{ marginTop: 10 }}>
           {nameErrorMessage}
@@ -197,6 +201,8 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           onChangeText={updateMobile}
           mode="outlined"
           keyboardType="phone-pad"
+          accessibilityLabel="Mobile number"
+          accessibilityHint="Mobile number"
         />
         <HelperText type="error" visible={mobileErrorMessage.length > 0} style={{ marginTop: 10 }}>
           {mobileErrorMessage}
@@ -206,7 +212,11 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
         </HelperText>
         <Card>
           <Card.Content>
-            <Button onPress={ linkToStrava } disabled={stravaId.length > 0}>
+            <Button
+              onPress={ linkToStrava }
+              disabled={stravaId.length > 0}
+              accessibilityLabel="Link to Strava"
+              accessibilityHint="Login to Strava account">
                 {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : 'Connect to Strava'}
               </Button>
               <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
@@ -226,7 +236,12 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           </Card.Content>
         </Card>
         <HelperText type="error"> </HelperText>
-        <Button mode="contained" onPress={ updateAccount } disabled={mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}>
+        <Button
+          mode="contained"
+          onPress={ updateAccount }
+          disabled={mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}
+          accessibilityLabel="Save Changes"
+          accessibilityHint="Save settings changes">
               Update Account
             </Button>
             <HelperText type="error"> </HelperText>

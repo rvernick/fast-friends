@@ -32,11 +32,15 @@ export const PasswordResetComponent = () => {
             keyboardType="email-address"
             value={email}
             onChangeText={updateEmail} 
-            placeholder="Email" />
+            placeholder="Email"
+            accessibilityLabel="Email Address"
+            accessibilityHint="Email address for account which needs a password reset" />
           <Button 
             disabled={!(isValidEmail(email) || email === DEVELOPER)}
             mode={isValidEmail(email) ? "contained" : "outlined"}
-            onPress={resetPassword}>
+            onPress={resetPassword}
+            accessibilityLabel="Send Password Reset"
+            accessibilityHint="An email with reset information will be sent on press">
             Reset Password
           </Button>
       </Card.Content>
