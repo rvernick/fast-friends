@@ -10,12 +10,15 @@ import {
 import { EncryptionTransformer } from 'typeorm-encrypted';
 import * as bcrypt from 'bcrypt';
 import { Bike } from '../bike/bike.entity';
+import { createHash } from 'crypto';
 
 export const createNewUser = (username: string, password: string) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
   const newUser = new User(username, hashedPassword);
   return newUser;
 };
+
+const key = process.env.COLUMN_ENCRYPTION_KEY;
 
 @Entity()
 export class User {
@@ -71,24 +74,44 @@ export class User {
   @Column({
     type: 'varchar',
     nullable: true,
+    transformer: new EncryptionTransformer({
+      key: key,
+      algorithm: 'aes-256-gcm',
+      ivLength: 16
+    })
   })
   stravaCode: string;
 
   @Column({
     type: 'varchar',
     nullable: true,
+    transformer: new EncryptionTransformer({
+      key: key,
+      algorithm: 'aes-256-gcm',
+      ivLength: 16
+    })
   })
   stravaId: string;
   
   @Column({
     type: 'varchar',
     nullable: true,
+    transformer: new EncryptionTransformer({
+      key: key,
+      algorithm: 'aes-256-gcm',
+      ivLength: 16
+    })
   })
   stravaRefreshToken: string;
 
   @Column({
     type: 'varchar',
     nullable: true,
+    transformer: new EncryptionTransformer({
+      key: key,
+      algorithm: 'aes-256-gcm',
+      ivLength: 16
+    })
   })
   stravaAccessToken: string;
 

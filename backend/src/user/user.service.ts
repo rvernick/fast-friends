@@ -123,7 +123,7 @@ export class UserService {
 
   private async syncUserToStrava(user: User, stravaAuthDto: StravaAuthenticationDto): Promise<User> {
     const athlete = await this.getStravaAthlete(stravaAuthDto.stravaToken);
-    user.stravaId = athlete.id;
+    user.stravaId = athlete.id ? athlete.id.toString() : null;
     user.stravaCode = stravaAuthDto.stravaCode;
     user.stravaRefreshToken = stravaAuthDto.stravaRefreshToken;
     console.log('setting stravaId: ' + user.stravaId);

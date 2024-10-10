@@ -19,6 +19,7 @@ export default function Index() {
           <Text style={{textAlign: "center"}}>Pedal Assistant does its best to maintain your data securly and privately</Text>
           <Text style={{textAlign: "center"}}>Currently, we do not track your use of the app or share any data.</Text>
           <Text style={{textAlign: "center"}}>Our privacy policy is evolving.  We'll notify you when it changes.</Text>
+          <Text style={{textAlign: "center"}}>If you have questions, contact: privacy@pedal-assistant.com</Text>
           <Text> </Text>
           <Text> </Text>
           <Button icon="bike-fast" mode="contained" onPress={signIn}>
