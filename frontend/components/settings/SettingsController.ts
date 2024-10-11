@@ -45,6 +45,25 @@ class SettingsController extends AppController {
     }
   }
 
+  async deleteAccount(session: any, username: string) {
+    try {
+      const body = {
+        username: username,
+      };
+
+      const response = await post('/auth/delete-user', body, session.jwt_token);
+      if (response.ok) {
+        return '';
+      }
+      const result = await response.json();
+      console.log('json'+ result.message);
+      return result.message;
+    } catch(e: any) {
+      console.log(e.message);
+      return 'Unable to Delete Account';
+    }
+  }
+
 };
 
 export default SettingsController;

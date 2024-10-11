@@ -72,6 +72,15 @@ export class AuthService {
     );
   }
 
+  async deleteUser(username: string) {
+    const user = await this.userService.findUsername(username);
+    if (user == null) {
+      this.logger.log('info', 'failed update user attempt:'+ username);
+      throw new UnauthorizedException();
+    }
+    this.userService.deleteUser(user);
+  }
+
   async updateStrava(updateStravaDto: UpdateStravaDto) {
 
     const username = updateStravaDto.username;

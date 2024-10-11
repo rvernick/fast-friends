@@ -83,6 +83,10 @@ export class UserService {
     this.usersRepository.save(user);
   }
 
+  deleteUser(user: User) {
+    this.usersRepository.softDelete(user.id);
+  }
+
   unlinkFromStrava(user: User) {
     user.stravaId = null;
     user.stravaCode = null;

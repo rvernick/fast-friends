@@ -27,6 +27,26 @@ export default function SignInSignUp() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="support"
+        options={{
+          title: "Support",
+          headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="account-plus" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="privacy-policy"
+        options={{
+          title: "Privacy",
+          headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="account-plus" color={color} />
+          ),
+        }}
+      />      
     </Tabs>
   );
 }

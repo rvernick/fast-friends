@@ -65,6 +65,14 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
+  @Post('delete-user')
+  deleteUser(@Body("username") username: string) {
+    console.log('auth/delete-user: ' + username);
+    return this.authService.deleteUser(username);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   @Get('check-session')
   checkSession() {
     return { "status": 'logged-in' };
