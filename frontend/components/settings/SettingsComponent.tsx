@@ -27,6 +27,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
   const [warnAgainstLinking, setWarnAgainstLinking] = useState(false);
+  const [warnAgainstDeleting, setWarnAgainstDeleting] = useState(false);
 
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
@@ -159,6 +160,12 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     return phone;
   }
 
+  const deleteAccount = async () => {
+    const msg = await controller.deleteAccount(session, email);
+    invalidateUser();
+    router.replace('/(home)/sign-out');
+  }
+
   useEffect(() => {
     try {
       userUpdated();
@@ -247,7 +254,23 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             <HelperText type="error"> </HelperText>
           <Button mode="contained" onPress={ () => router.push('change-password') }>
               Change Password
-            </Button>
+          </Button>
+          <Text> </Text>
+          <Button mode="contained" onPress={ () => setWarnAgainstDeleting(true) }>
+              Delete Account
+          </Button>
+          <Portal>
+            <Dialog visible={warnAgainstDeleting} onDismiss={ () => setWarnAgainstDeleting(false)}>
+              <Dialog.Title>Alert</Dialog.Title>
+              <Dialog.Content>
+                <Text variant="bodyMedium">Are you sure you want to delete your account?  Cannot be undone.</Text>
+              </Dialog.Content>
+              <Dialog.Actions>
+                <Button onPress={() => setWarnAgainstDeleting(false)}>Cancel</Button>
+                <Button onPress={deleteAccount}>Delete</Button>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal> 
           </Card.Content>
         </Card>
       {/* </ScrollView> */}
