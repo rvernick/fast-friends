@@ -111,7 +111,7 @@ export class MaintenanceChecker {
     for (const bike of user.bikes) {
       const maintenanceItems = bike.maintenanceItems;
       for (const item of maintenanceItems) {
-        if (bike.odometerMeters >= item.dueDistanceMeters && !item.completed) {
+        if (bike.odometerMeters >= item.dueDistanceMeters && !item.wasNotified) {
           // TODO: should exclude items that have recent notifications
           result.push(item);
         }
@@ -139,7 +139,7 @@ export class MaintenanceChecker {
   }
 
   private shouldRunChecks(batchProcess: BatchProcess): boolean {
-    // console.log('Checking if maintenance checks should run...' + JSON.stringify(batchProcess) + '\n');
+   console.log('Checking if maintenance checks should run...' + JSON.stringify(batchProcess) + '\n');
     if (batchProcess.lockedKey != null) {
       return this.isOverdue(batchProcess.lockedOn);
     }

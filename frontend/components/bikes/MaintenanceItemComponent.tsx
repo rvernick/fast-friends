@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import { Button, TextInput, ActivityIndicator, Card, Surface } from "react-native-paper";
+import { Button, TextInput, ActivityIndicator, Card, Surface, Checkbox, Tooltip } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
-import { ensureString } from "@/common/utils";
+import { ensureString, metersToMiles, metersToMilesString, milesToMeters } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { MaintenanceItem, Part } from "@/models/MaintenanceItem";
+import { BooleanDropdown } from "../common/BooleanDropdown";
 
 const groupsetBrands = [
   'Shimano',
@@ -17,8 +18,7 @@ const groupsetBrands = [
   'Other',
 ]
 const groupsetSpeeds = ['1', '9', '10', '11', '12', '13'];
-const oneThousandMilesInMeters = 1609344;
-const threeThousandMilesInMeters = 4828032;
+const threeThousandMilesInMeters = milesToMeters(3000);
 
 const newMaintenanceItem = {
   id: 0,
@@ -29,6 +29,8 @@ const newMaintenanceItem = {
   link: '',
   bikeDistance: 0,
   dueDistanceMeters: threeThousandMilesInMeters,
+  defaultLongevity: 3000,
+  autoAdjustLongevity: true,
 };
 
 const newBike = {
@@ -70,6 +72,9 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const [brand, setBrand] = useState('Shimano');
   const [model, setModel] = useState('');
   const [link, setLink] = useState('');
+  const [defaultLongevity, setDefaultLongevity] = useState('1500');
+  const [autoAdjustLongevity, setAutoAdjustLongevity] = useState(true);
+
   const partOptions = Object.entries(Part).map(([key, val]) => ({ label: val, value: val }));
   const [availabileParts, setAvailabileParts] = useState(partOptions);
 
@@ -90,10 +95,12 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       maintenanceItem.id,
       bike.id,
       part,
-      1609 * parseInt(dueMiles),
+      milesToMeters(parseInt(dueMiles)),
       brand,
       model,
-      link
+      link,
+      milesToMeters(parseInt(defaultLongevity)),
+      autoAdjustLongevity,
     );
     if (successful) {
       queryClient.invalidateQueries({ queryKey: ['bikes'] });
@@ -146,10 +153,12 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       
       console.log('setting part to: ' + item.part.toString());
       setPart(ensureString(item.part.toString()));
-      setDueMiles((item.dueDistanceMeters / 1609).toFixed(0));
+      setDueMiles(metersToMilesString(item.dueDistanceMeters));
       setBrand(ensureString(item.brand));
       setModel(ensureString(item.model));
       setLink(ensureString(item.link));
+      setDefaultLongevity(metersToMilesString(item.defaultLongevity));
+      setAutoAdjustLongevity(item.autoAdjustLongevity);
       console.log('Reset maintenance item: ', item.id );
       console.log('Reset bike: ', bikes.length );
     }
@@ -193,7 +202,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       if (bikeById) {
         console.log('Selected bike id: ', id);
         setBike(bikeById);
-        const title = bikeById.name + ' (' + (bikeById.odometerMeters / 1609).toFixed(0) +' miles)'
+        const title = bikeById.name + ' (' + metersToMilesString(bikeById.odometerMeters) +' miles)'
         setBikeName(title);
         setBikeIdString(idString);
         updatePartsList(bikeById);
@@ -207,7 +216,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
 
   const ensureDueMilageAhead = () => {
     if (isNew || !readOnly) {
-      const currentMiles = bike.odometerMeters / 1609;
+      const currentMiles = metersToMiles(bike.odometerMeters);
       const nextDueMiles = parseInt(dueMiles);
       if (currentMiles > nextDueMiles) {
         const forwardMiles = currentMiles + 1500;
@@ -277,6 +286,16 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     }
   }
 
+  const defaultLongevityChange = (miles: string) => {
+    console.log('defaultLongevityChange: ', miles);
+    try {
+      const parsedMiles = parseInt(miles).toFixed(0);
+      setDefaultLongevity(parsedMiles);
+    } catch (error) {
+      console.log('Invalid default longevity: ', miles);
+    }
+  }
+
   useEffect(() => {
     router.setOptions({ title: ensureString(part) +' : '+ bikeName });
   }), [part, bikeName];
@@ -289,7 +308,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
         <Dropdown
           label="Part"
           value={part}
-          disabled={readOnly}
+          disabled={readOnly || !isNew}
           mode="outlined"
           placeholder='Select Part'
           options={availabileParts}
@@ -305,6 +324,31 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
           accessibilityLabel="Due Milage"
           accessibilityHint="Milage when this maintenance should be performed"
        />
+        <TextInput 
+          label="Default Longevity (miles)"
+          value={defaultLongevity.toString()}
+          disabled={readOnly}
+          onChangeText={defaultLongevityChange}
+          testID="defaultLongevityInput"
+          accessibilityLabel="Default Longevity"
+          accessibilityHint="Typical milage when this maintenance should be performed"
+       />
+       <Tooltip title="Auto Adjust: Use historical maintenance pattern to update longevity">
+        <BooleanDropdown
+            label={"Auto Adjust Longevity"}
+            value={autoAdjustLongevity}
+            readonly={readOnly}
+            onSelect={(value: boolean) => setAutoAdjustLongevity(value)}
+          />
+       </Tooltip>
+       {/* <Checkbox
+        //  label="Auto Adjust Longevity"
+         status={autoAdjustLongevity ? 'checked' : 'unchecked'}
+         disabled={readOnly}
+         onPress={() => setAutoAdjustLongevity(!autoAdjustLongevity)}
+         testID="autoAdjustLongevityCheckbox"
+         accessibilityLabel="Auto Adjust Longevity"
+          accessibilityHint="Automatically adjust due miles to account for longevity"/> */}
         <TextInput
           label={"Brand"}
           value={brand}

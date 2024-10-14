@@ -6,19 +6,9 @@ import {
   UpdateDateColumn,
   ManyToOne,
   DeleteDateColumn,
-  JoinColumn,
 } from 'typeorm';
 import { Bike } from './bike.entity';
-import { JoinAttribute } from 'typeorm/query-builder/JoinAttribute';
 import { Part } from './part';
-
-
-const defaultLongevity = (part: Part): number => {
-  if (part === Part.FRONT_BRAKE_PADS || part === Part.REAR_BRAKE_PADS) {
-    return oneThousandMilesInMeters;
-  }
-  return threeThousandMilesInMeters;
-}
 
 const oneThousandMilesInMeters = 1609344;
 const threeThousandMilesInMeters = 4828032;
@@ -44,25 +34,11 @@ const createMaintenanceItem = (part: Part, distance: number): MaintenanceItem =>
   return maintenanceItem;
 }
 
-export const nextMaintenanceItem = async (maintenanceItem: MaintenanceItem): Promise<MaintenanceItem> => {
-  const replacementMaintenanceItem = new MaintenanceItem();
-  const bike = await maintenanceItem.bike;
-  bike.maintenanceItems.push(replacementMaintenanceItem);
-  replacementMaintenanceItem.part = maintenanceItem.part;
-  replacementMaintenanceItem.type = maintenanceItem.type;
-  replacementMaintenanceItem.brand = maintenanceItem.brand;
-  replacementMaintenanceItem.model = maintenanceItem.model;
-  replacementMaintenanceItem.link = maintenanceItem.link;
-  replacementMaintenanceItem.dueDistanceMeters = bike.odometerMeters + defaultLongevity(maintenanceItem.part);
-  replacementMaintenanceItem.dueDate = maintenanceItem.dueDate;
-  replacementMaintenanceItem.completed = maintenanceItem.completed;
-  return replacementMaintenanceItem;
-}
-
 @Entity()
 export class MaintenanceItem {
   constructor() {
-    this.completed = false;
+    this.defaultLongevity = threeThousandMilesInMeters;
+    this.autoAdjustLongevity = true;
   }
 
   @PrimaryGeneratedColumn()
@@ -112,8 +88,14 @@ export class MaintenanceItem {
   @Column({nullable: true})
   dueDate: Date;
 
-  @Column({default: false})
-  completed: boolean;
+  @Column({nullable: true, default: false})
+  wasNotified: boolean;
+
+  @Column({nullable: false, default: threeThousandMilesInMeters})
+  defaultLongevity: number;
+
+  @Column({nullable: false, default: true})
+  autoAdjustLongevity: boolean;
 
   @DeleteDateColumn({nullable: true})
   deletedOn: Date;

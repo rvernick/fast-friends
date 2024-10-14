@@ -66,7 +66,6 @@ export class BikeService {
   save(bike: Bike): Promise<Bike> {
     return this.bikesRepository.save(bike);
   }
-
   
   unlinkFromStrava(user: User) {
     user.stravaId = null;
@@ -111,8 +110,8 @@ export class BikeService {
 
     return userPromise
       .then((user: User) => {
-        console.log('getBikes: '+ user.bikes.length);
-        console.log('getBikes user: '+ JSON.stringify(user));
+        // console.log('getBikes: '+ user.bikes.length);
+        // console.log('getBikes user: '+ JSON.stringify(user));
         return user.bikes;
       })
       .catch((e: any) => {
@@ -126,10 +125,12 @@ export class BikeService {
   }
 
   async updateOrAddBike(bikeDto: UpdateBikeDto): Promise<Bike> {
+    this.logger.log('Updating or adding bike start');
     try {
+      this.logger.log('Updating or adding bike: ', bikeDto);
       const user = await this.findUsername(bikeDto.username);
       if (user == null) {
-        console.log('User not found: ', bikeDto.username);
+        this.logger.log('User not found: ', bikeDto.username);
         return null;
       }
       var bike: Bike;
@@ -139,16 +140,16 @@ export class BikeService {
         const id = bikeDto.id;
         bike = await this.bikesRepository.findOneBy({ id });
         if (bike == null) {
-          console.log('Bike not found: ', id);
+          this.logger.log('Bike not found: ', id);
           return null;
         }
       }
       const stravaId = bike.stravaId
       if (stravaId == null || stravaId.length == 0) {
         bike.odometerMeters = bikeDto.odometerMeters;
-        console.log("updating odometer because stravaId is null:" + bikeDto.odometerMeters);
+        this.logger.log("updating odometer because stravaId is null:" + bikeDto.odometerMeters);
       } else {
-        console.log("not updating odometer because stravaId is not null:" + stravaId);
+        this.logger.log("not updating odometer because stravaId is not null:" + stravaId);
       }
       bike.name = bikeDto.name;
       bike.type = bikeDto.type;
@@ -157,6 +158,8 @@ export class BikeService {
       bike.isElectronic = bikeDto.isElectronic;
       bike.user = user;
       this.bikesRepository.save(bike);
+      this.logger.log('Bike updated: ' + bikeDto);
+      this.logger.log('Bike updated: ' + bike.odometerMeters);
     } catch (error) {
       console.error('Error updating or adding bike: ', error);
       return null;
@@ -180,7 +183,7 @@ export class BikeService {
     this.bikesRepository.softDelete(bike.id);
   }
 
-  async getMaintenanceItems(username: string, bikeId: number = 0, latest: boolean = true): Promise<MaintenanceItem[]> {
+  async getMaintenanceItems(username: string, bikeId: number = 0): Promise<MaintenanceItem[]> {
     const user = await this.findUsername(username);
     const queryBuilder = await this.dataSource.manager
       .createQueryBuilder(MaintenanceItem, "maintenanceItem")
@@ -188,13 +191,10 @@ export class BikeService {
       .innerJoin("bike.user", "user")
       .where("user.id = :id", { id: user.id })
     
-    if (bikeId!= 0) {
+    if (bikeId != 0) {
       queryBuilder.andWhere("bike.id = :bikeId", { bikeId: bikeId });
     }
 
-    if (latest) {
-      queryBuilder.andWhere("maintenanceItem.completed = false");
-    }
     const result = await queryBuilder.getMany();
     this.logger.log('info', 'Maintenance items for user'+ username + ':'+ result.length);
     return queryBuilder.getMany();
@@ -255,7 +255,9 @@ export class BikeService {
       if (part !== null) {
         maintenanceItem.part = part;
       }
-      maintenanceItem.dueDistanceMeters = maintenanceInfo.duemiles;
+      maintenanceItem.dueDistanceMeters = Math.round(maintenanceInfo.duemiles);
+      maintenanceItem.defaultLongevity = Math.round(maintenanceInfo.defaultLongevity);
+      maintenanceItem.autoAdjustLongevity = maintenanceInfo.autoAdjustLongevity;
       maintenanceItem.brand = maintenanceInfo.brand;
       maintenanceItem.model = maintenanceInfo.model;
       maintenanceItem.link = maintenanceInfo.link;

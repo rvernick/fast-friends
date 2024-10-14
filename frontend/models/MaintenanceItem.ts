@@ -9,6 +9,8 @@ export interface MaintenanceItem {
   link: string;
   bikeDistance: number;
   dueDistanceMeters: number;
+  defaultLongevity: number;
+  autoAdjustLongevity: boolean;
 };
 
 export enum Part {

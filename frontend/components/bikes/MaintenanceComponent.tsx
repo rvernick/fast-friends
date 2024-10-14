@@ -10,7 +10,7 @@ import MaintenanceListController from './MaintenanceListController';
 import { Dropdown } from 'react-native-paper-dropdown';
 import { Dimensions, ScrollView, View } from 'react-native';
 import { createStyles, styles } from '@/common/styles';
-import { isMobile } from '@/common/utils';
+import { isMobile, metersToMilesString } from '@/common/utils';
 
 type MaintenanceListProps = {
   bikes: Bike[] | null | undefined;
@@ -68,7 +68,7 @@ const MaintenanceComponent = () => {
         key={'mi' + maintenanceItem.id}
         title={maintenanceItem.part}
         id={'MLI' + bikeId}
-        description={convertUnits(maintenanceItem.dueDistanceMeters)}
+        description={metersToMilesString(maintenanceItem.dueDistanceMeters)}
         onPress={() => editMaintenanceItem(maintenanceItem.id, bikeId)}
         left={props => <BikePartIcon maintenanceItem={maintenanceItem}/>}
       />
@@ -118,7 +118,7 @@ const MaintenanceComponent = () => {
       <List.Accordion
           expanded={bike.id === expandedBike}
           title={bike.name}
-          description={convertUnits(bike.odometerMeters)}
+          description={metersToMilesString(bike.odometerMeters)}
           onPress={() => handleBikePress(bike.id)}
           key={'bike exa' + bike.id}
           id={'bike exa' + bike.id}>
@@ -268,21 +268,25 @@ const MaintenanceComponent = () => {
               ))}
             </List.Section>
         </ScrollView>
-        <Button
-          style={useStyle.bottomButton} 
-          mode="contained"
-          onPress={addMaintenanceItem}>
-            Add Maintenance Item
-        </Button>
+        <Surface style={{flexDirection: 'row', justifyContent:'space-between', padding: 16 }}>
+          <Button
+            style={{flex: 1}}
+            mode="contained"
+            onPress={addMaintenanceItem}>
+              Add Maintenance Item
+          </Button>
+          <Button
+            style={{flex: 1}}
+            mode="contained"
+            onPress={() => router.push('/(home)/(maintenanceItems)/log-maintenance')}>
+              Log Maintenance
+          </Button>
+        </Surface>
       </Surface>
     );
   }
 };
 
 // navigation.push('Bike', { bike })
-
-const convertUnits = (meters: number): string => {
-  return (meters / 1609).toFixed(0);
-}
 
 export default MaintenanceComponent;

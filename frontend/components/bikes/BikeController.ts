@@ -55,7 +55,8 @@ class BikeController extends AppController {
         isElectronic: isElectronic,
       };
 
-      const response = await post('/user/add-or-update-bike', body, session.jwt_token);
+      console.log('update bike called: ' + JSON.stringify(body));
+      const response = await post('/bike/add-or-update-bike', body, session.jwt_token);
       if (response.ok) {
         return '';
       }
