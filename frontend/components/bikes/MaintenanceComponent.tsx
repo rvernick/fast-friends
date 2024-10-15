@@ -117,7 +117,7 @@ const MaintenanceComponent = () => {
       <List.Accordion
           expanded={expandedBike === bike.id}
           title={bike.name}
-          description={metersToMilesString(bike.odometerMeters)}
+          description={metersToMilesString(bike.odometerMeters) + ' miles'}
           onPress={() => handleBikePress(bike.id)}
           key={'bike exa' + bike.id}
           id={'bike exa' + bike.id}>

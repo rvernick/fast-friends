@@ -129,7 +129,6 @@ export class BikeService {
   }
 
   async updateOrAddBike(bikeDto: UpdateBikeDto): Promise<Bike> {
-    this.logger.log('Updating or adding bike start');
     try {
       this.logger.log('Updating or adding bike: ', bikeDto);
       const user = await this.findUsername(bikeDto.username);
@@ -162,8 +161,6 @@ export class BikeService {
       bike.isElectronic = bikeDto.isElectronic;
       bike.user = user;
       this.bikesRepository.save(bike);
-      this.logger.log('Bike updated: ' + bikeDto);
-      this.logger.log('Bike updated: ' + bike.odometerMeters);
     } catch (error) {
       console.error('Error updating or adding bike: ', error);
       return null;
@@ -333,18 +330,3 @@ export class BikeService {
     return this.userService.findUsername(username)
   }
 }
-
-
-/**
- * bikeid: number;
-  @IsNumber()
-  maintenanceItemId: number;
-  @IsNumber()
-  nextDue: number;
-}
-
-export class MaintenanceLogRequestDto {
-  @IsString()
-  username: string;
-  logs: MaintenanceLogDto[];
- */

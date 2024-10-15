@@ -76,7 +76,7 @@ class BikeController extends AppController {
         id: id,
       };
 
-      const response = await post('/user/delete-bike', body, session.jwt_token);
+      const response = await post('/bike/delete-bike', body, session.jwt_token);
       if (response.ok) {
         return '';
       }

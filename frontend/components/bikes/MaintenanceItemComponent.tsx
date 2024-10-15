@@ -68,7 +68,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const [bikeIdString, setBikeIdString] = useState(initialBikeId);
   const [readOnly, setReadOnly] = useState(!isNew);
   const [part, setPart] = useState(Part.CHAIN.toString())
-  const [dueMiles, setDueMiles] = useState('3000');
+  const [dueMiles, setDueMiles] = useState('1500');
   const [brand, setBrand] = useState('Shimano');
   const [model, setModel] = useState('');
   const [link, setLink] = useState('');
@@ -206,7 +206,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
         setBikeName(title);
         setBikeIdString(idString);
         updatePartsList(bikeById);
-        ensureDueMilageAhead();
+        ensureDueMilageAhead(bikeById);
         console.log('Selected bikeById id: ', id);
       } else {
         console.log('Bike not found: ', idString);
@@ -214,9 +214,9 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     }
   }
 
-  const ensureDueMilageAhead = () => {
+  const ensureDueMilageAhead = (toBike: Bike) => {
     if (isNew || !readOnly) {
-      const currentMiles = metersToMiles(bike.odometerMeters);
+      const currentMiles = metersToMiles(toBike.odometerMeters);
       const nextDueMiles = parseInt(dueMiles);
       if (currentMiles > nextDueMiles) {
         const forwardMiles = currentMiles + 1500;
@@ -278,19 +278,30 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   }
   const dueMilesChange = (miles: string) => {
     console.log('dueMilesChange: ', miles);
+    if (miles === '') {
+      setDueMiles('0');
+      return;
+    }
     try {
       const parsedMiles = parseInt(miles).toFixed(0);
-      setDueMiles(parsedMiles);
+      if (parsedMiles.match(/^[0-9]+$/)) {
+        setDueMiles(parsedMiles);
+      }
     } catch (error) {
       console.log('Invalid due miles: ', miles);
     }
   }
 
   const defaultLongevityChange = (miles: string) => {
-    console.log('defaultLongevityChange: ', miles);
+    if (miles === '') {
+      setDefaultLongevity('0');
+      return;
+    }
     try {
       const parsedMiles = parseInt(miles).toFixed(0);
-      setDefaultLongevity(parsedMiles);
+      if (parsedMiles.match(/^[0-9]+$/)) {
+        setDefaultLongevity(parsedMiles);
+      }
     } catch (error) {
       console.log('Invalid default longevity: ', miles);
     }
@@ -341,14 +352,6 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
             onSelect={(value: boolean) => setAutoAdjustLongevity(value)}
           />
        </Tooltip>
-       {/* <Checkbox
-        //  label="Auto Adjust Longevity"
-         status={autoAdjustLongevity ? 'checked' : 'unchecked'}
-         disabled={readOnly}
-         onPress={() => setAutoAdjustLongevity(!autoAdjustLongevity)}
-         testID="autoAdjustLongevityCheckbox"
-         accessibilityLabel="Auto Adjust Longevity"
-          accessibilityHint="Automatically adjust due miles to account for longevity"/> */}
         <TextInput
           label={"Brand"}
           value={brand}

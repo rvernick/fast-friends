@@ -189,44 +189,6 @@ const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log }) => {
   )
 };
 
-/** Working, but can't edit the text field
- * 
- *     <TouchableRipple style={{width: "100%", flexDirection: "row", marginLeft: 1, marginRight: 1}} onPress={toggleSelectedRow}>
-      <View style={{ width: "100%", flexDirection: "row"}}>
-      <View style={{ width: "10%", padding: 10}}>
-        
-        <Checkbox status={checkedIds.includes(item.id) ? 'checked' : 'unchecked'}
-          onPress={toggleSelectedRow}/>
-      </View>
-      <View style={{ width: "30%", padding: 10}}>
-        <Text >{item.part}</Text>
-      </View>
-      <View style={{width: "30%", alignItems: "stretch"}}>
-        <Text >{' Due: ' + metersToMilesString(item.dueDistanceMeters)}</Text>
-      </View>
-      <View style={{ width: "30%", padding: 10}}>
-        <TextInput value="help" ></TextInput>
-        </View>
-      </View>
-    </TouchableRipple>
-
- * 
- */
-
-
-/**
- *     <TouchableRipple style={{width: "100%", flexDirection: "row", marginLeft: 1, marginRight: 1}} onPress={toggleSelectedRow}>
-      <Card style={{width: "100%", flexDirection: "row", marginLeft: 1, marginRight: 1, alignItems: "stretch"}}>
-        <Card.Content style={{width: "100%", flexDirection: "row", alignItems: "stretch", marginRight: 1}}>
-        <Checkbox status={checkedIds.includes(item.id) ? 'checked' : 'unchecked'}
-          onPress={toggleSelectedRow}/>
-        <Text style={{width: '30%'}}>{item.part}</Text>
-        <Text style={{width: '30%', flex: 0.3}}>{' Due: ' + metersToMilesString(item.dueDistanceMeters)}</Text>
-        <TextInput style={{width: '30%', marginRight: 1}}>{item.name}</TextInput>
-        </Card.Content>
-      </Card>
-    </TouchableRipple>
- */
   useEffect(() => {
     if (checkedIds.includes(0)) {
       setCheckedIds(checkedIds.filter(id => id!== 0));
@@ -300,11 +262,7 @@ type BikeDropdownProps = {
 export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readonly, onSelect }) => {
   if (!bikes || bikes == null || bikes.length == 0) return null;
   if (!bikes) return null;
-  // console.log('BikeDropdown bikes: ', bikes);
-  // console.log('BikeDropdown bikes: ', JSON.stringify(bikes));
   const bikeOptions = bikes?.map(bike => ({ label: bike.name, value: ensureString(bike.id) }));
-  // console.log('BikeDropdown set: ', value);
-  // console.log('BikeDropdown options: ', JSON.stringify(bikeOptions));
   return (
     <Dropdown
         disabled={readonly}

@@ -79,30 +79,30 @@ export class MaintenanceItem {
   })
   link: string;
 
-  @Column({nullable: true})
+  @Column({nullable: true, name: 'last_performed_distance_meters'  })
   lastPerformedDistanceMeters: number;
 
-  @Column({nullable: true})
+  @Column({nullable: true, name: 'due_distance_meters'})
   dueDistanceMeters: number;
 
-  @Column({nullable: true})
+  @Column({nullable: true, name: 'due_date' })
   dueDate: Date;
 
-  @Column({nullable: true, default: false})
+  @Column({nullable: true, default: false, name: 'was_notified'  })
   wasNotified: boolean;
 
-  @Column({nullable: false, default: threeThousandMilesInMeters})
+  @Column({nullable: false, default: threeThousandMilesInMeters, name: 'default_longevity' })
   defaultLongevity: number;
 
-  @Column({nullable: false, default: true})
+  @Column({nullable: false, default: true, name: 'auto_adjust_longevity'  })
   autoAdjustLongevity: boolean;
 
-  @DeleteDateColumn({nullable: true})
+  @DeleteDateColumn({nullable: true, name: 'deleted_on'  })
   deletedOn: Date;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_on'  })
   createdOn: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_on' })
   updatedOn: Date;
 }
