@@ -9,6 +9,7 @@ import { BatchProcessService } from "../batch/batch-process.service";
 import { BatchProcess } from "../batch/batch-process.entity";
 
 const last_run_maintenance = "MaintenanceChecker";
+const twelve_hours = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 
 export class MaintenanceChecker {
   private stravaService: StravaService;
@@ -111,7 +112,7 @@ export class MaintenanceChecker {
     for (const bike of user.bikes) {
       const maintenanceItems = bike.maintenanceItems;
       for (const item of maintenanceItems) {
-        if (bike.odometerMeters >= item.dueDistanceMeters && !item.completed) {
+        if (bike.odometerMeters >= item.dueDistanceMeters && !item.wasNotified) {
           // TODO: should exclude items that have recent notifications
           result.push(item);
         }
@@ -139,7 +140,7 @@ export class MaintenanceChecker {
   }
 
   private shouldRunChecks(batchProcess: BatchProcess): boolean {
-    // console.log('Checking if maintenance checks should run...' + JSON.stringify(batchProcess) + '\n');
+  //  console.log('Checking if maintenance checks should run...' + JSON.stringify(batchProcess) + '\n');
     if (batchProcess.lockedKey != null) {
       return this.isOverdue(batchProcess.lockedOn);
     }
@@ -148,8 +149,8 @@ export class MaintenanceChecker {
 
   private isOverdue(referenceDate: Date): boolean {
     if (!referenceDate) return true;  // No last run, always overdue
-    const yesterday = new Date().getTime() - 24*60*60*1000;
-    return referenceDate.getTime() < yesterday;
+    const deadline = new Date().getTime() - twelve_hours;
+    return referenceDate.getTime() < deadline;
   }
 
   private async finish(batchProcess: BatchProcess) {

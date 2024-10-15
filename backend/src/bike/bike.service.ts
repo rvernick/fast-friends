@@ -15,6 +15,8 @@ import { Notification } from './notification';
 import { UpdateMaintenanceItemDto } from './update-maintenance-item.dto';
 import { Part } from './part';
 import { BatchProcessService } from '../batch/batch-process.service';
+import { MaintenanceLogDto, MaintenanceLogRequestDto } from './log-maintenance.dto';
+import { MaintenanceHistory } from './maintenance-history.entity';
 
 
 @Injectable()
@@ -29,6 +31,8 @@ export class BikeService {
     private notificationRepository: Repository<Notification>,
     @InjectRepository(MaintenanceItem)
     private maintenanceItemsRepository: Repository<MaintenanceItem>,
+    @InjectRepository(MaintenanceHistory)
+    private maintenanceHistoryRepository: Repository<MaintenanceHistory>,
     @Inject(BatchProcessService)
     private lastRunService: BatchProcessService,
     @Inject(UserService)
@@ -66,7 +70,6 @@ export class BikeService {
   save(bike: Bike): Promise<Bike> {
     return this.bikesRepository.save(bike);
   }
-
   
   unlinkFromStrava(user: User) {
     user.stravaId = null;
@@ -111,8 +114,8 @@ export class BikeService {
 
     return userPromise
       .then((user: User) => {
-        console.log('getBikes: '+ user.bikes.length);
-        console.log('getBikes user: '+ JSON.stringify(user));
+        // console.log('getBikes: '+ user.bikes.length);
+        // console.log('getBikes user: '+ JSON.stringify(user));
         return user.bikes;
       })
       .catch((e: any) => {
@@ -127,9 +130,10 @@ export class BikeService {
 
   async updateOrAddBike(bikeDto: UpdateBikeDto): Promise<Bike> {
     try {
+      this.logger.log('Updating or adding bike: ', bikeDto);
       const user = await this.findUsername(bikeDto.username);
       if (user == null) {
-        console.log('User not found: ', bikeDto.username);
+        this.logger.log('User not found: ', bikeDto.username);
         return null;
       }
       var bike: Bike;
@@ -139,16 +143,16 @@ export class BikeService {
         const id = bikeDto.id;
         bike = await this.bikesRepository.findOneBy({ id });
         if (bike == null) {
-          console.log('Bike not found: ', id);
+          this.logger.log('Bike not found: ', id);
           return null;
         }
       }
       const stravaId = bike.stravaId
       if (stravaId == null || stravaId.length == 0) {
         bike.odometerMeters = bikeDto.odometerMeters;
-        console.log("updating odometer because stravaId is null:" + bikeDto.odometerMeters);
+        this.logger.log("updating odometer because stravaId is null:" + bikeDto.odometerMeters);
       } else {
-        console.log("not updating odometer because stravaId is not null:" + stravaId);
+        this.logger.log("not updating odometer because stravaId is not null:" + stravaId);
       }
       bike.name = bikeDto.name;
       bike.type = bikeDto.type;
@@ -180,7 +184,7 @@ export class BikeService {
     this.bikesRepository.softDelete(bike.id);
   }
 
-  async getMaintenanceItems(username: string, bikeId: number = 0, latest: boolean = true): Promise<MaintenanceItem[]> {
+  async getMaintenanceItems(username: string, bikeId: number = 0): Promise<MaintenanceItem[]> {
     const user = await this.findUsername(username);
     const queryBuilder = await this.dataSource.manager
       .createQueryBuilder(MaintenanceItem, "maintenanceItem")
@@ -188,13 +192,10 @@ export class BikeService {
       .innerJoin("bike.user", "user")
       .where("user.id = :id", { id: user.id })
     
-    if (bikeId!= 0) {
+    if (bikeId != 0) {
       queryBuilder.andWhere("bike.id = :bikeId", { bikeId: bikeId });
     }
 
-    if (latest) {
-      queryBuilder.andWhere("maintenanceItem.completed = false");
-    }
     const result = await queryBuilder.getMany();
     this.logger.log('info', 'Maintenance items for user'+ username + ':'+ result.length);
     return queryBuilder.getMany();
@@ -255,7 +256,9 @@ export class BikeService {
       if (part !== null) {
         maintenanceItem.part = part;
       }
-      maintenanceItem.dueDistanceMeters = maintenanceInfo.duemiles;
+      maintenanceItem.dueDistanceMeters = Math.round(maintenanceInfo.duemiles);
+      maintenanceItem.defaultLongevity = Math.round(maintenanceInfo.defaultLongevity);
+      maintenanceItem.autoAdjustLongevity = maintenanceInfo.autoAdjustLongevity;
       maintenanceItem.brand = maintenanceInfo.brand;
       maintenanceItem.model = maintenanceInfo.model;
       maintenanceItem.link = maintenanceInfo.link;
@@ -282,6 +285,45 @@ export class BikeService {
       console.error('Error deleting maintenance item: ', error);
       throw error;
     }
+  }
+
+  async logPerformedMaintenance(maintenanceLogs: MaintenanceLogRequestDto): Promise<string> {
+    const user = await this.findUsername(maintenanceLogs.username);
+    if (user == null) return "Cant find user";
+    try {
+      maintenanceLogs.logs.forEach(async (log) => {
+        this.logMaintenanceDone(log, user);
+      });
+      return '';
+    } catch (error) {
+      console.error('Error logging maintenance: ', error);
+      return error.message;
+    }
+  }
+
+  private async logMaintenanceDone(log: MaintenanceLogDto, user: User) {
+    const maintenanceItem = await this.getMaintenanceItem(log.maintenanceItemId, user.username);
+    if (maintenanceItem == null) {
+      console.error('Maintenance item not found for user '+ user.username +' and id '+ log.maintenanceItemId);
+      throw new Error('Maintenance item not found');
+    }
+    const bike = await this.getBike(log.bikeid, user.username);
+    if (bike == null) {
+      console.error('Bike not found for user '+ user.username +' and bikeid '+ log.bikeid);
+      throw new Error('Bike not found');
+    }
+    const maintenanceHistory = this.maintenanceHistoryRepository.create();
+    maintenanceHistory.maintenanceItem = maintenanceItem;
+    maintenanceHistory.part = maintenanceItem.part;
+    maintenanceHistory.distanceMeters = bike.odometerMeters;
+    maintenanceHistory.type = maintenanceItem.type;
+    maintenanceHistory.brand = maintenanceItem.brand;
+    maintenanceHistory.model = maintenanceItem.model;
+    maintenanceHistory.link = maintenanceItem.link;
+    this.maintenanceHistoryRepository.save(maintenanceHistory);
+
+    maintenanceItem.dueDistanceMeters = log.nextDue;
+    this.maintenanceItemsRepository.save(maintenanceItem);
   }
 
   private findUsername(username: string): Promise<User | null> {

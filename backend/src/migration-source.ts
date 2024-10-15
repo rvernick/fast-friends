@@ -6,6 +6,7 @@ import { Bike } from './bike/bike.entity';
 import { MaintenanceItem } from './bike/maintenance-item.entity';
 import { Notification } from './bike/notification';
 import { BatchProcess } from './batch/batch-process.entity';
+import { MaintenanceHistory } from './bike/maintenance-history.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -16,7 +17,7 @@ export const AppDataSource = new DataSource({
   database: "migration_builder",
   synchronize: false,
   logging: false,
-  entities: [User, Bike, MaintenanceItem, PasswordReset, Notification, BatchProcess],
+  entities: [User, Bike, MaintenanceItem, MaintenanceHistory, PasswordReset, Notification, BatchProcess],
   migrations: ["./migrations/*"],
   subscribers: [],
 });

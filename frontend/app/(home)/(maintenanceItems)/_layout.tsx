@@ -14,6 +14,10 @@ export default function Layout() {
         title: 'Maintenance Item',
         headerLeft: () => <Button onPress={() => router.back()} icon="arrow-left">{""}</Button>,
       }} />
+      <Stack.Screen name="log-maintenance" options={{
+        title: 'Log Maintenance',
+        headerLeft: () => <Button onPress={() => router.back()} icon="arrow-left">{""}</Button>,
+      }} />
     </Stack>
   );
 }

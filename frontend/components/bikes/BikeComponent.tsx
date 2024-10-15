@@ -6,7 +6,7 @@ import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface, Appbar } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
-import { ensureString } from "@/common/utils";
+import { ensureString, metersToMilesString, milesToMeters } from "@/common/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 const groupsetBrands = [
@@ -78,7 +78,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
     setGroupsetBrand(ensureString(bike.groupsetBrand));
     setSpeeds(ensureString(bike.groupsetSpeed));
     setIsElectronic(bike.isElectronic);
-    setMileage((bike.odometerMeters / 1609).toFixed(0));
+    setMileage(metersToMilesString(bike.odometerMeters));
     setStravaId(ensureString(bike.stravaId));
     setReadOnly(true);
   }
@@ -86,7 +86,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
   const updateBike = async function() {
     const result = await controller.updateBike(session, email, bikeId,
       bikeName,
-      parseInt(milage) * 1609,
+      milesToMeters(parseInt(milage)),
       type,
       groupsetBrand,
       speed,

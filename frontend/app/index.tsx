@@ -2,7 +2,8 @@ import { createStyles, styles } from "@/common/styles";
 import { isMobile } from "@/common/utils";
 import { router } from "expo-router";
 import { Dimensions } from "react-native";
-import { Button, useTheme, Text, Surface, Card } from "react-native-paper";
+import { Image } from "react-native";
+import { Button, useTheme, Text, Surface, Card, IconButton } from "react-native-paper";
 
 export default function Index() {
   const theme = useTheme();
@@ -11,22 +12,45 @@ export default function Index() {
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
 
   const signIn = () => { router.replace("/(sign-in-sign-up)/(sign-in)/sign-in") };
+  const appStoreURL = "https://apps.apple.com/us/app/pedal-assistant/id6680175112?itscg=30200&itsct=apps_box_badge&mttnsubad=6680175112";
 
   return (
     <Surface style={useStyle.container}>
-      <Card style={useStyle.containerScreen}>
+      <Image
+            source={{
+              uri: 'https://apps.apple.com/us/app/pedal-assistant/id6680175112?itscg=30200&itsct=apps_box_badge&mttnsubad=6680175112',
+            }}
+            />
+      <Card mode="contained" style={useStyle.containerScreen} >
         <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
-        {/* <Card style={useStyle.centerScreen}> */}
-          <Text style={{textAlign: "center"}}>Welcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
-          <Text style={{textAlign: "center"}}>You think about your rides and who you want to ride with next.</Text>
-          <Text style={{textAlign: "center"}}>We'll think about your bike needs so you don't have to</Text>
-          <Text> </Text>
-          <Text> </Text>
-          <Button icon="bike-fast" mode="contained" onPress={signIn}>
-            Get Started
-          </Button>
+        <Text style={{textAlign: "center"}}>Welcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
+        <Text style={{textAlign: "center"}}>You think about your rides and who you want to ride with next.</Text>
+        <Text style={{textAlign: "center"}}>We'll think about your bike needs so you don't have to</Text>
+        <Text> </Text>
+        <Text> </Text>
+        <Button icon="bike-fast" mode="contained" onPress={signIn}>
+          Get Started
+        </Button>
+        
+        
+      </Card>
+      { isMobile() ? null : (
+        <Card mode="contained">
+          <IconButton
+            onPress={() => window.open(appStoreURL)}
+            style={{ left: 1, width: 246, height: 82 }}
+            icon={() =>
+              <Image
+                source={{
+                  uri: 'https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1728691200',
+                }}
+                style={{ width: 246, height: 82}}
+                />}
+                mode="contained"
+          />
+
         </Card>
-      {/* </Card> */}
+      )}
     </Surface>
   );
 }

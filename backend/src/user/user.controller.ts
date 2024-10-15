@@ -26,19 +26,4 @@ export class UserController {
     console.log('user/sync-strava stravaAuthDto:' + JSON.stringify(stravaAuthDto));
     return this.userService.syncStravaUser(stravaAuthDto);
   }
-
-  @HttpCode(HttpStatus.OK)
-  @Post('add-or-update-bike')
-  updateOrAddBike(@Body() bike: UpdateBikeDto): Promise<Bike | null> {
-    console.log('user/add-or-update-bike bike:'+ JSON.stringify(bike));
-    const result = this.userService.updateOrAddBike(bike);
-    console.log('user/add-or-update-bike bike done:'+ JSON.stringify(result));
-    return result;
-  }
-  @HttpCode(HttpStatus.OK)
-  @Post('delete-bike')
-  deleteBike(@Body() bike: DeleteBikeDto): Promise<Bike | null> {
-    console.log('user/add-or-update-bike bike:'+ JSON.stringify(bike));
-    return this.userService.deleteBike(bike);
-  }
 }

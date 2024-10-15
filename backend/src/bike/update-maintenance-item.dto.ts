@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator'
+import { IsBoolean, IsNumber, IsString } from 'class-validator'
 
 export class UpdateMaintenanceItemDto {
   @IsString()
@@ -24,4 +24,10 @@ export class UpdateMaintenanceItemDto {
 
   @IsString()
   link: string;
+
+  @IsNumber()
+  defaultLongevity: number;
+
+  @IsBoolean()
+  autoAdjustLongevity: boolean;
 }

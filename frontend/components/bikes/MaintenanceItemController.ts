@@ -3,7 +3,6 @@ import AppController from "@/common/AppController";
 import { getInternal, post } from "@/common/http-utils";
 import { ensureString, sleep } from "@/common/utils";
 import { Bike } from "@/models/Bike";
-import { MaintenanceItemType } from "../strava/utils";
 import { MaintenanceItem } from "@/models/MaintenanceItem";
 
 class MaintenanceItemController extends AppController {
@@ -94,7 +93,9 @@ class MaintenanceItemController extends AppController {
       dueMiles: number,
       brand: string,
       model: string,
-      link: string
+      link: string,
+      defaultLongevity: number,
+      autoAdjustLongevity: boolean,
     ) => {
 
     if (session === null) {
@@ -118,6 +119,8 @@ class MaintenanceItemController extends AppController {
         model: ensureString(model),
         maintenanceid: maintenanceItemId,
         link: ensureString(link),
+        defaultLongevity: defaultLongevity,
+        autoAdjustLongevity: autoAdjustLongevity,
       };
       console.log('update maintenanceItem ' + maintenanceItemId);
       console.log('/bike/update-or-add-maintenance-item', JSON.stringify(parameters));
@@ -129,6 +132,34 @@ class MaintenanceItemController extends AppController {
     }
   }
 
+  async logMaintenance(session: any, selectedItems: MaintenanceLog[]): Promise<string> {
+    console.log('log maintenance ' + session.email);
+    const logUpdates = selectedItems.map(item => ({
+      maintenanceItemId: item.maintenanceItem.id,
+      bikeId: item.bikeId,
+      nextDue: item.nextDue,
+    }));
+
+    try {
+      const parameters = {
+        username: session.email,
+        logs: logUpdates,
+      };
+      const response = await post('/bike/log-performed-maintenance', parameters, session.jwt_token);
+      return response.ok ? '' : 'Failed to log maintenance';
+    } catch(e: any) {
+      console.log(e.message);
+      return e.message;
+    }
+  }
+}
+
+interface MaintenanceLog {
+  id: number;
+  bikeId: number;
+  maintenanceItem: MaintenanceItem;
+  nextDue: number;
+  selected: boolean;
 }
 
 export default MaintenanceItemController;

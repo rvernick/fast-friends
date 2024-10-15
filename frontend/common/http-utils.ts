@@ -59,6 +59,7 @@ export const postExternal = async (urlBase: string, endpoint: string, args: Obje
   const body = JSON.stringify(args);
   // console.log('Posting: ' + url + '\n' + body);
   if (jwtToken) {
+    // console.log('jwtToken'+ jwtToken);
     headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer '+ jwtToken,

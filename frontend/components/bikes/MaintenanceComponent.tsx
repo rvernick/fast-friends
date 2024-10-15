@@ -10,7 +10,7 @@ import MaintenanceListController from './MaintenanceListController';
 import { Dropdown } from 'react-native-paper-dropdown';
 import { Dimensions, ScrollView, View } from 'react-native';
 import { createStyles, styles } from '@/common/styles';
-import { isMobile } from '@/common/utils';
+import { isMobile, metersToMilesString } from '@/common/utils';
 
 type MaintenanceListProps = {
   bikes: Bike[] | null | undefined;
@@ -30,8 +30,8 @@ const MaintenanceComponent = () => {
   const navigation = useNavigation();
   const controller = new MaintenanceListController(appContext);
   const [isUpdating, setIsUpdating] = useState(true);
-  const [sortOption, setSortOption] = useState('A-Z');
-  const [expandedBike, setExpandedBike] = useState(1);
+  const [sortOption, setSortOption] = useState('Due');
+  const [expandedBike, setExpandedBike] = useState(0);
   // const [sortOption, setSortOption] = useState('dueDate');
 
   const dimensions = Dimensions.get('window');
@@ -68,7 +68,7 @@ const MaintenanceComponent = () => {
         key={'mi' + maintenanceItem.id}
         title={maintenanceItem.part}
         id={'MLI' + bikeId}
-        description={convertUnits(maintenanceItem.dueDistanceMeters)}
+        description={metersToMilesString(maintenanceItem.dueDistanceMeters)}
         onPress={() => editMaintenanceItem(maintenanceItem.id, bikeId)}
         left={props => <BikePartIcon maintenanceItem={maintenanceItem}/>}
       />
@@ -86,16 +86,15 @@ const MaintenanceComponent = () => {
   const sortItems = (items: MaintenanceItem[]): MaintenanceItem[] => {
     if (sortOption === 'A-Z') {
       return items.sort((a, b) => a.part.localeCompare(b.part));
-    } else if (sortOption === 'Due') {
-      return items.sort((a, b) => a.dueDistanceMeters - b.dueDistanceMeters);
     }
-    return items;
+    // sort option Due by default
+    return items.sort((a, b) => a.dueDistanceMeters - b.dueDistanceMeters);
   }
 
   const handleBikePress = (bikeId: number) => {
    if (!data || data.length == 0) return;
    if (data?.length == 1) {
-    setExpandedBike(bikeId);
+    setExpandedBike(data[0].id);
     return;
    }
    if (expandedBike != bikeId) {
@@ -116,9 +115,9 @@ const MaintenanceComponent = () => {
     const sortedItems = sortItems(bike.maintenanceItems);
     return (
       <List.Accordion
-          expanded={bike.id === expandedBike}
+          expanded={expandedBike === bike.id}
           title={bike.name}
-          description={convertUnits(bike.odometerMeters)}
+          description={metersToMilesString(bike.odometerMeters) + ' miles'}
           onPress={() => handleBikePress(bike.id)}
           key={'bike exa' + bike.id}
           id={'bike exa' + bike.id}>
@@ -227,10 +226,10 @@ const MaintenanceComponent = () => {
 
   useEffect(() => {
     navigation.setOptions({ title: 'Maintenance' });
-    if (expandedBike === 1 && data && data.length > 1) {
-      handleBikePress(1);
+    if (expandedBike === 0 && data && data.length > 0) {
+      handleBikePress(0);
     }
-  });
+  }, [data]);
 
   if (!data || isFetching || data.length === 0) {
     return (
@@ -268,21 +267,25 @@ const MaintenanceComponent = () => {
               ))}
             </List.Section>
         </ScrollView>
-        <Button
-          style={useStyle.bottomButton} 
-          mode="contained"
-          onPress={addMaintenanceItem}>
-            Add Maintenance Item
-        </Button>
+        <Surface style={{flexDirection: 'row', justifyContent:'space-between', padding: 16 }}>
+          <Button
+            style={{flex: 1}}
+            mode="contained"
+            onPress={addMaintenanceItem}>
+              Add Maintenance Item
+          </Button>
+          <Button
+            style={{flex: 1}}
+            mode="contained"
+            onPress={() => router.push('/(home)/(maintenanceItems)/log-maintenance')}>
+              Log Maintenance
+          </Button>
+        </Surface>
       </Surface>
     );
   }
 };
 
 // navigation.push('Bike', { bike })
-
-const convertUnits = (meters: number): string => {
-  return (meters / 1609).toFixed(0);
-}
 
 export default MaintenanceComponent;

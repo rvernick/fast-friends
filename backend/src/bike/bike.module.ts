@@ -14,9 +14,10 @@ import { PasswordReset } from '../user/password-reset.entity';
 import { Notification } from './notification';
 import { BatchProcess } from '../batch/batch-process.entity';
 import { BatchProcessService } from '../batch/batch-process.service';
+import { MaintenanceHistory } from './maintenance-history.entity';
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, MaintenanceItem, PasswordReset, Notification, BatchProcess])],
+  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, MaintenanceItem, MaintenanceHistory, PasswordReset, Notification, BatchProcess])],
   providers: [
     {
       provide: APP_GUARD,
