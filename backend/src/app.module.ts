@@ -14,6 +14,7 @@ import { StravaModule } from './bike/strava.module';
 import { BatchProcessModule } from './batch/batch-process.module';
 import { BatchProcess } from './batch/batch-process.entity';
 import { Notification } from './bike/notification';
+import { MaintenanceHistory } from './bike/maintenance-history.entity';
 
 @Module({
   imports: [
@@ -36,7 +37,7 @@ import { Notification } from './bike/notification';
         database: configService.get('DATABASE_NAME', 'fast-friends-dev'),
         username: configService.get('DATABASE_USER', 'fast_friends_dev'),
         password: configService.get('DATABASE_PASSWORD'),
-        entities: [User, Bike, MaintenanceItem, PasswordReset, Notification, BatchProcess],
+        entities: [User, Bike, MaintenanceItem, MaintenanceHistory, PasswordReset, Notification, BatchProcess],
         synchronize: true,
       }),
     }),

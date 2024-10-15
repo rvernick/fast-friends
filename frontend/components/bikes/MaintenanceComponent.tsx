@@ -30,8 +30,8 @@ const MaintenanceComponent = () => {
   const navigation = useNavigation();
   const controller = new MaintenanceListController(appContext);
   const [isUpdating, setIsUpdating] = useState(true);
-  const [sortOption, setSortOption] = useState('A-Z');
-  const [expandedBike, setExpandedBike] = useState(1);
+  const [sortOption, setSortOption] = useState('Due');
+  const [expandedBike, setExpandedBike] = useState(0);
   // const [sortOption, setSortOption] = useState('dueDate');
 
   const dimensions = Dimensions.get('window');
@@ -86,16 +86,15 @@ const MaintenanceComponent = () => {
   const sortItems = (items: MaintenanceItem[]): MaintenanceItem[] => {
     if (sortOption === 'A-Z') {
       return items.sort((a, b) => a.part.localeCompare(b.part));
-    } else if (sortOption === 'Due') {
-      return items.sort((a, b) => a.dueDistanceMeters - b.dueDistanceMeters);
     }
-    return items;
+    // sort option Due by default
+    return items.sort((a, b) => a.dueDistanceMeters - b.dueDistanceMeters);
   }
 
   const handleBikePress = (bikeId: number) => {
    if (!data || data.length == 0) return;
    if (data?.length == 1) {
-    setExpandedBike(bikeId);
+    setExpandedBike(data[0].id);
     return;
    }
    if (expandedBike != bikeId) {
@@ -116,7 +115,7 @@ const MaintenanceComponent = () => {
     const sortedItems = sortItems(bike.maintenanceItems);
     return (
       <List.Accordion
-          expanded={bike.id === expandedBike}
+          expanded={expandedBike === bike.id}
           title={bike.name}
           description={metersToMilesString(bike.odometerMeters)}
           onPress={() => handleBikePress(bike.id)}
@@ -227,10 +226,10 @@ const MaintenanceComponent = () => {
 
   useEffect(() => {
     navigation.setOptions({ title: 'Maintenance' });
-    if (expandedBike === 1 && data && data.length > 1) {
-      handleBikePress(1);
+    if (expandedBike === 0 && data && data.length > 0) {
+      handleBikePress(0);
     }
-  });
+  }, [data]);
 
   if (!data || isFetching || data.length === 0) {
     return (

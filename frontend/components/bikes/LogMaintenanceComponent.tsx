@@ -126,8 +126,7 @@ const LogMaintenanceComponent = () => {
   }
 
   const submitMaintenance = () => {
-    console.log('submitMaintenance');
-    const selectedItems = maintenanceLogs.filter(log => log.selected && log.bikeId === bike.id);
+    const selectedItems = maintenanceLogs.filter(log => checkedIds.includes(log.id) && log.bikeId === bike.id);
     controller.logMaintenance(session, selectedItems);
   }
 

@@ -15,6 +15,8 @@ import { Notification } from './notification';
 import { UpdateMaintenanceItemDto } from './update-maintenance-item.dto';
 import { Part } from './part';
 import { BatchProcessService } from '../batch/batch-process.service';
+import { MaintenanceLogDto, MaintenanceLogRequestDto } from './log-maintenance.dto';
+import { MaintenanceHistory } from './maintenance-history.entity';
 
 
 @Injectable()
@@ -29,6 +31,8 @@ export class BikeService {
     private notificationRepository: Repository<Notification>,
     @InjectRepository(MaintenanceItem)
     private maintenanceItemsRepository: Repository<MaintenanceItem>,
+    @InjectRepository(MaintenanceHistory)
+    private maintenanceHistoryRepository: Repository<MaintenanceHistory>,
     @Inject(BatchProcessService)
     private lastRunService: BatchProcessService,
     @Inject(UserService)
@@ -286,7 +290,61 @@ export class BikeService {
     }
   }
 
+  async logPerformedMaintenance(maintenanceLogs: MaintenanceLogRequestDto): Promise<string> {
+    const user = await this.findUsername(maintenanceLogs.username);
+    if (user == null) return "Cant find user";
+    try {
+      maintenanceLogs.logs.forEach(async (log) => {
+        this.logMaintenanceDone(log, user);
+      });
+      return '';
+    } catch (error) {
+      console.error('Error logging maintenance: ', error);
+      return error.message;
+    }
+  }
+
+  private async logMaintenanceDone(log: MaintenanceLogDto, user: User) {
+    const maintenanceItem = await this.getMaintenanceItem(log.maintenanceItemId, user.username);
+    if (maintenanceItem == null) {
+      console.error('Maintenance item not found for user '+ user.username +' and id '+ log.maintenanceItemId);
+      throw new Error('Maintenance item not found');
+    }
+    const bike = await this.getBike(log.bikeid, user.username);
+    if (bike == null) {
+      console.error('Bike not found for user '+ user.username +' and bikeid '+ log.bikeid);
+      throw new Error('Bike not found');
+    }
+    const maintenanceHistory = this.maintenanceHistoryRepository.create();
+    maintenanceHistory.maintenanceItem = maintenanceItem;
+    maintenanceHistory.part = maintenanceItem.part;
+    maintenanceHistory.distanceMeters = bike.odometerMeters;
+    maintenanceHistory.type = maintenanceItem.type;
+    maintenanceHistory.brand = maintenanceItem.brand;
+    maintenanceHistory.model = maintenanceItem.model;
+    maintenanceHistory.link = maintenanceItem.link;
+    this.maintenanceHistoryRepository.save(maintenanceHistory);
+
+    maintenanceItem.dueDistanceMeters = log.nextDue;
+    this.maintenanceItemsRepository.save(maintenanceItem);
+  }
+
   private findUsername(username: string): Promise<User | null> {
     return this.userService.findUsername(username)
   }
 }
+
+
+/**
+ * bikeid: number;
+  @IsNumber()
+  maintenanceItemId: number;
+  @IsNumber()
+  nextDue: number;
+}
+
+export class MaintenanceLogRequestDto {
+  @IsString()
+  username: string;
+  logs: MaintenanceLogDto[];
+ */

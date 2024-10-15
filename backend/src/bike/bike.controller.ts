@@ -108,11 +108,9 @@ export class BikeController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Post('log-performed-maintenance')
-  logPerformedMaintenance(@Body() maintenanceLog: MaintenanceLogRequestDto): string {
-    console.log('log-performed-maintenance user:' + JSON.stringify(maintenanceLog));
-    return 'Done';
-    // return this.bikeService.deleteMaintenanceItem(maintenanceId, username);
+  logPerformedMaintenance(@Body() maintenanceLogs: MaintenanceLogRequestDto): Promise<string> {
+    console.log('log-performed-maintenance user:' + JSON.stringify(maintenanceLogs));
+    return this.bikeService.logPerformedMaintenance(maintenanceLogs);
   }
 
-  
 }
