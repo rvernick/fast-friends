@@ -149,7 +149,7 @@ export const LoginComponent = () => {
     );
   }
   return (
-    <Surface>
+    <Surface style={useStyle.container}>
       <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
 
       <ActivityIndicator animating={useFaceRecognition} testID="activity"></ActivityIndicator>

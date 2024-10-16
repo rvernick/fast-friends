@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { useLocalSearchParams, useNavigation } from "expo-router";
-import { Button, Text, Surface, Checkbox, TextInput } from "react-native-paper";
+import { useNavigation } from "expo-router";
+import { Button, Text, Surface, Checkbox, TextInput, Card, Icon } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
 import { ensureString, isMobile, metersToMilesString, milesToMeters } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { MaintenanceItem, Part } from "@/models/MaintenanceItem";
-import { FlatList, View } from "react-native";
-import { LogMaintenanceController } from "./LogMaintenanceController";
+import { Dimensions, FlatList, ScrollView, View } from "react-native";
+import { createStyles, styles } from "@/common/styles";
 
 const threeThousandMilesInMeters = milesToMeters(3000);
 
@@ -39,37 +39,30 @@ const newBike = {
 
 const LogMaintenanceComponent = () => {
   const session = useSession();
-  const queryClient = useQueryClient();
   const appContext = useGlobalContext();
   const router = useNavigation();
   const email = session.email ? session.email : '';
-  const searchParams = useLocalSearchParams();
   
-  const maintenanceId = searchParams.maintenanceid? parseInt(ensureString(searchParams.maintenanceid)) : 0;
-  const initialBikeId = searchParams.bikeid? ensureString(searchParams.bikeid): '0';
-  
-  const [isNew, setIsNew] = useState(maintenanceId === 0);
   const [bike, setBike] = useState<Bike>(newBike);
   const [bikeName, setBikeName] = useState('Select Bike');
-  const [bikeIdString, setBikeIdString] = useState(initialBikeId);
-  const [maintenanceItems, setMaintenanceItems] = useState<MaintenanceItem[]>([]);
+  const [bikeIdString, setBikeIdString] = useState('0');
   const [checkedIds, setCheckedIds] = useState([0]);
-  const [nextDue, setNextDue] = useState({});
   const [isInitialized, setIsInitialized] = useState(false);
   const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceLog[]>([]);
 
   const controller = new MaintenanceItemController(appContext);
 
-  const useStyle = isMobile
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles;
+
   const { data: bikes } = useQuery({
     queryKey: ['bikes'],
     initialData: [],
     queryFn: () => controller.getBikes(session, email),
   });
 
-
   const selectBike = (idString: string | undefined) => {
-    if (idString) {
+    if (idString && idString !== bikeIdString) {
       const id = parseInt(idString);
       const bikeById = bikes.find(bike => bike.id === id);
       if (bikeById) {
@@ -101,19 +94,6 @@ const LogMaintenanceComponent = () => {
     }
   }
 
-  const reset = () => {
-    try {
-      console.log('useEffect initialize maintenance item: ', maintenanceId);
-      controller.getMaintenanceItem(session, maintenanceId, email, appContext).then(item => {
-        if (item != null) {
-          setIsInitialized(true);
-        }
-      });
-    } catch (error) {
-      console.error('Error initializing maintenance item: ', error);
-    }
-  };
-
   const selectDefaultBike = () => {
     const roomForMore = Object.keys(Part).length;
     const defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);
@@ -132,9 +112,10 @@ const LogMaintenanceComponent = () => {
 
   type MaintenanceLogRowProps = {
     log: MaintenanceLog;
+    rowKey: string;
   };
 
-const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log }) => {
+const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log, rowKey }) => {
   const [nextDueValue, setNextDueValue] = useState(metersToMilesString(log.nextDue));
 
   const toggleSelectedRow = () => {    
@@ -167,27 +148,47 @@ const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log }) => {
   }
 
   return (
-    <View style={{width: "100%", flexDirection: "row", marginLeft: 1, marginRight: 1}}>
-      <View style={{ width: "10%", padding: 10}}>
-        <Checkbox status={checkedIds.includes(log.id) ? 'checked' : 'unchecked'}
+    <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
+      <View style={{ width: "15%", padding: 10}}>
+        <Checkbox key={"cb" + rowKey} status={checkedIds.includes(log.id) ? 'checked' : 'unchecked'}
           onPress={toggleSelectedRow}/>
       </View>
-      <View style={{ width: "30%", padding: 10}}>
-        <Text onPress={toggleSelectedRow}>{log.maintenanceItem.part}</Text>
+      <View style={{justifyContent: "center", width: "28%", padding: 10}}>
+        <Text key={"prt" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.part}</Text>
       </View>
-      <View style={{width: "30%"}}>
-        <Text onPress={toggleSelectedRow}>{' Due: ' + metersToMilesString(log.maintenanceItem.dueDistanceMeters)}</Text>
+      <View style={{ justifyContent: "center", width: "27%"}}>
+        <Text key={"due" + rowKey} onPress={toggleSelectedRow}>{metersToMilesString(log.maintenanceItem.dueDistanceMeters)}</Text>
       </View>
-      <View style={{ width: "30%", padding: 10}}>
+      <View style={{ justifyContent: "center", width: "28%", padding: 10}}>
         <TextInput
           onChangeText={(newValue) => {setNextDue(newValue)}}
           value={ nextDueValue }
           onBlur={ensureSelected}
+          key={"nextDue" + rowKey}
         />
       </View>
     </View>
   )
 };
+
+const MaintenanceLogHeader = () => {
+  return (
+    <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
+      <View style={{justifyContent: "center", width: "15%", padding: 10}}>
+        <Icon source="check" size={24} color="black" />
+      </View>
+      <View style={{justifyContent: "center", width: "25%", padding: 10, }}>
+        <Text>Part</Text>
+      </View>
+      <View style={{justifyContent: "center",width: "30%"}}>
+        <Text>Due</Text>
+      </View>
+      <View style={{justifyContent: "center", width: "30%", padding: 10}}>
+        <Text>Next Due</Text>
+      </View>
+    </View>
+  );
+}
 
   useEffect(() => {
     if (checkedIds.includes(0)) {
@@ -196,41 +197,37 @@ const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log }) => {
     try {
       console.log('useEffect initialize bike: ', bikes.length);
       if (!isInitialized && bikes.length > 0) {
-        if (isNew) {
-          createMaintenanceLogs();
-          selectDefaultBike();
-          setIsInitialized(true);
-        } else {
-          reset();
-        }
+        createMaintenanceLogs();
+        selectDefaultBike();
+        setIsInitialized(true);
       }
     } catch (error) {
       console.error('Error initializing maintenance item: ', error);
     }
   }, [bikes]);
-  
-  // const groupsetOptions = groupsetBrands.map(brand => ({ label: brand, value: brand }));
-  // const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
-  // const typeOptions = types.map(type => ({ label: type, value: type }));
-
 
   useEffect(() => {
     router.setOptions({ title: bikeName });
   }), [bikeName];
 
   return (
-    <Surface>
-      {bikes && bikes.length > 1 ? <BikeDropdown
-        bikes={bikes}
-        value={bikeIdString}
-        readonly={false}
-        onSelect={selectBike} /> : <Text>{bikeName}</Text>}
-      <FlatList
-        data={maintenanceLogs.filter(log => log.bikeId === bike.id)}
-        renderItem={({item}) => <MaintenanceLogRow log={item} />}
-        keyExtractor={item => item.id.toFixed(0)}
-      />
-      <Surface style={{flexDirection: 'row', justifyContent:'space-between', padding: 16 }}>
+    <Surface style={useStyle.containerScreen}>
+      <Card style={useStyle.input} >
+        {bikes && bikes.length > 1 ? <BikeDropdown
+          bikes={bikes}
+          value={bikeIdString}
+          readonly={false}
+          onSelect={selectBike} /> : <Text>{bikeName}</Text>}
+      </Card>
+      
+      <ScrollView style={useStyle.scrollView}>
+        <MaintenanceLogHeader />
+        {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) => 
+          <MaintenanceLogRow log={log} rowKey={"mlr" + log.id} key={"mlr" + log.id}/>
+        )}
+      </ScrollView>
+              
+      <Surface style={useStyle.bottomButtons}>
         <Button
           style={{flex: 1}}
           mode="contained"
@@ -249,7 +246,6 @@ const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log }) => {
     </Surface>
   )
 };
-
 
 
 type BikeDropdownProps = {
