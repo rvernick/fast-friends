@@ -7,8 +7,8 @@ export default function Layout() {
   return (
     <Stack>
       <Stack.Screen name="maintenance" options={{
-          title: "Maintenance Items",
-          headerShown: false,
+          title: "Maintenance",
+          headerShown: true,
         }} />
       <Stack.Screen name="[maintenanceid]" options={{
         title: 'Maintenance Item',

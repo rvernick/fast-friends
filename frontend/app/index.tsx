@@ -17,11 +17,11 @@ export default function Index() {
   return (
     <Surface style={useStyle.container}>
       <Image
-            source={{
-              uri: 'https://apps.apple.com/us/app/pedal-assistant/id6680175112?itscg=30200&itsct=apps_box_badge&mttnsubad=6680175112',
-            }}
-            />
-      <Card mode="contained" style={useStyle.containerScreen} >
+        source={{
+          uri: 'https://apps.apple.com/us/app/pedal-assistant/id6680175112?itscg=30200&itsct=apps_box_badge&mttnsubad=6680175112',
+        }}
+        />
+      <Card mode="contained" style={useStyle.containerCentered} >
         <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
         <Text style={{textAlign: "center"}}>Welcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
         <Text style={{textAlign: "center"}}>You think about your rides and who you want to ride with next.</Text>
@@ -30,10 +30,9 @@ export default function Index() {
         <Text> </Text>
         <Button icon="bike-fast" mode="contained" onPress={signIn}>
           Get Started
-        </Button>
-        
-        
+        </Button> 
       </Card>
+
       { isMobile() ? null : (
         <Card mode="contained">
           <IconButton
@@ -48,7 +47,6 @@ export default function Index() {
                 />}
                 mode="contained"
           />
-
         </Card>
       )}
     </Surface>

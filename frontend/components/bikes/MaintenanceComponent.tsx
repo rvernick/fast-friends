@@ -127,42 +127,6 @@ const MaintenanceComponent = () => {
       </List.Accordion>
     );
   };
-
-  const MaintenanceList: React.FC<MaintenanceListProps> = ({ bikes, isUpdating }) => {
-    if (!bikes || bikes == null || bikes?.length == 0) {
-      return <Text>No Maintenance Items Found - Add a bike or sync with Strava</Text>
-    }
-    return (
-      <Surface style={useStyle.containerScreen} > 
-        <Card style={useStyle.input} >
-          <Card.Title title="Sort By" right={() =>
-            <Dropdown 
-              value={sortOption}
-              options={sortOptions}
-              onSelect={(value) => setSortOption(value ? value : 'A-Z')}
-              />      
-          }/>
-        </Card>
-        {/* <Surface style={{position: 'absolute', top: 95, bottom: 75, left:16, right: 16}}> */}
-        <Surface style={useStyle.containerBody}>
-         <ScrollView contentContainerStyle={{flexGrow:1}}>
-    
-                <List.AccordionGroup>
-                  {bikes?.map(bike => (
-                    <BikeAccordian
-                      bike={bike}
-                      sortBy={sortOption}
-                      // isOpen={bike.id === expandedBike}
-                      isOpen={true}
-                      key={bike.id}/>
-                  ))}
-                </List.AccordionGroup>
-            
-        </ScrollView>
-       </Surface>
-      </Surface>
-    );
-  };
   
   /**
    * 
@@ -267,7 +231,7 @@ const MaintenanceComponent = () => {
               ))}
             </List.Section>
         </ScrollView>
-        <Surface style={{flexDirection: 'row', justifyContent:'space-between', padding: 16 }}>
+        <Surface style={useStyle.bottomButtons}>
           <Button
             style={{flex: 1}}
             mode="contained"

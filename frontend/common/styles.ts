@@ -13,6 +13,15 @@ export function createStyles(width: number, height: number) {
       left: 1,
       width: width ,
       height: height,
+      justifyContent: "space-between",
+      alignItems: "stretch",
+    },
+    containerCentered: {
+      position: 'absolute',
+      top: 1,
+      left: 1,
+      width: width ,
+      height: height,
       justifyContent: "center",
       alignItems: "center",
     },
@@ -57,7 +66,16 @@ export function createStyles(width: number, height: number) {
     },
     scrollView: {
       flex: 1,
-      marginHorizontal: 16,
+      marginHorizontal: 8,
+      marginBottom: 225,
+    },
+    bottomButtons: {
+      position: 'absolute',
+      top: height-225,
+      left: 16,
+      right: 16,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
     },
     bottomButton: {
       position: 'absolute',
@@ -73,6 +91,12 @@ export function createStyles(width: number, height: number) {
 
 export const styles = StyleSheet.create({
   containerScreen: {
+    flex: 1,
+    marginBottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  containerCentered: {
     flex: 1,
     marginBottom: 0,
     justifyContent: "center",
@@ -108,6 +132,15 @@ export const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     marginHorizontal: 16,
+    marginBottom: 75,
+  },
+  bottomButtons: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   bottomButton: {
     position: 'absolute',
