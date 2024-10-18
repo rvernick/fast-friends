@@ -93,8 +93,8 @@ export const styles = StyleSheet.create({
   containerScreen: {
     flex: 1,
     marginBottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "space-between",
+    alignItems: "stretch",
   },
   containerCentered: {
     flex: 1,
