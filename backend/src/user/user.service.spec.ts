@@ -7,6 +7,69 @@ describe('UserService', () => {
   it('should be defined but isnt', () => {
   });
 
+  it("should return null when the bike parameter is null", () => {
+    // Arrange
+    const service = new UserService(null, null, null, null, null);
+    const bikes: Bike[] = [
+      { stravaId: "1", name: "Bike 1" } as Bike,
+      { stravaId: "2", name: "Bike 2" } as Bike,
+    ];
+  
+    // Act
+    const result = service['findMatchingBike'](null, bikes);
+  
+    // Assert
+    expect(result).toBeNull();
+  });
+
+  it('should return null when no bike with matching stravaId or name is found', () => {
+    // Arrange
+    const service = new UserService(null, null, null, null, null);
+    const bikeToMatch = { id: "4", name: "Nonexistent Bike" };
+    const bikes: Bike[] = [
+      { stravaId: "1", name: "Bike 1" } as Bike,
+      { stravaId: "2", name: "Bike 2" } as Bike,
+    ];
+  
+    // Act
+    const result = service['findMatchingBike'](bikeToMatch, bikes);
+  
+    // Assert
+    expect(result).toBeNull();
+  });
+
+  it('should handle case where bike name is an empty string and not match', () => {
+    // Arrange
+    const service = new UserService(null, null, null, null, null);
+    const bikeToMatch = { id: "3", name: "" };
+    const bikes: Bike[] = [
+      { stravaId: "1", name: "Bike 1" } as Bike,
+      { stravaId: "2", name: "Bike 2" } as Bike,
+    ];
+  
+    // Act
+    const result = service['findMatchingBike'](bikeToMatch, bikes);
+  
+    // Assert
+    expect(result).toBeNull();
+  });
+
+  it('should return the matching bike when a bike with matching name (case insensitive) is found', () => {
+    // Arrange
+    const service = new UserService(null, null, null, null, null);
+    const bikeToMatch = { id: "5", name: "bike 2" };
+    const bikes: Bike[] = [
+      { stravaId: "1", name: "Bike 1" } as Bike,
+      { stravaId: "2", name: "Bike 2" } as Bike,
+    ];
+  
+    // Act
+    const result = service['findMatchingBike'](bikeToMatch, bikes);
+  
+    // Assert
+    expect(result).toEqual(bikes[1]);
+  });
+
   it('a new strava bike should have maintenance items', () => {
     // Arrange
     const service = new UserService(null, null, null, null, null);

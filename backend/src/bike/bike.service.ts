@@ -149,7 +149,7 @@ export class BikeService {
       }
       const stravaId = bike.stravaId
       if (stravaId == null || stravaId.length == 0) {
-        bike.odometerMeters = bikeDto.odometerMeters;
+        bike.odometerMeters = Math.round(bikeDto.odometerMeters);
         this.logger.log("updating odometer because stravaId is null:" + bikeDto.odometerMeters);
       } else {
         this.logger.log("not updating odometer because stravaId is not null:" + stravaId);
