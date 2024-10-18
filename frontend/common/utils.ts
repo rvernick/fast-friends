@@ -83,7 +83,6 @@ export async function confirmLogin(session: any): Promise<string> {
 
 export async function login(username: string, password: string, appContext: AppContext) {
   console.log('Logging in... ' + username);
-  console.log('Logging in... ' + password);
 
   const args = {
     username: username,
@@ -98,13 +97,13 @@ export async function login(username: string, password: string, appContext: AppC
         // console.log('body ' + resp.body);
         // console.log('json ' + resp.body);
         resp.json().then(body => {
+          appContext.signIn(body.access_token, username);
           console.log('setting appContext.jwtToken to:' + body);
           console.log('body ' + body.access_token);
           if (isMobile()) {
             remember("ff.username", username);
             remember("ff.password", password);
           }
-          appContext.signIn(body.access_token, username);
           console.log('setting appContext.email to:'+ username);
           return '';
         });
