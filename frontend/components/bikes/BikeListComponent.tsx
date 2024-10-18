@@ -3,9 +3,12 @@ import { useQuery, useQueryClient } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
 import BikeListController from './BikeListController';
 import { useRouter } from 'expo-router';
-import { Button, List, Text, Surface, Card } from 'react-native-paper';
+import { Button, List, Text, Surface, Card, useTheme } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
+import { Dimensions, ScrollView, View } from 'react-native';
+import { isMobile } from '@/common/utils';
+import { createStyles, styles } from '@/common/styles';
 
 type BikeListProps = {
   bikes: Bike[] | undefined;
@@ -21,6 +24,9 @@ const BikeListComponent = () => {
   const router = useRouter();
   const controller = new BikeListController(appContext);
   const [isUpdating, setIsUpdating] = useState(true);
+
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
 
   const { status, data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
@@ -42,20 +48,22 @@ const BikeListComponent = () => {
 
   const BikeList: React.FC<BikeListProps> = ({ bikes, isUpdating }) => {
     return (
-    <List.Section>
-          {bikes && bikes.length > 0? (
-            bikes?.map(bike => (
-              <List.Item
-                key={bike.id}
-                title={bike.name}
-                description={bike.type}
-                onPress={() => editBike(bike.id)}
-                accessibilityLabel={"List item for bike: " + bike.name}
-                accessibilityHint={"Click for details on bike: " + bike.name}/>
-          ))) : (
-            <Text> No Bikes Found</Text>
-          )
-        }
+      <List.Section>
+        {bikes && bikes.length > 0? (
+          bikes?.map(bike => (
+            <List.Item
+              style={{flex: 1}}
+              key={bike.id}
+              title={bike.name}
+              description={bike.type}
+              onPress={() => editBike(bike.id)}
+              right={props => <BikeTypeIcon bikeType={bike.type}/>}
+              left={props => <EBikeIcon isElectric={bike.isElectronic} />}
+              accessibilityLabel={"List item for bike: " + bike.name}
+              accessibilityHint={"Click for details on bike: " + bike.name}/>
+        ))) : (
+          <Text> No Bikes Found</Text>
+        )}
       </List.Section>
     );
   };
@@ -76,15 +84,90 @@ const BikeListComponent = () => {
   }
 
   return (
-    <Surface>
-      {/* <ScrollView style={styles.containerOneBottom}> */}
-        <BikeList bikes={data} isUpdating={isUpdating}/>
-      {/* </ScrollView> */}
-      <Button mode="contained" onPress={addBike}> Add Bike</Button>
+    <Surface style={useStyle.containerScreen}>
+      <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
+        <BikeList bikes={data} isUpdating={isUpdating} />
+      </ScrollView>
+      <Button style={useStyle.bottomButtons} mode="contained" onPress={addBike}> Add Bike</Button>
     </Surface>
   );
 };
 
-// navigation.push('Bike', { bike })
+
+interface EBikeIconProps {
+  isElectric: boolean;
+}
+
+const EBikeIcon: React.FC<EBikeIconProps> = ({ isElectric }) => {
+  const theme = useTheme();
+  if (isElectric) {
+    return (
+      <List.Icon
+        icon="lightning-bolt"
+        color={theme.colors.primary}
+      />
+    );
+  }
+  return (
+    <List.Icon
+      icon="bicycle"
+      color={theme.colors.primary}
+    />);
+}
+
+interface BikeIconProps {
+  bikeType: string;
+}
+
+const BikeTypeIcon: React.FC<BikeIconProps> = ({ bikeType }) => {
+    const theme = useTheme();
+    
+    if (bikeType === "Road") {
+      return (
+        <List.Icon
+          icon="road"
+          color={theme.colors.primary}
+        />
+      );
+    }
+    if (bikeType === "Gravel") {
+      return (
+        <List.Icon
+          icon="grain"
+          color={theme.colors.primary}
+        />
+      );
+    }
+    if (bikeType === "Mountain") {
+      return (
+        <List.Icon
+          icon="terrain"
+          color={theme.colors.primary}
+        />
+      );
+    }
+    if (bikeType === "Cargo") {
+      return (
+        <List.Icon
+          icon="bicycle-cargo"
+          color={theme.colors.primary}
+        />
+      );
+    }
+    if (bikeType === "Cruiser") {
+      return (
+        <List.Icon
+          icon="bicycle-basket"
+          color={theme.colors.primary}
+        />
+      );
+    }
+    return (
+      <List.Icon
+        icon="bike"
+        color={theme.colors.primary}
+      />
+    );
+  };
 
 export default BikeListComponent;
