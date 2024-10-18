@@ -94,7 +94,6 @@ export class UserService {
     user.stravaRefreshToken = null;
     this.usersRepository.save(user);
     for (const bike of user.bikes) {
-      bike.stravaId = null;
       this.bikesRepository.save(bike);
     }
   }
@@ -134,31 +133,50 @@ export class UserService {
     console.log('setting userWith: ' + JSON.stringify(stravaAuthDto));
     this.usersRepository.save(user);
 
-    if (user.bikes != null && user.bikes.length > 0) {
-      return user;
-    }
     this.logger.log('info', 'Syncing user:'+ JSON.stringify(user));
     console.log('bikes: ' + JSON.stringify(athlete.bikes));
     for (const bike of athlete.bikes) {
-      var newBike = this.addStravaBike(user, bike);
-      this.bikesRepository.save(newBike);
+      const existingBike = this.findMatchingBike(bike, user.bikes);
+      if (existingBike) {
+        this.syncStravaBike(existingBike, bike);
+        this.bikesRepository.save(existingBike);
+      } else {
+        var newBike = this.addStravaBike(user, bike);
+        this.bikesRepository.save(newBike);
+      }
     }
     return user;
   }
 
+  private findMatchingBike(bike: any, bikes: Bike[]): Bike | null {
+    if (!bike || !bikes) return null;
+    for (const existingBike of bikes) {
+      if (existingBike.stravaId == bike.id) return existingBike;
+      if (existingBike.name.length > 1 &&
+          existingBike.name.toLowerCase() == bike.name.toLowerCase()) {
+        return existingBike;
+      }
+    }
+    return null;
+  }
+
   addStravaBike(user: User, bike: any): Bike {
     const newBike = new Bike();
-    newBike.name = bike.name;
-    newBike.stravaId = bike.id;
-    newBike.type = bike.type;
+    this.syncStravaBike(newBike, bike);
     newBike.user = user;
-    newBike.odometerMeters = bike.distance;
     newBike.maintenanceItems = defaultMaintenanceItems(newBike);
 //    user.addBike(newBike);
 //    this.bikesRepository.save(newBike);
     this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
     console.log('created and added: ' + JSON.stringify(newBike));
     return newBike;
+  }
+
+  syncStravaBike(bike: Bike, stravaBike: any) {
+    bike.name = stravaBike.name;
+    bike.stravaId = stravaBike.id;
+    bike.type = stravaBike.type;
+    bike.odometerMeters = stravaBike.distance;
   }
 
   private async getStravaAthlete(stravaAccessToken: string): Promise<any> {
