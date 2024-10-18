@@ -1,3 +1,4 @@
+import { Bike } from "./Bike";
 
 interface User {
   username: string;
@@ -5,4 +6,5 @@ interface User {
   lastName: string;
   cellPhone: string;
   stravaId: string;
+  bikes: Bike[];
 };

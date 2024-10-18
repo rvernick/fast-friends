@@ -29,13 +29,17 @@ export class StravaService {
     }
     const stravaBikes = stravaAthlete.bikes;
     for (const bike of user.bikes) {
-      var stravaBike = stravaBikes.find((b) => bike.stravaId != null && b.id === bike.stravaId);
-      if (stravaBike !== null) {
-        console.log('Updating Strava bike mileage from ' + bike.odometerMeters + ' to'+ stravaBike.distance);
-        bike.odometerMeters = stravaBike.distance;
-        this.bikesRepository.save(bike);
-      } else {
-        console.error('Strava bike not found for bike '+ user.username +' id: '+ bike.id + ' stravaId: '+ bike.stravaId);
+      try {
+        var stravaBike = stravaBikes.find((b) => bike.stravaId != null && b.id === bike.stravaId);
+        if (stravaBike && stravaBike !== null) {
+          console.log('Updating Strava bike mileage from ' + bike.odometerMeters + ' to'+ stravaBike.distance);
+          bike.odometerMeters = stravaBike.distance;
+          this.bikesRepository.save(bike);
+        } else {
+          console.error('Strava bike not found for bike '+ user.username +' id: '+ bike.id + ' stravaId: '+ bike.stravaId);
+        }
+      } catch (error) {
+        console.error('Error updating bike odometer: ', error);
       }
     }
     return user;
