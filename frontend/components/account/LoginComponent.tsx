@@ -3,7 +3,7 @@ import { Dimensions, GestureResponderEvent, NativeSyntheticEvent, TextInputSubmi
 import { useGlobalContext } from "../../common/GlobalContext";
 import { forget, login, remind, isMobile } from '@/common/utils';
 import { baseUrl } from "../../common/http-utils";
-import { ActivityIndicator, Button, HelperText, IconButton, Text } from "react-native-paper";
+import { ActivityIndicator, Button, Dialog, HelperText, IconButton, Portal, Text } from "react-native-paper";
 import { router } from "expo-router";
 import { Card, TextInput, Surface } from 'react-native-paper';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -25,6 +25,7 @@ export const LoginComponent = () => {
   const [useFaceRecognition, setUseFaceRecognition] = useState(isMobile());
   const [canUseFaceId, setCanUseFaceId] = useState(false);
   const [passwordHidden, setPasswordHidden] = useState(true);
+  const [shouldSignUp, setShouldSignUp] = useState('maybe');
 
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles;
@@ -61,8 +62,11 @@ export const LoginComponent = () => {
         if (msg) {
           setLoginErrorMessage(msg);
           turnOffFaceRecognition();
+          if (shouldSignUp ==='maybe') {
+            setShouldSignUp('try');
+          }
         } else {
-          console.log('attemptLogin successful');
+          console.log('Login successful');
           router.replace('/logging-in');
         }
       })
@@ -132,6 +136,11 @@ export const LoginComponent = () => {
     }
   }
 
+  const goToSignUp = () => {
+    setShouldSignUp('no');
+    router.push( {pathname: '/(sign-in-sign-up)/sign-up', params: { email: email, password: password  }});
+  }
+
   useEffect(() => {
     if (useFaceRecognition) {
       loginWithFaceRecognition();
@@ -186,6 +195,21 @@ export const LoginComponent = () => {
                 accessibilityHint="Will attempt to login based on the user and password entered">
                 Confirm
               </Button>
+              <Portal>
+                <Dialog
+                  visible={shouldSignUp === 'try'}
+                  onDismiss={() => setShouldSignUp('no')}>
+                  <Dialog.Title>Login Failed</Dialog.Title>
+                  <Dialog.Content>
+                    <Text variant="bodyMedium">Login Failed</Text>
+                    <Text variant="bodyMedium">Create new account or try again?</Text>
+                  </Dialog.Content>
+                  <Dialog.Actions>
+                    <Button onPress={goToSignUp}>Sign Up</Button>
+                    <Button onPress={() => setShouldSignUp('no')}>Try Again</Button>
+                  </Dialog.Actions>
+                </Dialog>
+              </Portal> 
               <Button
                 onPress={() => router.push('/(sign-in)/password-reset')}
                 accessibilityLabel="forgot password button"

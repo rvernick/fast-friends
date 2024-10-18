@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
-import { invalidPasswordMessage, isMobile, isValidEmail, isValidPassword, login } from '../../common/utils';
+import { ensureString, invalidPasswordMessage, isMobile, isValidEmail, isValidPassword, login } from '../../common/utils';
 import { Text, Button, TextInput, HelperText, Card, Surface } from "react-native-paper";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import CreateAccountController from "./CreateAccountController";
 import { Dimensions } from "react-native";
 import { createStyles, styles } from "@/common/styles";
@@ -11,12 +11,14 @@ interface CreateAccountComponentProps {
 }
 
 export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ controller }) => {
-  const [email, setEnteredEmail] = useState('');
-  const [password, setEnteredPassword] = useState('');
+  const args = useLocalSearchParams();
+  const [email, setEnteredEmail] = useState(ensureString(args?.email));
+  const [password, setEnteredPassword] = useState(ensureString(args?.password));
   const [passwordConfirm, setEnteredPasswordConfirm] = useState('');
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');
+  const [passwordHidden, setPasswordHidden] = useState(true);
 
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles;
@@ -113,28 +115,33 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
             value={password}
             onChangeText={updatePassword}
             mode="outlined"
-            secureTextEntry={true}
             autoCapitalize="none"
             autoCorrect={false}
             onBlur={verifyPassword}
+            secureTextEntry={passwordHidden}
+            right={<TextInput.Icon icon="eye" onPress={() => setPasswordHidden(!passwordHidden)}/> }
             testID="passwordInput"
             accessibilityLabel="password"
             accessibilityHint="A password of at least 8 characters with a mix of special, upper and lower case'"
           />
+          <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
+            {passwordErrorMessage}
+          </HelperText>
           <TextInput
             label="Confirm Password"
             value={passwordConfirm}
             mode="outlined"
             onChangeText={updatePasswordConfirm}
-            secureTextEntry={true}
             autoCapitalize="none"
             autoCorrect={false}
+            secureTextEntry={passwordHidden}
+            right={<TextInput.Icon icon="eye" onPress={() => setPasswordHidden(!passwordHidden)}/>}
             testID="passwordConfirmInput"
             accessibilityLabel="password confirm"
             accessibilityHint="Re-enter the password to confirm it"
           />
-          <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
-            {passwordErrorMessage}
+          <HelperText type="error" visible={passwordConfirmErrorMessage.length > 0} style={{ marginTop: 10 }}>
+            {passwordConfirmErrorMessage}
           </HelperText>
           <Button
             mode="contained"
