@@ -3,11 +3,12 @@ import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface, Appbar } from "react-native-paper";
+import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface, Text } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
 import { ensureString, metersToMilesString, milesToMeters } from "@/common/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { Linking } from "react-native";
 
 const groupsetBrands = [
   'Shimano',
@@ -146,6 +147,12 @@ const BikeComponent: React.FC<BikeProps> = () => {
       && stravaId !== ''
       && stravaId!= '0';
   }
+
+  const viewOnStrava = () => {
+    var idWithoutTheB = stravaId.replace('b', '');
+    var url = `https://www.strava.com/bikes/${idWithoutTheB}`;
+    Linking.openURL(url);
+  }
   
   const groupsetOptions = groupsetBrands.map(brand => ({ label: brand, value: brand }));
   const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
@@ -208,6 +215,12 @@ const BikeComponent: React.FC<BikeProps> = () => {
           </Button>
           { (readOnly || isNew) ? null : <Button mode="contained" onPress={ cancel }> Cancel </Button>}
           { (readOnly || isNew) ? null : <Button mode="contained" onPress={ deleteBike }> Delete </Button>}
+        {connectedToStrava() ? <Button
+          mode="outlined"
+          onPress={ viewOnStrava }
+          accessibilityLabel="View on Strava"
+          accessibilityHint="Open up the bike details on Strava">View on Strava
+        </Button> : null}
       </Card>
     </Surface>
   )
