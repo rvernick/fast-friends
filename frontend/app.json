@@ -39,6 +39,14 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
+      ["expo-asset",
+        {
+          "assets": [
+            "./assets/images/api_logo_pwrdBy_strava_stack_light.png",
+            "./assets/images/btn_strava_connectwith_orange.png"
+          ]
+        }
+      ],
       [
         "./plugins/withSetPlaceholders.js"
       ],
