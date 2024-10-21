@@ -30,10 +30,21 @@ export default function Index() {
         <Text> </Text>
         <Button icon="bike-fast" mode="contained" onPress={signIn}>
           Get Started
-        </Button> 
+        </Button>
       </Card>
 
-      { isMobile() ? null : (
+      <Card mode="contained">
+        <IconButton
+          disabled={true}
+          onPress={() => console.log("Powered by Strava")}
+          style={{ left: 1, width: 196, height: 82 }}
+          icon={() => <Image
+                  source={require("../assets/images/api_logo_pwrdBy_strava_stack_light.svg")}
+                  />}
+          mode="contained"
+        />
+      </Card>
+      { true ? null : (
         <Card mode="contained">
           <IconButton
             onPress={() => window.open(appStoreURL)}

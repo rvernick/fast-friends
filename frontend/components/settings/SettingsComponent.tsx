@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { Image } from "react-native";
 import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
 import { ensureString, isMobile, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
-import { ActivityIndicator, Button, Card, Dialog, HelperText, Portal, Surface, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, Card, Dialog, HelperText, IconButton, Portal, Surface, Text, TextInput } from "react-native-paper";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -220,15 +221,20 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
         <Card>
           <Card.Content>
             <Button
+              icon={() =>
+              <Image
+                source={ require("../../assets/images/btn_strava_connectwith_orange.svg")}
+                style={{ width: 196, height: 48}}
+                />}
               onPress={ linkToStrava }
               disabled={stravaId.length > 0}
               accessibilityLabel="Link to Strava"
               accessibilityHint="Login to Strava account">
-                {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : 'Connect to Strava'}
+                {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : ''}
               </Button>
-              <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
+              {stravaId.length == 0 ? null : <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
                 Unlink
-              </Button>
+              </Button>}
               <Portal>
                 <Dialog visible={warnAgainstLinking} onDismiss={hideWarnAgainstLinking}>
                   <Dialog.Title>Alert</Dialog.Title>
