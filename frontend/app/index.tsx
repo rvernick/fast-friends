@@ -44,7 +44,7 @@ export default function Index() {
           mode="contained"
         />
       </Card>
-      { isMobile() ? null : (
+      { true ? null : (
         <Card mode="contained">
           <IconButton
             onPress={() => window.open(appStoreURL)}
