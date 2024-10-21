@@ -223,7 +223,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             <Button
               icon={() =>
               <Image
-                source={ require("../../assets/images/btn_strava_connectwith_orange.svg")}
+                source={ require("../../assets/images/btn_strava_connectwith_orange.png")}
                 style={{ width: 196, height: 48}}
                 />}
               onPress={ linkToStrava }
