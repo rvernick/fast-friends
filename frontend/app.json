@@ -22,7 +22,7 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "buildNumber": "8"
+      "buildNumber": "9"
     },
     "android": {
       "adaptiveIcon": {
@@ -39,7 +39,8 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      ["expo-asset",
+      [
+        "expo-asset",
         {
           "assets": [
             "./assets/images/api_logo_pwrdBy_strava_stack_light.png",
