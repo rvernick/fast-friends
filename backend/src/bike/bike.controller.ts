@@ -17,6 +17,7 @@ import { BikeService } from './bike.service';
 import { MaintenanceItem } from './maintenance-item.entity';
 import { UpdateMaintenanceItemDto } from './update-maintenance-item.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { MaintenanceHistorySummary } from './maintenance-history-summary';
 
 @Controller('bike')
 export class BikeController {
@@ -111,6 +112,14 @@ export class BikeController {
   logPerformedMaintenance(@Body() maintenanceLogs: MaintenanceLogRequestDto): Promise<string> {
     console.log('log-performed-maintenance user:' + JSON.stringify(maintenanceLogs));
     return this.bikeService.logPerformedMaintenance(maintenanceLogs);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Get('maintenance-history')
+  getMaintenanceHistory(@Query('username') username: string): Promise<MaintenanceHistorySummary[]> {
+    console.log('bike/maintenance-history user:'+ username);
+    return this.bikeService.getMaintenanceHistory(username);
   }
 
 }

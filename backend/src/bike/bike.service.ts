@@ -17,6 +17,7 @@ import { Part } from './part';
 import { BatchProcessService } from '../batch/batch-process.service';
 import { MaintenanceLogDto, MaintenanceLogRequestDto } from './log-maintenance.dto';
 import { MaintenanceHistory } from './maintenance-history.entity';
+import { MaintenanceHistorySummary } from './maintenance-history-summary';
 
 
 @Injectable()
@@ -285,6 +286,28 @@ export class BikeService {
       console.error('Error deleting maintenance item: ', error);
       throw error;
     }
+  }
+
+  /**
+   * Should find a single query to get bikeId, bikeName, maintenanceItemId for each history
+   * answer should be here: https://typeorm.io/select-query-builder seems like innerjoinAndSelect might be useful
+   * @param username 
+   * @returns 
+   */
+  async getMaintenanceHistory(username: string): Promise<MaintenanceHistorySummary[]> {
+    const user = await this.findUsername(username);
+
+    const historyQueryBuilder = await this.dataSource.manager
+      .createQueryBuilder(MaintenanceHistory, "maintenanceHistory")
+      .innerJoinAndSelect("maintenanceHistory.maintenanceItem", "maintenanceItem")
+      .innerJoinAndSelect("maintenanceItem.bike", "bike")
+      .innerJoin("bike.user", "user")
+      .where("user.id = :id", { id: user.id })
+    
+    const result = await historyQueryBuilder.getMany();
+    console.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
+    this.logger.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
+    return result.map((history) => new MaintenanceHistorySummary(history));
   }
 
   async logPerformedMaintenance(maintenanceLogs: MaintenanceLogRequestDto): Promise<string> {

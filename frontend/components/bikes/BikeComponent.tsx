@@ -121,6 +121,10 @@ const BikeComponent: React.FC<BikeProps> = () => {
     setReadOnly(true);
   }
 
+  const maintenanceHistory = () => {
+    router.replace({ pathname: '/(home)/(maintenanceItems)/history', params: { bikeid: bikeId } });
+  }
+
   const updateGroupsetBrand = (itemValue: string) => {
     setGroupsetBrand(itemValue);
   }
@@ -221,6 +225,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
           </Button>
           { (readOnly || isNew) ? null : <Button mode="contained" onPress={ cancel }> Cancel </Button>}
           { (readOnly || isNew) ? null : <Button mode="contained" onPress={ deleteBike }> Delete </Button>}
+          { (readOnly && !isNew) ? <Button mode="contained" onPress={ maintenanceHistory }> History </Button> : null }
         {connectedToStrava() ? <Button
           mode="outlined"
           onPress={ viewOnStrava }
