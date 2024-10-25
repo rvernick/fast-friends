@@ -29,7 +29,7 @@ const MaintenanceHistoryComponent = () => {
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
 
-  const { status: bikesStatus, data: bikes, error: bikeError, isFetching: bikesFetching } = useQuery({
+  const { status: bikesStatus, data: bikes, error: bikesError, isFetching: bikesFetching } = useQuery({
     queryKey: ['bikes'],
     queryFn: () => controller.getBikes(session, email),
     initialData: [],
@@ -38,7 +38,7 @@ const MaintenanceHistoryComponent = () => {
     refetchOnMount: 'always',
   })
   
-  const { data: history, isFetching: historyFetching} = useQuery({
+  const { data: history, isFetching: historyFetching, error: historyError} = useQuery({
     queryKey: ['history', email],
     queryFn: () => controller.getHistory(session, email),
     initialData: [],
@@ -53,11 +53,12 @@ const MaintenanceHistoryComponent = () => {
   };
 
   const createFilteredHistory = (): MaintenanceHistoryItem[] => {
+    console.log('create filtered history: ' + history);
+    if (!history || history.length === 0) return [];
     if (bikeId && bikeId.length > 0 && bikeId !== '_All') {
       return history?.filter(h => ensureString(h.bikeId) === bikeId) || [];
-    } else {
-      return history || [];
-    }
+    } 
+    return history || [];
   }
 
   const compareHistoryItem = (a: MaintenanceHistoryItem, b: MaintenanceHistoryItem): number => {
@@ -70,8 +71,15 @@ const MaintenanceHistoryComponent = () => {
   }
 
   const sortedAndFilteredHistory = () => {
-    const history = createFilteredHistory();
-    return history.sort((a, b) => { return compareHistoryItem(a, b); });
+    try {
+      const history = createFilteredHistory();
+      console.log('Sorted and filtered history: ' + JSON.stringify(history));
+      if (!history || history.length === 0) return [];
+      return history.sort((a, b) => { return compareHistoryItem(a, b); });
+    } catch (error) {
+      console.error('Error sorting and filtering history: ', error);
+      return [];
+    }
   }
 
   const handleSort = (column: string) => {
@@ -109,7 +117,7 @@ const MaintenanceHistoryComponent = () => {
         No bikes found. Add a bike or sync with Strava.
       </Text>
     )
-  } else if (bikeError) {
+  } else if (historyError || bikesError) {
     return (
       <Text>
         An error occured!
