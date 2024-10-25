@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Dimensions, GestureResponderEvent, NativeSyntheticEvent, TextInputSubmitEditingEventData } from "react-native";
-import { useGlobalContext } from "../../common/GlobalContext";
 import { forget, login, remind, isMobile } from '@/common/utils';
 import { baseUrl } from "../../common/http-utils";
 import { ActivityIndicator, Button, HelperText, IconButton, Text } from "react-native-paper";
@@ -8,9 +7,11 @@ import { router } from "expo-router";
 import { Card, TextInput, Surface } from 'react-native-paper';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { createStyles, styles } from "@/common/styles";
+import { useSession } from "@/ctx";
 
 export const LoginComponent = () => {
-  const appContext = useGlobalContext();
+  const session = useSession();
+  
   var user = '';
   var pword = '';
 
@@ -54,7 +55,7 @@ export const LoginComponent = () => {
   }
 
   const attemptLoginUsing = (username: string, pass: string) => {
-    const loginAttempt = login(username, pass, appContext);
+    const loginAttempt = login(username, pass, session);
     loginAttempt
       .then(msg => {
         console.log('loginAttempt: ' + msg);

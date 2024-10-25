@@ -10,6 +10,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { MaintenanceItem, Part } from "@/models/MaintenanceItem";
 import { BooleanDropdown } from "../common/BooleanDropdown";
+import { BikeDropdown } from "../common/BikeDropdown";
 
 const groupsetBrands = [
   'Shimano',
@@ -398,31 +399,5 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   )
 };
 
-type BikeDropdownProps = {
-  bikes: Bike[] | null | undefined;
-  value: string;
-  readonly: boolean;
-  onSelect: (value: string) => void;
-};
-
-export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readonly, onSelect }) => {
-    if (!bikes || bikes == null || bikes.length == 0) return null;
-    if (!bikes) return null;
-    // console.log('BikeDropdown bikes: ', bikes);
-    // console.log('BikeDropdown bikes: ', JSON.stringify(bikes));
-    const bikeOptions = bikes?.map(bike => ({ label: bike.name, value: ensureString(bike.id) }));
-    // console.log('BikeDropdown set: ', value);
-    // console.log('BikeDropdown options: ', JSON.stringify(bikeOptions));
-    return (
-      <Dropdown
-          disabled={readonly}
-          label="Bike"
-          placeholder={ensureString(value)}
-          options={bikeOptions}
-          value={ensureString(value)}
-          onSelect={(value) => onSelect(ensureString(value))}
-        />
-    )
-  }
 
 export default MaintenanceItemComponent;

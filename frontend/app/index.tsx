@@ -32,20 +32,17 @@ export default function Index() {
           Get Started
         </Button>
       </Card>
-
-      <Card mode="contained">
+      <Card style={useStyle.bottomButton} mode="contained">
         <IconButton
           disabled={true}
           onPress={() => console.log("Powered by Strava")}
           style={{ left: 1, width: 196, height: 82 }}
           icon={() => <Image
-                  source={require("../assets/images/api_logo_pwrdBy_strava_stack_light.svg")}
+                  source={require("../assets/images/api_logo_pwrdBy_strava_stack_light.png")}
                   />}
           mode="contained"
         />
-      </Card>
-      { true ? null : (
-        <Card mode="contained">
+        { isMobile() ? null : (
           <IconButton
             onPress={() => window.open(appStoreURL)}
             style={{ left: 1, width: 246, height: 82 }}
@@ -58,8 +55,8 @@ export default function Index() {
                 />}
                 mode="contained"
           />
-        </Card>
       )}
+      </Card>
     </Surface>
   );
 }

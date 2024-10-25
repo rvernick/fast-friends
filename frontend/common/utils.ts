@@ -3,6 +3,7 @@ import AppContext from "./app-context";
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User } from "@/models/User";
 
 export const strippedPhone = (formattedPhone: string) => {
   if (!formattedPhone) {
@@ -81,14 +82,14 @@ export async function confirmLogin(session: any): Promise<string> {
   }
 }
 
-export async function login(username: string, password: string, appContext: AppContext) {
+export async function login(username: string, password: string, session: any) {
   console.log('Logging in... ' + username);
 
   const args = {
     username: username,
     password: password,
   };
-  const response = post('/auth/login', args, appContext.getJwtToken());
+  const response = post('/auth/login', args, null);
   return response
     .then(resp => {
       if (resp.ok) {
@@ -97,7 +98,7 @@ export async function login(username: string, password: string, appContext: AppC
         // console.log('body ' + resp.body);
         // console.log('json ' + resp.body);
         resp.json().then(body => {
-          appContext.signIn(body.access_token, username);
+          session.signIn(body.access_token, username);
           console.log('setting appContext.jwtToken to:' + body);
           console.log('body ' + body.access_token);
           if (isMobile()) {

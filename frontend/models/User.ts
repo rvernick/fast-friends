@@ -1,6 +1,6 @@
 import { Bike } from "./Bike";
 
-interface User {
+export interface User {
   username: string;
   firstName: string;
   lastName: string;
