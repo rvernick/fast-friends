@@ -17,7 +17,7 @@ class MaintenanceItemController extends AppController {
     }
     const jwtToken = session.jwt_token;
     if (jwtToken == null) {
-      console.log('get bikes has no token dying: ' + username);
+      console.log('get maintenance item has no token dying: ' + username);
       return Promise.resolve(null);
     }
 
@@ -41,7 +41,7 @@ class MaintenanceItemController extends AppController {
     }
     const jwtToken = session.jwt_token;
     if (jwtToken == null) {
-      console.log('get bikes has no token dying: ' + username);
+      console.log('delete maintenance item has no token dying: ' + username);
       return Promise.resolve(false);
     }
 

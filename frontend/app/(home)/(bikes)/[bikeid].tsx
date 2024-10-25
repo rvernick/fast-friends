@@ -1,7 +1,7 @@
 import BikeComponent from "@/components/bikes/BikeComponent";
 import { useLocalSearchParams } from "expo-router";
 
-const Settings = () => {
+const BikePage = () => {
   const search = useLocalSearchParams();
   const bikeId = new Number(search.bikeid) || 0;
   return (
@@ -9,4 +9,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default BikePage;

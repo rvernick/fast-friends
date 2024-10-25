@@ -17,7 +17,7 @@ class MaintenanceHistoryController extends AppController {
     }
     const jwtToken = await session.jwt_token;
     if (jwtToken == null) {
-      console.log('get bikes has no token dying: ' + username);
+      console.log('get history has no token dying: ' + username);
       return Promise.resolve([]);
     }
 
@@ -25,7 +25,7 @@ class MaintenanceHistoryController extends AppController {
       const parameters = {
         username: username,
       };
-      console.log('get bikes ' +'username:'+ username);
+      console.log('get history ' +'username:'+ username);
       return getInternal('/bike/maintenance-history', parameters, jwtToken);
     } catch(e: any) {
       console.log(e.message);
