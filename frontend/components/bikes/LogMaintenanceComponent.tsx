@@ -3,14 +3,14 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { useNavigation } from "expo-router";
 import { Button, Text, Surface, Checkbox, TextInput, Card, Icon } from "react-native-paper";
-import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
 import { ensureString, isMobile, metersToMilesString, milesToMeters } from "@/common/utils";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { MaintenanceItem, Part } from "@/models/MaintenanceItem";
-import { Dimensions, FlatList, ScrollView, View } from "react-native";
+import { Dimensions, ScrollView, View } from "react-native";
 import { createStyles, styles } from "@/common/styles";
+import { BikeDropdown } from "../common/BikeDropdown";
 
 const threeThousandMilesInMeters = milesToMeters(3000);
 
@@ -62,7 +62,7 @@ const LogMaintenanceComponent = () => {
   });
 
   const selectBike = (idString: string | undefined) => {
-    if (idString && idString !== bikeIdString) {
+    if (idString && idString !== bikeIdString && bikes) {
       const id = parseInt(idString);
       const bikeById = bikes.find(bike => bike.id === id);
       if (bikeById) {
@@ -80,6 +80,9 @@ const LogMaintenanceComponent = () => {
 
   const createMaintenanceLogs = () => {
     console.log('createMaintenanceLogs');
+    if (!bikes) {
+      return;
+    }
     for (const bike of bikes) {
       for (const item of bike.maintenanceItems) {
         var log = {
@@ -95,6 +98,10 @@ const LogMaintenanceComponent = () => {
   }
 
   const selectDefaultBike = () => {
+    if (!bikes) {
+      console.log('No bikes found');
+      return;
+    }
     const roomForMore = Object.keys(Part).length;
     const defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);
     if (defaultBike) {
@@ -195,11 +202,13 @@ const MaintenanceLogHeader = () => {
       setCheckedIds(checkedIds.filter(id => id!== 0));
     }
     try {
-      console.log('useEffect initialize bike: ', bikes.length);
-      if (!isInitialized && bikes.length > 0) {
-        createMaintenanceLogs();
-        selectDefaultBike();
-        setIsInitialized(true);
+      if (bikes) {
+        console.log('useEffect initialize bike: ', bikes.length);
+        if (!isInitialized && bikes.length > 0) {
+          createMaintenanceLogs();
+          selectDefaultBike();
+          setIsInitialized(true);
+        }
       }
     } catch (error) {
       console.error('Error initializing maintenance item: ', error);
@@ -244,30 +253,6 @@ const MaintenanceLogHeader = () => {
       </Surface>
 
     </Surface>
-  )
-};
-
-
-type BikeDropdownProps = {
-  bikes: Bike[] | null | undefined;
-  value: string;
-  readonly: boolean;
-  onSelect: (value: string) => void;
-};
-
-export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readonly, onSelect }) => {
-  if (!bikes || bikes == null || bikes.length == 0) return null;
-  if (!bikes) return null;
-  const bikeOptions = bikes?.map(bike => ({ label: bike.name, value: ensureString(bike.id) }));
-  return (
-    <Dropdown
-        disabled={readonly}
-        label="Bike"
-        placeholder={ensureString(value)}
-        options={bikeOptions}
-        value={ensureString(value)}
-        onSelect={(value) => onSelect(ensureString(value))}
-      />
   )
 };
 

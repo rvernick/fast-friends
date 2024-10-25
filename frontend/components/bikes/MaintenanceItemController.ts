@@ -17,7 +17,7 @@ class MaintenanceItemController extends AppController {
     }
     const jwtToken = session.jwt_token;
     if (jwtToken == null) {
-      console.log('get bikes has no token dying: ' + username);
+      console.log('get maintenance item has no token dying: ' + username);
       return Promise.resolve(null);
     }
 
@@ -34,30 +34,6 @@ class MaintenanceItemController extends AppController {
     }
   }
 
-  getBikes = async (session: any, username: string): Promise<Bike[]>  => {
-    await sleep(0.1);
-    if (session === null) {
-      console.log('get bikes has no context: ' + username);
-      return Promise.resolve([]);
-    }
-    const jwtToken = await session.jwt_token;
-    if (jwtToken == null) {
-      console.log('get bikes has no token dying: ' + username);
-      return Promise.resolve([]);
-    }
-
-    try {
-      const parameters = {
-        username: username,
-      };
-      console.log('get bikes');
-      return getInternal('/bike/bikes', parameters, jwtToken);
-    } catch(e: any) {
-      console.log(e.message);
-      return [];
-    }
-  }
-
   deleteMaintenanceItem = async (session: any, username: string, maintenanceItemId: number): Promise<boolean> => {
     if (session === null) {
       console.log('get maintenanceItem has no context: ' + username);
@@ -65,7 +41,7 @@ class MaintenanceItemController extends AppController {
     }
     const jwtToken = session.jwt_token;
     if (jwtToken == null) {
-      console.log('get bikes has no token dying: ' + username);
+      console.log('delete maintenance item has no token dying: ' + username);
       return Promise.resolve(false);
     }
 

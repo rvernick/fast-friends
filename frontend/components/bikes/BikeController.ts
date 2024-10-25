@@ -11,7 +11,7 @@ class BikeController extends AppController {
 
   getBike = async (session: any, bikeid: number, username: string, appContext: AppContext): Promise<Bike | null>  => {
     if (appContext === null) {
-      console.log('get bikes has no context: ' + username);
+      console.log('get bike has no context: ' + username);
       return Promise.resolve(null);
     }
     const jwtToken = session.jwt_token;

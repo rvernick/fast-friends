@@ -15,6 +15,7 @@ export default function LoggingIn() {
 
   const unconfiguredAccount = async () => {
     const user = await fetchUser(session, ensureString(session.email));
+    if (!user) return false;
     return ensureString(user?.firstName) === ''
       && ensureString(user?.lastName) === ''
       && (user?.bikes == null || user?.bikes.length === 0);

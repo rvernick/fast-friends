@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 export default function TabLayout() {
   const session = useSession();
-  const route = useLocalSearchParams();
+
   // Cannot redirect until render is finished.  Use redirect to trigger useEffect when session is not authenticated
   const [redirected, setRedirected] = useState(false);
 

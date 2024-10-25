@@ -121,6 +121,10 @@ const BikeComponent: React.FC<BikeProps> = () => {
     setReadOnly(true);
   }
 
+  const maintenanceHistory = () => {
+    router.push({ pathname: '/(home)/(maintenanceItems)/history', params: { bikeId: bikeId } });
+  }
+
   const updateGroupsetBrand = (itemValue: string) => {
     setGroupsetBrand(itemValue);
   }
@@ -148,10 +152,16 @@ const BikeComponent: React.FC<BikeProps> = () => {
       && stravaId!= '0';
   }
 
-  const viewOnStrava = () => {
+  const viewOnStrava = async () => {
     var idWithoutTheB = stravaId.replace('b', '');
+    var uri = 'strava://bikes/' + idWithoutTheB;
     var url = `https://www.strava.com/bikes/${idWithoutTheB}`;
-    Linking.openURL(url);
+
+    if (await Linking.canOpenURL(uri)) {
+      Linking.openURL(uri).catch(err => console.error('Error opening strava link: ', err));
+    } else {
+      Linking.openURL(url).catch(err => console.error('Error opening strava link: ', err));
+    }
   }
   
   const groupsetOptions = groupsetBrands.map(brand => ({ label: brand, value: brand }));
@@ -215,6 +225,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
           </Button>
           { (readOnly || isNew) ? null : <Button mode="contained" onPress={ cancel }> Cancel </Button>}
           { (readOnly || isNew) ? null : <Button mode="contained" onPress={ deleteBike }> Delete </Button>}
+          { (readOnly && !isNew) ? <Button mode="contained" onPress={ maintenanceHistory }> History </Button> : null }
         {connectedToStrava() ? <Button
           mode="outlined"
           onPress={ viewOnStrava }
