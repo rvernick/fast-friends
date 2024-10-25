@@ -3,13 +3,12 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { useNavigation } from "expo-router";
 import { Button, Text, Surface, Checkbox, TextInput, Card, Icon } from "react-native-paper";
-import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
 import { ensureString, isMobile, metersToMilesString, milesToMeters } from "@/common/utils";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { MaintenanceItem, Part } from "@/models/MaintenanceItem";
-import { Dimensions, FlatList, ScrollView, View } from "react-native";
+import { Dimensions, ScrollView, View } from "react-native";
 import { createStyles, styles } from "@/common/styles";
 import { BikeDropdown } from "../common/BikeDropdown";
 

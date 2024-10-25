@@ -16,10 +16,6 @@ export default function Layout() {
         title: 'Bike',
         headerLeft: () => <Button onPress={() => router.back()} icon="arrow-left">{""}</Button>,
       }} />
-      <Stack.Screen name="history" options={{
-        title: 'History',
-        headerLeft: () => <Button onPress={() => router.back()} icon="arrow-left">{""}</Button>,
-      }} />
     </Stack>    
   );
 }

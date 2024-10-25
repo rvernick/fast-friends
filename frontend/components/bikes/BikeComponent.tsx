@@ -122,7 +122,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
   }
 
   const maintenanceHistory = () => {
-    router.replace({ pathname: '/(home)/(maintenanceItems)/history', params: { bikeid: bikeId } });
+    router.push({ pathname: '/(home)/(maintenanceItems)/history', params: { bikeId: bikeId } });
   }
 
   const updateGroupsetBrand = (itemValue: string) => {

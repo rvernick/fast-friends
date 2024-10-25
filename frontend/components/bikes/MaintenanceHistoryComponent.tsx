@@ -19,13 +19,11 @@ const MaintenanceHistoryComponent = () => {
   const navigation = useNavigation();
   const controller = new MaintenanceHistoryController(appContext);
   var defaultBikeId = '_All';
-  if (params.bikeId) {
-    defaultBikeId = ensureString(params.bikeId);
-  }
   const [bikeId, setBikeId ] = useState(defaultBikeId);
   const [filteredHistory, setFilteredHistory ] = useState<MaintenanceHistoryItem[]>([]);
   const [sortColumn, setSortColumn] = useState('distance');
   const [sortDirection, setSortDirection] = useState('ascending');
+  const [initialized, setInitialized ] = useState(false);
   var notSelected;
 
   const dimensions = Dimensions.get('window');
@@ -95,6 +93,14 @@ const MaintenanceHistoryComponent = () => {
     navigation.setOptions({ title: 'Maintenance History' });
     console.log('Refreshing history: ' + bikeId);
     setFilteredHistory(sortedAndFilteredHistory() || []);
+    if (!initialized) {
+      setInitialized(true);
+      console.log('Initializing history: ' + JSON.stringify(params));
+      if (params.bikeId) {
+        defaultBikeId = ensureString(params.bikeId);
+      }
+      setBikeId(defaultBikeId);
+    }
   }, [history, bikeId]);
 
   if (!bikes || bikesFetching || bikes.length === 0) {
