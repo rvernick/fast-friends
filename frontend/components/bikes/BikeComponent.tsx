@@ -6,7 +6,7 @@ import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface, Text } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
-import { ensureString, metersToMilesString, milesToMeters } from "@/common/utils";
+import { ensureString, isMobile, metersToMilesString, milesToMeters } from "@/common/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Linking } from "react-native";
 
@@ -157,7 +157,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
     var uri = 'strava://bikes/' + idWithoutTheB;
     var url = `https://www.strava.com/bikes/${idWithoutTheB}`;
 
-    if (await Linking.canOpenURL(uri)) {
+    if (isMobile() && await Linking.canOpenURL(uri)) {
       Linking.openURL(uri).catch(err => console.error('Error opening strava link: ', err));
     } else {
       Linking.openURL(url).catch(err => console.error('Error opening strava link: ', err));
