@@ -8,7 +8,7 @@ import { useSession } from "@/ctx";
 import { ensureString, metersToMiles, metersToMilesString, milesToMeters } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
-import { MaintenanceItem, Part } from "@/models/MaintenanceItem";
+import { Action, MaintenanceItem, Part } from "@/models/MaintenanceItem";
 import { BooleanDropdown } from "../common/BooleanDropdown";
 import { BikeDropdown } from "../common/BikeDropdown";
 
@@ -24,6 +24,7 @@ const threeThousandMilesInMeters = milesToMeters(3000);
 const newMaintenanceItem = {
   id: 0,
   part: '',
+  action: '',
   name: '',
   brand: 'Shimano',
   model: '',
@@ -69,6 +70,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const [bikeIdString, setBikeIdString] = useState(initialBikeId);
   const [readOnly, setReadOnly] = useState(!isNew);
   const [part, setPart] = useState(Part.CHAIN.toString())
+  const [action, setAction] = useState(Action.REPLACE.toString());
   const [dueMiles, setDueMiles] = useState('1500');
   const [brand, setBrand] = useState('Shimano');
   const [model, setModel] = useState('');
@@ -79,6 +81,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const partOptions = Object.entries(Part).map(([key, val]) => ({ label: val, value: val }));
   const [availabileParts, setAvailabileParts] = useState(partOptions);
 
+  const actionOptions = Object.entries(Action).map(([key, val]) => ({ label: val, value: val }));
+  const [availabileActions, setAvailableActions] = useState(actionOptions);
   const [isInitialized, setIsInitialized] = useState(false);
 
   const controller = new MaintenanceItemController(appContext);
@@ -96,6 +100,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       maintenanceItem.id,
       bike.id,
       part,
+      action,
       milesToMeters(parseInt(dueMiles)),
       brand,
       model,
@@ -137,17 +142,21 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       setMaintenanceItem(item);
       if (item.id === 0) {
         setIsNew(true);
-        console.log('Reset mi new with: ' + bikes.length);
+        if (bikes) {
+          console.log('Reset mi new with: ' + bikes.length);
+        }
         if (bikes && bikes.length > 0) {
           const latestBike = bikes[bikes.length - 1];
           selectBike(ensureString(latestBike.id));
         }
       } else {
         setIsNew(false);
-        for (const bikeItem of bikes) {
-          console.log('Reset checking bikeItems: ', JSON.stringify(bikeItem));
-          if (bikeItem.maintenanceItems.some(mi => mi.id === item.id)) {
-            selectBike(ensureString(bikeItem.id));
+        if (bikes) {
+          for (const bikeItem of bikes) {
+            console.log('Reset checking bikeItems: ', JSON.stringify(bikeItem));
+            if (bikeItem.maintenanceItems.some(mi => mi.id === item.id)) {
+              selectBike(ensureString(bikeItem.id));
+            }
           }
         }
       }
@@ -169,7 +178,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     const result: any[] = [];
     const names = Object.values(Part);
     const keys = Object.keys(Part);
-    console.log('Update parts for bike: ', JSON.stringify(bike));
+    // console.log('Update parts for bike: ', JSON.stringify(bike));
     var substitutePartIfNeeded = '';
     var isSubstitutePartNeeded = false;
     for (const possible in Object.values(Part)) {
@@ -196,17 +205,59 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     }
   }
 
+  const updateActionsList = (bike: Bike, selectedPart: string) => {
+    const unusedActions = getUnusedActions(bike, selectedPart);
+    const actionOptions = unusedActions.map(act => ({ label: act, value: act }))
+    setAvailableActions(actionOptions);
+    // console.log('Unused actions for part: ', selectedPart, JSON.stringify(unusedActions));
+    // console.log('All actions: ' + JSON.stringify(Action));
+    // console.log('current action for part: ', action);
+    // console.log('Action options: ', Object.values(unusedActions));
+    const unusedActionNames = unusedActions.map(act => act.toString());
+    if (!Object.values(unusedActionNames).includes(action)) {
+      if (unusedActions.length > 0) {
+      // console.log('Setting default action: ', unusedActions[0]);
+      setAction(unusedActions[0]);
+      } else {
+        setAction('');
+      }
+    }
+  }
+
+  const getUnusedActions = (bike: Bike, selectedPart: string) => {
+    const allMaintenanceItems = bike.maintenanceItems.filter(mi => mi.id!== maintenanceId);
+    // console.log('All maintenance items: ', JSON.stringify(allMaintenanceItems));
+    const maintenanceItemsForPart = allMaintenanceItems.filter(mi => mi.part === selectedPart);
+    // console.log('Maintenance items for part: ', JSON.stringify(maintenanceItemsForPart));
+    for (const mi of maintenanceItemsForPart) {
+      // console.log('MI action: ', JSON.stringify(mi));
+      // console.log('MI due miles: ', mi.action);
+    }
+    const usedActions = maintenanceItemsForPart.map(mi => mi.action);
+    console.log('Used actions: ', usedActions);
+    const result = [];
+    for (const action of Object.values(Action)) {
+      // console.log('comparing : ', action);
+      if (!usedActions.includes(action)) {
+        result.push(action);
+      }
+    } 
+    return result;
+  }
+
+
   const selectBike = (idString: string | undefined) => {
-    if (idString) {
+    if (idString && bikes) {
       const id = parseInt(idString);
       const bikeById = bikes.find(bike => bike.id === id);
       if (bikeById) {
-        console.log('Selected bike id: ', id);
+        console.log('Selected bike idString: ', idString);
         setBike(bikeById);
         const title = bikeById.name + ' (' + metersToMilesString(bikeById.odometerMeters) +' miles)'
         setBikeName(title);
         setBikeIdString(idString);
-        updatePartsList(bikeById);
+        // updatePartsList(bikeById);
+        updateActionsList(bikeById, part);
         ensureDueMilageAhead(bikeById);
         console.log('Selected bikeById id: ', id);
       } else {
@@ -241,20 +292,15 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   };
 
   const selectDefaultBike = () => {
-    const roomForMore = Object.keys(Part).length;
-    const defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);
-    if (defaultBike) {
-      selectBike(ensureString(defaultBike.id));
-    } else {
-      console.log('No default bike found');
-      selectBike(ensureString(bikes[0].id));
-    }
+    if (!bikes || bikes.length === 0) return;
+   
+    const defaultBike = bikes[0];
+    selectBike(ensureString(defaultBike.id));
   }
 
   useEffect(() => {
     try {
-      console.log('useEffect initialize bike: ', bikes.length);
-      if (!isInitialized && bikes.length > 0) {
+      if (!isInitialized && bikes && bikes.length > 0) {
         if (isNew) {
           selectDefaultBike();
           setIsInitialized(true);
@@ -276,7 +322,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     if (null === part) return;
     console.log('PartSelected: ', part);
     setPart(ensureString(part));
+    updateActionsList(bike, part);
   }
+
+  const actionSelected = (selection: string | undefined) => {
+    if (selection === null) return;
+    setAction(ensureString(selection));
+  }
+
   const dueMilesChange = (miles: string) => {
     console.log('dueMilesChange: ', miles);
     if (miles === '') {
@@ -316,7 +369,11 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     <Surface>
       <ActivityIndicator animating={!isInitialized} />
       <Card>
-        <BikeDropdown bikes={bikes} value={bikeIdString} readonly={readOnly || !isNew} onSelect={selectBike} />
+        <BikeDropdown
+          bikes={bikes}
+          value={bikeIdString}
+          readonly={readOnly || !isNew}
+          onSelect={selectBike} />
         <Dropdown
           label="Part"
           value={part}
@@ -326,6 +383,16 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
           options={availabileParts}
           onSelect={partSelected}
           testID="partDropdown"
+        />
+        <Dropdown
+          label="Action"
+          value={action}
+          disabled={readOnly || !isNew}
+          mode="outlined"
+          placeholder='Select Action'
+          options={availabileActions}
+          onSelect={actionSelected}
+          testID="actionDropdown"
         />
         <TextInput 
           label="Due Distance (miles)"

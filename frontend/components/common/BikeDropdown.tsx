@@ -17,7 +17,7 @@ export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readon
   const [bikeList, setBikeList] = useState<Bike[]>([]);
   const [options, setOptions] = useState<any[]>([]);
     
-    // console.log('BikeDropdown bikes: ', bikes);
+    //  console.log('BikeDropdown bike: ', value);
     // console.log('BikeDropdown bikes: ', JSON.stringify(bikes));
     const createOptions = (bikes: Bike[]) => {
       const result = [];
@@ -42,6 +42,9 @@ export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readon
       if (!bikes || bikes == null || bikes.length == 0) return;
       setBikeList(bikes);
       setOptions(createOptions(bikes));
+      if (value && value.length > 0 && value !== selectedBike) {
+        setSelectedBike(value);
+      }
     }, [bikes]);
     
     return (

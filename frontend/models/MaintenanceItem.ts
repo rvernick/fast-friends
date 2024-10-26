@@ -3,6 +3,7 @@ export interface MaintenanceItem {
   id: number;
 //  bike: Bike;
   part: string;
+  action: string;
   name: string;
   brand: string;
   model: string;
@@ -27,4 +28,11 @@ export enum Part {
   FRONT_SHIFTER_CABLE = "Front Shifter Cable",
   BAR_TAPE = "Bar Tape",
   TUNE_UP = "Tune Up",
+};
+
+export enum Action {
+  CHECK = "Check",
+  CLEAN = "Clean",
+  LUBRICATE = "Lubricate",
+  REPLACE = "Replace",
 };

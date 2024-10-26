@@ -68,7 +68,7 @@ const MaintenanceComponent = () => {
         key={'mi' + maintenanceItem.id}
         title={maintenanceItem.part}
         id={'MLI' + bikeId}
-        description={metersToMilesString(maintenanceItem.dueDistanceMeters)}
+        description={maintenanceItem.action + ' at: ' + metersToMilesString(maintenanceItem.dueDistanceMeters)}
         onPress={() => editMaintenanceItem(maintenanceItem.id, bikeId)}
         left={props => <BikePartIcon maintenanceItem={maintenanceItem}/>}
       />

@@ -6,9 +6,11 @@ import {
   UpdateDateColumn,
   ManyToOne,
   DeleteDateColumn,
+  Index,
 } from 'typeorm';
 import { Bike } from './bike.entity';
 import { Part } from './part';
+import { Action } from './action';
 
 const oneThousandMilesInMeters = 1609344;
 const threeThousandMilesInMeters = 4828032;
@@ -35,10 +37,13 @@ const createMaintenanceItem = (part: Part, distance: number): MaintenanceItem =>
 }
 
 @Entity()
+@Index(["bike", "part", "action"], { unique: true })
 export class MaintenanceItem {
   constructor() {
     this.defaultLongevity = threeThousandMilesInMeters;
     this.autoAdjustLongevity = true;
+    this.part = Part.CHAIN;
+    this.action = Action.REPLACE;
   }
 
   @PrimaryGeneratedColumn()
@@ -54,6 +59,14 @@ export class MaintenanceItem {
     nullable: false,
   })
   part: Part;
+
+  @Column({
+    type: "enum",
+    enum: Action,
+    default: Action.REPLACE,
+    nullable: false,
+  })
+  action: Action;
 
   @Column({
     type: 'varchar',
