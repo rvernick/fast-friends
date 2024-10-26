@@ -97,9 +97,9 @@ export class MaintenanceChecker {
             const meters = bike.odometerMeters - item.lastPerformedDistanceMeters;
             const miles = meters / 1609.34;
             const milesString = miles.toFixed(0);
-            msg = msg + `${bike.name} - ${item.part} - miles: ${milesString} - ${item.brand} ${item.model} \n`;
+            msg = msg + `${bike.name} - ${item.part} ${item.action} - miles: ${milesString} - ${item.brand} ${item.model} \n`;
           } else {
-            msg = msg + `${bike.name} - ${item.part} - ${item.brand} ${item.model} \n`;
+            msg = msg + `${bike.name} - ${item.part} ${item.action} - ${item.brand} ${item.model} \n`;
           }
         }
       }
