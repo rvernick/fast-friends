@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { useLocalSearchParams, useNavigation } from "expo-router";
-import { Button, Text, Surface, Checkbox, TextInput, Card, Icon } from "react-native-paper";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText } from "react-native-paper";
 import { useSession } from "@/ctx";
 import { ensureString, isMobile, metersToMilesString, milesToMeters } from "@/common/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -40,7 +40,7 @@ const newBike = {
 const LogMaintenanceComponent = () => {
   const session = useSession();
   const appContext = useGlobalContext();
-  const router = useNavigation();
+  const navigation = useNavigation();
   const params = useLocalSearchParams();
   const email = session.email ? session.email : '';
   
@@ -50,6 +50,7 @@ const LogMaintenanceComponent = () => {
   const [checkedIds, setCheckedIds] = useState([0]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceLog[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const controller = new MaintenanceItemController(appContext);
 
@@ -72,6 +73,7 @@ const LogMaintenanceComponent = () => {
         setBikeName(bikeById.name + ": " + metersToMilesString(bikeById.odometerMeters));
         setBikeIdString(idString);
         setCheckedIds([]);
+        setErrorMessage('');
         console.log('Selected bikeById id: ', id);
       } else {
         console.log('Bike not found: ', idString);
@@ -118,9 +120,17 @@ const LogMaintenanceComponent = () => {
     }
   }
 
-  const submitMaintenance = () => {
+  const submitMaintenance = async () => {
+    setErrorMessage('');
     const selectedItems = maintenanceLogs.filter(log => checkedIds.includes(log.id) && log.bikeId === bike.id);
-    controller.logMaintenance(session, selectedItems);
+
+    console.log('submitMaintenance selected bike: ', bike.name);
+    console.log('submitMaintenance selected bike: ', bike.id);
+    const result = await controller.logMaintenance(session, selectedItems);
+    console.log('submit maintenance result: ', result);
+    if (result == '') {
+      router.replace({ pathname: '/(home)/(maintenanceItems)/history', params: { bikeId: bike.id }});
+    }
   }
 
   type MaintenanceLogRowProps = {
@@ -222,7 +232,7 @@ const MaintenanceLogHeader = () => {
   }, [bikes]);
 
   useEffect(() => {
-    router.setOptions({ title: bikeName });
+    navigation.setOptions({ title: bikeName });
   }), [bikeName];
 
   return (
@@ -246,7 +256,7 @@ const MaintenanceLogHeader = () => {
         <Button
           style={{flex: 1}}
           mode="contained"
-          onPress={() => router.goBack()}>
+          onPress={() => navigation.goBack()}>
             Cancel
         </Button>
         <Button
@@ -256,6 +266,7 @@ const MaintenanceLogHeader = () => {
           onPress={submitMaintenance}>
             Mark Done
         </Button>
+        <HelperText visible={errorMessage.length > 0} type={"error"}>{errorMessage}</HelperText>
       </Surface>
 
     </Surface>
