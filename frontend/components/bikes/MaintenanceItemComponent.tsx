@@ -456,11 +456,11 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
             accessibilityLabel="Cancel"
             accessibilityHint="Go back without saving changes">
           Cancel </Button>}
-          { (readOnly || isNew) ? null : <Button
+          {/* { (readOnly || isNew) ? null : <Button
             mode="contained"
             onPress={ deleteMaintenanceItem }
             accessibilityLabel="Delete"
-            accessibilityHint="Delete maintenance item"> Delete </Button>}
+            accessibilityHint="Delete maintenance item"> Delete </Button>} */}
       </Card>
     </Surface>
   )
