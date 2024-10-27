@@ -51,11 +51,15 @@ const MaintenanceComponent = () => {
     router.push('/(home)/(maintenanceItems)/0');
   }
 
-    const editMaintenanceItem = (id: number, bikeId: number) => {
-      const idString = id.toString();
-      const bikeIdString = bikeId.toString();
-      router.push('/(home)/(maintenanceItems)/' + idString + '?bikeid=' + bikeIdString);
-    }
+  const editMaintenanceItem = (id: number, bikeId: number) => {
+    const idString = id.toString();
+    const bikeIdString = bikeId.toString();
+    router.push('/(home)/(maintenanceItems)/' + idString + '?bikeid=' + bikeIdString);
+  }
+
+  const logMaintenance = () => {
+    router.push({ pathname: '/(home)/(maintenanceItems)/log-maintenance', params: { bikeId: expandedBike } });
+  }
 
   type MaintenanceListItemProps = {
     maintenanceItem: MaintenanceItem;
@@ -241,7 +245,7 @@ const MaintenanceComponent = () => {
           <Button
             style={{flex: 1}}
             mode="contained"
-            onPress={() => router.push('/(home)/(maintenanceItems)/log-maintenance')}>
+            onPress={logMaintenance}>
               Log Maintenance
           </Button>
         </Surface>

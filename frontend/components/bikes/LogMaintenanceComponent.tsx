@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { Button, Text, Surface, Checkbox, TextInput, Card, Icon } from "react-native-paper";
 import { useSession } from "@/ctx";
 import { ensureString, isMobile, metersToMilesString, milesToMeters } from "@/common/utils";
@@ -41,6 +41,7 @@ const LogMaintenanceComponent = () => {
   const session = useSession();
   const appContext = useGlobalContext();
   const router = useNavigation();
+  const params = useLocalSearchParams();
   const email = session.email ? session.email : '';
   
   const [bike, setBike] = useState<Bike>(newBike);
@@ -102,8 +103,13 @@ const LogMaintenanceComponent = () => {
       console.log('No bikes found');
       return;
     }
-    const roomForMore = Object.keys(Part).length;
-    const defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);
+    var defaultBike: Bike | undefined;
+    if (params.bikeId) {
+      defaultBike = bikes.find(bike => bike.id === parseInt(ensureString(params.bikeId)));
+    } else {
+      const roomForMore = Object.keys(Part).length;
+      defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);      
+    }
     if (defaultBike) {
       selectBike(ensureString(defaultBike.id));
     } else {
