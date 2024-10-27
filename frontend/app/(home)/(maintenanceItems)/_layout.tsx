@@ -20,7 +20,7 @@ export default function Layout() {
       }} />
       <Stack.Screen name="history" options={{
         title: 'History',
-        headerLeft: () => <Button onPress={() => router.back()} icon="arrow-left">{""}</Button>,
+        headerLeft: () => <Button onPress={() => router.replace('/(home)/(maintenanceItems)/maintenance')} icon="arrow-left">{""}</Button>,
       }} />
     </Stack>
   );

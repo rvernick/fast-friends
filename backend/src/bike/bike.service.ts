@@ -277,6 +277,8 @@ export class BikeService {
       if (action!== null) {
         console.log('Updated maintenance item action: ', action);
         maintenanceItem.action = action;
+      } else {
+        maintenanceInfo.action = Action.REPLACE;
       }
       maintenanceItem.dueDistanceMeters = Math.round(maintenanceInfo.duemiles);
       maintenanceItem.defaultLongevity = Math.round(maintenanceInfo.defaultLongevity);
