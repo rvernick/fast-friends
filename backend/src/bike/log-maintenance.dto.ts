@@ -2,7 +2,7 @@ import { ArrayMinSize, IsArray, IsNumber, IsString } from 'class-validator'
 
 export class MaintenanceLogDto {
   @IsNumber()
-  bikeid: number;
+  bikeId: number;
 
   @IsNumber()
   maintenanceItemId: number;

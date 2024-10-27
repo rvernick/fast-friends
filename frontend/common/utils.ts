@@ -169,11 +169,11 @@ export const ensureString = (value: string | string[] | null | undefined | numbe
 }
 
 export const milesToMeters = (miles: number): number => {
-  return miles * 1609.34;
+  return Math.round(miles * 1609.34);
 }
 
 export const metersToMiles = (meters: number): number => {
-  return meters / 1609.34;
+  return Math.round(meters / 1609.34);
 }
 
 export const metersToMilesString = (meters: number): string => {

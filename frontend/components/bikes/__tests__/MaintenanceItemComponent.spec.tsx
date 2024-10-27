@@ -1,7 +1,8 @@
 import {render, screen, fireEvent, cleanup } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
-import MaintenanceItemComponent, { BikeDropdown } from '../MaintenanceItemComponent';
 import { renderRouter } from 'expo-router/testing-library';
+import { BikeDropdown } from '@/components/common/BikeDropdown';
+import MaintenanceItemComponent from '../MaintenanceItemComponent';
 
 jest.useFakeTimers();
 afterEach(cleanup);

@@ -353,22 +353,22 @@ export class BikeService {
       console.error('Maintenance item not found for user '+ user.username +' and id '+ log.maintenanceItemId);
       throw new Error('Maintenance item not found');
     }
-    const bike = await this.getBike(log.bikeid, user.username);
+    const bike = await this.getBike(log.bikeId, user.username);
     if (bike == null) {
-      console.error('Bike not found for user '+ user.username +' and bikeid '+ log.bikeid);
+      console.error('Bike not found for user '+ user.username +' and bikeid '+ log.bikeId);
       throw new Error('Bike not found');
     }
-    const maintenanceHistory = this.maintenanceHistoryRepository.create();
+   const maintenanceHistory = this.maintenanceHistoryRepository.create();
     maintenanceHistory.maintenanceItem = maintenanceItem;
     maintenanceHistory.part = maintenanceItem.part;
-    maintenanceHistory.distanceMeters = bike.odometerMeters;
+    maintenanceHistory.distanceMeters = Math.round(bike.odometerMeters);
     maintenanceHistory.type = maintenanceItem.type;
     maintenanceHistory.brand = maintenanceItem.brand;
     maintenanceHistory.model = maintenanceItem.model;
     maintenanceHistory.link = maintenanceItem.link;
     this.maintenanceHistoryRepository.save(maintenanceHistory);
 
-    maintenanceItem.dueDistanceMeters = log.nextDue;
+    maintenanceItem.dueDistanceMeters = Math.round(log.nextDue);
     this.maintenanceItemsRepository.save(maintenanceItem);
   }
 
