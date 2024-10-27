@@ -18,6 +18,7 @@ import { BatchProcessService } from '../batch/batch-process.service';
 import { MaintenanceLogDto, MaintenanceLogRequestDto } from './log-maintenance.dto';
 import { MaintenanceHistory } from './maintenance-history.entity';
 import { MaintenanceHistorySummary } from './maintenance-history-summary';
+import { Action } from './action';
 
 
 @Injectable()
@@ -232,6 +233,21 @@ export class BikeService {
     return null;
   }
 
+  getActionFor(actionCode: string): Action | null {
+    const vals = Object.values(Action);
+    const keys = Object.keys(Action)
+    for (const checkKey in keys) {
+      this.logger.log('info', 'checking: ' + checkKey +' vs'+ vals[checkKey])
+      if (vals[checkKey] === actionCode) {
+        this.logger.log('info', 'Found action: ' + checkKey +' from'+ actionCode)
+        this.logger.log('info', 'Returning: ' + Action[keys[checkKey]])
+        return Action[keys[checkKey]];
+      }
+    }
+    this.logger.log('error', 'Action not found for code'+ actionCode);
+    return null;
+  }
+
   async updateOrAddMaintenanceItem(maintenanceInfo: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
     try {
       var maintenanceItem = new MaintenanceItem();
@@ -256,6 +272,13 @@ export class BikeService {
       const part = this.getPartFor(maintenanceInfo.part);
       if (part !== null) {
         maintenanceItem.part = part;
+      }
+      const action = this.getActionFor(maintenanceInfo.action);
+      if (action!== null) {
+        console.log('Updated maintenance item action: ', action);
+        maintenanceItem.action = action;
+      } else {
+        maintenanceInfo.action = Action.REPLACE;
       }
       maintenanceItem.dueDistanceMeters = Math.round(maintenanceInfo.duemiles);
       maintenanceItem.defaultLongevity = Math.round(maintenanceInfo.defaultLongevity);

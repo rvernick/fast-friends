@@ -12,6 +12,8 @@ export class UpdateMaintenanceItemDto {
 
   @IsString()
   part: string;
+
+  action: string;
   
   @IsNumber()
   duemiles: number;
