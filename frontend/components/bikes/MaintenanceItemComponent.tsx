@@ -60,8 +60,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const email = session.email ? session.email : '';
   const searchParams = useLocalSearchParams();
 
-  const maintenanceId = searchParams.maintenanceid? parseInt(ensureString(searchParams.maintenanceid)) : 0;
-  const initialBikeId = searchParams.bikeid? ensureString(searchParams.bikeid): '0';
+  const maintenanceId = searchParams.maintenanceId? parseInt(ensureString(searchParams.maintenanceId)) : 0;
+  const initialBikeId = searchParams.bikeId? ensureString(searchParams.bikeId): '0';
   
   const [isNew, setIsNew] = useState(maintenanceId === 0);
   const [maintenanceItem, setMaintenanceItem] = useState<MaintenanceItem>(newMaintenanceItem);
@@ -308,7 +308,11 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     try {
       if (!isInitialized && bikes && bikes.length > 0) {
         if (isNew) {
-          selectDefaultBike();
+          if (bikeIdString === '0') {
+            selectDefaultBike();
+          } else {
+            selectBike(bikeIdString);
+          }
           setIsInitialized(true);
         } else {
           reset();
