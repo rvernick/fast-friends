@@ -83,7 +83,15 @@ const BikeComponent: React.FC<BikeProps> = () => {
     setStravaId(ensureString(bike.stravaId));
     setReadOnly(true);
   }
-  
+
+  const goBack = () => {  // maybe in AppController?
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.push('/(home)');
+    }
+  }
+
   const updateBike = async function() {
     const result = await controller.updateBike(session, email, bikeId,
       bikeName,
@@ -95,7 +103,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
     console.log('update bike result: ' + result);
     queryClient.invalidateQueries({ queryKey: ['bikes'] });
     if (result == '') {
-      router.back();
+      goBack();
     } else {
       setErrorMessage(result);
     }
@@ -106,11 +114,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
     const result = await controller.deleteBike(session, email, bikeId);
     queryClient.invalidateQueries({ queryKey: ['bikes'] });
     if (result == '') {
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.push('/(home)');
-      }
+      goBack();
     } else {
       setErrorMessage(result);
     }

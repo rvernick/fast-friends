@@ -22,7 +22,7 @@ const MaintenanceHistoryComponent = () => {
   const [bikeId, setBikeId ] = useState(defaultBikeId);
   const [filteredHistory, setFilteredHistory ] = useState<MaintenanceHistoryItem[]>([]);
   const [sortColumn, setSortColumn] = useState('distance');
-  const [sortDirection, setSortDirection] = useState('ascending');
+  const [sortDirection, setSortDirection] = useState('descending');
   const [initialized, setInitialized ] = useState(false);
   var notSelected;
 
@@ -53,7 +53,7 @@ const MaintenanceHistoryComponent = () => {
   };
 
   const createFilteredHistory = (): MaintenanceHistoryItem[] => {
-    console.log('create filtered history: ' + history);
+    // console.log('create filtered history: ' + history);
     if (!history || history.length === 0) return [];
     if (bikeId && bikeId.length > 0 && bikeId !== '_All') {
       return history?.filter(h => ensureString(h.bikeId) === bikeId) || [];
@@ -61,21 +61,43 @@ const MaintenanceHistoryComponent = () => {
     return history || [];
   }
 
-  const compareHistoryItem = (a: MaintenanceHistoryItem, b: MaintenanceHistoryItem): number => {
-    if (sortColumn === 'distance') {
-      return b.dueDistanceMeters - a.dueDistanceMeters;
-    } else if (sortColumn === 'bike') {
-      return b.bikeName.localeCompare(a.bikeName);
-    } 
-    return b.part.localeCompare(a.part);
+  const compareHistoryItem = (col: string, upDown: string, a: MaintenanceHistoryItem, b: MaintenanceHistoryItem): number => {
+    var result = 0;
+    if (col === 'distance') {
+      result = b.distanceMeters - a.distanceMeters;
+      if (result === 0) {
+        result = b.bikeName.localeCompare(a.bikeName);
+      }
+      if (result === 0) {
+        result = b.part.localeCompare(a.part);
+      }
+    } else if (col === 'bike') {
+      result = b.bikeName.localeCompare(a.bikeName);
+      if (result === 0) {
+        result = b.part.localeCompare(a.part);
+      }
+      if (result === 0) {
+        result = b.distanceMeters - a.distanceMeters;
+      }
+    } else {
+      result = b.part.localeCompare(a.part);
+      if (result === 0) {
+        result = b.bikeName.localeCompare(a.bikeName);
+      }
+      if (result === 0) {
+        result = b.distanceMeters - a.distanceMeters;
+      }
+    }
+    result = result * (upDown === 'descending'? 1 : -1);
+    return result;
   }
 
-  const sortedAndFilteredHistory = () => {
+  const sortedAndFilteredHistory = (col: string, upDown: string) => {
     try {
       const history = createFilteredHistory();
-      console.log('Sorted and filtered history: ' + JSON.stringify(history));
+      // console.log('Sorted and filtered history: ' + JSON.stringify(history));
       if (!history || history.length === 0) return [];
-      return history.sort((a, b) => { return compareHistoryItem(a, b); });
+      return history.sort((a, b) => { return compareHistoryItem(col, upDown, a, b); });
     } catch (error) {
       console.error('Error sorting and filtering history: ', error);
       return [];
@@ -84,9 +106,15 @@ const MaintenanceHistoryComponent = () => {
 
   const handleSort = (column: string) => {
     if (sortColumn === column) {
+      console.log('Reversing sort direction ' + sortDirection);
       setSortDirection(sortDirection === 'ascending'? 'descending' : 'ascending');
     } else {
       setSortColumn(column);
+      if (column === 'distance') {
+        setSortDirection('descending');
+      } else {
+        setSortDirection('ascending');
+      }
     }
   }
 
@@ -100,7 +128,6 @@ const MaintenanceHistoryComponent = () => {
   useEffect(() => {
     navigation.setOptions({ title: 'Maintenance History' });
     console.log('Refreshing history: ' + bikeId);
-    setFilteredHistory(sortedAndFilteredHistory() || []);
     if (!initialized) {
       setInitialized(true);
       console.log('Initializing history: ' + JSON.stringify(params));
@@ -152,7 +179,7 @@ const MaintenanceHistoryComponent = () => {
               onPress={() => handleSort('distance')}>
                 Distance (miles)</DataTable.Title>
           </DataTable.Header>
-          {filteredHistory.map(history => (
+          {sortedAndFilteredHistory(sortColumn, sortDirection).map(history => (
             <DataTable.Row key={'history' + history.id}>
               <DataTable.Cell>{history.bikeName}</DataTable.Cell>
               <DataTable.Cell>{history.part}</DataTable.Cell>
