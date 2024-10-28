@@ -28,6 +28,10 @@ export enum Part {
   FRONT_SHIFTER_CABLE = "Front Shifter Cable",
   BAR_TAPE = "Bar Tape",
   TUNE_UP = "Tune Up",
+  FRONT_SUSPENSION = "Front Suspension",
+  REAR_SUSPENSION = "Rear Suspension",
+  FRONT_DERAILLEUR_BATTERY = "Front Derailleur Battery",
+  REAR_DERAILLEUR_BATTERY = "Rear Derailleur Battery",
 };
 
 export enum Action {

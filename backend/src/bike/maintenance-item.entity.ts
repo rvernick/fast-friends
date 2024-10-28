@@ -20,18 +20,19 @@ export const defaultMaintenanceItems = (bike: Bike): MaintenanceItem[] => {
   const odometerMeters = bike.odometerMeters == null ? 0 : bike.odometerMeters;
   const oneThousandMiles = odometerMeters + oneThousandMilesInMeters;
   const threeThousandMiles = odometerMeters + threeThousandMilesInMeters;
-  maintenanceItems.push(createMaintenanceItem(Part.CHAIN, threeThousandMiles));
-  maintenanceItems.push(createMaintenanceItem(Part.CASSETTE, threeThousandMiles));
-  maintenanceItems.push(createMaintenanceItem(Part.FRONT_TIRE, threeThousandMiles));
-  maintenanceItems.push(createMaintenanceItem(Part.REAR_TIRE, threeThousandMiles));
-  maintenanceItems.push(createMaintenanceItem(Part.FRONT_BRAKE_PADS, oneThousandMiles));
-  maintenanceItems.push(createMaintenanceItem(Part.REAR_BRAKE_PADS, oneThousandMiles));
+  maintenanceItems.push(createMaintenanceItem(Part.CHAIN, threeThousandMilesInMeters, threeThousandMiles));
+  maintenanceItems.push(createMaintenanceItem(Part.CASSETTE, threeThousandMilesInMeters, threeThousandMiles));
+  maintenanceItems.push(createMaintenanceItem(Part.FRONT_TIRE, threeThousandMilesInMeters, threeThousandMiles));
+  maintenanceItems.push(createMaintenanceItem(Part.REAR_TIRE, threeThousandMilesInMeters, threeThousandMiles));
+  maintenanceItems.push(createMaintenanceItem(Part.FRONT_BRAKE_PADS, oneThousandMilesInMeters, oneThousandMiles));
+  maintenanceItems.push(createMaintenanceItem(Part.REAR_BRAKE_PADS, oneThousandMilesInMeters, oneThousandMiles));
   return maintenanceItems;
 }
 
-const createMaintenanceItem = (part: Part, distance: number): MaintenanceItem => {
+const createMaintenanceItem = (part: Part, longevity: number, distance: number): MaintenanceItem => {
   const maintenanceItem = new MaintenanceItem();
   maintenanceItem.part = part;
+  maintenanceItem.defaultLongevity = longevity;
   maintenanceItem.dueDistanceMeters = distance;
   return maintenanceItem;
 }
