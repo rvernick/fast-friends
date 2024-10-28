@@ -110,8 +110,13 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     );
     if (successful) {
       queryClient.invalidateQueries({ queryKey: ['bikes'] });
-      reset();
-      setReadOnly(true);
+      if (isNew) {
+        // don't know the id so can't reset
+        router.goBack();
+      } else {
+        reset();
+        setReadOnly(true);
+      }
     }
   };
  
@@ -163,6 +168,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       
       console.log('setting part to: ' + item.part.toString());
       setPart(ensureString(item.part.toString()));
+      setAction(ensureString(item.action.toString()));
       setDueMiles(metersToMilesString(item.dueDistanceMeters));
       setBrand(ensureString(item.brand));
       setModel(ensureString(item.model));
@@ -456,11 +462,11 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
             accessibilityLabel="Cancel"
             accessibilityHint="Go back without saving changes">
           Cancel </Button>}
-          {/* { (readOnly || isNew) ? null : <Button
+          { (readOnly || isNew) ? null : <Button
             mode="contained"
             onPress={ deleteMaintenanceItem }
             accessibilityLabel="Delete"
-            accessibilityHint="Delete maintenance item"> Delete </Button>} */}
+            accessibilityHint="Delete maintenance item"> Delete </Button>}
       </Card>
     </Surface>
   )

@@ -69,7 +69,7 @@ const MaintenanceComponent = () => {
   const MaintenanceListItem: React.FC<MaintenanceListItemProps> = ({ maintenanceItem, bikeId }) => {
     return (
       <List.Item
-        key={'mi' + maintenanceItem.id}
+        key={'mi' + maintenanceItem.id + 'milage' + maintenanceItem.dueDistanceMeters.toFixed(0)}
         title={maintenanceItem.part}
         id={'MLI' + bikeId}
         description={maintenanceItem.action + ' at: ' + metersToMilesString(maintenanceItem.dueDistanceMeters)}
