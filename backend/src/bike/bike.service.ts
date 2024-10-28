@@ -237,10 +237,10 @@ export class BikeService {
     const vals = Object.values(Action);
     const keys = Object.keys(Action)
     for (const checkKey in keys) {
-      this.logger.log('info', 'checking: ' + checkKey +' vs'+ vals[checkKey])
+      // this.logger.log('info', 'checking: ' + checkKey +' vs'+ vals[checkKey])
       if (vals[checkKey] === actionCode) {
-        this.logger.log('info', 'Found action: ' + checkKey +' from'+ actionCode)
-        this.logger.log('info', 'Returning: ' + Action[keys[checkKey]])
+        // this.logger.log('info', 'Found action: ' + checkKey +' from'+ actionCode)
+        // this.logger.log('info', 'Returning: ' + Action[keys[checkKey]])
         return Action[keys[checkKey]];
       }
     }
@@ -248,10 +248,21 @@ export class BikeService {
     return null;
   }
 
+  /**
+   * To ensure that MaintenanceItems unique by bike, part and action, deleted Items might be resurrected.
+   * @param maintenanceInfo 
+   * @returns 
+   */
   async updateOrAddMaintenanceItem(maintenanceInfo: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
+    this.logger.log('info', 'Updating or adding maintenance item: ', JSON.stringify(maintenanceInfo));
     try {
-      var maintenanceItem = new MaintenanceItem();
-      if (maintenanceInfo.id == 0) {
+      const maintenanceItem = await this.getOrCreateMaintenanceItem(maintenanceInfo);
+      if (maintenanceItem == null) {
+        console.error('Maintenance item not found for user '+ maintenanceInfo.username +' and id '+ maintenanceInfo.id);
+        return null;
+      }
+    
+      if (maintenanceItem.id == 0 || maintenanceItem.bike == null) {
         const bike = await this.findOne(maintenanceInfo.bikeid);
         if (bike == null) {
           console.error('Bike not found for user '+ maintenanceInfo.username +' and bikeid '+ maintenanceInfo.bikeid);
@@ -261,12 +272,6 @@ export class BikeService {
         console.log('Updated maintenance item: ', JSON.stringify(bike));
         console.log('Updated maintenance item: ', JSON.stringify(maintenanceItem));
         console.log('Updated maintenance item id: ', maintenanceItem.id);
-      } else {
-        maintenanceItem = await this.getMaintenanceItem(maintenanceInfo.id, maintenanceInfo.username);
-        if (maintenanceItem == null) {
-          console.error('Maintenance item not found for user '+ maintenanceInfo.username +' and id '+ maintenanceInfo.id);
-          return null;
-        }
       }
 
       const part = this.getPartFor(maintenanceInfo.part);
@@ -295,6 +300,33 @@ export class BikeService {
       console.error('Error updating or adding bike: ', error);
       return null;
     }
+  }
+
+  async getOrCreateMaintenanceItem(maintenanceInfo: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
+    if (maintenanceInfo.id == 0) {
+      const zombieMaintenanceItem = await this.searchForZombieMaintenanceItem(maintenanceInfo);
+      if (zombieMaintenanceItem != null) {
+        return zombieMaintenanceItem;
+      }
+      return new MaintenanceItem();
+    }
+    return await this.getMaintenanceItem(maintenanceInfo.id, maintenanceInfo.username);
+  }
+
+  async searchForZombieMaintenanceItem(maintenanceInfo: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
+    const queryBuilder = this.maintenanceItemsRepository.createQueryBuilder("mi")
+      .where("mi.bikeId = :bikeId", { bikeId: maintenanceInfo.bikeid })
+      .andWhere("mi.part = :part", { part: maintenanceInfo.part })
+      .andWhere("mi.action = :action", { action: maintenanceInfo.action})
+      .withDeleted();
+    const zombieMaintenanceItems = await queryBuilder.getMany();
+  
+    if (zombieMaintenanceItems.length > 0) {
+      const result = zombieMaintenanceItems[0];
+      this.maintenanceItemsRepository.restore(result.id);
+      return this.maintenanceItemsRepository.findOneBy({ id: result.id });
+    }
+    return null;
   }
 
   async deleteMaintenanceItem(maintenanceId: number, username): Promise<void> {
