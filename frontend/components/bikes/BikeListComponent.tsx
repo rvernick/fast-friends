@@ -53,7 +53,7 @@ const BikeListComponent = () => {
           bikes?.map(bike => (
             <List.Item
               style={{flex: 1}}
-              key={bike.id}
+              key={bike.id + bike.name + bike.type}
               title={bike.name}
               description={bike.type}
               onPress={() => editBike(bike.id)}

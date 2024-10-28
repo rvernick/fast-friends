@@ -111,6 +111,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     if (successful) {
       queryClient.invalidateQueries({ queryKey: ['bikes'] });
       if (isNew) {
+        // don't know the id so can't reset
         router.goBack();
       } else {
         reset();
