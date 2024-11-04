@@ -21,6 +21,7 @@ describe('Phone Helper Methods', () => {
 
   it('validate password', () => {
     expect(isValidPassword('e!ghtCha')).toBeTruthy();
+    expect(isValidPassword('pa$$Word123')).toBeTruthy();
     expect(isValidPassword('tooF#w')).toBeFalsy();
     expect(isValidPassword('noSpecial')).toBeFalsy();
     expect(isValidPassword('no(apital')).toBeFalsy();

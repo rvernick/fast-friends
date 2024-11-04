@@ -20,16 +20,14 @@ const MaintenanceHistoryComponent = () => {
   const controller = new MaintenanceHistoryController(appContext);
   var defaultBikeId = '_All';
   const [bikeId, setBikeId ] = useState(defaultBikeId);
-  const [filteredHistory, setFilteredHistory ] = useState<MaintenanceHistoryItem[]>([]);
   const [sortColumn, setSortColumn] = useState('distance');
   const [sortDirection, setSortDirection] = useState('descending');
   const [initialized, setInitialized ] = useState(false);
-  var notSelected;
 
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
 
-  const { status: bikesStatus, data: bikes, error: bikesError, isFetching: bikesFetching } = useQuery({
+  const { data: bikes, error: bikesError, isFetching: bikesFetching } = useQuery({
     queryKey: ['bikes'],
     queryFn: () => controller.getBikes(session, email),
     initialData: [],
@@ -136,9 +134,9 @@ const MaintenanceHistoryComponent = () => {
       }
       setBikeId(defaultBikeId);
     }
-  }, [history, bikeId]);
+  }, [history, bikeId, historyFetching]);
 
-  if (!bikes || bikesFetching || bikes.length === 0) {
+  if (!history || historyFetching || history.length === 0) {
     return (
       <Text>
         No bikes found. Add a bike or sync with Strava.
@@ -161,7 +159,7 @@ const MaintenanceHistoryComponent = () => {
           onSelect={handleBikePress}
           useAll={true}
         />
-        <DataTable style={useStyle.containerBody}>
+        <DataTable style={useStyle.containerBody} testID='historyTable'>
           <DataTable.Header>
             <DataTable.Title
               numeric={false}
@@ -176,14 +174,15 @@ const MaintenanceHistoryComponent = () => {
             <DataTable.Title
               numeric={true}
               sortDirection={sortBy('distance')}
+              testID='distanceHeader'
               onPress={() => handleSort('distance')}>
                 Distance (miles)</DataTable.Title>
           </DataTable.Header>
-          {sortedAndFilteredHistory(sortColumn, sortDirection).map(history => (
-            <DataTable.Row key={'history' + history.id}>
-              <DataTable.Cell>{history.bikeName}</DataTable.Cell>
-              <DataTable.Cell>{history.part}</DataTable.Cell>
-              <DataTable.Cell numeric>{metersToMilesString(history.distanceMeters)}</DataTable.Cell>
+          {sortedAndFilteredHistory(sortColumn, sortDirection).map((history, index, histories) => (
+            <DataTable.Row key={'history' + history.id} testID={"row: " + index}>
+              <DataTable.Cell testID={"bikeCell: " + index}>{history.bikeName}</DataTable.Cell>
+              <DataTable.Cell testID={"partCell: " + index}>{history.part}</DataTable.Cell>
+              <DataTable.Cell testID={"distanceCell: " + index} numeric>{metersToMilesString(history.distanceMeters)}</DataTable.Cell>
             </DataTable.Row>
           ))}
         </DataTable>
