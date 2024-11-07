@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface, Text } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
-import { ensureString, isMobile, metersToMilesString, milesToMeters } from "@/common/utils";
+import { displayStringToMeters, ensureString, isMobile, metersToDisplayString } from "@/common/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Linking } from "react-native";
 
@@ -31,23 +31,15 @@ type BikeProps = {
   bikeid: number
 };
 
-const BikeComponent: React.FC<BikeProps> = () => {
+const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const session = useSession();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const appContext = useGlobalContext();
 
   const email = session.email ? session.email : '';
 
-  const appContext = useGlobalContext();
-  const { bikeid } = useLocalSearchParams();
-  var bikeId = 0;
-  if (typeof bikeid === 'string') {
-    console.log('BikeComponent bikeid: '+ bikeid);
-    bikeId = parseInt(bikeid);
-  } else {
-    console.error('Invalid bikeid parameter:'+ bikeid);
-    bikeId = 0;
-  }
+  var bikeId = bikeid ? bikeid : 0;
 
   const isNew = bikeId === 0;
   const [bikeName, setBikeName] = useState(newBike.name);
@@ -60,8 +52,8 @@ const BikeComponent: React.FC<BikeProps> = () => {
   const [isInitialized, setIsInitialized] = useState(isNew);
   const [stravaId, setStravaId] = useState('');
   const [milage, setMileage] = useState(newBike.odometerMeters.toFixed(0));
-
   const controller = new BikeController(appContext);
+  const preferences = controller.getUserPreferences(session);
 
   const editOrDone = (value: any) => {
     if (!readOnly) {
@@ -71,7 +63,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
     }
   }
 
-  const resetBike = (bike: Bike) => {
+  const resetBike = async (bike: Bike) => {
     console.log('reset bike: ' + JSON.stringify(bike));
     setBikeName(ensureString(bike.name));
     navigation.setOptions({ title: ensureString(bike.name) });
@@ -79,7 +71,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
     setGroupsetBrand(ensureString(bike.groupsetBrand));
     setSpeeds(ensureString(bike.groupsetSpeed));
     setIsElectronic(bike.isElectronic);
-    setMileage(metersToMilesString(bike.odometerMeters));
+    setMileage(metersToDisplayString(bike.odometerMeters, await preferences));
     setStravaId(ensureString(bike.stravaId));
     setReadOnly(true);
   }
@@ -95,7 +87,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
   const updateBike = async function() {
     const result = await controller.updateBike(session, email, bikeId,
       bikeName,
-      milesToMeters(parseInt(milage)),
+      displayStringToMeters(milage, await preferences),
       type,
       groupsetBrand,
       speed,
@@ -181,6 +173,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
           onChangeText={updateName}
           disabled={readOnly}
           placeholder="Name"
+          testID="nameInput"
           accessibilityLabel="Bike Name"
           accessibilityHint="Name of the bike" />
         <HelperText type="error" >{errorMessage}</HelperText>
@@ -188,6 +181,7 @@ const BikeComponent: React.FC<BikeProps> = () => {
           disabled={readOnly || connectedToStrava()}
           value={milage}
           onChangeText={(value) => setMileage(value ? value : '')}
+          testID="mileageField"
           accessibilityLabel="Milage"
           accessibilityHint="Mileage of the bike"/>
         <Dropdown

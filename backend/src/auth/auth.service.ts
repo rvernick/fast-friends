@@ -66,6 +66,7 @@ export class AuthService {
       updateUserDto.firstName,
       updateUserDto.lastName,
       updateUserDto.cellPhone,
+      updateUserDto.units,
       null,
       null,
       null,
@@ -91,6 +92,7 @@ export class AuthService {
     }
     this.userService.updateUser(
       user,
+      null,
       null,
       null,
       null,

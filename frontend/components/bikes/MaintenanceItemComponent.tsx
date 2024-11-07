@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import { Button, TextInput, ActivityIndicator, Card, Surface, Checkbox, Tooltip } from "react-native-paper";
+import { Button, TextInput, ActivityIndicator, Card, Surface, Tooltip } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
-import { ensureString, metersToMiles, metersToMilesString, milesToMeters } from "@/common/utils";
+import { displayStringToMeters, ensureString, metersToDisplayString, milesToMeters } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { Action, MaintenanceItem, Part } from "@/models/MaintenanceItem";
@@ -86,6 +86,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   const controller = new MaintenanceItemController(appContext);
+  const preferences = controller.getUserPreferences(session);
 
   const { data: bikes } = useQuery({
     queryKey: ['bikes'],
@@ -101,11 +102,11 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       bike.id,
       part,
       action,
-      milesToMeters(parseInt(dueMiles)),
+      displayStringToMeters(dueMiles, await preferences),
       brand,
       model,
       link,
-      milesToMeters(parseInt(defaultLongevity)),
+      displayStringToMeters(defaultLongevity, await preferences),
       autoAdjustLongevity,
     );
     if (successful) {
@@ -142,7 +143,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     reset();
   }
 
-  const resetMaintenanceItem = (item: MaintenanceItem) => {
+  const resetMaintenanceItem = async (item: MaintenanceItem) => {
     if (item) {
       setMaintenanceItem(item);
       if (item.id === 0) {
@@ -169,14 +170,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       console.log('setting part to: ' + item.part.toString());
       setPart(ensureString(item.part.toString()));
       setAction(ensureString(item.action.toString()));
-      setDueMiles(metersToMilesString(item.dueDistanceMeters));
+      setDueMiles(metersToDisplayString(item.dueDistanceMeters, await preferences));
       setBrand(ensureString(item.brand));
       setModel(ensureString(item.model));
       setLink(ensureString(item.link));
-      setDefaultLongevity(metersToMilesString(item.defaultLongevity));
+      setDefaultLongevity(metersToDisplayString(item.defaultLongevity, await preferences));
       setAutoAdjustLongevity(item.autoAdjustLongevity);
       console.log('Reset maintenance item: ', item.id );
-      console.log('Reset bike: ', bikes.length );
+      // console.log('Reset bike: ', bikes.length );
     }
   }
 
@@ -252,14 +253,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   }
 
 
-  const selectBike = (idString: string | undefined) => {
+  const selectBike = async (idString: string | undefined) => {
     if (idString && bikes) {
       const id = parseInt(idString);
       const bikeById = bikes.find(bike => bike.id === id);
       if (bikeById) {
         console.log('Selected bike idString: ', idString);
         setBike(bikeById);
-        const title = bikeById.name + ' (' + metersToMilesString(bikeById.odometerMeters) +' miles)'
+        const title = bikeById.name + ' (' + metersToDisplayString(bikeById.odometerMeters, await preferences) +' ' + preferences.units + ')'
         setBikeName(title);
         setBikeIdString(idString);
         // updatePartsList(bikeById);
@@ -272,13 +273,13 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     }
   }
 
-  const ensureDueMilageAhead = (toBike: Bike) => {
+  const ensureDueMilageAhead = async (toBike: Bike) => {
     if (isNew || !readOnly) {
-      const currentMiles = metersToMiles(toBike.odometerMeters);
-      const nextDueMiles = parseInt(dueMiles);
-      if (currentMiles > nextDueMiles) {
-        const forwardMiles = currentMiles + 1500;
-        setDueMiles(forwardMiles.toFixed(0));
+      const currentMeters = toBike.odometerMeters;
+      const nextDueMeters = displayStringToMeters(dueMiles, await preferences);
+      if (currentMeters  > nextDueMeters) {
+        const forwardMeters = currentMeters + milesToMeters(1500);
+        setDueMiles(metersToDisplayString(forwardMeters, await preferences));
       }
     }
   };
@@ -332,7 +333,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     if (null === part) return;
     console.log('PartSelected: ', part);
     setPart(ensureString(part));
-    updateActionsList(bike, part);
+    updateActionsList(bike, ensureString(part));
   }
 
   const actionSelected = (selection: string | undefined) => {

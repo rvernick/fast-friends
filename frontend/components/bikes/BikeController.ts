@@ -1,6 +1,7 @@
 import AppContext from "@/common/app-context";
 import AppController from "@/common/AppController";
-import { getInternal, post } from "@/common/http-utils";
+import { getBike } from "@/common/data-utils";
+import { post } from "@/common/http-utils";
 import { Bike } from "@/models/Bike";
 
 
@@ -14,22 +15,7 @@ class BikeController extends AppController {
       console.log('get bike has no context: ' + username);
       return Promise.resolve(null);
     }
-    const jwtToken = session.jwt_token;
-    if (jwtToken == null) {
-      console.log('get bikes has no token dying: ' + username);
-      return Promise.resolve(null);
-    }
-
-    try {
-      const parameters = {
-        username: username,
-        bikeid: bikeid,
-      };
-      return getInternal('/bike/bike', parameters, jwtToken);
-    } catch(e: any) {
-      console.log(e.message);
-      return null;
-    }
+    return getBike(session, bikeid, username);
   }
 
   updateBike = async (

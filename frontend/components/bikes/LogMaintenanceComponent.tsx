@@ -4,7 +4,7 @@ import { Bike } from "@/models/Bike";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText } from "react-native-paper";
 import { useSession } from "@/ctx";
-import { ensureString, isMobile, metersToMilesString, milesToMeters } from "@/common/utils";
+import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters } from "@/common/utils";
 import { useQuery } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { MaintenanceItem, Part } from "@/models/MaintenanceItem";
@@ -53,6 +53,7 @@ const LogMaintenanceComponent = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const controller = new MaintenanceItemController(appContext);
+  const preferences = controller.getUserPreferences(session);
 
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles;
@@ -63,14 +64,14 @@ const LogMaintenanceComponent = () => {
     queryFn: () => controller.getBikes(session, email),
   });
 
-  const selectBike = (idString: string | undefined) => {
+  const selectBike = async (idString: string | undefined) => {
     if (idString && idString !== bikeIdString && bikes) {
       const id = parseInt(idString);
       const bikeById = bikes.find(bike => bike.id === id);
       if (bikeById) {
         console.log('Selected bike id: ', id);
         setBike(bikeById);
-        setBikeName(bikeById.name + ": " + metersToMilesString(bikeById.odometerMeters));
+        setBikeName(bikeById.name + ": " + metersToDisplayString(bikeById.odometerMeters, await preferences));
         setBikeIdString(idString);
         setCheckedIds([]);
         setErrorMessage('');
@@ -92,12 +93,14 @@ const LogMaintenanceComponent = () => {
           id: item.id,
           bikeId: bike.id,
           maintenanceItem: item,
+          due: item.dueDistanceMeters,
           nextDue: bike.odometerMeters + item.defaultLongevity,
           selected: false,
         };
         maintenanceLogs.push(log);
       }
     }
+    setMaintenanceLogs(maintenanceLogs.sort((a, b) => a.due - b.due));
   }
 
   const selectDefaultBike = () => {
@@ -139,7 +142,9 @@ const LogMaintenanceComponent = () => {
   };
 
 const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log, rowKey }) => {
-  const [nextDueValue, setNextDueValue] = useState(metersToMilesString(log.nextDue));
+  const [nextDueValue, setNextDueValue] = useState(log.nextDue);
+  const [nextDueString, setNextDueString] = useState('0');
+  const [dueDistanceString, setDueDistanceString] = useState('0');
 
   const toggleSelectedRow = () => {    
     if (checkedIds.includes(log.id)) {
@@ -151,12 +156,11 @@ const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log, rowKey }) =>
     }
   }
 
-  const setNextDue = (newValue: string) => {
+  const setNextDue = async (newValue: string) => {
     try {
       if (newValue.match(/^[0-9]*$/)) {
-        const nextDueDistanceMiles = parseInt(newValue);
-        const nextDueDistanceMeters = milesToMeters(nextDueDistanceMiles);
-        setNextDueValue(newValue);
+        const nextDueDistanceMeters = displayStringToMeters(newValue, await preferences);
+        setNextDueString(newValue);
         log.nextDue = nextDueDistanceMeters;
       }
     } catch (error) {
@@ -170,22 +174,35 @@ const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log, rowKey }) =>
     }
   }
 
+  const syncNextDueString = async () => {
+    setNextDueString(metersToDisplayString(nextDueValue, await preferences));
+    setDueDistanceString(metersToDisplayString(log.maintenanceItem.dueDistanceMeters, await preferences));
+  }
+  
+  useEffect(() => {
+    syncNextDueString();
+  }, [nextDueValue]);
+
   return (
     <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
       <View style={{ width: "15%", padding: 10}}>
         <Checkbox key={"cb" + rowKey} status={checkedIds.includes(log.id) ? 'checked' : 'unchecked'}
           onPress={toggleSelectedRow}/>
       </View>
-      <View style={{justifyContent: "center", width: "28%", padding: 10}}>
+      <View style={{justifyContent: "center", width: "20%", padding: 10}}>
         <Text key={"prt" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.part}</Text>
       </View>
-      <View style={{ justifyContent: "center", width: "27%"}}>
-        <Text key={"due" + rowKey} onPress={toggleSelectedRow}>{metersToMilesString(log.maintenanceItem.dueDistanceMeters)}</Text>
+      <View style={{justifyContent: "center", width: "18%", padding: 10}}>
+        <Text key={"act" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.action}</Text>
       </View>
-      <View style={{ justifyContent: "center", width: "28%", padding: 10}}>
+      <View style={{ justifyContent: "center", width: "23%"}}>
+        <Text key={"due" + rowKey} onPress={toggleSelectedRow}>
+          {dueDistanceString}</Text>
+      </View>
+      <View style={{ justifyContent: "center", width: "24%", padding: 10}}>
         <TextInput
           onChangeText={(newValue) => {setNextDue(newValue)}}
-          value={ nextDueValue }
+          value={ nextDueString }
           onBlur={ensureSelected}
           key={"nextDue" + rowKey}
         />
@@ -200,13 +217,16 @@ const MaintenanceLogHeader = () => {
       <View style={{justifyContent: "center", width: "15%", padding: 10}}>
         <Icon source="check" size={24} color="black" />
       </View>
-      <View style={{justifyContent: "center", width: "25%", padding: 10, }}>
+      <View style={{justifyContent: "center", width: "20%", padding: 10, }}>
         <Text>Part</Text>
       </View>
-      <View style={{justifyContent: "center",width: "30%"}}>
+      <View style={{justifyContent: "center", width: "18%", padding: 10, }}>
+        <Text>Action</Text>
+      </View>
+      <View style={{justifyContent: "center",width: "23%"}}>
         <Text>Due</Text>
       </View>
-      <View style={{justifyContent: "center", width: "30%", padding: 10}}>
+      <View style={{justifyContent: "center", width: "24%", padding: 10}}>
         <Text>Next Due</Text>
       </View>
     </View>
@@ -277,6 +297,7 @@ interface MaintenanceLog {
   id: number;
   bikeId: number;
   maintenanceItem: MaintenanceItem;
+  due: number;
   nextDue: number;
   selected: boolean;
 }

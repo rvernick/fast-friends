@@ -5,6 +5,7 @@ export interface MaintenanceHistoryItem {
   bikeId: number;
   distanceMeters: number;
   part: string;
+  action: string;
   name: string;
   brand: string;
   model: string;

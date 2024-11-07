@@ -38,7 +38,7 @@ export default function Index() {
           onPress={() => console.log("Powered by Strava")}
           style={{ left: 1, width: 196, height: 82 }}
           icon={() => <Image
-                  source={require("../assets/images/api_logo_pwrdBy_strava_stack_light.png")}
+                  source={require("../assets/images/api_logo_pwrd_by_strava_stack_light.png")}
                   />}
           mode="contained"
         />

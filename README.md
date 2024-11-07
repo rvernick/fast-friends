@@ -13,6 +13,18 @@
 
 There are two servers in FastFriends: [backend](https://github.com/rvernick/fast-friends/blob/main/backend/README.md) and [frontend](https://github.com/rvernick/fast-friends/blob/main/frontend/README.md).  Refer to each subdirectory's readme to install and run those servers.
 
+## E2E Testing
+Cypress has been configured for E2E testing.
+### Running Tests
+Tests can be run by clicking on their link in the Cypress server.  Start Cypress...
+```
+cd e2e
+npx cypress open
+```
+
+### Writing Tests
+Tests and testing configuration is kept separate from the other services for convenience.  The sometimes have configurations that clash, particularly because they use different expect() libraries (Jest vs Chai)
+
 ## Stay in touch
 
 - Author - [Russ Vernick](mailto:rvernick@yahoo.com)

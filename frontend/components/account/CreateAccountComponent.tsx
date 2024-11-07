@@ -105,7 +105,10 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
             accessibilityLabel="email"
             accessibilityHint="The email address of the user being created"
           />
-          <HelperText type="error" disabled={emailErrorMessage.length == 0} visible={emailErrorMessage.length > 0}>
+          <HelperText type="error"
+              disabled={emailErrorMessage.length == 0}
+              testID="emailErrorHelperText"
+              visible={emailErrorMessage.length > 0}>
             {emailErrorMessage}
           </HelperText>
           <TextInput
@@ -139,6 +142,7 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
           <Button
             mode="contained"
             onPress={apply}
+            testID="submitButton"
             accessibilityLabel="Sign Up Button"
             accessibilityHint="The button to submit the info to create the new account">
             Sign Up

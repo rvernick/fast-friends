@@ -7,4 +7,10 @@ export interface User {
   cellPhone: string;
   stravaId: string;
   bikes: Bike[];
+  units: string;
 };
+
+export enum Units {
+  KM = "km",
+  MILES = "miles",
+}

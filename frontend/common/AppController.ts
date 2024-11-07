@@ -1,7 +1,7 @@
 import { Bike } from "@/models/Bike";
 import AppContext from "./app-context";
-import { getInternal } from "./http-utils";
-import { sleep } from "./utils";
+import { getUserPreferences, sleep } from "./utils";
+import { getBikes } from "./data-utils";
 
 class AppController {
   private _appContext: AppContext;
@@ -31,27 +31,13 @@ class AppController {
   }
 
   getBikes = async (session: any, username: string): Promise<Bike[] | null> => {
-    sleep(0.1);
-    if (session === null) {
-      console.log('get maintenanceItems has no context: ' + username);
-      return Promise.resolve(null);
-    }
-    const jwtToken = await session.jwt_token;
-    if (jwtToken == null) {
-      console.log('get bikes has no token dying: ' + username);
-      return Promise.resolve(null);
-    }
+    const result =  getBikes(session, username);
+    console.log('get bikes result: ', result);
+    return result;
+  }
 
-    try {
-      const parameters = {
-        username: username,
-      };
-      console.log('get bikes ' +'username:'+ username);
-      return getInternal('/bike/bikes', parameters, jwtToken);
-    } catch(e: any) {
-      console.log(e.message);
-      return null;
-    }
+  getUserPreferences = async (session: any): Promise<any> => {
+    return getUserPreferences(session);
   }
 }
 

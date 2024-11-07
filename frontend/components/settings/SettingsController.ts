@@ -8,13 +8,20 @@ class SettingsController extends AppController {
     super(appContext);
   }
 
-  public updateAccount(session: any, username: string, firstName: string, lastName: string, cellPhone: string) {
+  public updateAccount(
+      session: any,
+      username: string,
+      firstName: string,
+      lastName: string,
+      cellPhone: string,
+      units: string) {
     return this.callUpdateAccount(
       session,
       username,
       firstName,
       lastName,
-      strippedPhone(cellPhone));
+      strippedPhone(cellPhone),
+      units);
   }
 
   async callUpdateAccount(
@@ -22,7 +29,8 @@ class SettingsController extends AppController {
     username: string,
     firstName: string,
     lastName: string,
-    cellPhone: string) {
+    cellPhone: string,
+    units: string) {
 
     try {
       const body = {
@@ -30,6 +38,7 @@ class SettingsController extends AppController {
         firstName: firstName,
         lastName: lastName,
         cellPhone: cellPhone,
+        units: units,
       };
 
       const response = await post('/auth/update-user', body, session.jwt_token);

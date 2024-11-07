@@ -38,33 +38,71 @@ describe('Login Component', () => {
     expect(dueMilesInput.props.value).toBe('1000');
   });
 
-  it('Should not crash when bikes undefined', () => {
-    render(
+  it('Should not crash when bikes undefined', async () => {
+    const wrappedBikeDropdown = jest.fn(() => 
       <ProviderWrapper>
         <BikeDropdown bikes={undefined} value={''} readonly={false} onSelect={function (value: string): void {
           throw new Error('Function not implemented.');
         } } />
-      </ProviderWrapper>
+      </ProviderWrapper>);
+    renderRouter(
+      {
+        index: wrappedBikeDropdown,
+        'directory/a': wrappedBikeDropdown,
+        '(group)/b': wrappedBikeDropdown,
+      },
+      {
+        initialUrl: '/directory/a',
+      }
     );
+
+    const partSelector = await screen.findAllByText('Bike');
   });
 
-  it('Should not crash when bikes is null', () => {
-    render(
+  it('Should not crash when bikes is null', async () => {
+    const wrappedBikeDropdown = jest.fn(() => 
       <ProviderWrapper>
         <BikeDropdown bikes={null} value={''} readonly={false} onSelect={function (value: string): void {
           throw new Error('Function not implemented.');
         } } />
       </ProviderWrapper>
     );
+    renderRouter(
+      {
+        index: wrappedBikeDropdown,
+        'directory/a': wrappedBikeDropdown,
+        '(group)/b': wrappedBikeDropdown,
+      },
+      {
+        initialUrl: '/directory/a',
+      }
+    );
+    
+    const partSelector = await screen.findAllByText('Bike');
   });
-  it('Should not crash when bikes is empty', () => {
-    render(
+
+  it('Should not crash when bikes is empty', async () => {
+    const wrappedBikeDropdown = jest.fn(() => 
       <ProviderWrapper>
         <BikeDropdown bikes={[]} value={''} readonly={false} onSelect={function (value: string): void {
           throw new Error('Function not implemented.');
         } } />
       </ProviderWrapper>
     );
+    
+    renderRouter(
+      {
+        index: wrappedBikeDropdown,
+        'directory/a': wrappedBikeDropdown,
+        '(group)/b': wrappedBikeDropdown,
+      },
+      {
+        initialUrl: '/directory/a',
+      }
+    );
+    
+    const partSelector = await screen.findAllByText('Bike');
+
   });
 
 });

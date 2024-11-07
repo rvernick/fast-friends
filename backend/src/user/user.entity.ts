@@ -10,7 +10,11 @@ import {
 import { EncryptionTransformer } from 'typeorm-encrypted';
 import * as bcrypt from 'bcrypt';
 import { Bike } from '../bike/bike.entity';
-import { createHash } from 'crypto';
+
+export enum Units {
+  KM = "km",
+  MILES = "miles",
+}
 
 export const createNewUser = (username: string, password: string) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -120,6 +124,14 @@ export class User {
     cascade: true,
   })
   bikes: Bike[];
+
+  @Column({
+    type: 'enum',
+    enum: Units,
+    default: Units.MILES,
+    nullable: false,
+  })
+  units: Units;
 
   @DeleteDateColumn()
   deletedOn: boolean;

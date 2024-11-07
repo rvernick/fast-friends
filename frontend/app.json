@@ -29,7 +29,8 @@
         "foregroundImage": "./assets/images/spiral-gears.jpg",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.pedal_assistant"
+      "package": "com.pedal_assistant",
+      "versionCode": 4
     },
     "web": {
       "bundler": "metro",
@@ -43,7 +44,7 @@
         "expo-asset",
         {
           "assets": [
-            "./assets/images/api_logo_pwrdBy_strava_stack_light.png",
+            "./assets/images/api_logo_pwrd_by_strava_stack_light.png",
             "./assets/images/btn_strava_connectwith_orange.png"
           ]
         }

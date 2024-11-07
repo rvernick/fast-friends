@@ -119,6 +119,42 @@ export async function login(username: string, password: string, session: any) {
     });
 };
 
+const defaultPreferences = {
+  units: "miles",
+};
+
+export const updateUserPreferences = async (session: any): Promise<any | null> => {
+  const user = await fetchUser(session, session.email);
+  if (user) {
+    return setUserPreferences(user);
+  }
+  return defaultPreferences
+}
+
+export const setUserPreferences = async (user: User): Promise<any | null> => {
+  console.log('setting user preferences for: ' + JSON.stringify(user));
+  const preferences: { units?: string } = {};
+  preferences.units = user.units == 'km'? "km" : "miles";
+  remember("ff.preferences", JSON.stringify(preferences));
+  return preferences;
+}
+
+export const getUserPreferences = async (session: any): Promise<any | null> => {
+  const result = await remind("ff.preferences");
+  if (result && result.length > 0) {
+    try {
+      return JSON.parse(result);
+    } catch (e: any) {
+      console.log('Failed to parse user preferences: ' + e.message);
+      forget("ff.preferences");
+      return defaultPreferences;
+    }
+  } else {
+    updateUserPreferences(session);
+  }
+  return defaultPreferences;
+}
+
 export const fetchUser = async (session: any, username: string): Promise<User | null> => {
   console.log('fetching user: ' + username);
   try {
@@ -172,10 +208,32 @@ export const milesToMeters = (miles: number): number => {
   return Math.round(miles * 1609.34);
 }
 
+export const kilometersToMeters = (km: number): number => {
+  return Math.round(km * 1000);
+}
+
 export const metersToMiles = (meters: number): number => {
   return Math.round(meters / 1609.34);
 }
 
 export const metersToMilesString = (meters: number): string => {
   return metersToMiles(meters).toFixed(0);
+}
+
+export const metersToKilometersString = (meters: number): string => {
+  return (meters / 1000).toFixed(0);
+}
+
+export const metersToDisplayString = (meters: number, preferences: any): string => {
+  if (preferences.units === "km") {
+    return metersToKilometersString(meters);
+  }
+  return metersToMilesString(meters);
+}
+
+export const displayStringToMeters = (displayString: string, preferences: any): number => {
+  if (preferences.units === "km") {
+    return kilometersToMeters(parseInt(displayString));
+  }
+  return milesToMeters(parseInt(displayString));
 }
