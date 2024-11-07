@@ -27,6 +27,7 @@ const MaintenanceHistoryComponent = () => {
   const [sortDirection, setSortDirection] = useState('descending');
   const [initialized, setInitialized ] = useState(false);
   const [distanceStrings, setDistanceStrings ] = useState(new Map<string, string>());
+  const [distanceHeader, setDistanceHeader ] = useState('Distance (miles)');
 
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
@@ -134,6 +135,8 @@ const MaintenanceHistoryComponent = () => {
       stringMap.set(historyItem.id.toFixed(0),  metersToDisplayString(historyItem.distanceMeters, pref));
     }
     setDistanceStrings(stringMap);
+    const units = pref.units === 'km'? 'km' :'miles';
+    setDistanceHeader('Distance (' + units + ')');
   }
 
   const initialize = async () => {
@@ -198,7 +201,7 @@ const MaintenanceHistoryComponent = () => {
               sortDirection={sortBy('distance')}
               testID='distanceHeader'
               onPress={() => handleSort('distance')}>
-                Distance (miles)</DataTable.Title>
+                {distanceHeader}</DataTable.Title>
           </DataTable.Header>
           {sortedAndFilteredHistory(sortColumn, sortDirection).map((history, index, histories) => (
             <DataTable.Row key={'history' + history.id} testID={"row: " + index}>
