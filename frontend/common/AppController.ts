@@ -1,7 +1,6 @@
 import { Bike } from "@/models/Bike";
 import AppContext from "./app-context";
-import { getInternal } from "./http-utils";
-import { sleep } from "./utils";
+import { getUserPreferences, sleep } from "./utils";
 import { getBikes } from "./data-utils";
 
 class AppController {
@@ -35,6 +34,10 @@ class AppController {
     const result =  getBikes(session, username);
     console.log('get bikes result: ', result);
     return result;
+  }
+
+  getUserPreferences = async (session: any): Promise<any> => {
+    return getUserPreferences(session);
   }
 }
 

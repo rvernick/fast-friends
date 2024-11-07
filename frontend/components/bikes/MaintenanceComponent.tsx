@@ -10,7 +10,7 @@ import MaintenanceListController from './MaintenanceListController';
 import { Dropdown } from 'react-native-paper-dropdown';
 import { Dimensions, ScrollView, View } from 'react-native';
 import { createStyles, styles } from '@/common/styles';
-import { isMobile, metersToMilesString } from '@/common/utils';
+import { isMobile, metersToDisplayString } from '@/common/utils';
 
 type MaintenanceListProps = {
   bikes: Bike[] | null | undefined;
@@ -29,6 +29,8 @@ const MaintenanceComponent = () => {
   const router = useRouter();
   const navigation = useNavigation();
   const controller = new MaintenanceListController(appContext);
+  const preferences = controller.getUserPreferences(session);
+
   const [isUpdating, setIsUpdating] = useState(true);
   const [sortOption, setSortOption] = useState('Due');
   const [expandedBike, setExpandedBike] = useState(0);
@@ -67,12 +69,22 @@ const MaintenanceComponent = () => {
   }
 
   const MaintenanceListItem: React.FC<MaintenanceListItemProps> = ({ maintenanceItem, bikeId }) => {
+    const [description, setDescription ] = useState('');
+
+    const syncDescription = async () => {
+      setDescription(maintenanceItem.action +' at: ' + metersToDisplayString(maintenanceItem.dueDistanceMeters, await preferences));
+    }
+
+    useEffect(() => {
+      syncDescription();
+    }, []);
+
     return (
       <List.Item
         key={'mi' + maintenanceItem.id + 'milage' + maintenanceItem.dueDistanceMeters.toFixed(0)}
         title={maintenanceItem.part}
         id={'MLI' + bikeId}
-        description={maintenanceItem.action + ' at: ' + metersToMilesString(maintenanceItem.dueDistanceMeters)}
+        description={description}
         onPress={() => editMaintenanceItem(maintenanceItem.id, bikeId)}
         left={props => <BikePartIcon maintenanceItem={maintenanceItem}/>}
       />
@@ -115,13 +127,26 @@ const MaintenanceComponent = () => {
   };
 
   const BikeAccordian: React.FC<BikeAccordainProps> = ({ bike, isOpen}) => {
+    const [description, setDescription ] = useState('');
+
     if (!bike.maintenanceItems || bike.maintenanceItems.length ==0) return null;
     const sortedItems = sortItems(bike.maintenanceItems);
+
+    const syncDescription = async () => {
+      const pref = await preferences;
+      const val = metersToDisplayString(bike.odometerMeters, pref) + ' ' + pref.units;
+      setDescription(val);
+    }
+
+    useEffect(() => {
+      syncDescription();
+    }, []);
+
     return (
       <List.Accordion
           expanded={expandedBike === bike.id}
           title={bike.name}
-          description={metersToMilesString(bike.odometerMeters) + ' miles'}
+          description={description}
           onPress={() => handleBikePress(bike.id)}
           key={'bike exa' + bike.id}
           id={'bike exa' + bike.id}>

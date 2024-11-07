@@ -6,7 +6,7 @@ import { Text, Surface, DataTable, ActivityIndicator } from 'react-native-paper'
 import { useSession } from '@/ctx';
 import { Dimensions, ScrollView, View } from 'react-native';
 import { createStyles, styles } from '@/common/styles';
-import { ensureString, isMobile, metersToMilesString } from '@/common/utils';
+import { ensureString, isMobile, metersToDisplayString } from '@/common/utils';
 import { BikeDropdown } from '../common/BikeDropdown';
 import MaintenanceHistoryController from './MaintenanceHistoryController';
 import { MaintenanceHistoryItem } from '@/models/MaintenanceHistory';
@@ -17,12 +17,16 @@ const MaintenanceHistoryComponent = () => {
   const email = session.email ? session.email : '';
   const appContext = useGlobalContext();
   const navigation = useNavigation();
+
   const controller = new MaintenanceHistoryController(appContext);
+  const preferences = controller.getUserPreferences(session);
+
   var defaultBikeId = '_All';
   const [bikeId, setBikeId ] = useState(defaultBikeId);
   const [sortColumn, setSortColumn] = useState('distance');
   const [sortDirection, setSortDirection] = useState('descending');
   const [initialized, setInitialized ] = useState(false);
+  const [distanceStrings, setDistanceStrings ] = useState(new Map<string, string>());
 
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
@@ -123,8 +127,17 @@ const MaintenanceHistoryComponent = () => {
     return undefined;
   }
 
-  useEffect(() => {
-    navigation.setOptions({ title: 'Maintenance History' });
+  const syncDisplayDistance = async (history: MaintenanceHistoryItem[]) => {
+    const pref = await preferences;
+    const stringMap = new Map<string, string>();
+    for (const historyItem of history) {
+      stringMap.set(historyItem.id.toFixed(0),  metersToDisplayString(historyItem.distanceMeters, pref));
+    }
+    setDistanceStrings(stringMap);
+  }
+
+  const initialize = async () => {
+    await syncDisplayDistance(history);
     console.log('Refreshing history: ' + bikeId);
     if (!initialized) {
       setInitialized(true);
@@ -134,6 +147,12 @@ const MaintenanceHistoryComponent = () => {
       }
       setBikeId(defaultBikeId);
     }
+  }
+
+  useEffect(() => {
+    navigation.setOptions({ title: 'Maintenance History' });
+    syncDisplayDistance(history);
+    initialize();
   }, [history, bikeId, historyFetching]);
 
   if (!history || historyFetching || history.length === 0) {
@@ -172,6 +191,9 @@ const MaintenanceHistoryComponent = () => {
               onPress={() => handleSort('part')}>
                 Part</DataTable.Title>
             <DataTable.Title
+              numeric={false}>
+                Action</DataTable.Title>
+            <DataTable.Title
               numeric={true}
               sortDirection={sortBy('distance')}
               testID='distanceHeader'
@@ -182,7 +204,9 @@ const MaintenanceHistoryComponent = () => {
             <DataTable.Row key={'history' + history.id} testID={"row: " + index}>
               <DataTable.Cell testID={"bikeCell: " + index}>{history.bikeName}</DataTable.Cell>
               <DataTable.Cell testID={"partCell: " + index}>{history.part}</DataTable.Cell>
-              <DataTable.Cell testID={"distanceCell: " + index} numeric>{metersToMilesString(history.distanceMeters)}</DataTable.Cell>
+              <DataTable.Cell testID={"actionCell: " + index}>{history.action}</DataTable.Cell>
+              <DataTable.Cell testID={"distanceCell: " + index} numeric>{distanceStrings.get(history.id.toFixed(0))}</DataTable.Cell>
+
             </DataTable.Row>
           ))}
         </DataTable>

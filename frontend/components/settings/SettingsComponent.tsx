@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Image } from "react-native";
 import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
-import { ensureString, isMobile, isValidPhone, strippedPhone } from '../../common/utils';
+import { ensureString, forget, isMobile, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
-import { ActivityIndicator, Button, Card, Dialog, HelperText, IconButton, Portal, Surface, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, Card, Dialog, HelperText, IconButton, Portal, SegmentedButtons, Surface, Text, TextInput } from "react-native-paper";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -33,7 +33,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
   
-  const blankUser = {username: email, firstName: '', lastName: '', cellPhone: '', stravaId: providedStravaId};
+  const blankUser = {username: email, firstName: '', lastName: '', cellPhone: '', stravaId: providedStravaId, units: "miles" };
   const { status, data, error, isFetching } = useQuery({
     queryKey: ['user'],
     queryFn: () => fetchUser(session, email),
@@ -47,12 +47,14 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     console.log('Invalidate user: ' + email);
     queryClient.removeQueries({queryKey: ['user']});
     queryClient.removeQueries({ queryKey: ['bikes'] });
+    forget("ff.preferences");
   }
   
   const [firstName, setEnteredFirstName] = useState(ensureString(data?.firstName));
   const [lastName, setEnteredLastName] = useState(ensureString(data?.lastName));
   const [cellPhone, setEnteredCellPhone] = useState(ensureString(data?.cellPhone));
   const [stravaId, setStravaId] = useState(providedStravaId);
+  const [units, setUnits] = useState(data?.units);
 
   const updateFirstName = function(newText: string) {
     setNameErrorMessage('');
@@ -101,12 +103,16 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     return result;
   }
 
+  const updateUnits = function(newUnits: string) {
+    setUnits(newUnits);
+  }
+
   const updateAccount = function() {
     if (!validate()) {
       console.log('Not valid');
       return;
     }
-    const response = controller.updateAccount(session, email, firstName, lastName, cellPhone);
+    const response = controller.updateAccount(session, email, firstName, lastName, cellPhone, ensureString(units));
     invalidateUser();
   };
 
@@ -142,6 +148,8 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     setEnteredFirstName(ensureString(data?.firstName));
     setEnteredLastName(ensureString(data?.lastName));
     setEnteredCellPhone(ensureString(data?.cellPhone));
+    const newUnits = data?.units == "km" ? "km" : "miles";
+    setUnits(newUnits);
   }
 
   const phoneFormat = (phoneWithEverything: string) => {
@@ -212,6 +220,24 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           accessibilityLabel="Mobile number"
           accessibilityHint="Mobile number"
         />
+        <SegmentedButtons
+          value={ensureString(units)}
+          onValueChange={updateUnits}
+          
+          buttons={[
+            {
+              value: 'miles',
+              label: 'Miles',
+              testID: 'unit-miles',
+            },
+            {
+              value: 'km',
+              label: 'Kilometers',
+              testID: 'unit-km',
+            },
+          ]}
+          
+      />
         <HelperText type="error" visible={mobileErrorMessage.length > 0} style={{ marginTop: 10 }}>
           {mobileErrorMessage}
         </HelperText>

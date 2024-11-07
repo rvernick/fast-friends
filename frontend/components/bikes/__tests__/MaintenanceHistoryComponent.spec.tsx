@@ -1,16 +1,10 @@
 /// <reference types="jest" />
-import {render, screen, fireEvent, cleanup } from '@testing-library/react-native';
+import { screen, fireEvent, cleanup } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
-import { BikeDropdown } from '@/components/common/BikeDropdown';
-import MaintenanceItemComponent from '../MaintenanceItemComponent';
 import MaintenanceHistoryComponent from '../MaintenanceHistoryComponent';
-import MaintenanceHistoryController from '../MaintenanceHistoryController';
-import AppContext from '@/common/app-context';
 import { milesToMeters } from '@/common/utils';
 import '@testing-library/react-native/extend-expect';
-import { DataTable, Text } from 'react-native-paper';
-import { press } from '@testing-library/react-native/build/user-event/press';
 
 jest.useFakeTimers();
 afterEach(cleanup);
@@ -105,10 +99,12 @@ const getMockedHistory = () => {
   console.log('getMockedHistory called');
   return Promise.resolve(history);
 }
+
 const getMockedBikes = () => {
   console.log('getMockedBikes called');
   return Promise.resolve(bikes);
 }
+
 const mockedInternal = jest.fn(() => getMockedBikes());
 
 jest.mock('../../../common/data-utils', () => {

@@ -1,7 +1,7 @@
 import { Logger, Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, createNewUser } from './user.entity';
+import { Units, User, createNewUser } from './user.entity';
 import { Bike  } from '../bike/bike.entity';
 import { StravaAuthenticationDto } from './strava-authentication';
 import { HttpService } from '@nestjs/axios';
@@ -9,8 +9,6 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
-import { UpdateBikeDto } from '../bike/update-bike.dto';
-import { DeleteBikeDto } from '../bike/delete-bike.dto';
 import { defaultMaintenanceItems } from '../bike/maintenance-item.entity';
 import { sendEmail } from '../utils/utils';
 
@@ -71,13 +69,16 @@ export class UserService {
       firstName: string,
       lastName: string,
       cellPhone: string,
+      units: string,
       stravaCode: string,
       stravaRefreshToken: string,
       stravaAccessToken: string) {
-    if (firstName!= null) user.firstName = firstName;
-    if (lastName!= null) user.lastName = lastName;
-    if (cellPhone!= null) user.cellPhone = cellPhone;
-    if (stravaCode!= null) user.stravaCode = stravaCode;
+
+    if (firstName != null) user.firstName = firstName;
+    if (lastName != null) user.lastName = lastName;
+    if (cellPhone != null) user.cellPhone = cellPhone;
+    if (stravaCode != null) user.stravaCode = stravaCode;
+    if (units != null) user.units = units == "km" ? Units.KM : Units.MILES;
     if (stravaRefreshToken!= null) user.stravaRefreshToken = stravaRefreshToken;
     if (stravaAccessToken!= null) user.stravaAccessToken = stravaAccessToken;
     this.usersRepository.save(user);

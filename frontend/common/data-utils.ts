@@ -49,3 +49,22 @@ export const getHistory = async (session: any, username: string): Promise<Mainte
     return [];
   }
 };
+
+export const getBike = async (session: any, bikeid: number, username: string): Promise<Bike | null>  => {
+  const jwtToken = session.jwt_token;
+  if (jwtToken == null) {
+    console.log('get bikes has no token dying: ' + username);
+    return Promise.resolve(null);
+  }
+
+  try {
+    const parameters = {
+      username: username,
+      bikeid: bikeid,
+    };
+    return getInternal('/bike/bike', parameters, jwtToken);
+  } catch(e: any) {
+    console.log(e.message);
+    return null;
+  }
+};

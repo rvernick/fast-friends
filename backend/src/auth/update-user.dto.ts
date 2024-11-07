@@ -16,4 +16,8 @@ export class UpdateUserDto {
     {message: 'Phone number should be exactly 10 digits.'}
   )
   cellPhone: string;
+
+  @IsString()
+  @Matches(/^(km|miles)$/, {message: 'Units should be either "km" or "miles".'})
+  units: string;
 }

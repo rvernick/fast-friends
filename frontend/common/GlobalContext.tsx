@@ -1,6 +1,6 @@
 import { createContext, useState, ReactNode, useContext } from 'react';
 import AppContext from "./app-context";
-import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useSession } from '@/ctx';
 
 const initialQueryClient = new QueryClient();

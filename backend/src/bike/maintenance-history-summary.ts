@@ -7,6 +7,7 @@ export class MaintenanceHistorySummary {
     this.bikeName = history.maintenanceItem.bike.name;
     this.bikeId = history.maintenanceItem.bike.id;
     this.part = history.part;
+    this.action = history.maintenanceItem.action;
     this.distanceMeters = history.distanceMeters;
     this.type = history.type;
     this.brand = history.brand;
@@ -19,6 +20,7 @@ export class MaintenanceHistorySummary {
   bikeName: string;
   bikeId: number;
   part: string;
+  action: string;
   distanceMeters: number;
   type: string;
   brand: string;
