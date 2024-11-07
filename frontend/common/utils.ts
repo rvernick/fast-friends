@@ -132,7 +132,6 @@ export const updateUserPreferences = async (session: any): Promise<any | null> =
 }
 
 export const setUserPreferences = async (user: User): Promise<any | null> => {
-  console.log('setting user preferences for: ' + JSON.stringify(user));
   const preferences: { units?: string } = {};
   preferences.units = user.units == 'km'? "km" : "miles";
   remember("ff.preferences", JSON.stringify(preferences));
