@@ -6,6 +6,8 @@ const getStarterDTO = (): UpdateUserDto => {
   result.username = 'test@test.com'
   result.firstName = 'test'
   result.lastName = 'test'
+  result.cellPhone = '1234567890'
+  result.units = 'miles'
   return result;
 }
 
@@ -53,4 +55,25 @@ describe('UpdateUserDto', () => {
       matches: 'Phone number should be exactly 10 digits.'
     });
   });
+
+    it('should reject anything but km or miles for units', async () => {
+    const dto = getStarterDTO();
+    dto.units = 'yards';
+    const errors = await validate(dto);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0].constraints).toMatchObject({
+      matches: 'Units should be either "km" or "miles".'
+    });
+  });
+
+  it('should allow km or miles for units', async () => {
+    const dto = getStarterDTO();
+    dto.units = 'km';
+    const kmErrors = await validate(dto);
+    expect(kmErrors.length).toBe(0);
+    dto.units = 'miles';
+    const milesErrors = await validate(dto);
+    expect(milesErrors.length).toBe(0);
+  });
+
 });
