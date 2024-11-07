@@ -52,6 +52,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const [isInitialized, setIsInitialized] = useState(isNew);
   const [stravaId, setStravaId] = useState('');
   const [milage, setMileage] = useState(newBike.odometerMeters.toFixed(0));
+  const [milageLabel, setMileageLabel] = useState('Mileage');
   const controller = new BikeController(appContext);
   const preferences = controller.getUserPreferences(session);
 
@@ -64,6 +65,8 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   }
 
   const resetBike = async (bike: Bike) => {
+    const pref = await preferences
+    setMileageLabel('Mileage (' + pref.units + ')');
     console.log('reset bike: ' + JSON.stringify(bike));
     setBikeName(ensureString(bike.name));
     navigation.setOptions({ title: ensureString(bike.name) });
@@ -71,7 +74,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     setGroupsetBrand(ensureString(bike.groupsetBrand));
     setSpeeds(ensureString(bike.groupsetSpeed));
     setIsElectronic(bike.isElectronic);
-    setMileage(metersToDisplayString(bike.odometerMeters, await preferences));
+    setMileage(metersToDisplayString(bike.odometerMeters, pref));
     setStravaId(ensureString(bike.stravaId));
     setReadOnly(true);
   }
@@ -177,7 +180,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
           accessibilityLabel="Bike Name"
           accessibilityHint="Name of the bike" />
         <HelperText type="error" >{errorMessage}</HelperText>
-        <TextInput label="Milage"
+        <TextInput label={milageLabel}
           disabled={readOnly || connectedToStrava()}
           value={milage}
           onChangeText={(value) => setMileage(value ? value : '')}

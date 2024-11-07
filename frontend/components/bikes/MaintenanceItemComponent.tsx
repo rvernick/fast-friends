@@ -72,6 +72,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const [part, setPart] = useState(Part.CHAIN.toString())
   const [action, setAction] = useState(Action.REPLACE.toString());
   const [dueMiles, setDueMiles] = useState('1500');
+  const [dueDistanceLabel, setDueDistanceLabel] = useState('Due Distance (miles)');
+  const [defaultLongevityLabel, setDefaultLongevityLabel] = useState('Default Longevity (miles)');
   const [brand, setBrand] = useState('Shimano');
   const [model, setModel] = useState('');
   const [link, setLink] = useState('');
@@ -305,7 +307,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     selectBike(ensureString(defaultBike.id));
   }
 
+  const updateLabels = async () => {
+    const pref = await preferences;
+    setDueDistanceLabel('Due Distance (' + pref.units + ')');
+    setDefaultLongevityLabel('Default Longevity (' + pref.units + ')');
+  }
+
   useEffect(() => {
+    updateLabels();
     try {
       if (!isInitialized && bikes && bikes.length > 0) {
         if (isNew) {
@@ -406,7 +415,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
           testID="actionDropdown"
         />
         <TextInput 
-          label="Due Distance (miles)"
+          label={dueDistanceLabel}
           value={dueMiles.toString()}
           disabled={readOnly}
           onChangeText={dueMilesChange}
@@ -415,7 +424,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
           accessibilityHint="Milage when this maintenance should be performed"
        />
         <TextInput 
-          label="Default Longevity (miles)"
+          label={defaultLongevityLabel}
           value={defaultLongevity.toString()}
           disabled={readOnly}
           onChangeText={defaultLongevityChange}
