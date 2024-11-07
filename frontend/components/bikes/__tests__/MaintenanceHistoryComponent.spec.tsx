@@ -135,6 +135,7 @@ describe('Maintenance History Component', () => {
         initialUrl: '/directory/a',
       }
     );
+    const bikeNameCell = await screen.findByTestId('bikeCell: 0-text-container');
   });
 
   it('Starts sorted by milage descending', async () => {
