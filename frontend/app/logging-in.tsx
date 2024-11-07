@@ -1,6 +1,6 @@
-import { ensureString, fetchUser } from '@/common/utils';
+import { ensureString, fetchUser, sleep } from '@/common/utils';
 import { useSession } from '@/ctx';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, Text, Surface } from 'react-native-paper';
 
@@ -12,7 +12,6 @@ import { ActivityIndicator, Text, Surface } from 'react-native-paper';
  */
 export default function LoggingIn() {
   const session = useSession();
-
   const unconfiguredAccount = async () => {
     const user = await fetchUser(session, ensureString(session.email));
     if (!user) return false;
@@ -27,7 +26,7 @@ export default function LoggingIn() {
       router.replace('/(home)/(settings)/settings');
       return;
     }
-    router.replace('/(home)');
+    router.replace('/(home)/maintenance');
   };
  
   useEffect(() => {

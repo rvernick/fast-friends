@@ -31,23 +31,46 @@ jest.mock('../../../common/utils', () => {
     foo: 'mocked foo',
   };
 });
-describe('Settings Component', () => {
-  
-  it('Units is km', async () => {
-    const wrappedBike = jest.fn(() => 
+
+const startComponent = async () => {
+  const wrappedSettings = jest.fn(() => 
         <ProviderWrapper>
           <SettingsComponent strava_id='' />
         </ProviderWrapper>);
-    renderRouter(
-      {
-        index: wrappedBike,
-        'directory/a': wrappedBike,
-        '(group)/b': wrappedBike,
-      },
-      {
-        initialUrl: '/directory/a',
-      }
-    );
+  renderRouter(
+    {
+      index: wrappedSettings,
+      'directory/a': wrappedSettings,
+      '(group)/b': wrappedSettings,
+    },
+    {
+      initialUrl: '/directory/a',
+    }
+  );
+}
+
+describe('Settings Component', () => {
+
+  it('Button disabled until dirty', async () => {
+    startComponent();
+    const updateButton = await screen.findByTestId('update-button');
+    expect(updateButton.props.accessibilityState.disabled).toBe(true);
+    const kmButton = await screen.findByTestId('unit-km');
+    fireEvent.press(kmButton);
+    expect(updateButton.props.accessibilityState.disabled).toBe(false);
+  });
+
+  it('Name disabled until dirty by name', async () => {
+    startComponent();
+    const updateButton = await screen.findByTestId('update-button');
+    expect(updateButton.props.accessibilityState.disabled).toBe(true);
+    const firstName = await screen.findByTestId('first-name');
+    fireEvent.changeText(firstName, "FirstName");
+    expect(updateButton.props.accessibilityState.disabled).toBe(false);
+  });
+
+  it('Units is km', async () => {
+    startComponent();
 
     const kmButton = await screen.findByTestId('unit-km');
     const milesButton = await screen.findByTestId('unit-miles');
