@@ -31,7 +31,7 @@ const getMockedBike = () => {
 const mockedInternal = jest.fn(() => getMockedBike());
 
 jest.mock('../../../common/data-utils', () => {
-  const originalModule = jest.requireActual('../../../common/http-utils');
+  const originalModule = jest.requireActual('../../../common/data-utils');
   return {
     __esModule: true,
     ...originalModule,
@@ -39,6 +39,16 @@ jest.mock('../../../common/data-utils', () => {
     foo: 'mocked foo',
   };
 });
+
+jest.mock('../../../common/utils', () => {
+  const originalModule = jest.requireActual('../../../common/utils');
+  return {
+    __esModule: true,
+  ...originalModule,
+    getUserPreferences: jest.fn(() => { return Promise.resolve({ "units": "miles" }) }),
+  };
+});
+
 describe('Bike Component', () => {
   
   it('Bike mileage is displayed', async () => {

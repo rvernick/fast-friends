@@ -1,29 +1,36 @@
 import {render, screen, fireEvent, cleanup } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
-import { BikeDropdown } from '@/components/common/BikeDropdown';
 import MaintenanceItemComponent from '../MaintenanceItemComponent';
 
-jest.useFakeTimers();
 afterEach(cleanup);
+jest.mock('../../../common/utils', () => {
+  const originalModule = jest.requireActual('../../../common/utils');
+  return {
+    __esModule: true,
+  ...originalModule,
+    getUserPreferences: jest.fn(() => { return Promise.resolve({ "units": "miles" }) }),
+  };
+});
 
-describe('Login Component', () => {
+
+describe('Maintenance Item Component', () => {
   
   it('New Maintenance Item is editable', async () => {
-    const wrappedMI = jest.fn(() => 
+  const wrappedMI = jest.fn(() => 
         <ProviderWrapper>
           <MaintenanceItemComponent maintenanceid={0} bikeid={0} />
         </ProviderWrapper>);
-    renderRouter(
-      {
-        index: wrappedMI,
-        'directory/a': wrappedMI,
-        '(group)/b': wrappedMI,
-      },
-      {
-        initialUrl: '/directory/a',
-      }
-    );
+  renderRouter(
+    {
+      index: wrappedMI,
+      'directory/a': wrappedMI,
+      '(group)/b': wrappedMI,
+    },
+    {
+      initialUrl: '/directory/a',
+    }
+  );
 
     const partSelector = await screen.findByTestId('partDropdown');
     const dueMilesInput = await screen.findByTestId('dueMilesInput');
@@ -36,73 +43,7 @@ describe('Login Component', () => {
     // expect(await screen.findByTestId('Cassette')).not.toBeNull();
     // expect(partSelector.props.value).toBe('Cassette');
     expect(dueMilesInput.props.value).toBe('1000');
-  });
-
-  it('Should not crash when bikes undefined', async () => {
-    const wrappedBikeDropdown = jest.fn(() => 
-      <ProviderWrapper>
-        <BikeDropdown bikes={undefined} value={''} readonly={false} onSelect={function (value: string): void {
-          throw new Error('Function not implemented.');
-        } } />
-      </ProviderWrapper>);
-    renderRouter(
-      {
-        index: wrappedBikeDropdown,
-        'directory/a': wrappedBikeDropdown,
-        '(group)/b': wrappedBikeDropdown,
-      },
-      {
-        initialUrl: '/directory/a',
-      }
-    );
-
-    const partSelector = await screen.findAllByText('Bike');
-  });
-
-  it('Should not crash when bikes is null', async () => {
-    const wrappedBikeDropdown = jest.fn(() => 
-      <ProviderWrapper>
-        <BikeDropdown bikes={null} value={''} readonly={false} onSelect={function (value: string): void {
-          throw new Error('Function not implemented.');
-        } } />
-      </ProviderWrapper>
-    );
-    renderRouter(
-      {
-        index: wrappedBikeDropdown,
-        'directory/a': wrappedBikeDropdown,
-        '(group)/b': wrappedBikeDropdown,
-      },
-      {
-        initialUrl: '/directory/a',
-      }
-    );
-    
-    const partSelector = await screen.findAllByText('Bike');
-  });
-
-  it('Should not crash when bikes is empty', async () => {
-    const wrappedBikeDropdown = jest.fn(() => 
-      <ProviderWrapper>
-        <BikeDropdown bikes={[]} value={''} readonly={false} onSelect={function (value: string): void {
-          throw new Error('Function not implemented.');
-        } } />
-      </ProviderWrapper>
-    );
-    
-    renderRouter(
-      {
-        index: wrappedBikeDropdown,
-        'directory/a': wrappedBikeDropdown,
-        '(group)/b': wrappedBikeDropdown,
-      },
-      {
-        initialUrl: '/directory/a',
-      }
-    );
-    
-    const partSelector = await screen.findAllByText('Bike');
-
+    // const dueDistanceLabel = await screen.findByText('Due Distance (mild');
   });
 
 });

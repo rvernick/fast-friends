@@ -315,7 +315,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           </Dialog>
         </Portal> 
         <HelperText type="error"> </HelperText>
-          <Button mode="contained" onPress={ () => router.push('change-password') }>
+          <Button mode="contained" onPress={ () => router.push('/(home)/(settings)/change-password') }>
               Change Password
           </Button>
           <Text> </Text>
