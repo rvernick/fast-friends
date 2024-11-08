@@ -15,72 +15,42 @@ jest.mock('../../../common/utils', () => {
 });
 
 const startComponent = async (bikes: any) => {
- 
+  const wrappedBikeDropdown = jest.fn(() => 
+      <ProviderWrapper>
+        <BikeDropdown bikes={bikes} value={''} readonly={false} onSelect={function (value: string): void {
+          throw new Error('Function not implemented.');
+        } } />
+      </ProviderWrapper>);
+  renderRouter(
+    {
+      index: wrappedBikeDropdown,
+      'directory/a': wrappedBikeDropdown,
+      '(group)/b': wrappedBikeDropdown,
+    },
+    {
+      initialUrl: '/directory/a',
+    }
+  );
 }
 
 describe('Bike Dropdown Component', () => {
   
   it('Should not crash when bikes undefined', async () => {
-    const wrappedBikeDropdown = jest.fn(() => 
-        <ProviderWrapper>
-          <BikeDropdown bikes={undefined} value={''} readonly={false} onSelect={function (value: string): void {
-            throw new Error('Function not implemented.');
-          } } />
-        </ProviderWrapper>);
-    renderRouter(
-      {
-        index: wrappedBikeDropdown,
-        'directory/a': wrappedBikeDropdown,
-        '(group)/b': wrappedBikeDropdown,
-      },
-      {
-        initialUrl: '/directory/a',
-      }
-    );
+    startComponent(undefined);
 
     const partSelector = await screen.findAllByText('Bike');
     expect(partSelector).not.toBeNull();
   });
 
   it('Should not crash when bikes is null', async () => {
-    const wrappedBikeDropdown = jest.fn(() => 
-        <ProviderWrapper>
-          <BikeDropdown bikes={null} value={''} readonly={false} onSelect={function (value: string): void {
-            throw new Error('Function not implemented.');
-          } } />
-        </ProviderWrapper>);
-    renderRouter(
-      {
-        index: wrappedBikeDropdown,
-        'directory/a': wrappedBikeDropdown,
-        '(group)/b': wrappedBikeDropdown,
-      },
-      {
-        initialUrl: '/directory/a',
-      }
-    );
+    startComponent(null);
 
     const partSelector = await screen.findAllByText('Bike');
     expect(partSelector).not.toBeNull();
   });
 
   it('Should not crash when bikes is empty', async () => {
-    const wrappedBikeDropdown = jest.fn(() => 
-        <ProviderWrapper>
-          <BikeDropdown bikes={[]} value={''} readonly={false} onSelect={function (value: string): void {
-            throw new Error('Function not implemented.');
-          } } />
-        </ProviderWrapper>);
-    renderRouter(
-      {
-        index: wrappedBikeDropdown,
-        'directory/a': wrappedBikeDropdown,
-        '(group)/b': wrappedBikeDropdown,
-      },
-      {
-        initialUrl: '/directory/a',
-      }
-    );
+    startComponent([]);
     
     const partSelector = await screen.findAllByText('Bike');
     expect(partSelector).not.toBeNull();
