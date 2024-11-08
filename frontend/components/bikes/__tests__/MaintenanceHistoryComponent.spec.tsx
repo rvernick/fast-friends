@@ -7,6 +7,16 @@ import { milesToMeters } from '@/common/utils';
 import '@testing-library/react-native/extend-expect';
 
 afterEach(cleanup);
+
+jest.mock('../../../common/utils', () => {
+  const originalModule = jest.requireActual('../../../common/utils');
+  return {
+    __esModule: true,
+  ...originalModule,
+    getUserPreferences: jest.fn(() => { return Promise.resolve({ "units": "miles" }) }),
+  };
+});
+
 jest.mock('../../../common/utils', () => {
   const originalModule = jest.requireActual('../../../common/utils');
   return {
