@@ -32,27 +32,23 @@ jest.mock('../../../common/utils', () => {
   };
 });
 
-const startComponent = async () => {
-  const wrappedSettings = jest.fn(() => 
-        <ProviderWrapper>
-          <SettingsComponent strava_id='' />
-        </ProviderWrapper>);
-  renderRouter(
-    {
-      index: wrappedSettings,
-      'directory/a': wrappedSettings,
-      '(group)/b': wrappedSettings,
-    },
-    {
-      initialUrl: '/directory/a',
-    }
-  );
-}
-
 describe('Settings Component', () => {
 
   it('Button disabled until dirty', async () => {
-    startComponent();
+    const wrappedSettings = jest.fn(() => 
+        <ProviderWrapper>
+          <SettingsComponent strava_id='' />
+        </ProviderWrapper>);
+    renderRouter(
+      {
+        index: wrappedSettings,
+        'directory/a': wrappedSettings,
+        '(group)/b': wrappedSettings,
+      },
+      {
+        initialUrl: '/directory/a',
+      }
+    );
     const updateButton = await screen.findByTestId('update-button');
     expect(updateButton.props.accessibilityState.disabled).toBe(true);
     const kmButton = await screen.findByTestId('unit-km');
@@ -61,7 +57,21 @@ describe('Settings Component', () => {
   });
 
   it('Name disabled until dirty by name', async () => {
-    startComponent();
+    const wrappedSettings = jest.fn(() => 
+        <ProviderWrapper>
+          <SettingsComponent strava_id='' />
+        </ProviderWrapper>);
+    renderRouter(
+      {
+        index: wrappedSettings,
+        'directory/a': wrappedSettings,
+        '(group)/b': wrappedSettings,
+      },
+      {
+        initialUrl: '/directory/a',
+      }
+    );
+
     const updateButton = await screen.findByTestId('update-button');
     expect(updateButton.props.accessibilityState.disabled).toBe(true);
     const firstName = await screen.findByTestId('first-name');
@@ -70,7 +80,20 @@ describe('Settings Component', () => {
   });
 
   it('Units is km', async () => {
-    startComponent();
+    const wrappedSettings = jest.fn(() => 
+        <ProviderWrapper>
+          <SettingsComponent strava_id='' />
+        </ProviderWrapper>);
+    renderRouter(
+      {
+        index: wrappedSettings,
+        'directory/a': wrappedSettings,
+        '(group)/b': wrappedSettings,
+      },
+      {
+        initialUrl: '/directory/a',
+      }
+    );
 
     const kmButton = await screen.findByTestId('unit-km');
     const milesButton = await screen.findByTestId('unit-miles');
