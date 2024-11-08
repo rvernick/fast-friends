@@ -4,7 +4,7 @@ import { renderRouter } from 'expo-router/testing-library';
 import BikeComponent from '../BikeComponent';
 import { milesToMeters } from '@/common/utils';
 
-jest.useFakeTimers();
+// jest.useFakeTimers();
 afterEach(cleanup);
 
 const mockedBike = {

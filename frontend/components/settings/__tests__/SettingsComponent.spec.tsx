@@ -3,7 +3,7 @@ import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import { SettingsComponent } from '../SettingsComponent';
 
-jest.useFakeTimers();
+// jest.useFakeTimers();
 afterEach(cleanup);
 
 const mockedUser = {
