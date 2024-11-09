@@ -68,7 +68,7 @@ describe('Bike Component', () => {
     );
 
     const milageField = await screen.findByTestId('mileageField');
-    const name = await screen.findByTestId('nameInput');
+    const name = screen.getByTestId('nameInput');
     expect(milageField.props.value).toBe("2000");
     expect(name.props.value).toBe("Ten");
   });
