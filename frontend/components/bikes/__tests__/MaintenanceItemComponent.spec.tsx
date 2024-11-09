@@ -56,8 +56,9 @@ describe('Maintenance Item Component', () => {
   );
 
     const partSelector = await screen.findByTestId('partDropdown');
-    const dueMilesInput = await screen.findByTestId('dueMilesInput');
+    const dueMilesInput = screen.getByTestId('dueMilesInput');
     // fireEvent(partSelector, 'onChange', 'Cassette');
+    console.log("fire dueMilesInput");
     fireEvent.changeText(dueMilesInput, '1000');
     console.log("partSelector props: " + Object.keys(partSelector.props));
     console.log("partSelector disabled: " + Object.keys(partSelector.props));
