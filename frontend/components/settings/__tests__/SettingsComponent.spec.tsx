@@ -64,7 +64,10 @@ describe('Settings Component', () => {
 
     fireEvent.press(kmButton);
     console.log('km button pressed');
-    expect(updateButton.props.accessibilityState.disabled).toBe(false);
+    const refindButton = await screen.findByTestId('unit-km');
+    console.log('refound button');
+    expect(refindButton.props.accessibilityState.disabled).toBe(false);
+    console.log('done');
   });
 
   it('Name disabled until dirty by name', async () => {
