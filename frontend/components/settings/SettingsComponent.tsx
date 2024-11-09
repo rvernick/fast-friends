@@ -19,7 +19,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const { strava_id } = useLocalSearchParams();
   const [providedStravaId, setProvidedStravaId] = useState(ensureString(strava_id));
 
-  console.log('SettingsComponent strava_id: '+ strava_id);
+  // console.log('SettingsComponent strava_id: '+ strava_id);
   const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
   const appContext  = useGlobalContext();
@@ -32,6 +32,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccessful, setSaveSuccessful] = useState(false);
 
+  console.log('isDirty: '+ isDirty);
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
   
