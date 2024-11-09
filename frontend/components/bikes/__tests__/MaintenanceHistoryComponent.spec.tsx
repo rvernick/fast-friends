@@ -3,8 +3,8 @@ import { screen, fireEvent, cleanup } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import MaintenanceHistoryComponent from '../MaintenanceHistoryComponent';
-import { milesToMeters } from '@/common/utils';
 import '@testing-library/react-native/extend-expect';
+import { mockedBikes, mockedHistory } from '@/common/test-utils';
 
 afterEach(cleanup);
 
@@ -17,112 +17,15 @@ jest.mock('../../../common/utils', () => {
   };
 });
 
-jest.mock('../../../common/utils', () => {
-  const originalModule = jest.requireActual('../../../common/utils');
-  return {
-    __esModule: true,
-  ...originalModule,
-    getUserPreferences: jest.fn(() => { return Promise.resolve({ "units": "miles" }) }),
-  };
-});
-
-const bikes = [
-  {
-    id: 10,
-    name: "Ten",
-    brand: "Shimano",
-    model: "Ultegra",
-    link: "",
-    distanceMeters: 10000,
-    type: "Road", // Example: Road, Mountain, etc.
-    groupsetSpeed: 11,
-    groupsetBrand: "Shimano",
-    isElectronic: true,
-    odometerMeters: 10000,
-    maintenanceItems: [],
-    stravaId: '',
-  }
-];
-
-const history = [
-  {
-    id: 10,
-  //  bike: Bike;
-    bikeName: "Forth",
-    bikeId: 11,
-    distanceMeters: milesToMeters(1000),
-    part: "Chain",
-    name: "",
-    brand: "Shimano",
-    model: "Ultegra",
-    link: "",
-    bikeDistance: 15000,
-    dueDistanceMeters: 18000,
-    defaultLongevity: 3000,
-    autoAdjustLongevity: true,
-  },
-  {
-    id: 40,
-  //  bike: Bike;
-    bikeName: "First",
-    bikeId: 11,
-    distanceMeters: milesToMeters(4000),
-    part: "Rear Tire",
-    name: "",
-    brand: "Shimano",
-    model: "Ultegra",
-    link: "",
-    bikeDistance: 45000,
-    dueDistanceMeters: 48000,
-    defaultLongevity: 3000,
-    autoAdjustLongevity: true,
-  },
-  {
-    id: 20,
-  //  bike: Bike;
-    bikeName: "Third",
-    bikeId: 11,
-    distanceMeters: milesToMeters(2000),
-    part: "Cassette",
-    name: "",
-    brand: "Shimano",
-    model: "Ultegra",
-    link: "",
-    bikeDistance: 25000,
-    dueDistanceMeters: 28000,
-    defaultLongevity: 3000,
-    autoAdjustLongevity: true,
-  },
-  {
-    id: 30,
-  //  bike: Bike;
-    bikeName: "Second",
-    bikeId: 11,
-    distanceMeters: milesToMeters(3000),
-    part: "Front Brake Pads",
-    name: "",
-    brand: "Shimano",
-    model: "Ultegra",
-    link: "",
-    bikeDistance: 35000,
-    dueDistanceMeters: 38000,
-    defaultLongevity: 3000,
-    autoAdjustLongevity: true,
-  },
-];
-
-
 const getMockedHistory = () => {
   console.log('getMockedHistory called');
-  return Promise.resolve(history);
+  return Promise.resolve(mockedHistory);
 }
 
 const getMockedBikes = () => {
   console.log('getMockedBikes called');
-  return Promise.resolve(bikes);
+  return Promise.resolve(mockedBikes);
 }
-
-const mockedInternal = jest.fn(() => getMockedBikes());
 
 jest.mock('../../../common/data-utils', () => {
   const originalModule = jest.requireActual('../../../common/http-utils');

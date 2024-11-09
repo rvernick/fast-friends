@@ -1,7 +1,8 @@
-import {render, screen, fireEvent, cleanup } from '@testing-library/react-native';
+import { screen, fireEvent, cleanup } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import MaintenanceItemComponent from '../MaintenanceItemComponent';
+import { mockedBikes, mockedHistory } from '@/common/test-utils';
 
 afterEach(cleanup);
 jest.mock('../../../common/utils', () => {
@@ -13,6 +14,26 @@ jest.mock('../../../common/utils', () => {
   };
 });
 
+const getMockedHistory = () => {
+  console.log('getMockedHistory called');
+  return Promise.resolve(mockedHistory);
+}
+
+const getMockedBikes = () => {
+  console.log('getMockedBikes called');
+  return Promise.resolve(mockedBikes);
+}
+
+jest.mock('../../../common/data-utils', () => {
+  const originalModule = jest.requireActual('../../../common/http-utils');
+  return {
+    __esModule: true,
+    ...originalModule,
+    getHistory: jest.fn(() => getMockedHistory()),
+    getBikes: jest.fn(() => getMockedBikes()),
+    foo: 'mocked foo',
+  };
+});
 
 describe('Maintenance Item Component', () => {
   
