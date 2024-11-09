@@ -25,11 +25,11 @@ describe('Login Component', () => {
       }
     );
   
-    const emailInput = await screen.findByTestId('emailInput');
-    const passwordInput = await screen.findByTestId('passwordInput');
+    const emailInput = screen.getByTestId('emailInput');
+    const passwordInput = screen.getByTestId('passwordInput');
     fireEvent.changeText(emailInput, 'test');
     fireEvent.changeText(passwordInput, 'weak');
-    expect(await screen.findByDisplayValue('test')).not.toBeNull();
+    expect( await screen.findByDisplayValue('test') ).not.toBeNull();
     // expect(await screen.findByTestId('weak')).toBeNull();
   });
 
