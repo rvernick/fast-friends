@@ -4,7 +4,9 @@ import { renderRouter } from 'expo-router/testing-library';
 import MaintenanceItemComponent from '../MaintenanceItemComponent';
 import { mockedBikes, mockedHistory } from '@/common/test-utils';
 
+jest.useFakeTimers();
 afterEach(cleanup);
+
 jest.mock('../../../common/utils', () => {
   const originalModule = jest.requireActual('../../../common/utils');
   return {

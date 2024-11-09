@@ -6,6 +6,7 @@ import MaintenanceHistoryComponent from '../MaintenanceHistoryComponent';
 import '@testing-library/react-native/extend-expect';
 import { mockedBikes, mockedHistory } from '@/common/test-utils';
 
+jest.useFakeTimers();
 afterEach(cleanup);
 
 jest.mock('../../../common/utils', () => {
