@@ -2,8 +2,8 @@ import { screen, cleanup, fireEvent, userEvent } from '@testing-library/react-na
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import { SettingsComponent } from '../SettingsComponent';
+import { sleep } from '@/common/utils';
 
-jest.useFakeTimers();
 afterEach(cleanup);
 
 const mockedUser = {
@@ -19,6 +19,7 @@ const mockedUser = {
 
 const getMockedUser = () => {
   console.log('getMockedUser called');
+  sleep(1);
   return Promise.resolve(mockedUser);
 }
 

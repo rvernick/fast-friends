@@ -2,9 +2,8 @@ import { screen, cleanup } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import BikeComponent from '../BikeComponent';
-import { milesToMeters } from '@/common/utils';
+import { milesToMeters, sleep } from '@/common/utils';
 
-// jest.useFakeTimers();
 afterEach(cleanup);
 
 const mockedBike = {
@@ -25,6 +24,7 @@ const mockedBike = {
 
 const getMockedBike = () => {
   console.log('getMockedBike called');
+  sleep(1);
   return Promise.resolve(mockedBike);
 }
 

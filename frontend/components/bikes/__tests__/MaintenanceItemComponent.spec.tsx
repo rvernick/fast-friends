@@ -3,8 +3,8 @@ import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import MaintenanceItemComponent from '../MaintenanceItemComponent';
 import { mockedBikes, mockedHistory } from '@/common/test-utils';
+import { sleep } from '@/common/utils';
 
-jest.useFakeTimers();
 afterEach(cleanup);
 
 jest.mock('../../../common/utils', () => {
@@ -18,11 +18,13 @@ jest.mock('../../../common/utils', () => {
 
 const getMockedHistory = () => {
   console.log('getMockedHistory called');
+  sleep(1);
   return Promise.resolve(mockedHistory);
 }
 
 const getMockedBikes = () => {
   console.log('getMockedBikes called');
+  sleep(1);
   return Promise.resolve(mockedBikes);
 }
 

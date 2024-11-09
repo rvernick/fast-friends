@@ -3,7 +3,6 @@ import { ProviderWrapper } from '../../test_utils';
 import { LoginComponent } from '../LoginComponent';
 import { renderRouter } from 'expo-router/testing-library';
 
-jest.useFakeTimers();
 afterEach(cleanup);
 
 describe('Login Component', () => {

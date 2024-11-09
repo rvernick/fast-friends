@@ -5,8 +5,8 @@ import { renderRouter } from 'expo-router/testing-library';
 import MaintenanceHistoryComponent from '../MaintenanceHistoryComponent';
 import '@testing-library/react-native/extend-expect';
 import { mockedBikes, mockedHistory } from '@/common/test-utils';
+import { sleep } from '@/common/utils';
 
-jest.useFakeTimers();
 afterEach(cleanup);
 
 jest.mock('../../../common/utils', () => {
@@ -20,11 +20,13 @@ jest.mock('../../../common/utils', () => {
 
 const getMockedHistory = () => {
   console.log('getMockedHistory called');
+  sleep(1);
   return Promise.resolve(mockedHistory);
 }
 
 const getMockedBikes = () => {
   console.log('getMockedBikes called');
+  sleep(1);
   return Promise.resolve(mockedBikes);
 }
 
