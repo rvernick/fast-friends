@@ -32,7 +32,7 @@ describe('CreateAccount Component', () => {
     );
 
     // const emailForm = await findByTestId('emailForm');
-    const emailInput = await screen.findByTestId('emailInput');
+    const emailInput = screen.getByTestId('emailInput');
     // console.log('emailInput: ' + emailInput);
     // console.log('query by: ' + queryByText('Please enter valid email'));
     expect(screen.queryByText('Please enter valid email')).toBeNull();
@@ -59,11 +59,11 @@ describe('CreateAccount Component', () => {
       }
     );
 
-    const passwordInput = await screen.findByTestId('passwordInput');
+    const passwordInput = screen.getByTestId('passwordInput');
     expect(screen.queryByText(invalidPasswordMessage)).toBeNull();
     fireEvent.changeText(passwordInput, 'tooShort');
     fireEvent(passwordInput, 'blur');
-    expect(screen.queryByText(invalidPasswordMessage)).not.toBeNull();
+    expect(await screen.findByText(invalidPasswordMessage)).not.toBeNull();
   });
 });
 

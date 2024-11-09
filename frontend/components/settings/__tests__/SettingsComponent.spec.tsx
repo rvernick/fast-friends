@@ -33,6 +33,7 @@ jest.mock('../../../common/utils', () => {
 });
 
 const startComponent = async () => {
+  console.log('Starting component');
   const wrappedSettings = jest.fn(() => 
         <ProviderWrapper>
           <SettingsComponent strava_id='' />
@@ -47,6 +48,7 @@ const startComponent = async () => {
       initialUrl: '/directory/a',
     }
   );
+  console.log('Component started');
 }
 
 describe('Settings Component', () => {
@@ -54,6 +56,7 @@ describe('Settings Component', () => {
   it('Button disabled until dirty', async () => {
     startComponent();
     const updateButton = await screen.findByTestId('update-button');
+    console.log('button found');
     expect(updateButton.props.accessibilityState.disabled).toBe(true);
     const kmButton = screen.getByTestId('unit-km');
     fireEvent.press(kmButton);

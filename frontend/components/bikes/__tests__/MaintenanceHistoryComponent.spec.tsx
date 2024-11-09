@@ -57,12 +57,14 @@ describe('Maintenance History Component', () => {
       }
     );
     const bikeNameCell = await screen.findByTestId('bikeCell: 0-text-container');
+    const distanceHeader = screen.getByTestId('distanceHeader');
+    fireEvent.press(distanceHeader);
+
+    const firstDistanceCellA = await screen.findByTestId('distanceCell: 0-text-container');
   });
 
   it('Starts sorted by milage descending', async () => {
     // jest.mock('MaintenanceHistoryController'); // this happens automatically with automocking
-
-  
 
     const wrappedMI = jest.fn(() => 
         <ProviderWrapper>
@@ -82,16 +84,16 @@ describe('Maintenance History Component', () => {
     console.log("renderedJSON: " + rendered.toJSON());
     // expect distance vals to be in descending order 4000, 3000, 2000, 1000
     const firstDistanceCell = await screen.findByTestId('distanceCell: 0-text-container');
-    const secondDistanceCell = await screen.findByTestId('distanceCell: 1-text-container');
-    const thirdDistanceCell = await screen.findByTestId('distanceCell: 2-text-container');
-    const fourthDistanceCell = await screen.findByTestId('distanceCell: 3-text-container');
+    const secondDistanceCell = screen.getByTestId('distanceCell: 1-text-container');
+    const thirdDistanceCell = screen.getByTestId('distanceCell: 2-text-container');
+    const fourthDistanceCell = screen.getByTestId('distanceCell: 3-text-container');
 
     expect(firstDistanceCell.props.children).toBe("4000");
     expect(secondDistanceCell.props.children).toBe("3000");
     expect(thirdDistanceCell.props.children).toBe("2000");
     expect(fourthDistanceCell.props.children).toBe("1000");
 
-    const distanceHeader = await screen.findByTestId('distanceHeader');
+    const distanceHeader = screen.getByTestId('distanceHeader');
     fireEvent.press(distanceHeader);
 
     const firstDistanceCellA = await screen.findByTestId('distanceCell: 0-text-container');
