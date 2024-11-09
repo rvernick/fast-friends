@@ -55,7 +55,7 @@ describe('Settings Component', () => {
     startComponent();
     const updateButton = await screen.findByTestId('update-button');
     expect(updateButton.props.accessibilityState.disabled).toBe(true);
-    const kmButton = await screen.findByTestId('unit-km');
+    const kmButton = screen.getByTestId('unit-km');
     fireEvent.press(kmButton);
     expect(updateButton.props.accessibilityState.disabled).toBe(false);
   });
@@ -64,7 +64,7 @@ describe('Settings Component', () => {
     startComponent();
     const updateButton = await screen.findByTestId('update-button');
     expect(updateButton.props.accessibilityState.disabled).toBe(true);
-    const firstName = await screen.findByTestId('first-name');
+    const firstName = screen.getByTestId('first-name');
     fireEvent.changeText(firstName, "FirstName");
     expect(updateButton.props.accessibilityState.disabled).toBe(false);
   });
@@ -73,7 +73,7 @@ describe('Settings Component', () => {
     startComponent();
 
     const kmButton = await screen.findByTestId('unit-km');
-    const milesButton = await screen.findByTestId('unit-miles');
+    const milesButton = screen.getByTestId('unit-miles');
 
     expect(kmButton.props.accessibilityState.checked).toBe(true);
     expect(milesButton.props.accessibilityState.checked).toBe(false);
