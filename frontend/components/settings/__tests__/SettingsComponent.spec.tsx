@@ -58,8 +58,12 @@ describe('Settings Component', () => {
     const updateButton = await screen.findByTestId('update-button');
     console.log('button found');
     expect(updateButton.props.accessibilityState.disabled).toBe(true);
+    console.log('button disabled');
     const kmButton = screen.getByTestId('unit-km');
+    console.log('km button found');
+
     fireEvent.press(kmButton);
+    console.log('km button pressed');
     expect(updateButton.props.accessibilityState.disabled).toBe(false);
   });
 
