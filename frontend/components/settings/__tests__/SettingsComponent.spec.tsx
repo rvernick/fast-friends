@@ -1,4 +1,4 @@
-import { screen, cleanup, fireEvent, userEvent } from '@testing-library/react-native';
+import { screen, cleanup, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import { SettingsComponent } from '../SettingsComponent';
@@ -18,8 +18,8 @@ const mockedUser = {
 };
 
 const getMockedUser = () => {
-  console.log('getMockedUser called');
   sleep(1);
+  console.log('getMockedUser called');
   return Promise.resolve(mockedUser);
 }
 
@@ -67,9 +67,16 @@ describe('Settings Component', () => {
     const user = userEvent.setup();
     await user.press(kmButton)
     console.log('km button pressed');
-    // const refindButton = await screen.findByTestId('unit-km');
-    // console.log('refound button');
-    expect(updateButton.props.accessibilityState.disabled).toBe(false);
+    waitFor(() => {
+      const buttonNow = screen.getByTestId('update-button');
+      // const refindButton = await screen.findByTestId('unit-km');
+      // console.log('refound button');
+      expect(buttonNow.props.accessibilityState.disabled).toBe(false);
+      console.log('done right');
+    }, {
+        timeout: 2000,
+    });
+   
     console.log('done');
   });
 
