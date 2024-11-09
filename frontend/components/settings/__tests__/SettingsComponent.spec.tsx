@@ -66,6 +66,7 @@ describe('Settings Component', () => {
   it('Name disabled until dirty by name', async () => {
     startComponent();
     const updateButton = await screen.findByTestId('update-button');
+    console.log('by name button found');
     expect(updateButton.props.accessibilityState.disabled).toBe(true);
     const firstName = screen.getByTestId('first-name');
     fireEvent.changeText(firstName, "FirstName");
@@ -76,6 +77,7 @@ describe('Settings Component', () => {
     startComponent();
 
     const kmButton = await screen.findByTestId('unit-km');
+    console.log('kmButton found');
     const milesButton = screen.getByTestId('unit-miles');
 
     expect(kmButton.props.accessibilityState.checked).toBe(true);
