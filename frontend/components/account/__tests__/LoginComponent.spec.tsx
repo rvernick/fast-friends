@@ -1,4 +1,4 @@
-import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react-native';
+import { screen, fireEvent, cleanup, render } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { LoginComponent } from '../LoginComponent';
 import { renderRouter } from 'expo-router/testing-library';
@@ -9,20 +9,10 @@ afterEach(cleanup);
 describe('Login Component', () => {
   
   it('displays an error message for invalid email', async () => {
-    const wrappedLogin = jest.fn(() => 
-        <ProviderWrapper>
-          <LoginComponent />
-        </ProviderWrapper>);
-    
-    renderRouter(
-      {
-        index: wrappedLogin,
-        'directory/a': wrappedLogin,
-        '(group)/b': wrappedLogin,
-      },
-      {
-        initialUrl: '/directory/a',
-      }
+    const { getByTestId, getByText, findByText, queryByText } = render(
+      <ProviderWrapper>
+        <LoginComponent />
+      </ProviderWrapper>
     );
   
     const emailInput = await screen.findByTestId('emailInput');
