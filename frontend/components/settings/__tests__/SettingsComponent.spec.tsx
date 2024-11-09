@@ -1,4 +1,4 @@
-import { screen, cleanup, fireEvent } from '@testing-library/react-native';
+import { screen, cleanup, fireEvent, userEvent } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import { SettingsComponent } from '../SettingsComponent';
@@ -62,11 +62,13 @@ describe('Settings Component', () => {
     const kmButton = screen.getByTestId('unit-km');
     console.log('km button found');
 
-    fireEvent.press(kmButton);
+    // fireEvent.press(kmButton);
+    const user = userEvent.setup();
+    await user.press(kmButton)
     console.log('km button pressed');
-    const refindButton = await screen.findByTestId('unit-km');
-    console.log('refound button');
-    expect(refindButton.props.accessibilityState.disabled).toBe(false);
+    // const refindButton = await screen.findByTestId('unit-km');
+    // console.log('refound button');
+    expect(updateButton.props.accessibilityState.disabled).toBe(false);
     console.log('done');
   });
 
@@ -89,8 +91,9 @@ describe('Settings Component', () => {
 
     expect(kmButton.props.accessibilityState.checked).toBe(true);
     expect(milesButton.props.accessibilityState.checked).toBe(false);
-
-    fireEvent.press(milesButton);
+    
+    const user = userEvent.setup();
+    await user.press(milesButton)
 
     expect(kmButton.props.accessibilityState.checked).toBe(false);
     expect(milesButton.props.accessibilityState.checked).toBe(true);
