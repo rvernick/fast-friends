@@ -58,11 +58,14 @@ describe('Maintenance History Component', () => {
         initialUrl: '/directory/a',
       }
     );
+    console.log("rendered: Basic render");
     const bikeNameCell = await screen.findByTestId('bikeCell: 0-text-container');
+    console.log("bikeNameCell: " + bikeNameCell);
     const distanceHeader = screen.getByTestId('distanceHeader');
     fireEvent.press(distanceHeader);
+    console.log("event fired: ");
 
-    // const firstDistanceCellA = await screen.findByTestId('distanceCell: 0-text-container');
+    const firstDistanceCellA = await screen.findByTestId('distanceCell: 0-text-container');
   });
 
   it('Starts sorted by milage descending', async () => {
