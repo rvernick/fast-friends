@@ -109,6 +109,7 @@ describe('Maintenance History Component', () => {
     const thirdDistanceCellA = await screen.findByTestId('distanceCell: 2-text-container');
     const fourthDistanceCellA = await screen.findByTestId('distanceCell: 3-text-container');
 
+    console.log("Running through last expecations MaintenanceHistoryComponent");
     expect(firstDistanceCellA.props.children).toBe("1000");
     expect(secondDistanceCellA.props.children).toBe("2000");
     expect(thirdDistanceCellA.props.children).toBe("3000");
