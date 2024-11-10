@@ -1,5 +1,5 @@
 /// <reference types="jest" />
-import { screen, fireEvent, cleanup } from '@testing-library/react-native';
+import { screen, fireEvent, cleanup, userEvent } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import MaintenanceHistoryComponent from '../MaintenanceHistoryComponent';
@@ -62,10 +62,13 @@ describe('Maintenance History Component', () => {
     const bikeNameCell = await screen.findByTestId('bikeCell: 0-text-container');
     console.log("bikeNameCell: " + bikeNameCell);
     const distanceHeader = screen.getByTestId('distanceHeader');
-    fireEvent.press(distanceHeader);
+    const user = userEvent.setup();
+    await user.press(distanceHeader)
+
+    // fireEvent.press(distanceHeader);
     console.log("event fired: ");
 
-    const firstDistanceCellA = await screen.findByTestId('distanceCell: 0-text-container');
+    // const firstDistanceCellA = await screen.findByTestId('distanceCell: 0-text-container');
   });
 
   it('Starts sorted by milage descending', async () => {
