@@ -67,15 +67,15 @@ describe('Settings Component', () => {
     const user = userEvent.setup();
     await user.press(kmButton)
     console.log('km button pressed');
-    waitFor(() => {
+    // waitFor(() => {
       // const buttonNow = screen.getByTestId('update-button');
       // const refindButton = await screen.findByTestId('unit-km');
       // console.log('refound button');
       expect(updateButton.props.accessibilityState.disabled).toBe(false);
       console.log('done right');
-    }, {
-        timeout: 2000,
-    });
+    // }, {
+    //     timeout: 2000,
+    // });
    
     console.log('done');
   });

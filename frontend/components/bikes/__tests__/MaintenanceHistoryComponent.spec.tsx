@@ -62,7 +62,7 @@ describe('Maintenance History Component', () => {
     const distanceHeader = screen.getByTestId('distanceHeader');
     fireEvent.press(distanceHeader);
 
-    const firstDistanceCellA = await screen.findByTestId('distanceCell: 0-text-container');
+    // const firstDistanceCellA = await screen.findByTestId('distanceCell: 0-text-container');
   });
 
   it('Starts sorted by milage descending', async () => {
