@@ -64,7 +64,7 @@ describe('Maintenance History Component', () => {
     await waitFor(() => {
       const distanceHeader = screen.getByTestId('distanceHeader');
       expect(distanceHeader).toBeEnabled();
-      console.log('done right');
+      console.log('done right render');
     }, {
         timeout: 2000,
     });
@@ -101,9 +101,11 @@ describe('Maintenance History Component', () => {
     expect(thirdDistanceCell.props.children).toBe("2000");
     expect(fourthDistanceCell.props.children).toBe("1000");
 
+    console.log("Getting the distance header and press it");
     const distanceHeader = screen.getByTestId('distanceHeader');
+    console.log("Pressing the distance header");
     fireEvent.press(distanceHeader);
-
+    console.log("Pressed the distance header");
     const firstDistanceCellA = await screen.findByTestId('distanceCell: 0-text-container');
     const secondDistanceCellA = await screen.findByTestId('distanceCell: 1-text-container');
     const thirdDistanceCellA = await screen.findByTestId('distanceCell: 2-text-container');
