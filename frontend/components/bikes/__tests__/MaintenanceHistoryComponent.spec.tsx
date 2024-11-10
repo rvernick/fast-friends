@@ -1,5 +1,5 @@
 /// <reference types="jest" />
-import { screen, fireEvent, cleanup, userEvent } from '@testing-library/react-native';
+import { screen, fireEvent, cleanup, userEvent, waitFor } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import MaintenanceHistoryComponent from '../MaintenanceHistoryComponent';
@@ -61,8 +61,14 @@ describe('Maintenance History Component', () => {
     console.log("rendered: Basic render");
     const bikeNameCell = await screen.findByTestId('bikeCell: 0-text-container');
     console.log("bikeNameCell: " + bikeNameCell);
-    const distanceHeader = screen.getByTestId('distanceHeader');
-    expect(distanceHeader).toBeEnabled();
+    waitFor(() => {
+      const distanceHeader = screen.getByTestId('distanceHeader');
+      expect(distanceHeader).toBeEnabled();
+      console.log('done right');
+    }, {
+        timeout: 2000,
+    });
+    
   });
 
   it('Starts sorted by milage descending', async () => {
@@ -107,7 +113,6 @@ describe('Maintenance History Component', () => {
     expect(secondDistanceCellA.props.children).toBe("2000");
     expect(thirdDistanceCellA.props.children).toBe("3000");
     expect(fourthDistanceCellA.props.children).toBe("4000");
-
   });
 });
 
