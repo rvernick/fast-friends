@@ -1,6 +1,6 @@
-import { ensureString, fetchUser, sleep } from '@/common/utils';
+import { ensureString, fetchUser } from '@/common/utils';
 import { useSession } from '@/ctx';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, Text, Surface } from 'react-native-paper';
 
