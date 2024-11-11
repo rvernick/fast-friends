@@ -6,7 +6,7 @@ import { router, useNavigation } from "expo-router";
 import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface, Text } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
-import { displayStringToMeters, ensureString, isMobile, metersToDisplayString } from "@/common/utils";
+import { displayStringToMeters, ensureString, fetchUser, isMobile, metersToDisplayString } from "@/common/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Linking } from "react-native";
 
@@ -153,15 +153,39 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
 
   const viewOnStrava = async () => {
     var idWithoutTheB = stravaId.replace('b', '');
-    var uri = 'strava://bikes/' + idWithoutTheB;
+    var bikeUri = 'strava://bikes/' + idWithoutTheB;
+    var gearUri = 'strava://gear/';
     var url = `https://www.strava.com/bikes/${idWithoutTheB}`;
 
-    if (isMobile() && await Linking.canOpenURL(uri)) {
-      Linking.openURL(uri).catch(err => console.error('Error opening strava link: ', err));
-    } else {
-      Linking.openURL(url).catch(err => console.error('Error opening strava link: ', err));
-    }
+    if (isMobile() && await attemptToLinkToStravaApp()) {
+      return;
+    } 
+
+    Linking.openURL(url).catch(err => console.error('Error opening strava link: ', err));
   }
+
+  const attemptToLinkToStravaApp = async () => {
+    var idWithoutTheB = stravaId.replace('b', '');
+    var bikeUri = 'strava://bikes/' + idWithoutTheB;
+    var gearUri = 'strava://gear/';
+
+    const user = await fetchUser(session, ensureString(session.email));
+    if (user && user.stravaId!= null && user.stravaId!= '') {
+      gearUri = 'strava://athletes/' + user.stravaId + '/gear';
+      if (await Linking.canOpenURL(gearUri)) {
+        Linking.openURL(gearUri).catch(err => console.error('Error opening strava link: ', err));
+        return true;
+      } else {
+        if (await Linking.canOpenURL(bikeUri)) {
+          Linking.openURL(gearUri).catch(err => console.error('Error opening strava link: ', err));
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   
   const groupsetOptions = groupsetBrands.map(brand => ({ label: brand, value: brand }));
   const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));

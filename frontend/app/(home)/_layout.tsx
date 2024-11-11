@@ -24,20 +24,10 @@ export default function TabLayout() {
     router.replace('/(sign-in-sign-up)/(sign-in)/sign-in')
   }
 
-  console.log("User authenticated " + jwt_token + " " + email);
+  // console.log("User authenticated " + jwt_token + " " + email);
 
   return (
-    <Tabs>
-      <Tabs.Screen
-        name="(bikes)"
-        options={{
-          title: "Bikes",
-          headerShown: true,
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="bike-fast" color={color} />
-          ),
-        }}
-      />
+    <Tabs initialRouteName="(maintenanceItems)">
       <Tabs.Screen
         name="(maintenanceItems)"
         options={{
@@ -45,6 +35,16 @@ export default function TabLayout() {
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="wrench" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="(bikes)"
+        options={{
+          title: "Bikes",
+          headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="bike-fast" color={color} />
           ),
         }}
       />

@@ -19,7 +19,6 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const { strava_id } = useLocalSearchParams();
   const [providedStravaId, setProvidedStravaId] = useState(ensureString(strava_id));
 
-  console.log('SettingsComponent strava_id: '+ strava_id);
   const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
   const appContext  = useGlobalContext();
@@ -29,6 +28,8 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
   const [warnAgainstLinking, setWarnAgainstLinking] = useState(false);
   const [warnAgainstDeleting, setWarnAgainstDeleting] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [saveSuccessful, setSaveSuccessful] = useState(false);
 
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
@@ -48,6 +49,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     queryClient.removeQueries({queryKey: ['user']});
     queryClient.removeQueries({ queryKey: ['bikes'] });
     forget("ff.preferences");
+    setIsDirty(false);
   }
   
   const [firstName, setEnteredFirstName] = useState(ensureString(data?.firstName));
@@ -57,14 +59,15 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const [units, setUnits] = useState(data?.units);
 
   const updateFirstName = function(newText: string) {
-    setNameErrorMessage('');
+    dirty();
     setEnteredFirstName(newText);
   }
   const updateLastName = function(newText: string) {
-    setNameErrorMessage('');
+    dirty();
     setEnteredLastName(newText);
   }
   const updateMobile = function(newText: string) {
+    dirty();
     if (newText.length == 0 || isValidPhone(newText)) {
       setMobileErrorMessage('');
     }
@@ -105,15 +108,28 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
 
   const updateUnits = function(newUnits: string) {
     setUnits(newUnits);
+    dirty();
   }
 
-  const updateAccount = function() {
+  const dirty = () => {
+    setNameErrorMessage('');
+    setIsDirty(true);
+  }
+
+  const updateAccount = async function() {
     if (!validate()) {
       console.log('Not valid');
       return;
     }
-    const response = controller.updateAccount(session, email, firstName, lastName, cellPhone, ensureString(units));
-    invalidateUser();
+    const response = await controller.updateAccount(session, email, firstName, lastName, cellPhone, ensureString(units));
+    if (response === '') {
+      setSaveSuccessful(true);
+      setIsDirty(false);
+      invalidateUser();
+      setErrorMessage('');
+    } else {
+      setErrorMessage(response);
+    }
   };
 
   const linkToStrava = async () => {
@@ -150,6 +166,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     setEnteredCellPhone(ensureString(data?.cellPhone));
     const newUnits = data?.units == "km" ? "km" : "miles";
     setUnits(newUnits);
+    setIsDirty(false);
   }
 
   const phoneFormat = (phoneWithEverything: string) => {
@@ -197,6 +214,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           mode="outlined"
           autoCapitalize="words"
           autoCorrect={false}
+          testID="first-name"
           accessibilityLabel="First Name"
           accessibilityHint="First Name"
         />
@@ -278,13 +296,25 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
         <Button
           mode="contained"
           onPress={ updateAccount }
-          disabled={mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}
+          disabled={!isDirty || mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}
+          testID="update-button"
           accessibilityLabel="Save Changes"
           accessibilityHint="Save settings changes">
               Update Account
-            </Button>
-            <HelperText type="error"> </HelperText>
-          <Button mode="contained" onPress={ () => router.push('change-password') }>
+        </Button>
+        <Portal>
+          <Dialog visible={saveSuccessful} onDismiss={ () => setSaveSuccessful(false)}>
+            <Dialog.Title>Alert</Dialog.Title>
+            <Dialog.Content>
+              <Text variant="bodyMedium">Account Update Successful</Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={() => setSaveSuccessful(false)}>Ok</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal> 
+        <HelperText type="error"> </HelperText>
+          <Button mode="contained" onPress={ () => router.push('/(home)/(settings)/change-password') }>
               Change Password
           </Button>
           <Text> </Text>

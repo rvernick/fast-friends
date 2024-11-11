@@ -119,7 +119,7 @@ export async function login(username: string, password: string, session: any) {
     });
 };
 
-const defaultPreferences = {
+export const defaultUserPreferences = {
   units: "miles",
 };
 
@@ -128,7 +128,7 @@ export const updateUserPreferences = async (session: any): Promise<any | null> =
   if (user) {
     return setUserPreferences(user);
   }
-  return defaultPreferences
+  return defaultUserPreferences
 }
 
 export const setUserPreferences = async (user: User): Promise<any | null> => {
@@ -146,12 +146,12 @@ export const getUserPreferences = async (session: any): Promise<any | null> => {
     } catch (e: any) {
       console.log('Failed to parse user preferences: ' + e.message);
       forget("ff.preferences");
-      return defaultPreferences;
+      return defaultUserPreferences;
     }
   } else {
     updateUserPreferences(session);
   }
-  return defaultPreferences;
+  return defaultUserPreferences;
 }
 
 export const fetchUser = async (session: any, username: string): Promise<User | null> => {

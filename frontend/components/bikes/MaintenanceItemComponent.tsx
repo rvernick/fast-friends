@@ -288,7 +288,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
 
   const reset = () => {
     try {
-      console.log('useEffect initialize maintenance item: ', maintenanceId);
+      // console.log('useEffect initialize maintenance item: ', maintenanceId);
+      updateLabels();
       controller.getMaintenanceItem(session, maintenanceId, email, appContext).then(item => {
         if (item != null) {
           resetMaintenanceItem(item);
@@ -314,9 +315,9 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   }
 
   useEffect(() => {
-    updateLabels();
     try {
       if (!isInitialized && bikes && bikes.length > 0) {
+        updateLabels();
         if (isNew) {
           if (bikeIdString === '0') {
             selectDefaultBike();

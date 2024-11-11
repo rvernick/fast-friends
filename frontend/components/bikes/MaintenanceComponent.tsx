@@ -31,15 +31,16 @@ const MaintenanceComponent = () => {
   const controller = new MaintenanceListController(appContext);
   const preferences = controller.getUserPreferences(session);
 
-  const [isUpdating, setIsUpdating] = useState(true);
   const [sortOption, setSortOption] = useState('Due');
+  const [sortedBikes, setSortedBikes] = useState<Bike[]>([]);
+
   const [expandedBike, setExpandedBike] = useState(0);
   // const [sortOption, setSortOption] = useState('dueDate');
 
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
 
-  const { status, data, error, isFetching } = useQuery({
+  const { data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
     queryFn: () => controller.getBikes(session, email),
     initialData: [],
@@ -217,11 +218,31 @@ const MaintenanceComponent = () => {
     );
   };
 
+  const soonestDue = (bike: Bike): number => {
+    var smallest = 100000;
+    for (const item of bike.maintenanceItems) {
+      const overdue = bike.odometerMeters - item.dueDistanceMeters;
+      smallest = Math.min(smallest, overdue);
+    }
+    return smallest;
+  }
+
+  const getSortedBikes = (): Bike[] => {
+    if (!data) return [];
+    if (sortOption === 'A-Z') {
+      return data.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return data.sort((a, b) => soonestDue(b) - soonestDue(a));
+  }
+
   useEffect(() => {
     navigation.setOptions({ title: 'Maintenance' });
     if (expandedBike === 0 && data && data.length > 0) {
-      handleBikePress(0);
+      const bikeList = getSortedBikes();
+      setSortedBikes(bikeList);
+      handleBikePress(bikeList[0].id);
     }
+    
   }, [data]);
 
   if (!data || isFetching || data.length === 0) {
@@ -250,7 +271,7 @@ const MaintenanceComponent = () => {
         </Card>
           <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
             <List.Section>
-              {data?.map(bike => (
+              {sortedBikes?.map(bike => (
                 <BikeAccordian
                   bike={bike}
                   sortBy={sortOption}
