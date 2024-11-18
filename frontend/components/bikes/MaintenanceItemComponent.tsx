@@ -161,7 +161,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
         setIsNew(false);
         if (bikes) {
           for (const bikeItem of bikes) {
-            console.log('Reset checking bikeItems: ', JSON.stringify(bikeItem));
+//            console.log('Reset checking bikeItems: ', JSON.stringify(bikeItem));
             if (bikeItem.maintenanceItems.some(mi => mi.id === item.id)) {
               selectBike(ensureString(bikeItem.id));
             }
