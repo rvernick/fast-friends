@@ -51,13 +51,14 @@ const MaintenanceComponent = () => {
   
   const addMaintenanceItem = () => {
     queryClient.removeQueries({ queryKey: ['maintenanceItems'] });
-    router.push( { pathname: '/(home)/(maintenanceItems)', params: { maintenanceId: '0', bikeId: expandedBike.toString() } });
+    router.push( { pathname: '/(home)/(maintenanceItems)', params: { id: '0', bikeid: expandedBike.toString() } });
   }
 
   const editMaintenanceItem = (id: number, bikeId: number) => {
     const idString = id.toString();
     const bikeIdString = bikeId.toString();
-    router.push( { pathname: '/(home)/(maintenanceItems)', params: { maintenanceId: idString, bikeId: bikeIdString } });
+    console.log('editMaintenanceItem called: ' + idString +' bikeId: '+ bikeIdString);
+    router.push( { pathname: '/(home)/(maintenanceItems)', params: { id: idString, bikeid: bikeIdString } });
   }
 
   const logMaintenance = () => {

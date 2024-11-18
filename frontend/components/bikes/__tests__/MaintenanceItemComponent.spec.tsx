@@ -2,7 +2,7 @@ import { screen, fireEvent, cleanup } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import MaintenanceItemComponent from '../MaintenanceItemComponent';
-import { mockedBikes, mockedHistory } from '@/common/test-utils';
+import { mockedBikeId, mockedBikes, mockedHistory, mockeMaintenanceItemId, mockMaintenanceItem } from '@/common/test-utils';
 import { sleep } from '@/common/utils';
 
 afterEach(cleanup);
@@ -18,14 +18,20 @@ jest.mock('../../../common/utils', () => {
 
 const getMockedHistory = () => {
   console.log('getMockedHistory called');
-  sleep(1);
+  sleep(0.1);
   return Promise.resolve(mockedHistory);
 }
 
 const getMockedBikes = () => {
   console.log('getMockedBikes called');
-  sleep(1);
+  sleep(0.1);
   return Promise.resolve(mockedBikes);
+}
+
+const getMockedMaintenanceItem = () => {
+  console.log('getMockedMaintenanceItem called');
+  sleep(0.1);
+  return Promise.resolve(mockMaintenanceItem);
 }
 
 jest.mock('../../../common/data-utils', () => {
@@ -35,6 +41,7 @@ jest.mock('../../../common/data-utils', () => {
     ...originalModule,
     getHistory: jest.fn(() => getMockedHistory()),
     getBikes: jest.fn(() => getMockedBikes()),
+    getMaintenanceItem: jest.fn(() => getMockedMaintenanceItem()),
     foo: 'mocked foo',
   };
 });
@@ -71,5 +78,32 @@ describe('Maintenance Item Component', () => {
     expect(dueMilesInput.props.value).toBe('1000');
     // const dueDistanceLabel = await screen.findByText('Due Distance (mild');
   });
+    
+  it('Maintenance Item is displayed correctly', async () => {
+    const wrappedMI = jest.fn(() => 
+          <ProviderWrapper>
+            <MaintenanceItemComponent maintenanceid={mockeMaintenanceItemId} bikeid={mockedBikeId} />
+          </ProviderWrapper>);
+    renderRouter(
+      {
+        index: wrappedMI,
+        'directory/a': wrappedMI,
+        '(group)/b': wrappedMI,
+      },
+      {
+        initialUrl: '/directory/a',
+      }
+    );
 
+    const partSelector = await screen.findByTestId('partDropdown');
+    const actionSelector = await screen.findByTestId('actionDropdown');
+    // const dueMilesInput = screen.getByTestId('dueMilesInput');
+
+    const partFinder = screen.getByDisplayValue(mockMaintenanceItem.part);  
+    expect(partFinder).not.toBeNull();  
+
+    const actionFinder = screen.getByDisplayValue(mockMaintenanceItem.action);
+    expect(actionFinder).not.toBeNull();
+
+  });
 });

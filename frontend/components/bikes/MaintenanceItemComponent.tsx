@@ -52,16 +52,15 @@ type MaintenanceItemProps = {
   bikeid: number,
 };
 
-const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
+const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid, bikeid}) => {
   const session = useSession();
   const queryClient = useQueryClient();
   const appContext = useGlobalContext();
   const navigation = useNavigation();
   const email = session.email ? session.email : '';
-  const searchParams = useLocalSearchParams();
 
-  const maintenanceId = searchParams.maintenanceId? parseInt(ensureString(searchParams.maintenanceId)) : 0;
-  const initialBikeId = searchParams.bikeId? ensureString(searchParams.bikeId): '0';
+  const maintenanceId = maintenanceid ? parseInt(ensureString(maintenanceid)) : 0;
+  const initialBikeId = bikeid ? ensureString(bikeid) : '0';
   
   const [isNew, setIsNew] = useState(maintenanceId === 0);
   const [maintenanceItem, setMaintenanceItem] = useState<MaintenanceItem>(newMaintenanceItem);
@@ -214,7 +213,10 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     }
   }
 
+  // if MI is already set, then we don't need to update the parts or actions list  They should be read-only
   const updateActionsList = (bike: Bike, selectedPart: string) => {
+    if (!isNew) return;
+
     const unusedActions = getUnusedActions(bike, selectedPart);
     const actionOptions = unusedActions.map(act => ({ label: act, value: act }))
     setAvailableActions(actionOptions);
@@ -225,8 +227,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     const unusedActionNames = unusedActions.map(act => act.toString());
     if (!Object.values(unusedActionNames).includes(action)) {
       if (unusedActions.length > 0) {
-      // console.log('Setting default action: ', unusedActions[0]);
-      setAction(unusedActions[0]);
+        // console.log('Setting default action: ', unusedActions[0]);
+        setAction(unusedActions[0]);
       } else {
         setAction('');
       }
@@ -277,13 +279,13 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   }
 
   const ensureDueMilageAhead = async (toBike: Bike) => {
-    if (isNew || !readOnly) {
-      const currentMeters = toBike.odometerMeters;
-      const nextDueMeters = displayStringToMeters(dueMiles, await preferences);
-      if (currentMeters  > nextDueMeters) {
-        const forwardMeters = currentMeters + milesToMeters(1500);
-        setDueMiles(metersToDisplayString(forwardMeters, await preferences));
-      }
+    if (!isNew && readOnly) return;
+
+    const currentMeters = toBike.odometerMeters;
+    const nextDueMeters = displayStringToMeters(dueMiles, await preferences);
+    if (currentMeters  > nextDueMeters) {
+      const forwardMeters = currentMeters + milesToMeters(1500);
+      setDueMiles(metersToDisplayString(forwardMeters, await preferences));
     }
   };
 
