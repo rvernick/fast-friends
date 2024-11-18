@@ -7,6 +7,11 @@ import { MaintenanceItem } from './bike/maintenance-item.entity';
 import { BatchProcess } from './batch/batch-process.entity';
 import { Notification } from './bike/notification';
 import { MaintenanceHistory } from './bike/maintenance-history.entity';
+import { Instruction } from './instruction/instruction.entity';
+import { InstructionReference } from './instruction/instruction-reference.entity';
+import { Step } from './instruction/step.entity';
+import { ToolNeed } from './instruction/tool-need.entity';
+import { Tool } from './instruction/tool.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -17,7 +22,10 @@ export const AppDataSource = new DataSource({
   database: process.env.DATABASE_NAME,
   synchronize: true,
   logging: false,
-  entities: [User, Bike, MaintenanceItem, MaintenanceHistory, PasswordReset, Notification, BatchProcess],
+  entities: [User, Bike, MaintenanceItem, MaintenanceHistory,
+    PasswordReset, Notification, BatchProcess,
+    Instruction, InstructionReference, Step, ToolNeed, Tool
+  ],
   migrations: ["./migrations/*"],
   subscribers: [],
 });

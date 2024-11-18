@@ -45,7 +45,7 @@ export class Instruction {
     default: LevelOfDifficulty.EASY,
     nullable: false,
   })
-  difficulty: Action;
+  difficulty: LevelOfDifficulty;
 
   @OneToMany((type) => Step, (step) => step.instruction, {
     eager: true,

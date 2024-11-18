@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useGlobalContext } from '@/common/GlobalContext';
-import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useNavigation } from 'expo-router';
 import { List, Text, useTheme, Surface, Tooltip } from 'react-native-paper';
 import { Action, Part } from '@/models/MaintenanceItem';
 import { Dropdown } from 'react-native-paper-dropdown';
 import { Dimensions, ScrollView, View } from 'react-native';
 import { createStyles, styles } from '@/common/styles';
-import { ensureString, isMobile } from '@/common/utils';
+import { isMobile } from '@/common/utils';
 import InstructionController from './InstructionController';
 import { Instruction, Step } from '@/models/Instruction';
 
@@ -16,7 +16,6 @@ type InstructionProps = {
 };
 
 const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
-  const searchParams = useLocalSearchParams();
   const appContext = useGlobalContext();
   const navigation = useNavigation();
   const controller = new InstructionController(appContext);
@@ -40,13 +39,13 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
   const initialize = async () => {
     console.log("Initializing instruction component");
     setIsInitialized(true);
-    var selectedPart = ensureString(searchParams.part);
-    var selectedAction = ensureString(searchParams.action);
-    if (!selectedAction) {
-      selectedAction = "Check";
-    }
+    var selectedPart = partOption;
+    var selectedAction = actionOption;
     if (!selectedPart) {
       selectedPart = "Chain";
+    }
+    if (!selectedAction) {
+      selectedAction = "Check";
     }
     setActionOption(selectedAction);
     updatePartOption(selectedPart);

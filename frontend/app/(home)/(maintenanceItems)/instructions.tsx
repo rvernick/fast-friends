@@ -5,7 +5,7 @@ import { useLocalSearchParams } from 'expo-router';
 export default function Instructions() {
   const search = useLocalSearchParams();
   const part = search.part || 'Chain';
-  const action = search.action || 'Replace';
+  const action = search.action || 'Check';
 
   return (
     <InstructionComponent part={ensureString(part)} action={ensureString(action)}/>

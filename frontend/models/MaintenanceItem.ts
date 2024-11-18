@@ -34,6 +34,8 @@ export enum Part {
   REAR_SUSPENSION = "Rear Suspension",
   FRONT_DERAILLEUR_BATTERY = "Front Derailleur Battery",
   REAR_DERAILLEUR_BATTERY = "Rear Derailleur Battery",
+  FRONT_TIRE_SEALANT = "Front Tire Sealant",
+  REAR_TIRE_SEALANT = "Rear Tire Sealant",
 };
 
 export enum Action {
