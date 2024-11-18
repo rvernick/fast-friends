@@ -1,5 +1,4 @@
 import { getInternal, post } from "./http-utils";
-import AppContext from "./app-context";
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";

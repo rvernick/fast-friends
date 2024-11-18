@@ -34,8 +34,8 @@ export class BikeController {
     try {
       console.log(bikeId + ' bike/bike username: '+ username);
       const result = this.bikeService.getBike(bikeId, username);
-      console.log('bike/bike result:'+ result);
-    return result;
+      console.log('bike/bike result: '+ result);
+      return result;
     } catch (error) {
       console.error('bike/bike error:', error);
       return null;

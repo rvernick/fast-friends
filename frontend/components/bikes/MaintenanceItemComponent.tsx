@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { Button, TextInput, ActivityIndicator, Card, Surface, Tooltip } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
@@ -56,7 +56,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   const session = useSession();
   const queryClient = useQueryClient();
   const appContext = useGlobalContext();
-  const router = useNavigation();
+  const navigation = useNavigation();
   const email = session.email ? session.email : '';
   const searchParams = useLocalSearchParams();
 
@@ -115,7 +115,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       queryClient.invalidateQueries({ queryKey: ['bikes'] });
       if (isNew) {
         // don't know the id so can't reset
-        router.goBack();
+        navigation.goBack();
       } else {
         reset();
         setReadOnly(true);
@@ -135,7 +135,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     if (await controller.deleteMaintenanceItem(session, email, maintenanceItem.id)) {
       bike.maintenanceItems = bike.maintenanceItems.filter(mi => mi.id!== maintenanceItem.id);
       queryClient.removeQueries({ queryKey: ['bikes'] });
-      router.goBack();
+      navigation.goBack();
     }
   }
 
@@ -262,7 +262,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       if (bikeById) {
         console.log('Selected bike idString: ', idString);
         setBike(bikeById);
-        const title = bikeById.name + ' (' + metersToDisplayString(bikeById.odometerMeters, await preferences) +' ' + preferences.units + ')'
+        const prefs = await preferences;
+        const title = bikeById.name + ' (' + metersToDisplayString(bikeById.odometerMeters, prefs) +' ' + prefs.units + ')'
         setBikeName(title);
         setBikeIdString(idString);
         // updatePartsList(bikeById);
@@ -383,7 +384,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   }
 
   useEffect(() => {
-    router.setOptions({ title: ensureString(part) +' : '+ bikeName });
+    navigation.setOptions({ title: ensureString(part) +' : '+ bikeName });
   }), [part, bikeName];
 
   return (
@@ -472,6 +473,10 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
             accessibilityHint="Save any changes and go back">
             { readOnly? 'Edit' : 'Done' }
           </Button>
+          { (!readOnly && !isNew) ? null : <Button 
+            mode="outlined"
+            onPress={ () => router.push({pathname: '/(home)/(maintenanceItems)/instructions',  params: {part: part, action: action}}) }
+        >Instructions</Button>}
           { (readOnly || isNew) ? null : <Button 
             mode="contained" onPress={ cancel }
             accessibilityLabel="Cancel"

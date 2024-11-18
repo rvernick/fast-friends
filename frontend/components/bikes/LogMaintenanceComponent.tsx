@@ -282,6 +282,12 @@ const MaintenanceLogHeader = () => {
         <Button
           style={{flex: 1}}
           mode="contained"
+          onPress={() => {router.push('/(home)/(maintenanceItems)/instructions')}}>
+            Instructions
+        </Button>
+        <Button
+          style={{flex: 1}}
+          mode="contained"
           disabled={checkedIds.length < 1}
           onPress={submitMaintenance}>
             Mark Done

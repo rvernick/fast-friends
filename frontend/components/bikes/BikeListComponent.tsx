@@ -28,12 +28,13 @@ const BikeListComponent = () => {
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
 
-  const { status, data, error, isFetching } = useQuery({
+  const { data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
     queryFn: () => controller.getBikes(session, email),
     refetchOnWindowFocus: 'always',
     refetchOnReconnect: 'always',
     refetchOnMount: 'always',
+    initialData: [],
   })
   
   const addBike = () => {
@@ -86,7 +87,7 @@ const BikeListComponent = () => {
   return (
     <Surface style={useStyle.containerScreen}>
       <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
-        <BikeList bikes={data} isUpdating={isUpdating} />
+        <BikeList bikes={data ? data : []} isUpdating={isUpdating} />
       </ScrollView>
       <Button style={useStyle.bottomButtons} mode="contained" onPress={addBike}> Add Bike</Button>
     </Surface>

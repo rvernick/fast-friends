@@ -15,6 +15,12 @@ import { BatchProcessModule } from './batch/batch-process.module';
 import { BatchProcess } from './batch/batch-process.entity';
 import { Notification } from './bike/notification';
 import { MaintenanceHistory } from './bike/maintenance-history.entity';
+import { ToolNeed } from './instruction/tool-need.entity';
+import { Tool } from './instruction/tool.entity';
+import { Step } from './instruction/step.entity';
+import { Instruction } from './instruction/instruction.entity';
+import { InstructionReference } from './instruction/instruction-reference.entity';
+import { InstructionModule } from './instruction/instruction.module';
 
 @Module({
   imports: [
@@ -23,6 +29,7 @@ import { MaintenanceHistory } from './bike/maintenance-history.entity';
     UsersModule,
     BikeModule,
     StravaModule,
+    InstructionModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `config/env/${process.env.NODE_ENV}.env`,
@@ -37,7 +44,13 @@ import { MaintenanceHistory } from './bike/maintenance-history.entity';
         database: configService.get('DATABASE_NAME', 'fast-friends-dev'),
         username: configService.get('DATABASE_USER', 'fast_friends_dev'),
         password: configService.get('DATABASE_PASSWORD'),
-        entities: [User, Bike, MaintenanceItem, MaintenanceHistory, PasswordReset, Notification, BatchProcess],
+        entities: [User,
+          Bike,
+          MaintenanceItem,
+          MaintenanceHistory,
+          PasswordReset, Notification,
+          BatchProcess,
+          Instruction, Step, ToolNeed, Tool, InstructionReference],
         synchronize: true,
       }),
     }),
