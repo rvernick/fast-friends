@@ -13,7 +13,6 @@ type BikeDropdownProps = {
 };
 
 export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readonly, onSelect, useAll = false }) => {
-  const [selectedBike, setSelectedBike] = useState(ensureString(value));
   const [bikeList, setBikeList] = useState<Bike[]>([]);
   const [options, setOptions] = useState<any[]>([]);
     
@@ -34,18 +33,18 @@ export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readon
       if (value) {
         console.log('BikeDropdown onSelect: ', value);
         onSelect(value);
-        setSelectedBike(value);
       }
     }
 
-    useEffect(() => {
+    const syncOnRefresh = () => {
       if (!bikes || bikes == null || bikes.length == 0) return;
       setBikeList(bikes);
       setOptions(createOptions(bikes));
-      if (value && value.length > 0 && value !== selectedBike) {
-        setSelectedBike(value);
-      }
-    }, [bikes]);
+    }
+
+    useEffect(() => {
+      syncOnRefresh();
+    }, []);
     
     return (
       <Dropdown
@@ -53,7 +52,7 @@ export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readon
           label="Bike"
           placeholder={ensureString(value)}
           options={options}
-          value={selectedBike}
+          value={value}
           onSelect={handleSelect}
         />
     )

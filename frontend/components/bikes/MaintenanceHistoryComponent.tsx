@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
-import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { Text, Surface, DataTable, ActivityIndicator } from 'react-native-paper';
 import { useSession } from '@/ctx';
 import { Dimensions, ScrollView, View } from 'react-native';

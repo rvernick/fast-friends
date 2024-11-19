@@ -36,12 +36,24 @@ const newBike = {
   maintenanceItems: [],
   stravaId: '',
 }
+/**
+ * 
+type MaintenanceItemProps = {
+  maintenanceid: number,
+  bikeid: number,
+};
 
-const LogMaintenanceComponent = () => {
+const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid, bikeid}) => {
+ */
+
+type LogMaintenanceProps = {
+  bikeid: string,
+};
+
+const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   const session = useSession();
   const appContext = useGlobalContext();
   const navigation = useNavigation();
-  const params = useLocalSearchParams();
   const email = session.email ? session.email : '';
   
   const [bike, setBike] = useState<Bike>(newBike);
@@ -75,7 +87,7 @@ const LogMaintenanceComponent = () => {
         setBikeIdString(idString);
         setCheckedIds([]);
         setErrorMessage('');
-        console.log('Selected bikeById id: ', id);
+        console.log('Selected bikeById id: ', idString);
       } else {
         console.log('Bike not found: ', idString);
       }
@@ -109,8 +121,8 @@ const LogMaintenanceComponent = () => {
       return;
     }
     var defaultBike: Bike | undefined;
-    if (params.bikeId) {
-      defaultBike = bikes.find(bike => bike.id === parseInt(ensureString(params.bikeId)));
+    if (bikeid) {
+      defaultBike = bikes.find(bike => bike.id === parseInt(bikeid));
     } else {
       const roomForMore = Object.keys(Part).length;
       defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);      
@@ -141,97 +153,97 @@ const LogMaintenanceComponent = () => {
     rowKey: string;
   };
 
-const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log, rowKey }) => {
-  const [nextDueValue, setNextDueValue] = useState(log.nextDue);
-  const [nextDueString, setNextDueString] = useState('0');
-  const [dueDistanceString, setDueDistanceString] = useState('0');
+  const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log, rowKey }) => {
+    const [nextDueValue, setNextDueValue] = useState(log.nextDue);
+    const [nextDueString, setNextDueString] = useState('0');
+    const [dueDistanceString, setDueDistanceString] = useState('0');
 
-  const toggleSelectedRow = () => {    
-    if (checkedIds.includes(log.id)) {
-      log.selected = false;
-      setCheckedIds((prevIds) => prevIds.filter((id) => id!== log.id));
-    } else {
-      setCheckedIds((prevIds) => [...prevIds, log.id]);
-      log.selected = true;
-    }
-  }
-
-  const setNextDue = async (newValue: string) => {
-    try {
-      if (newValue.match(/^[0-9]*$/)) {
-        const nextDueDistanceMeters = displayStringToMeters(newValue, await preferences);
-        setNextDueString(newValue);
-        log.nextDue = nextDueDistanceMeters;
+    const toggleSelectedRow = () => {    
+      if (checkedIds.includes(log.id)) {
+        log.selected = false;
+        setCheckedIds((prevIds) => prevIds.filter((id) => id!== log.id));
+      } else {
+        setCheckedIds((prevIds) => [...prevIds, log.id]);
+        log.selected = true;
       }
-    } catch (error) {
-      console.error('Error setting next due: ', error);
     }
-  }
 
-  const ensureSelected = () => {
-    if (!checkedIds.includes(log.id)) {
-      setCheckedIds((prevIds) => [...prevIds, log.id]);
+    const setNextDue = async (newValue: string) => {
+      try {
+        if (newValue.match(/^[0-9]*$/)) {
+          const nextDueDistanceMeters = displayStringToMeters(newValue, await preferences);
+          setNextDueString(newValue);
+          log.nextDue = nextDueDistanceMeters;
+        }
+      } catch (error) {
+        console.error('Error setting next due: ', error);
+      }
     }
+
+    const ensureSelected = () => {
+      if (!checkedIds.includes(log.id)) {
+        setCheckedIds((prevIds) => [...prevIds, log.id]);
+      }
+    }
+
+    const syncNextDueString = async () => {
+      setNextDueString(metersToDisplayString(nextDueValue, await preferences));
+      setDueDistanceString(metersToDisplayString(log.maintenanceItem.dueDistanceMeters, await preferences));
+    }
+    
+    useEffect(() => {
+      syncNextDueString();
+    }, [nextDueValue]);
+
+    return (
+      <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
+        <View style={{ width: "15%", padding: 10}}>
+          <Checkbox key={"cb" + rowKey} status={checkedIds.includes(log.id) ? 'checked' : 'unchecked'}
+            onPress={toggleSelectedRow}/>
+        </View>
+        <View style={{justifyContent: "center", width: "20%", padding: 10}}>
+          <Text key={"prt" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.part}</Text>
+        </View>
+        <View style={{justifyContent: "center", width: "18%", padding: 10}}>
+          <Text key={"act" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.action}</Text>
+        </View>
+        <View style={{ justifyContent: "center", width: "23%"}}>
+          <Text key={"due" + rowKey} onPress={toggleSelectedRow}>
+            {dueDistanceString}</Text>
+        </View>
+        <View style={{ justifyContent: "center", width: "24%", padding: 10}}>
+          <TextInput
+            onChangeText={(newValue) => {setNextDue(newValue)}}
+            value={ nextDueString }
+            onBlur={ensureSelected}
+            key={"nextDue" + rowKey}
+          />
+        </View>
+      </View>
+    )
+  };
+
+  const MaintenanceLogHeader = () => {
+    return (
+      <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
+        <View style={{justifyContent: "center", width: "15%", padding: 10}}>
+          <Icon source="check" size={24} color="black" />
+        </View>
+        <View style={{justifyContent: "center", width: "20%", padding: 10, }}>
+          <Text>Part</Text>
+        </View>
+        <View style={{justifyContent: "center", width: "18%", padding: 10, }}>
+          <Text>Action</Text>
+        </View>
+        <View style={{justifyContent: "center",width: "23%"}}>
+          <Text>Due</Text>
+        </View>
+        <View style={{justifyContent: "center", width: "24%", padding: 10}}>
+          <Text>Next Due</Text>
+        </View>
+      </View>
+    );
   }
-
-  const syncNextDueString = async () => {
-    setNextDueString(metersToDisplayString(nextDueValue, await preferences));
-    setDueDistanceString(metersToDisplayString(log.maintenanceItem.dueDistanceMeters, await preferences));
-  }
-  
-  useEffect(() => {
-    syncNextDueString();
-  }, [nextDueValue]);
-
-  return (
-    <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
-      <View style={{ width: "15%", padding: 10}}>
-        <Checkbox key={"cb" + rowKey} status={checkedIds.includes(log.id) ? 'checked' : 'unchecked'}
-          onPress={toggleSelectedRow}/>
-      </View>
-      <View style={{justifyContent: "center", width: "20%", padding: 10}}>
-        <Text key={"prt" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.part}</Text>
-      </View>
-      <View style={{justifyContent: "center", width: "18%", padding: 10}}>
-        <Text key={"act" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.action}</Text>
-      </View>
-      <View style={{ justifyContent: "center", width: "23%"}}>
-        <Text key={"due" + rowKey} onPress={toggleSelectedRow}>
-          {dueDistanceString}</Text>
-      </View>
-      <View style={{ justifyContent: "center", width: "24%", padding: 10}}>
-        <TextInput
-          onChangeText={(newValue) => {setNextDue(newValue)}}
-          value={ nextDueString }
-          onBlur={ensureSelected}
-          key={"nextDue" + rowKey}
-        />
-      </View>
-    </View>
-  )
-};
-
-const MaintenanceLogHeader = () => {
-  return (
-    <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
-      <View style={{justifyContent: "center", width: "15%", padding: 10}}>
-        <Icon source="check" size={24} color="black" />
-      </View>
-      <View style={{justifyContent: "center", width: "20%", padding: 10, }}>
-        <Text>Part</Text>
-      </View>
-      <View style={{justifyContent: "center", width: "18%", padding: 10, }}>
-        <Text>Action</Text>
-      </View>
-      <View style={{justifyContent: "center",width: "23%"}}>
-        <Text>Due</Text>
-      </View>
-      <View style={{justifyContent: "center", width: "24%", padding: 10}}>
-        <Text>Next Due</Text>
-      </View>
-    </View>
-  );
-}
 
   useEffect(() => {
     if (checkedIds.includes(0)) {

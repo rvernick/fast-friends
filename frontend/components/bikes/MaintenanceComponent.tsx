@@ -62,7 +62,7 @@ const MaintenanceComponent = () => {
   }
 
   const logMaintenance = () => {
-    router.push({ pathname: '/(home)/(maintenanceItems)/log-maintenance', params: { bikeId: expandedBike } });
+    router.push({ pathname: '/(home)/(maintenanceItems)/log-maintenance', params: { bikeid: expandedBike } });
   }
 
   type MaintenanceListItemProps = {
