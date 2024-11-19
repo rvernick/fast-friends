@@ -1,4 +1,4 @@
-import { Logger, Injectable, Inject } from '@nestjs/common';
+import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Instruction } from './instruction.entity';
@@ -101,64 +101,5 @@ export class InstructionService {
   async synchronizeMaintenanceInstructions(): Promise<void> {
     this.instructionUpdater().updateInstructions();
   }
-
-  // async updateOrAddBike(bikeDto: UpdateBikeDto): Promise<Bike> {
-  //   try {
-  //     this.logger.log('Updating or adding bike: ', bikeDto);
-  //     const user = await this.findUsername(bikeDto.username);
-  //     if (user == null) {
-  //       this.logger.log('User not found: ', bikeDto.username);
-  //       return null;
-  //     }
-  //     var bike: Bike;
-  //     if (bikeDto.id == 0) {
-  //       bike = new Bike();
-  //     } else {
-  //       const id = bikeDto.id;
-  //       bike = await this.bikesRepository.findOneBy({ id });
-  //       if (bike == null) {
-  //         this.logger.log('Bike not found: ', id);
-  //         return null;
-  //       }
-  //     }
-  //     const stravaId = bike.stravaId
-  //     if (stravaId == null || stravaId.length == 0) {
-  //       bike.odometerMeters = Math.round(bikeDto.odometerMeters);
-  //       this.logger.log("updating odometer because stravaId is null:" + bikeDto.odometerMeters);
-  //     } else {
-  //       this.logger.log("not updating odometer because stravaId is not null:" + stravaId);
-  //     }
-  //     bike.name = bikeDto.name;
-  //     bike.type = bikeDto.type;
-  //     bike.setGroupsetBrand(bikeDto.groupsetBrand);
-  //     bike.groupsetSpeed = bikeDto.groupsetSpeed;
-  //     bike.isElectronic = bikeDto.isElectronic;
-  //     bike.user = user;
-  //     this.bikesRepository.save(bike);
-  //   } catch (error) {
-  //     console.error('Error updating or adding bike: ', error);
-  //     return null;
-  //   }
-  // }
-
-  // async deleteBike(bikeDto: DeleteBikeDto): Promise<Bike> {
-  //   const user = await this.findUsername(bikeDto.username);
-  //   if (user == null) return null;
-
-  //   var bike: Bike;
-  //   if (bikeDto.id == 0) {
-  //     bike = new Bike();
-  //   } else {
-  //     const id = bikeDto.id;
-  //     bike = await this.bikesRepository.findOneBy({ id });
-  //     console.log('bike: '+ JSON.stringify(bike));
-  //     if (bike == null) return null;
-  //   }
-
-  //   this.bikesRepository.softDelete(bike.id);
-  // }
-
-
-  
   
 }
