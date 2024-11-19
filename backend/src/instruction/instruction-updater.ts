@@ -7,7 +7,12 @@ import { ToolNeed } from "./tool-need.entity";
 import { instructions } from "./content/instructions";
 import { testInstructions } from "./content/test-instructions";
 
-
+/**
+ * We store the instructions in the database so we can easily retrieve and update them.
+ * To get them in the database, we've got a JSON file with them.  This class updates the database
+ * with the instructions from the JSON files.
+ * Eventually, the database will be the source of truth for the instructions, but this is handy for now.
+ */
 export class InstructionUpdater {
   private instructionRepository: Repository<Instruction>;
 
