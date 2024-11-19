@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { Button, TextInput, ActivityIndicator, Card, Surface, Tooltip } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
