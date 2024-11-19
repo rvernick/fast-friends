@@ -51,13 +51,14 @@ const MaintenanceComponent = () => {
   
   const addMaintenanceItem = () => {
     queryClient.removeQueries({ queryKey: ['maintenanceItems'] });
-    router.push( { pathname: '/(home)/(maintenanceItems)', params: { maintenanceId: '0', bikeId: expandedBike.toString() } });
+    router.push( { pathname: '/(home)/(maintenanceItems)', params: { id: '0', bikeid: expandedBike.toString() } });
   }
 
   const editMaintenanceItem = (id: number, bikeId: number) => {
     const idString = id.toString();
     const bikeIdString = bikeId.toString();
-    router.push( { pathname: '/(home)/(maintenanceItems)', params: { maintenanceId: idString, bikeId: bikeIdString } });
+    console.log('editMaintenanceItem called: ' + idString +' bikeId: '+ bikeIdString);
+    router.push( { pathname: '/(home)/(maintenanceItems)', params: { id: idString, bikeid: bikeIdString } });
   }
 
   const logMaintenance = () => {
@@ -227,18 +228,26 @@ const MaintenanceComponent = () => {
     return smallest;
   }
 
-  const getSortedBikes = (): Bike[] => {
+  const getSortedBikes = (sortBy: string): Bike[] => {
     if (!data) return [];
-    if (sortOption === 'A-Z') {
+    if (sortBy === 'A-Z') {
+      console.log('sort by A-Z sorting bikes');
       return data.sort((a, b) => a.name.localeCompare(b.name));
     }
     return data.sort((a, b) => soonestDue(b) - soonestDue(a));
   }
 
+  const updateSorting = (newSortValue: string | undefined) => {
+    const newSort = newSortValue ? newSortValue : 'A-Z';
+    setSortOption(newSort);
+    setSortedBikes(getSortedBikes(newSort));
+  }
+
+
   useEffect(() => {
     navigation.setOptions({ title: 'Maintenance' });
     if (expandedBike === 0 && data && data.length > 0) {
-      const bikeList = getSortedBikes();
+      const bikeList = getSortedBikes(sortOption);
       setSortedBikes(bikeList);
       handleBikePress(bikeList[0].id);
     }
@@ -265,7 +274,7 @@ const MaintenanceComponent = () => {
             <Dropdown 
               value={sortOption}
               options={sortOptions}
-              onSelect={(value) => setSortOption(value ? value : 'A-Z')}
+              onSelect={updateSorting}
               />      
           }/>
         </Card>

@@ -1,12 +1,31 @@
 // import {jest} from '@jest/globals';
 
-import AppContext from "./app-context";
-import AppController from "./AppController";
 import { milesToMeters } from "./utils";
+
+export const mockedBikeId = 10;
+export const mockeMaintenanceItemId = 55;
+export const mockedBikeDistanceMiles = 2000;
+export const mockedDueDistanceMiles = 2200;
+export const mockedDefaultLongevityMiles = 1200;
+
+export const mockMaintenanceItem = {
+ id: mockeMaintenanceItemId,
+//  bike: Bike;
+  part: "Rear Tire",
+  action: "Lubricate",
+  name: "New Chain",
+  brand: "Shimano",
+  model: "Ultegra",
+  link: "http:",
+  bikeDistance: milesToMeters(mockedBikeDistanceMiles),
+  dueDistanceMeters: milesToMeters(mockedDueDistanceMiles),
+  defaultLongevity: milesToMeters(mockedDefaultLongevityMiles),
+  autoAdjustLongevity: true,
+};
 
 export const mockedBikes = [
   {
-    id: 10,
+    id: mockedBikeId,
     name: "Ten",
     brand: "Shimano",
     model: "Ultegra",
@@ -17,7 +36,7 @@ export const mockedBikes = [
     groupsetBrand: "Shimano",
     isElectronic: true,
     odometerMeters: 10000,
-    maintenanceItems: [],
+    maintenanceItems: [mockMaintenanceItem],
     stravaId: '',
   }
 ];

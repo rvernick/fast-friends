@@ -1,5 +1,6 @@
 import AppContext from "@/common/app-context";
 import AppController from "@/common/AppController";
+import { getMaintenanceItem } from "@/common/data-utils";
 import { getInternal, post } from "@/common/http-utils";
 import { ensureString, sleep } from "@/common/utils";
 import { Bike } from "@/models/Bike";
@@ -11,27 +12,7 @@ class MaintenanceItemController extends AppController {
   }
 
   getMaintenanceItem = (session: any, maintenanceId: number, username: string, appContext: AppContext): Promise<MaintenanceItem | null>=> {
-    if (session === null) {
-      console.log('get maintenanceItem has no context: ' + username);
-      return Promise.resolve(null);
-    }
-    const jwtToken = session.jwt_token;
-    if (jwtToken == null) {
-      console.log('get maintenance item has no token dying: ' + username);
-      return Promise.resolve(null);
-    }
-
-    try {
-      const parameters = {
-        username: username,
-        maintenanceid: maintenanceId,
-      };
-      console.log('get maintenanceItem');
-      return getInternal('/bike/maintenance-item', parameters, jwtToken);
-    } catch(e: any) {
-      console.log(e.message);
-      return Promise.resolve(null);
-    }
+    return getMaintenanceItem(session, maintenanceId, username);
   }
 
   deleteMaintenanceItem = async (session: any, username: string, maintenanceItemId: number): Promise<boolean> => {

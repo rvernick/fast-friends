@@ -69,6 +69,11 @@ export function createStyles(width: number, height: number) {
       marginHorizontal: 8,
       marginBottom: 225,
     },
+    topButtons: {
+      margin: 4,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
     bottomButtons: {
       position: 'absolute',
       top: height-225,
@@ -133,6 +138,11 @@ export const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 16,
     marginBottom: 75,
+  },
+  topButtons: {
+    margin: 4,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   bottomButtons: {
     position: 'absolute',

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { Button, TextInput, ActivityIndicator, Card, Surface, Tooltip } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
@@ -52,16 +52,15 @@ type MaintenanceItemProps = {
   bikeid: number,
 };
 
-const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
+const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid, bikeid}) => {
   const session = useSession();
   const queryClient = useQueryClient();
   const appContext = useGlobalContext();
-  const router = useNavigation();
+  const navigation = useNavigation();
   const email = session.email ? session.email : '';
-  const searchParams = useLocalSearchParams();
 
-  const maintenanceId = searchParams.maintenanceId? parseInt(ensureString(searchParams.maintenanceId)) : 0;
-  const initialBikeId = searchParams.bikeId? ensureString(searchParams.bikeId): '0';
+  const maintenanceId = maintenanceid ? parseInt(ensureString(maintenanceid)) : 0;
+  const initialBikeId = bikeid ? ensureString(bikeid) : '0';
   
   const [isNew, setIsNew] = useState(maintenanceId === 0);
   const [maintenanceItem, setMaintenanceItem] = useState<MaintenanceItem>(newMaintenanceItem);
@@ -115,7 +114,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       queryClient.invalidateQueries({ queryKey: ['bikes'] });
       if (isNew) {
         // don't know the id so can't reset
-        router.goBack();
+        navigation.goBack();
       } else {
         reset();
         setReadOnly(true);
@@ -135,7 +134,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     if (await controller.deleteMaintenanceItem(session, email, maintenanceItem.id)) {
       bike.maintenanceItems = bike.maintenanceItems.filter(mi => mi.id!== maintenanceItem.id);
       queryClient.removeQueries({ queryKey: ['bikes'] });
-      router.goBack();
+      navigation.goBack();
     }
   }
 
@@ -161,7 +160,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
         setIsNew(false);
         if (bikes) {
           for (const bikeItem of bikes) {
-            console.log('Reset checking bikeItems: ', JSON.stringify(bikeItem));
+//            console.log('Reset checking bikeItems: ', JSON.stringify(bikeItem));
             if (bikeItem.maintenanceItems.some(mi => mi.id === item.id)) {
               selectBike(ensureString(bikeItem.id));
             }
@@ -214,7 +213,10 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     }
   }
 
+  // if MI is already set, then we don't need to update the parts or actions list  They should be read-only
   const updateActionsList = (bike: Bike, selectedPart: string) => {
+    if (!isNew) return;
+
     const unusedActions = getUnusedActions(bike, selectedPart);
     const actionOptions = unusedActions.map(act => ({ label: act, value: act }))
     setAvailableActions(actionOptions);
@@ -225,8 +227,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
     const unusedActionNames = unusedActions.map(act => act.toString());
     if (!Object.values(unusedActionNames).includes(action)) {
       if (unusedActions.length > 0) {
-      // console.log('Setting default action: ', unusedActions[0]);
-      setAction(unusedActions[0]);
+        // console.log('Setting default action: ', unusedActions[0]);
+        setAction(unusedActions[0]);
       } else {
         setAction('');
       }
@@ -262,7 +264,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
       if (bikeById) {
         console.log('Selected bike idString: ', idString);
         setBike(bikeById);
-        const title = bikeById.name + ' (' + metersToDisplayString(bikeById.odometerMeters, await preferences) +' ' + preferences.units + ')'
+        const prefs = await preferences;
+        const title = bikeById.name + ' (' + metersToDisplayString(bikeById.odometerMeters, prefs) +' ' + prefs.units + ')'
         setBikeName(title);
         setBikeIdString(idString);
         // updatePartsList(bikeById);
@@ -276,13 +279,13 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   }
 
   const ensureDueMilageAhead = async (toBike: Bike) => {
-    if (isNew || !readOnly) {
-      const currentMeters = toBike.odometerMeters;
-      const nextDueMeters = displayStringToMeters(dueMiles, await preferences);
-      if (currentMeters  > nextDueMeters) {
-        const forwardMeters = currentMeters + milesToMeters(1500);
-        setDueMiles(metersToDisplayString(forwardMeters, await preferences));
-      }
+    if (!isNew && readOnly) return;
+
+    const currentMeters = toBike.odometerMeters;
+    const nextDueMeters = displayStringToMeters(dueMiles, await preferences);
+    if (currentMeters  > nextDueMeters) {
+      const forwardMeters = currentMeters + milesToMeters(1500);
+      setDueMiles(metersToDisplayString(forwardMeters, await preferences));
     }
   };
 
@@ -383,7 +386,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
   }
 
   useEffect(() => {
-    router.setOptions({ title: ensureString(part) +' : '+ bikeName });
+    navigation.setOptions({ title: ensureString(part) +' : '+ bikeName });
   }), [part, bikeName];
 
   return (
@@ -472,6 +475,10 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = () => {
             accessibilityHint="Save any changes and go back">
             { readOnly? 'Edit' : 'Done' }
           </Button>
+          { (!readOnly && !isNew) ? null : <Button 
+            mode="outlined"
+            onPress={ () => router.push({pathname: '/(home)/(maintenanceItems)/instructions',  params: {part: part, action: action}}) }
+        >Instructions</Button>}
           { (readOnly || isNew) ? null : <Button 
             mode="contained" onPress={ cancel }
             accessibilityLabel="Cancel"

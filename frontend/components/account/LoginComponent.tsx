@@ -183,6 +183,7 @@ export const LoginComponent = () => {
               <Button
                 mode="contained"
                 onPress={loginButton}
+                testID="loginButton"
                 accessibilityLabel="confirm button"
                 accessibilityHint="Will attempt to login based on the user and password entered">
                 Confirm

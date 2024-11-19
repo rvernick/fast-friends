@@ -2,6 +2,7 @@ import { Bike } from "@/models/Bike";
 import { sleep } from "./utils";
 import { getInternal } from "./http-utils";
 import { MaintenanceHistoryItem } from "@/models/MaintenanceHistory";
+import { MaintenanceItem } from "@/models/MaintenanceItem";
 
 export const getBikes = async (session: any, username: string): Promise<Bike[] | null> => {
   sleep(0.1);
@@ -66,5 +67,29 @@ export const getBike = async (session: any, bikeid: number, username: string): P
   } catch(e: any) {
     console.log(e.message);
     return null;
+  }
+};
+
+export const getMaintenanceItem = (session: any, maintenanceId: number, username: string): Promise<MaintenanceItem | null>=> {
+  if (session === null) {
+    console.log('get maintenanceItem has no context: ' + username);
+    return Promise.resolve(null);
+  }
+  const jwtToken = session.jwt_token;
+  if (jwtToken == null) {
+    console.log('get maintenance item has no token dying: ' + username);
+    return Promise.resolve(null);
+  }
+
+  try {
+    const parameters = {
+      username: username,
+      maintenanceid: maintenanceId,
+    };
+    console.log('get maintenanceItem');
+    return getInternal('/bike/maintenance-item', parameters, jwtToken);
+  } catch(e: any) {
+    console.log(e.message);
+    return Promise.resolve(null);
   }
 };

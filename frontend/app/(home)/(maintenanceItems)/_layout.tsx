@@ -4,6 +4,15 @@ import { Button } from "react-native-paper";
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
 
 export default function Layout() {
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      console.log("Cannot go back from current screen");
+      router.push('/(home)/(maintenanceItems)/maintenance');
+    }
+  }
+  
   return (
     <Stack>
       <Stack.Screen name="maintenance" options={{
@@ -12,15 +21,19 @@ export default function Layout() {
         }} />
       <Stack.Screen name="[maintenanceid]" options={{
         title: 'Maintenance Item',
-        headerLeft: () => <Button onPress={() => router.back()} icon="arrow-left">{""}</Button>,
+        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
       <Stack.Screen name="log-maintenance" options={{
         title: 'Log Maintenance',
-        headerLeft: () => <Button onPress={() => router.back()} icon="arrow-left">{""}</Button>,
+        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
       <Stack.Screen name="history" options={{
         title: 'History',
-        headerLeft: () => <Button onPress={() => router.replace('/(home)/(maintenanceItems)/maintenance')} icon="arrow-left">{""}</Button>,
+        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
+      }} />
+      <Stack.Screen name="instructions" options={{
+        title: 'Instructions',
+        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
     </Stack>
   );

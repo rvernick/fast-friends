@@ -13,7 +13,7 @@ export const baseUrl = () => {
   return ensureNoSlash(result);
 }
 
-export const getInternal = async (url: string, parameters: any, jwtToken: string) => {
+export const getInternal = async (url: string, parameters: any, jwtToken: string | null) => {
   // console.log('getInternal url: ' + url);
   const fullUrl = baseUrl() + url;
   return get(fullUrl, parameters, jwtToken);
@@ -24,14 +24,22 @@ export const get = (url: string, parameters: any, access_token: string | null) =
   if (parameters != null && Object.keys(parameters).length > 0) {
     fullUrl = fullUrl + '?' + objToQueryString(parameters);
   }
+  var headers = {};
+  if (access_token!= null) {
+    headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer '+ access_token,
+    }
+    } else {
+    headers = {
+      'Content-Type': 'application/json',
+    }
+  }
   // console.log('fullUrl: ' + fullUrl);
   // console.log('jwtToken ' + access_token);
   return fetch(fullUrl, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + access_token,
-    },
+    headers: headers,
   })
   .then((res) => res.json())
   .catch((err) => console.log(err));
