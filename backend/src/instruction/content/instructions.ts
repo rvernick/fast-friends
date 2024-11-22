@@ -626,20 +626,6 @@ export const instructions: any[] = [
       },
       {
         "stepNumber": 20,
-        "name": "Turn off clutch",
-        "description": "Some rear derailleurs have a switch to make it stiffer for bumpy conditions.  Make sure your rear derailleur is moving freely before removing the wheel.",
-        "notes": "",
-        "hints": ""
-      },
-      {
-        "stepNumber": 30,
-        "name": "Remove the rear wheel",
-        "description": "Loosen brakes unless disk brakes.  Undo the rear axle, move the rear derailleur out of the way and pull the rear wheel off the frame.",
-        "notes": "",
-        "hints": ""
-      },
-      {
-        "stepNumber": 40,
         "name": "Unseat the tire",
         "description": "Pinch the tire to break the seal between the tire and the rim.  Do so for the entire circumference of the tire.",
         "notes": "",
@@ -648,7 +634,7 @@ export const instructions: any[] = [
       {
         "stepNumber": 50,
         "name": "Ready the tire for removal",
-        "description": "Move the edge of the tire to the center of the rim.  The rim is not as wide there and will make it easier to remove the tire from the rim.",
+        "description": "Move the edge of the tire to the center of the rim.  The rim is not as wide there and will provie some slack, making it easier to remove the tire from the rim.",
         "notes": "",
         "hints": ""
       },
@@ -685,7 +671,7 @@ export const instructions: any[] = [
         "name": "Place inner tube on rim if using an inner tube",
         "description": "If using an inner tube, place the valve through the valve hole and smooth the inner tube around the rim and inside the tire.",
         "notes": "",
-        "hints": ""
+        "hints": "Make sure the inner tube is smooth and even.  Twists or pinches can cause the tire to burst when inflated.",
       },
       {
         "stepNumber": 110,
