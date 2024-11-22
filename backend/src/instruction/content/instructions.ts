@@ -625,6 +625,20 @@ export const instructions: any[] = [
         "hints": ""
       },
       {
+        "stepNumber": 12,
+        "name": "Turn off clutch",
+        "description": "Some rear derailleur have a switch to make it stiffer for bumpy conditions.  Make sure your rear derailleur is moving freely before removing the wheel.",
+        "notes": "",
+        "hints": ""
+      },
+      {
+        "stepNumber": 16,
+        "name": "Remove the rear wheel",
+        "description": "Loosen brakes unless disk brakes.  Undo the rear axle, move the rear derailleur out of the way and pull the rear wheel off the frame.",
+        "notes": "",
+        "hints": ""
+      },
+      {
         "stepNumber": 20,
         "name": "Unseat the tire",
         "description": "Pinch the tire to break the seal between the tire and the rim.  Do so for the entire circumference of the tire.",
@@ -762,7 +776,7 @@ export const instructions: any[] = [
       },
       {
         "stepNumber": 40,
-        "name": "For hydrolic disc brakes, push the calipers open with a plastic tire lever",
+        "name": "For hydraulic disc brakes, push the calipers open with a plastic tire lever",
         "description": "Use a tire lever to push the round calipers open, making it easier to reinsert the pads.",
         "notes": "",
         "hints": ""
@@ -844,7 +858,7 @@ export const instructions: any[] = [
       },
       {
         "stepNumber": 50,
-        "name": "For hydrolic disc brakes, push the calipers open with a plastic tire lever",
+        "name": "For hydraulic disc brakes, push the calipers open with a plastic tire lever",
         "description": "Use a tire lever to push the round calipers open, making it easier to reinsert the pads.",
         "notes": "",
         "hints": ""
@@ -926,7 +940,7 @@ export const instructions: any[] = [
       },
       {
         "stepNumber": 40,
-        "name": "For hydrolic disc brakes, push the calipers open with a plastic tire lever",
+        "name": "For hydraulic disc brakes, push the calipers open with a plastic tire lever",
         "description": "Use a tire lever to push the round calipers open, making it easier to reinsert the pads.",
         "notes": "",
         "hints": ""
@@ -1008,7 +1022,7 @@ export const instructions: any[] = [
       },
       {
         "stepNumber": 50,
-        "name": "For hydrolic disc brakes, push the calipers open with a plastic tire lever",
+        "name": "For hydraulic disc brakes, push the calipers open with a plastic tire lever",
         "description": "Use a tire lever to push the round calipers open, making it easier to reinsert the pads.",
         "notes": "",
         "hints": ""
