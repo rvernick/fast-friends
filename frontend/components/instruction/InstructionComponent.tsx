@@ -198,10 +198,11 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
                   title={step.name}
                   key={'stepli' + step.id}
                   id={'stepli' + step.id}>
-                <List.Item  title={step.description} />
-                {step.notes && step.notes.length > 0 ?  <List.Item  title={step.notes}/> : null}
-                {step.hints && step.hints.length > 0 ? <List.Item  title={step.hints}/> : null}
-        
+                    <Text>{step.description}</Text>
+                {step.notes && step.notes.length > 0 ?  <Text> </Text> : null}
+                {step.notes && step.notes.length > 0 ?  <Text>Notes: {step.notes}</Text> : null}
+                {step.hints && step.hints.length > 0 ? <Text> </Text> : null}
+                {step.hints && step.hints.length > 0 ? <Text>Hints: {step.hints}</Text> : null}
               </List.Accordion>))}
             </List.Section>
             <Text variant="titleMedium">References:</Text>
