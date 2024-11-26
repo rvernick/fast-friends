@@ -28,7 +28,10 @@ using --dryrun is handy for testing
 npm run typeorm migration:generate -- -d src/migration-source.ts ./migrations/<NameOfMigration>
 ```
 
-## 
+## Updating instructions
+Baseline instructions are held in the instructions.ts file.  When updated, the instructions stored in the DB can be updated with the following API call:
+https://fast-friends-be.onrender.com/instruction/synchronize?secret=<SYNCHRONIZE_SECRET>
+SYNCHRONIZE_SECRET is an environment variable kept on Render
 
 ## Running the app
 

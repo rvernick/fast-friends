@@ -24,13 +24,12 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const appContext  = useGlobalContext();
   appContext.setSession(session);
   const [errorMessage, setErrorMessage] = useState('');
-  const [nameErrorMessage, setNameErrorMessage] = useState('');
   const [mobileErrorMessage, setMobileErrorMessage] = useState('');
   const [warnAgainstLinking, setWarnAgainstLinking] = useState(false);
   const [warnAgainstDeleting, setWarnAgainstDeleting] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccessful, setSaveSuccessful] = useState(false);
-
+  const [warnOnLosingData, setWarnOnLosingData] = useState(false);
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
   
@@ -74,17 +73,6 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     setEnteredCellPhone(strippedPhone(newText));
   }
 
-  const validateName = () => {
-    if (firstName.length == 0 || lastName.length == 0) {
-      setNameErrorMessage('First name and last name are required');
-      return false;
-    } else {
-      setNameErrorMessage('');
-    }
-    console.log('Name :'+ firstName +' ' + lastName);
-    return true;
-  };
-
   const validatePhone = () => {
     // Simple phone number validation
     console.log('validating: ' + cellPhone);
@@ -99,11 +87,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   };
 
   const validate = () => {
-    var result = true;
-    result = result && validateName();
-    result = result && validatePhone();
-    // console.log('name/cellPhone error:' + nameErrorMessage + mobileErrorMessage);
-    return result;
+    return validatePhone();
   }
 
   const updateUnits = function(newUnits: string) {
@@ -112,7 +96,6 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   }
 
   const dirty = () => {
-    setNameErrorMessage('');
     setIsDirty(true);
   }
 
@@ -135,11 +118,31 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const linkToStrava = async () => {
     if (isMobile()) {
       setWarnAgainstLinking(true);
-    } else {
-      await stravaController.linkToStrava(session);
-      setStravaId('Connecting to Strava...');
-      invalidateUser();
+      return;
     }
+    if (isDirty) {
+      if (validate()) {
+        setWarnOnLosingData(true);
+      }
+    } else {
+      doLinkToStrava();
+    }
+  }
+
+  const doLinkToStrava = async () => {
+    await stravaController.linkToStrava(session);
+    setStravaId('Connecting to Strava...');
+    invalidateUser();
+  }
+
+  const cancelLinkToStrava = () => {
+    setWarnOnLosingData(false);
+  }
+
+  const saveAndGoToStrava = async () => {
+    setWarnOnLosingData(false);
+    await updateAccount();
+    doLinkToStrava();
   }
 
   const hideWarnAgainstLinking = () => {
@@ -227,9 +230,6 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           accessibilityLabel="Last Name"
           accessibilityHint="Last Name"
         />
-        <HelperText type="error" visible={nameErrorMessage.length > 0} style={{ marginTop: 10 }}>
-          {nameErrorMessage}
-        </HelperText>
         <TextInput label="Mobile"
           value={phoneFormat(cellPhone)}
           onChangeText={updateMobile}
@@ -290,13 +290,25 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
                   </Dialog.Actions>
                 </Dialog>
               </Portal> 
+              <Portal>
+                <Dialog visible={warnOnLosingData} onDismiss={cancelLinkToStrava}>
+                  <Dialog.Title>Alert</Dialog.Title>
+                  <Dialog.Content>
+                    <Text variant="bodyMedium">Do you want to save changes before linking to Strava</Text>
+                  </Dialog.Content>
+                  <Dialog.Actions>
+                    <Button onPress={saveAndGoToStrava}>Save and Link to Strava</Button>
+                    <Button onPress={cancelLinkToStrava}>Cancel</Button>
+                  </Dialog.Actions>
+                </Dialog>
+              </Portal> 
           </Card.Content>
         </Card>
         <HelperText type="error"> </HelperText>
         <Button
           mode="contained"
           onPress={ updateAccount }
-          disabled={!isDirty || mobileErrorMessage.length > 0 || nameErrorMessage.length > 0}
+          disabled={!isDirty || mobileErrorMessage.length > 0}
           testID="update-button"
           accessibilityLabel="Save Changes"
           accessibilityHint="Save settings changes">
