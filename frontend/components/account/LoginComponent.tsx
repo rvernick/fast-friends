@@ -164,6 +164,7 @@ export const LoginComponent = () => {
                   onChangeText={updateEmail}
                   value={email}
                   autoComplete="email"
+                  autoCapitalize="none"
                   testID="emailInput"
                   accessibilityLabel="email input"
                   accessibilityHint="The email address for the account being logged in"/>
@@ -171,6 +172,7 @@ export const LoginComponent = () => {
                   secureTextEntry={passwordHidden}
                   inputMode="text"
                   textContentType="password"
+                  autoCapitalize="none"
                   onChangeText={updatePassword}
                   onSubmitEditing={loginSubmit}
                   value={password}                  
