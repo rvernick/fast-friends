@@ -120,6 +120,19 @@ export class AuthService {
     this.userService.initiatePasswordReset(user, email);
   }
 
+  async requestVerifyEmail(email: string) {
+    const user = await this.userService.findUsername(email.toLocaleLowerCase());
+    if (user == null) {
+      this.logger.log('info', 'failed reset password attempt:' + email + ' ' + user);
+      throw new UnauthorizedException();
+    }
+    this.userService.initiateEmailVerify(user, email);
+  }
+
+  async verifyEmailToken(token: string) {
+    this.userService.verifyEmailToken(token);
+  }
+
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     this.userService.resetPassword(
       resetPasswordDto.token,

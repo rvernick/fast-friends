@@ -11,6 +11,7 @@ import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
 import { defaultMaintenanceItems } from '../bike/maintenance-item.entity';
 import { sendEmail } from '../utils/utils';
+import { EmailVerify } from './email-verify.entity';
 
 @Injectable()
 export class UserService {
@@ -23,6 +24,8 @@ export class UserService {
     private bikesRepository: Repository<Bike>,
     @InjectRepository(PasswordReset)
     private passwordResetRepository: Repository<PasswordReset>,
+    @InjectRepository(EmailVerify)
+    private emailVerifyRepository: Repository<EmailVerify>,
     @Inject(ConfigService)
     private readonly configService: ConfigService,
     @Inject(HttpService)
@@ -217,6 +220,21 @@ export class UserService {
     }
   }
 
+  async verifyEmailToken(token: string): Promise<void> {
+    const emailVerify = await this.emailVerifyRepository.findOne({
+      where: {
+        token: token,
+      },
+    });
+    if (emailVerify!= null
+      && emailVerify.expiresOn > new Date()) {
+        const user = emailVerify.user;
+        this.logger.log('emailVerify', 'Verifying email for:'+ JSON.stringify(emailVerify));
+        user.emailVerified = true;
+        this.usersRepository.save(user);
+    }
+  }
+
   async initiatePasswordReset(user: User, email: string): Promise<void> {
     const passwordReset = this.createPasswordReset(user, email);
     const passwordResetLink = this.createPasswordResetLink(passwordReset);
@@ -236,7 +254,7 @@ export class UserService {
 
   createPasswordResetLink(passwordReset: PasswordReset): string {
     const baseUrl = this.configService.get<string>('CLIENT_URL');
-    return baseUrl + '/new-password-on-reset/?token=' + passwordReset.token;
+    return baseUrl + '/new-password-on-reset?token=' + passwordReset.token;
   };
 
   sendPasswordResetEmail(email: string, passwordResetLink: string): void {
@@ -245,6 +263,36 @@ export class UserService {
     const htmlMsg = 'Use the following link to reset your password: <a href="' + passwordResetLink + '"> Reset Password</a>';
     
     sendEmail(email, 'Pedal Assistant Password Reset', msg, htmlMsg);
+  };
+
+  async initiateEmailVerify(user: User, email: string): Promise<void> {
+    const emailVerify = this.createEmailVerify(user, email);
+    const emailVerifyLink = this.createEmailVerifyLink(emailVerify);
+    this.logger.log('reset link: ' + emailVerifyLink);
+    this.sendEmailVerifyEmail(email, emailVerifyLink);
+  }
+
+  createEmailVerify(user: User, email: string): PasswordReset {
+    const token = createToken(user);
+    const now = new Date();
+    const tenMinutesInMilliseconds = 10*60*1000;
+    const expirationDate = new Date(now.getTime() + tenMinutesInMilliseconds);
+    const emailVerify = new EmailVerify(user, token, expirationDate);
+    this.emailVerifyRepository.save(emailVerify);
+    return emailVerify;
+  }
+
+  createEmailVerifyLink(passwordReset: PasswordReset): string {
+    const baseUrl = this.configService.get<string>('CLIENT_URL');
+    return baseUrl + '/verify-email-token?token=' + passwordReset.token;
+  };
+
+  sendEmailVerifyEmail(email: string, emailVerifyLink: string): void {
+    console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
+    const msg = 'Use the following link to verify your email ' + emailVerifyLink;
+    const htmlMsg = 'Use the following link to verify your email: <a href="' + emailVerifyLink + '"> Reset Password</a>';
+    
+    sendEmail(email, 'Pedal Assistant Verify Email', msg, htmlMsg);
   };
 
 };

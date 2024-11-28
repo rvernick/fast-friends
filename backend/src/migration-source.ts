@@ -12,6 +12,7 @@ import { InstructionReference } from './instruction/instruction-reference.entity
 import { Step } from './instruction/step.entity';
 import { ToolNeed } from './instruction/tool-need.entity';
 import { Tool } from './instruction/tool.entity';
+import { EmailVerify } from './user/email-verify.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -24,7 +25,8 @@ export const AppDataSource = new DataSource({
   logging: false,
   entities: [User, Bike, MaintenanceItem, MaintenanceHistory,
     PasswordReset, Notification, BatchProcess,
-    Instruction, InstructionReference, Step, ToolNeed, Tool
+    Instruction, InstructionReference, Step, ToolNeed, Tool,
+    EmailVerify
   ],
   migrations: ["./migrations/*"],
   subscribers: [],

@@ -59,6 +59,13 @@ export class User {
   }
 
   @Column({
+    type: 'boolean',
+    default: false,
+    name: 'email_verified',
+  })
+  emailVerified: boolean;
+
+  @Column({
     type: 'varchar',
     nullable: true,
   })

@@ -94,6 +94,7 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
           <TextInput
             label="Email"
             value={email}
+            inputMode="email"
             onChangeText={updateEmail}
             mode="outlined"
             autoCapitalize="none"
@@ -116,6 +117,8 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
             value={password}
             onChangeText={updatePassword}
             mode="outlined"
+            inputMode="text"
+            textContentType="password"
             secureTextEntry={true}
             autoCapitalize="none"
             autoCorrect={false}

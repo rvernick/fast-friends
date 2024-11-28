@@ -110,6 +110,21 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @Post('verify-email')
+  requestVerifyEmail(@Body("username") username: string) {
+    console.log('auth/request-verify-email: ' + username);
+    return this.authService.requestVerifyEmail(username);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('verify-email-token')
+  @Public()
+  verifyEmail(@Body("token") token: string) {
+    console.log('auth/verify-email-token: ' + token);
+    return this.authService.verifyEmailToken(token);
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Public()
   @Post('reset-password')
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {

@@ -6,8 +6,6 @@ import { Image } from "react-native";
 import { Button, useTheme, Text, Surface, Card, IconButton } from "react-native-paper";
 
 export default function Index() {
-  const theme = useTheme();
-
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
 

@@ -1,5 +1,7 @@
 import { StyleSheet } from "react-native";
 
+export const tabBarIconSize = 24;
+
 export function createStyles(width: number, height: number) {
 
   const tenth = Math.round(0.1*height);

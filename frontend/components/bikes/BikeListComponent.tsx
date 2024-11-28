@@ -30,7 +30,7 @@ const BikeListComponent = () => {
 
   const { data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
-    queryFn: () => controller.getBikes(session, email),
+    queryFn: () => controller.getAllBikes(session, email),
     refetchOnWindowFocus: 'always',
     refetchOnReconnect: 'always',
     refetchOnMount: 'always',

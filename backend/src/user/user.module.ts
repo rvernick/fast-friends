@@ -8,9 +8,10 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from '../auth/auth.guard';
 import { UserController } from './user.controller';
 import { PasswordReset } from './password-reset.entity';
+import { EmailVerify } from './email-verify.entity';
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, PasswordReset])],
+  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, PasswordReset, EmailVerify])],
   providers: [
     {
       provide: APP_GUARD,

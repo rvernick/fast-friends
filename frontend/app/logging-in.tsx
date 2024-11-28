@@ -1,5 +1,6 @@
 import { ensureString, fetchUser } from '@/common/utils';
 import { useSession } from '@/ctx';
+import { User } from '@/models/User';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, Text, Surface } from 'react-native-paper';
@@ -12,8 +13,7 @@ import { ActivityIndicator, Text, Surface } from 'react-native-paper';
  */
 export default function LoggingIn() {
   const session = useSession();
-  const unconfiguredAccount = async () => {
-    const user = await fetchUser(session, ensureString(session.email));
+  const unconfiguredAccount = async (user: User) => {
     if (!user) return false;
     return ensureString(user?.firstName) === ''
       && ensureString(user?.lastName) === ''
@@ -21,7 +21,18 @@ export default function LoggingIn() {
   };
 
   const routeToNextAppropriatePage = async () => {
-    if (await unconfiguredAccount()) {
+    const user = await fetchUser(session, ensureString(session.email));
+    if (!user) {
+      console.log('redirecting to sign-in');
+      router.replace('/(sign-in-sign-up)/(sign-in)/sign-in');
+      return;
+    }
+    if (!user.emailVerified) {
+      console.log('waiting for email verification');
+      router.replace('/(sign-in-sign-up)/wait-for-verification');
+      return;
+    }
+    if (await unconfiguredAccount(user)) {
       console.log('redirecting to settings');
       router.replace('/(home)/(settings)/settings');
       return;

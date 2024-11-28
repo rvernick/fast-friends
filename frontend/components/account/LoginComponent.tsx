@@ -159,6 +159,8 @@ export const LoginComponent = () => {
               <TextInput
                   label="Email"
                   keyboardType="email-address"
+                  inputMode="email"
+                  textContentType="emailAddress"
                   onChangeText={updateEmail}
                   value={email}
                   autoComplete="email"
@@ -167,9 +169,11 @@ export const LoginComponent = () => {
                   accessibilityHint="The email address for the account being logged in"/>
               <TextInput label="Password"
                   secureTextEntry={passwordHidden}
+                  inputMode="text"
+                  textContentType="password"
                   onChangeText={updatePassword}
                   onSubmitEditing={loginSubmit}
-                  value={password}
+                  value={password}                  
                   right={<TextInput.Icon icon="eye" onPress={() => setPasswordHidden(!passwordHidden)}/>}
                   testID="passwordInput"
                   accessibilityLabel="password input"

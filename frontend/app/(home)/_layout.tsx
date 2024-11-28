@@ -1,14 +1,15 @@
-import { router, Tabs, useLocalSearchParams } from "expo-router";
+import { router, Tabs } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text } from "react-native-paper"
 import { useSession } from "@/ctx";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { tabBarIconSize } from "@/common/styles";
+
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
 
 export default function TabLayout() {
   const { jwt_token, email, isLoading } = useSession();
-
   // Cannot redirect until render is finished.  Use redirect to trigger useEffect when session is not authenticated
   const [redirected, setRedirected] = useState(false);
 
@@ -34,7 +35,7 @@ export default function TabLayout() {
           title: "Maintenance",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="wrench" color={color} />
+            <MaterialCommunityIcons size={tabBarIconSize} name="wrench" color={color} />
           ),
         }}
       />
@@ -44,7 +45,7 @@ export default function TabLayout() {
           title: "Bikes",
           headerShown: true,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="bike-fast" color={color} />
+            <MaterialCommunityIcons size={tabBarIconSize} name="bike-fast" color={color} />
           ),
         }}
       />
@@ -54,7 +55,7 @@ export default function TabLayout() {
           title: "Settings",
           headerShown: true,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account-settings" color={color} />
+            <MaterialCommunityIcons size={tabBarIconSize} name="account-settings" color={color} />
           ),
         }}
       />
@@ -64,10 +65,10 @@ export default function TabLayout() {
             title: "Sign Out",
             headerShown: false,
             tabBarIcon: ({ color }) => (
-              <MaterialCommunityIcons name="logout" color={color} />
+              <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
             ),
           }}
-        />
+      />
     </Tabs>
   );
 }

@@ -26,6 +26,7 @@ const newBike = {
       groupsetSpeed: 11,
       isElectronic: false,
       odometerMeters: 0,
+      isRetired: false,
   }
 type BikeProps = {
   bikeid: number
@@ -53,6 +54,8 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const [stravaId, setStravaId] = useState('');
   const [milage, setMileage] = useState(newBike.odometerMeters.toFixed(0));
   const [milageLabel, setMileageLabel] = useState('Mileage');
+  const [isRetired, setIsRetired] = useState(newBike.isRetired);
+
   const controller = new BikeController(appContext);
   const preferences = controller.getUserPreferences(session);
 
@@ -74,6 +77,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     setGroupsetBrand(ensureString(bike.groupsetBrand));
     setSpeeds(ensureString(bike.groupsetSpeed));
     setIsElectronic(bike.isElectronic);
+    setIsRetired(bike.isRetired);
     setMileage(metersToDisplayString(bike.odometerMeters, pref));
     setStravaId(ensureString(bike.stravaId));
     setReadOnly(true);
@@ -94,7 +98,8 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
       type,
       groupsetBrand,
       speed,
-      isElectronic);
+      isElectronic,
+      isRetired);
     console.log('update bike result: ' + result);
     queryClient.invalidateQueries({ queryKey: ['bikes'] });
     if (result == '') {
@@ -240,6 +245,11 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
           status={isElectronic ? "checked" : "unchecked"} 
           onPress={values => setIsElectronic(!isElectronic)}
           accessibilityLabel="Has Electric Assist"/>
+        <Checkbox.Item label="Retired"
+          disabled={readOnly}
+          status={isRetired ? "checked" : "unchecked"} 
+          onPress={values => setIsRetired(!isRetired)}
+          accessibilityLabel="Bike is Retired"/>
         </Card>
         <Card>
           <Button mode="contained"

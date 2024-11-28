@@ -24,4 +24,7 @@ export class UpdateBikeDto {
 
   @IsBoolean()
   isElectronic: boolean;
+
+  @IsBoolean()
+  isRetired: boolean;
 }

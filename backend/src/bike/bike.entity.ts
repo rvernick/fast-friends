@@ -74,6 +74,13 @@ export class Bike {
   })
   odometerMeters: number;
 
+  @Column({
+    type: 'boolean',
+    default: false,
+    nullable: false,
+  })
+  isRetired: boolean;
+  
   @DeleteDateColumn({nullable: true})
   deletedOn: Date;
 

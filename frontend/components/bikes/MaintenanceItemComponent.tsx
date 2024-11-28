@@ -45,6 +45,7 @@ const newBike = {
   odometerMeters: 0,
   maintenanceItems: [],
   stravaId: '',
+  isRetired: false,
 }
 
 type MaintenanceItemProps = {
@@ -92,7 +93,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const { data: bikes } = useQuery({
     queryKey: ['bikes'],
     initialData: [],
-    queryFn: () => controller.getBikes(session, email),
+    queryFn: () => controller.getCurrentBikes(session, email),
   });
 
   const updateOrAddMaintenanceItem = async function() {
