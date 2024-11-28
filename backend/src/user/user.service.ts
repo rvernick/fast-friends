@@ -261,7 +261,7 @@ export class UserService {
     console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
     const msg = 'Use the following link to reset your password: ' + passwordResetLink;
     const htmlMsg = 'Use the following link to reset your password: <a href="' + passwordResetLink + '"> Reset Password</a>';
-    
+   
     sendEmail(email, 'Pedal Assistant Password Reset', msg, htmlMsg);
   };
 
@@ -284,13 +284,13 @@ export class UserService {
 
   createEmailVerifyLink(passwordReset: PasswordReset): string {
     const baseUrl = this.configService.get<string>('CLIENT_URL');
-    return baseUrl + '/verify-email-token?token=' + passwordReset.token;
+    return baseUrl + '/email-verify?token=' + passwordReset.token;
   };
 
   sendEmailVerifyEmail(email: string, emailVerifyLink: string): void {
     console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
     const msg = 'Use the following link to verify your email ' + emailVerifyLink;
-    const htmlMsg = 'Use the following link to verify your email: <a href="' + emailVerifyLink + '"> Reset Password</a>';
+    const htmlMsg = 'Use the following link to verify your email: <a href="' + emailVerifyLink + '"> Verify Email</a>';
     
     sendEmail(email, 'Pedal Assistant Verify Email', msg, htmlMsg);
   };
