@@ -39,15 +39,15 @@ export class EmailVerify {
   @ManyToOne((type) => User, { nullable: false, cascade: false, eager: true })
   user: User;
 
-  @Column()
+  @Column({ name: 'expires_on' })
   expiresOn: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ name: 'deleted_on' })
   deletedOn: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_on' })
   createdOn: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_on' })
   updatedOn: Date;
 }
