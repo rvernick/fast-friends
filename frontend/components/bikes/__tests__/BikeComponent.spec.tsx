@@ -20,6 +20,7 @@ const mockedBike = {
     odometerMeters: milesToMeters(2000),
     maintenanceItems: [],
     stravaId: '',
+    isRetired: false,
   };
 
 const getMockedBike = () => {

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
-import { Button, TextInput, ActivityIndicator, Card, Surface, Tooltip } from "react-native-paper";
+import { Button, TextInput, ActivityIndicator, Card, Surface, Tooltip, Text } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
-import { displayStringToMeters, ensureString, metersToDisplayString, milesToMeters } from "@/common/utils";
+import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { Action, MaintenanceItem, Part } from "@/models/MaintenanceItem";
@@ -45,6 +45,7 @@ const newBike = {
   odometerMeters: 0,
   maintenanceItems: [],
   stravaId: '',
+  isRetired: false,
 }
 
 type MaintenanceItemProps = {
@@ -92,7 +93,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const { data: bikes } = useQuery({
     queryKey: ['bikes'],
     initialData: [],
-    queryFn: () => controller.getBikes(session, email),
+    queryFn: () => controller.getCurrentBikes(session, email),
   });
 
   const updateOrAddMaintenanceItem = async function() {
@@ -265,7 +266,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         console.log('Selected bike idString: ', idString);
         setBike(bikeById);
         const prefs = await preferences;
-        const title = bikeById.name + ' (' + metersToDisplayString(bikeById.odometerMeters, prefs) +' ' + prefs.units + ')'
+        const name = isMobile() && bikeById.name.length > 9 ? bikeById.name.substring(0, 8) + "..." : bikeById.name;
+        const title = name + ' (' + metersToDisplayString(bikeById.odometerMeters, prefs) +' ' + prefs.units + ')'
         setBikeName(title);
         setBikeIdString(idString);
         // updatePartsList(bikeById);

@@ -35,6 +35,7 @@ const newBike = {
   odometerMeters: 0,
   maintenanceItems: [],
   stravaId: '',
+  isRetired: false,
 }
 /**
  * 
@@ -73,7 +74,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   const { data: bikes } = useQuery({
     queryKey: ['bikes'],
     initialData: [],
-    queryFn: () => controller.getBikes(session, email),
+    queryFn: () => controller.getCurrentBikes(session, email),
   });
 
   const selectBike = async (idString: string | undefined) => {

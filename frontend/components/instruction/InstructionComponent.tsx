@@ -198,6 +198,7 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
                   title={step.name}
                   key={'stepli' + step.id}
                   id={'stepli' + step.id}>
+                    <Text>{step.name}</Text>
                     <Text>{step.description}</Text>
                 {step.notes && step.notes.length > 0 ?  <Text> </Text> : null}
                 {step.notes && step.notes.length > 0 ?  <Text>Notes: {step.notes}</Text> : null}

@@ -1,5 +1,6 @@
 // import {jest} from '@jest/globals';
 
+import { Bike } from "@/models/Bike";
 import { milesToMeters } from "./utils";
 
 export const mockedBikeId = 10;
@@ -38,6 +39,7 @@ export const mockedBikes = [
     odometerMeters: 10000,
     maintenanceItems: [mockMaintenanceItem],
     stravaId: '',
+    isRetired: false,
   }
 ];
 
@@ -108,6 +110,21 @@ export const mockedHistory = [
   },
 ];
 
+export const createMockBike = (name: string): Bike => {
+  const mockedBikeId = Math.floor(Math.random() * 1000000);
+  return {
+    id: mockedBikeId,
+    name: name,
+    type: "Road", // Example: Road, Mountain, etc.
+    groupsetSpeed: 11,
+    groupsetBrand: "Shimano",
+    isElectronic: true,
+    odometerMeters: 10000,
+    maintenanceItems: [],
+    stravaId: '',
+    isRetired: false,
+  };
+};
 
 /** 
 // export const mockUserPreferences = () => {

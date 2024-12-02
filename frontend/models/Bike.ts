@@ -10,4 +10,5 @@ export interface Bike {
   odometerMeters: number;
   maintenanceItems: MaintenanceItem[];
   stravaId: string;
+  isRetired: boolean;
 };

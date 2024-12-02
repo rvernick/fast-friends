@@ -157,7 +157,19 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     userUpdated();
   }
 
+  const cancel = () => {
+    setIsDirty(false);
+    syncUser();
+  }
+
   const userUpdated = async () => {
+    if (isDirty) {
+      return;
+    }
+    syncUser();
+  }
+
+  const syncUser = async () => {
     if (providedStravaId.length > 0) {
       setStravaId(providedStravaId);
     } else {
@@ -169,7 +181,6 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     setEnteredCellPhone(ensureString(data?.cellPhone));
     const newUnits = data?.units == "km" ? "km" : "miles";
     setUnits(newUnits);
-    setIsDirty(false);
   }
 
   const phoneFormat = (phoneWithEverything: string) => {
@@ -207,6 +218,48 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   return (
     <Surface >
       {/* <ScrollView style={styles.container}> */}
+      <Card>
+          <Card.Content>
+            <Button
+              icon={() =>
+              <Image
+                source={ require("../../assets/images/btn_strava_connectwith_orange.png")}
+                style={{ width: 196, height: 48}}
+                />}
+              onPress={ linkToStrava }
+              disabled={stravaId.length > 0}
+              accessibilityLabel="Link to Strava"
+              accessibilityHint="Login to Strava account">
+                {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : ''}
+              </Button>
+              {stravaId.length == 0 ? null : <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
+                Unlink
+              </Button>}
+              <Portal>
+                <Dialog visible={warnAgainstLinking} onDismiss={hideWarnAgainstLinking}>
+                  <Dialog.Title>Alert</Dialog.Title>
+                  <Dialog.Content>
+                    <Text variant="bodyMedium">Log in through browser to link with Strava https://www.pedal-assistant.com</Text>
+                  </Dialog.Content>
+                  <Dialog.Actions>
+                    <Button onPress={hideWarnAgainstLinking}>Done</Button>
+                  </Dialog.Actions>
+                </Dialog>
+              </Portal> 
+              <Portal>
+                <Dialog visible={warnOnLosingData} onDismiss={cancelLinkToStrava}>
+                  <Dialog.Title>Alert</Dialog.Title>
+                  <Dialog.Content>
+                    <Text variant="bodyMedium">Do you want to save changes before linking to Strava</Text>
+                  </Dialog.Content>
+                  <Dialog.Actions>
+                    <Button onPress={saveAndGoToStrava}>Save and Link to Strava</Button>
+                    <Button onPress={cancelLinkToStrava}>Cancel</Button>
+                  </Dialog.Actions>
+                </Dialog>
+              </Portal> 
+          </Card.Content>
+        </Card>
         <Card>
           <Card.Title title={firstName + ': ' + email} />
           <Card.Content>
@@ -262,48 +315,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
         <HelperText type="error" visible={errorMessage.length > 0} style={{ marginTop: 10 }}>
           {errorMessage}
         </HelperText>
-        <Card>
-          <Card.Content>
-            <Button
-              icon={() =>
-              <Image
-                source={ require("../../assets/images/btn_strava_connectwith_orange.png")}
-                style={{ width: 196, height: 48}}
-                />}
-              onPress={ linkToStrava }
-              disabled={stravaId.length > 0}
-              accessibilityLabel="Link to Strava"
-              accessibilityHint="Login to Strava account">
-                {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : ''}
-              </Button>
-              {stravaId.length == 0 ? null : <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
-                Unlink
-              </Button>}
-              <Portal>
-                <Dialog visible={warnAgainstLinking} onDismiss={hideWarnAgainstLinking}>
-                  <Dialog.Title>Alert</Dialog.Title>
-                  <Dialog.Content>
-                    <Text variant="bodyMedium">Log in through browser to link with Strava https://www.pedal-assistant.com</Text>
-                  </Dialog.Content>
-                  <Dialog.Actions>
-                    <Button onPress={hideWarnAgainstLinking}>Done</Button>
-                  </Dialog.Actions>
-                </Dialog>
-              </Portal> 
-              <Portal>
-                <Dialog visible={warnOnLosingData} onDismiss={cancelLinkToStrava}>
-                  <Dialog.Title>Alert</Dialog.Title>
-                  <Dialog.Content>
-                    <Text variant="bodyMedium">Do you want to save changes before linking to Strava</Text>
-                  </Dialog.Content>
-                  <Dialog.Actions>
-                    <Button onPress={saveAndGoToStrava}>Save and Link to Strava</Button>
-                    <Button onPress={cancelLinkToStrava}>Cancel</Button>
-                  </Dialog.Actions>
-                </Dialog>
-              </Portal> 
-          </Card.Content>
-        </Card>
+        
         <HelperText type="error"> </HelperText>
         <Button
           mode="contained"
@@ -314,6 +326,14 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           accessibilityHint="Save settings changes">
               Update Account
         </Button>
+        {isDirty ? <Button
+          mode="contained"
+          onPress={ cancel }
+          testID="cancel-button"
+          accessibilityLabel="Cancel Changes"
+          accessibilityHint="Cancel settings changes">
+              Cancel
+        </Button> : null}
         <Portal>
           <Dialog visible={saveSuccessful} onDismiss={ () => setSaveSuccessful(false)}>
             <Dialog.Title>Alert</Dialog.Title>

@@ -42,7 +42,7 @@ const MaintenanceComponent = () => {
 
   const { data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
-    queryFn: () => controller.getBikes(session, email),
+    queryFn: () => controller.getCurrentBikes(session, email),
     initialData: [],
     refetchOnWindowFocus: 'always',
     refetchOnReconnect: 'always',
@@ -120,11 +120,8 @@ const MaintenanceComponent = () => {
      return;
    }
    if (expandedBike === bikeId) {
-    const nextBike = data.find(bike => bike.id != expandedBike);
-    if (nextBike) {
-      setExpandedBike(nextBike.id);
-      return;
-    }
+    setExpandedBike(0);
+    return;
    }
   };
 
@@ -219,35 +216,17 @@ const MaintenanceComponent = () => {
     );
   };
 
-  const soonestDue = (bike: Bike): number => {
-    var smallest = 100000;
-    for (const item of bike.maintenanceItems) {
-      const overdue = bike.odometerMeters - item.dueDistanceMeters;
-      smallest = Math.min(smallest, overdue);
-    }
-    return smallest;
-  }
-
-  const getSortedBikes = (sortBy: string): Bike[] => {
-    if (!data) return [];
-    if (sortBy === 'A-Z') {
-      console.log('sort by A-Z sorting bikes');
-      return data.sort((a, b) => a.name.localeCompare(b.name));
-    }
-    return data.sort((a, b) => soonestDue(b) - soonestDue(a));
-  }
-
   const updateSorting = (newSortValue: string | undefined) => {
     const newSort = newSortValue ? newSortValue : 'A-Z';
     setSortOption(newSort);
-    setSortedBikes(getSortedBikes(newSort));
+    setSortedBikes(getSortedBikes(data, newSort));
   }
 
 
   useEffect(() => {
     navigation.setOptions({ title: 'Maintenance' });
     if (expandedBike === 0 && data && data.length > 0) {
-      const bikeList = getSortedBikes(sortOption);
+      const bikeList = getSortedBikes(data, sortOption);
       setSortedBikes(bikeList);
       handleBikePress(bikeList[0].id);
     }
@@ -286,7 +265,7 @@ const MaintenanceComponent = () => {
                   sortBy={sortOption}
                   isOpen={true}
                   // isOpen={bike.id === expandedBike}
-                  key={bike.id}/>
+                  key={"bikeAccordian" + bike.id}/>
               ))}
             </List.Section>
         </ScrollView>
@@ -310,5 +289,29 @@ const MaintenanceComponent = () => {
 };
 
 // navigation.push('Bike', { bike })
+
+export const getSortedBikes = (bikes: Bike[] | null, sortBy: string): Bike[] => {
+  if (!bikes) return [];
+  if (sortBy === 'A-Z') {
+    console.log('sort by A-Z sorting bikes');
+    return bikes.sort((a, b) => compareName(a, b));
+  }
+  return bikes.sort((a, b) => soonestDue(b) - soonestDue(a));
+}
+
+const compareName = (a: Bike, b: Bike): number => {
+  console.log('a.name:', a.name, 'b.name:', b.name);
+  console.log(a.name.localeCompare(b.name));
+  return a.name.localeCompare(b.name);
+}
+
+const soonestDue = (bike: Bike): number => {
+  var smallest = 100000;
+  for (const item of bike.maintenanceItems) {
+    const overdue = bike.odometerMeters - item.dueDistanceMeters;
+    smallest = Math.min(smallest, overdue);
+  }
+  return smallest;
+}
 
 export default MaintenanceComponent;

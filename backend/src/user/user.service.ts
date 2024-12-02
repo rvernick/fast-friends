@@ -11,6 +11,8 @@ import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
 import { defaultMaintenanceItems } from '../bike/maintenance-item.entity';
 import { sendEmail } from '../utils/utils';
+import { EmailVerify } from './email-verify.entity';
+import { randomInt } from 'crypto';
 
 @Injectable()
 export class UserService {
@@ -23,6 +25,8 @@ export class UserService {
     private bikesRepository: Repository<Bike>,
     @InjectRepository(PasswordReset)
     private passwordResetRepository: Repository<PasswordReset>,
+    @InjectRepository(EmailVerify)
+    private emailVerifyRepository: Repository<EmailVerify>,
     @Inject(ConfigService)
     private readonly configService: ConfigService,
     @Inject(HttpService)
@@ -132,9 +136,18 @@ export class UserService {
     user.stravaRefreshToken = stravaAuthDto.stravaRefreshToken;
     console.log('setting stravaId: ' + user.stravaId);
     console.log('setting userWith: ' + JSON.stringify(stravaAuthDto));
+
+    if (!user.firstName || user.firstName.length == 0) {
+      user.firstName = athlete.firstname;
+    }
+    if (!user.lastName || user.lastName.length == 0) {
+      user.lastName = athlete.lastname;
+    }
+    if (athlete.measurement_preference && athlete.measurement_preference == "meters") {
+      user.units = Units.KM;
+    }
     this.usersRepository.save(user);
 
-    this.logger.log('info', 'Syncing user:'+ JSON.stringify(user));
     console.log('bikes: ' + JSON.stringify(athlete.bikes));
     for (const bike of athlete.bikes) {
       const existingBike = this.findMatchingBike(bike, user.bikes);
@@ -217,6 +230,22 @@ export class UserService {
     }
   }
 
+  async verifyEmailCode(code: string): Promise<boolean> {
+    const emailVerify = await this.emailVerifyRepository.findOne({
+      where: {
+        code: code,
+      },
+    });
+    if (emailVerify!= null
+      && emailVerify.expiresOn > new Date()) {
+        const user = emailVerify.user;
+        user.emailVerified = true;
+        this.usersRepository.save(user);
+        return true;
+    }
+    new Error('Invalid code');
+  }
+
   async initiatePasswordReset(user: User, email: string): Promise<void> {
     const passwordReset = this.createPasswordReset(user, email);
     const passwordResetLink = this.createPasswordResetLink(passwordReset);
@@ -236,15 +265,46 @@ export class UserService {
 
   createPasswordResetLink(passwordReset: PasswordReset): string {
     const baseUrl = this.configService.get<string>('CLIENT_URL');
-    return baseUrl + '/new-password-on-reset/?token=' + passwordReset.token;
+    return baseUrl + '/new-password-on-reset?token=' + passwordReset.token;
   };
 
   sendPasswordResetEmail(email: string, passwordResetLink: string): void {
-    console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
+    // console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
     const msg = 'Use the following link to reset your password: ' + passwordResetLink;
     const htmlMsg = 'Use the following link to reset your password: <a href="' + passwordResetLink + '"> Reset Password</a>';
-    
+   
     sendEmail(email, 'Pedal Assistant Password Reset', msg, htmlMsg);
+  };
+
+  async initiateEmailVerify(user: User, email: string): Promise<void> {
+    const emailVerify = this.createEmailVerify(user, email);
+    this.sendEmailVerifyEmail(email, emailVerify.code);
+  }
+
+  createEmailVerify(user: User, email: string): EmailVerify {
+    const code = this.createSixDigitCode();
+    const now = new Date();
+    const tenMinutesInMilliseconds = 10*60*1000;
+    const expirationDate = new Date(now.getTime() + tenMinutesInMilliseconds);
+    const emailVerify = new EmailVerify(user, code, expirationDate);
+    console.log('emailVerify', 'Creating email verify for:'+ JSON.stringify(emailVerify));
+    this.emailVerifyRepository.save(emailVerify);
+    return emailVerify;
+  }
+
+  createSixDigitCode(): string {
+    const basis = randomInt(1000001, 9999999);
+    // console.log('random basis:'+ basis);
+    const basisString = basis.toString();
+    return basisString.substring(1, 7);
+  }
+
+  sendEmailVerifyEmail(email: string, code: string): void {
+    // console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
+    const msg = 'Your email verification code is: ' + code + '.';
+    const htmlMsg = 'Your email verification code is: ' + code + '.  ';
+    
+    sendEmail(email, 'Pedal Assistant Verify Email', msg, htmlMsg);
   };
 
 };

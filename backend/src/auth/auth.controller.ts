@@ -110,6 +110,20 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @Post('verify-email')
+  requestVerifyEmail(@Body("username") username: string) {
+    console.log('auth/request-verify-email: ' + username);
+    return this.authService.requestVerifyEmail(username);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('verify-email-code')
+  verifyEmailCode(@Body("code") code: string): Promise<boolean> {
+    console.log('auth/verify-email-code: ' + code);
+    return this.authService.verifyEmailCode(code);
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Public()
   @Post('reset-password')
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {

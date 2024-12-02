@@ -30,9 +30,16 @@ class AppController {
     return this._appContext.getJwtTokenPromise();
   }
 
-  getBikes = async (session: any, username: string): Promise<Bike[] | null> => {
-    const result =  getBikes(session, username);
+  getAllBikes = async (session: any, username: string): Promise<Bike[] | null> => {
+    return getBikes(session, username);
+  }
+
+  getCurrentBikes = async (session: any, username: string): Promise<Bike[] | null> => {
+    const result = await getBikes(session, username);
     console.log('get bikes result: ', result);
+    if (result) {
+      return result.filter(bike => bike.isRetired === false);
+    }
     return result;
   }
 

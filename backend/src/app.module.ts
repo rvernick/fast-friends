@@ -21,6 +21,7 @@ import { Step } from './instruction/step.entity';
 import { Instruction } from './instruction/instruction.entity';
 import { InstructionReference } from './instruction/instruction-reference.entity';
 import { InstructionModule } from './instruction/instruction.module';
+import { EmailVerify } from './user/email-verify.entity';
 
 @Module({
   imports: [
@@ -50,7 +51,8 @@ import { InstructionModule } from './instruction/instruction.module';
           MaintenanceHistory,
           PasswordReset, Notification,
           BatchProcess,
-          Instruction, Step, ToolNeed, Tool, InstructionReference],
+          Instruction, Step, ToolNeed, Tool, InstructionReference,
+          EmailVerify],
         synchronize: true,
       }),
     }),

@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { tabBarIconSize } from "@/common/styles";
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
 
@@ -13,7 +14,7 @@ export default function SignInSignUp() {
           title: "Sign In",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="login" color={color} />
+            <MaterialCommunityIcons size={tabBarIconSize} name="login" color={color} />
           ),
         }}
       />
@@ -23,7 +24,7 @@ export default function SignInSignUp() {
           title: "Sign Up",
           headerShown: true,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account-plus" color={color} />
+            <MaterialCommunityIcons size={tabBarIconSize} name="account-plus" color={color} />
           ),
         }}
       />
@@ -33,7 +34,7 @@ export default function SignInSignUp() {
           title: "Support",
           headerShown: true,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account-plus" color={color} />
+            <MaterialCommunityIcons size={tabBarIconSize} name="account-plus" color={color} />
           ),
         }}
       />
@@ -43,10 +44,21 @@ export default function SignInSignUp() {
           title: "Privacy",
           headerShown: true,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account-plus" color={color} />
+            <MaterialCommunityIcons size={tabBarIconSize} name="account-plus" color={color} />
           ),
         }}
-      />      
+      />
+      <Tabs.Screen
+        name="wait-for-verification"
+        options={{
+          href: null,
+          title: "Waiting",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
