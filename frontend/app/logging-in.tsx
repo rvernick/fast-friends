@@ -29,7 +29,7 @@ export default function LoggingIn() {
     }
     if (!user.emailVerified) {
       console.log('waiting for email verification');
-      router.replace('/wait-for-verification');
+      router.replace('/(sign-in-sign-up)/wait-for-verification');
       return;
     }
     if (await unconfiguredAccount(user)) {

@@ -136,9 +136,18 @@ export class UserService {
     user.stravaRefreshToken = stravaAuthDto.stravaRefreshToken;
     console.log('setting stravaId: ' + user.stravaId);
     console.log('setting userWith: ' + JSON.stringify(stravaAuthDto));
+
+    if (!user.firstName || user.firstName.length == 0) {
+      user.firstName = athlete.firstname;
+    }
+    if (!user.lastName || user.lastName.length == 0) {
+      user.lastName = athlete.lastname;
+    }
+    if (athlete.measurement_preference && athlete.measurement_preference == "meters") {
+      user.units = Units.KM;
+    }
     this.usersRepository.save(user);
 
-    this.logger.log('info', 'Syncing user:'+ JSON.stringify(user));
     console.log('bikes: ' + JSON.stringify(athlete.bikes));
     for (const bike of athlete.bikes) {
       const existingBike = this.findMatchingBike(bike, user.bikes);
