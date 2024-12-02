@@ -230,6 +230,22 @@ export class UserService {
     }
   }
 
+  async testEmailSend(code: string): Promise<boolean> {
+    if (code !== 'TEST_EMAIL_CODE') return false;
+    const email = 'rvernick@yahoo.com';
+    const msg = 'Your email verification code is: ' + code + '.';
+    const htmlMsg = 'Your email verification code is: ' + code + '.  ';
+    if (sendEmail(email, 'Pedal Assistant Password Reset', msg, htmlMsg)) {
+      console.log('Test email sent successfully');
+      return true;
+    } else {
+      console.log('Test email failed to send ');
+      return false;
+    }
+
+    return true;
+  }
+
   async verifyEmailCode(code: string): Promise<boolean> {
     const emailVerify = await this.emailVerifyRepository.findOne({
       where: {

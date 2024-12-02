@@ -124,6 +124,14 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @Post('test-email-send')
+  @Public()
+  testEmailSend(@Body("code") code: string): Promise<boolean> {
+    console.log('auth/test-email-send: ' + code);
+    return this.authService.testEmailSend(code);
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Public()
   @Post('reset-password')
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
