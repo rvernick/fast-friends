@@ -3,13 +3,17 @@ import { UserService } from './user.service';
 import { Bike } from '../bike/bike.entity';
 import { User } from './user.entity';
 
+const dummyService = () => {
+  return new UserService(null, null, null, null, null, null);
+}
+
 describe('UserService', () => {
   it('should be defined but isnt', () => {
   });
 
   it("should return null when the bike parameter is null", () => {
     // Arrange
-    const service = new UserService(null, null, null, null, null);
+    const service = dummyService();
     const bikes: Bike[] = [
       { stravaId: "1", name: "Bike 1" } as Bike,
       { stravaId: "2", name: "Bike 2" } as Bike,
@@ -24,7 +28,7 @@ describe('UserService', () => {
 
   it('should return null when no bike with matching stravaId or name is found', () => {
     // Arrange
-    const service = new UserService(null, null, null, null, null);
+    const service = dummyService();
     const bikeToMatch = { id: "4", name: "Nonexistent Bike" };
     const bikes: Bike[] = [
       { stravaId: "1", name: "Bike 1" } as Bike,
@@ -40,7 +44,7 @@ describe('UserService', () => {
 
   it('should handle case where bike name is an empty string and not match', () => {
     // Arrange
-    const service = new UserService(null, null, null, null, null);
+    const service = dummyService();
     const bikeToMatch = { id: "3", name: "" };
     const bikes: Bike[] = [
       { stravaId: "1", name: "Bike 1" } as Bike,
@@ -56,7 +60,7 @@ describe('UserService', () => {
 
   it('should return the matching bike when a bike with matching name (case insensitive) is found', () => {
     // Arrange
-    const service = new UserService(null, null, null, null, null);
+    const service = dummyService();
     const bikeToMatch = { id: "5", name: "bike 2" };
     const bikes: Bike[] = [
       { stravaId: "1", name: "Bike 1" } as Bike,
@@ -72,7 +76,7 @@ describe('UserService', () => {
 
   it('a new strava bike should have maintenance items', () => {
     // Arrange
-    const service = new UserService(null, null, null, null, null);
+    const service = dummyService();
     const user = new User('username', 'password');
     const stravaBike = {
       name: 'Test Bike',
@@ -88,7 +92,19 @@ describe('UserService', () => {
     expect(bike.maintenanceItems).toBeTruthy();
     expect(bike.maintenanceItems.length).toBeGreaterThan(4);
   });
+
+  it('create random six-digit code', () => {
+    var tries = 0;
+    const service = dummyService();
+    while (tries++ < 100) {
+      var code = service.createSixDigitCode();
+      // console.log(code);
+      expect(code).toHaveLength(6);
+      expect(code).toMatch(/^[0-9]+$/);
+    }
+  });
 });
+
 
 // describe('UsersService', () => {
 //   let service: UsersService;

@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { defaultMaintenanceItems } from '../bike/maintenance-item.entity';
 import { sendEmail } from '../utils/utils';
 import { EmailVerify } from './email-verify.entity';
+import { randomInt } from 'crypto';
 
 @Injectable()
 export class UserService {
@@ -220,19 +221,20 @@ export class UserService {
     }
   }
 
-  async verifyEmailToken(token: string): Promise<void> {
+  async verifyEmailCode(code: string): Promise<boolean> {
     const emailVerify = await this.emailVerifyRepository.findOne({
       where: {
-        token: token,
+        code: code,
       },
     });
     if (emailVerify!= null
       && emailVerify.expiresOn > new Date()) {
         const user = emailVerify.user;
-        this.logger.log('emailVerify', 'Verifying email for:'+ JSON.stringify(emailVerify));
         user.emailVerified = true;
         this.usersRepository.save(user);
+        return true;
     }
+    new Error('Invalid code');
   }
 
   async initiatePasswordReset(user: User, email: string): Promise<void> {
@@ -267,30 +269,31 @@ export class UserService {
 
   async initiateEmailVerify(user: User, email: string): Promise<void> {
     const emailVerify = this.createEmailVerify(user, email);
-    const emailVerifyLink = this.createEmailVerifyLink(emailVerify);
-    this.logger.log('reset link: ' + emailVerifyLink);
-    this.sendEmailVerifyEmail(email, emailVerifyLink);
+    this.sendEmailVerifyEmail(email, emailVerify.code);
   }
 
-  createEmailVerify(user: User, email: string): PasswordReset {
-    const token = createToken(user);
+  createEmailVerify(user: User, email: string): EmailVerify {
+    const code = this.createSixDigitCode();
     const now = new Date();
     const tenMinutesInMilliseconds = 10*60*1000;
     const expirationDate = new Date(now.getTime() + tenMinutesInMilliseconds);
-    const emailVerify = new EmailVerify(user, token, expirationDate);
+    const emailVerify = new EmailVerify(user, code, expirationDate);
+    console.log('emailVerify', 'Creating email verify for:'+ JSON.stringify(emailVerify));
     this.emailVerifyRepository.save(emailVerify);
     return emailVerify;
   }
 
-  createEmailVerifyLink(passwordReset: PasswordReset): string {
-    const baseUrl = this.configService.get<string>('CLIENT_URL');
-    return baseUrl + '/email-verify?token=' + passwordReset.token;
-  };
+  createSixDigitCode(): string {
+    const basis = randomInt(1000001, 9999999);
+    // console.log('random basis:'+ basis);
+    const basisString = basis.toString();
+    return basisString.substring(1, 7);
+  }
 
-  sendEmailVerifyEmail(email: string, emailVerifyLink: string): void {
+  sendEmailVerifyEmail(email: string, code: string): void {
     console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
-    const msg = 'Use the following link to verify your email ' + emailVerifyLink;
-    const htmlMsg = 'Use the following link to verify your email: <a href="' + emailVerifyLink + '"> Verify Email</a>';
+    const msg = 'Your email verification code is: ' + code + '.';
+    const htmlMsg = 'Your email verification code is: ' + code + '.  ';
     
     sendEmail(email, 'Pedal Assistant Verify Email', msg, htmlMsg);
   };

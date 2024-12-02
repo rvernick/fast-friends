@@ -117,11 +117,10 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('verify-email-token')
-  @Public()
-  verifyEmail(@Body("token") token: string) {
-    console.log('auth/verify-email-token: ' + token);
-    return this.authService.verifyEmailToken(token);
+  @Post('verify-email-code')
+  verifyEmailCode(@Body("code") code: string): Promise<boolean> {
+    console.log('auth/verify-email-code: ' + code);
+    return this.authService.verifyEmailCode(code);
   }
 
   @HttpCode(HttpStatus.OK)

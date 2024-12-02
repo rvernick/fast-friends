@@ -128,9 +128,9 @@ export class AuthService {
     }
     this.userService.initiateEmailVerify(user, email);
   }
-
-  async verifyEmailToken(token: string) {
-    this.userService.verifyEmailToken(token);
+  
+  async verifyEmailCode(code: string): Promise<boolean> {
+    return this.userService.verifyEmailCode(code);
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {

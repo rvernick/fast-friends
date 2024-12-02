@@ -265,7 +265,7 @@ const MaintenanceComponent = () => {
                   sortBy={sortOption}
                   isOpen={true}
                   // isOpen={bike.id === expandedBike}
-                  key={bike.id}/>
+                  key={"bikeAccordian" + bike.id}/>
               ))}
             </List.Section>
         </ScrollView>

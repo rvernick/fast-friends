@@ -21,9 +21,9 @@ export const createToken = (user: User): string => {
 
 @Entity()
 export class EmailVerify {
-  constructor(aUser: User, aToken: string, anExpiration: Date) {
+  constructor(aUser: User, aCode: string, anExpiration: Date) {
     this.user = aUser;
-    this.token = aToken;
+    this.code = aCode;
     this.expiresOn = anExpiration;
   }
 
@@ -33,8 +33,9 @@ export class EmailVerify {
   @Column({
     type: 'varchar',
     nullable: false,
+    default: '000000',
   })
-  token: string;
+  code: string;
 
   @ManyToOne((type) => User, { nullable: false, cascade: false, eager: true })
   user: User;
