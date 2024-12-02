@@ -175,7 +175,7 @@ export const LoginComponent = () => {
                   autoCapitalize="none"
                   onChangeText={updatePassword}
                   onSubmitEditing={loginSubmit}
-                  value={password}                  
+                  value={password}
                   right={<TextInput.Icon icon="eye" onPress={() => setPasswordHidden(!passwordHidden)}/>}
                   testID="passwordInput"
                   accessibilityLabel="password input"
