@@ -43,12 +43,6 @@ export class EmailVerify {
   @Column({ name: 'expires_on' })
   expiresOn: Date;
 
-  @DeleteDateColumn({ name: 'deleted_on' })
-  deletedOn: boolean;
-
   @CreateDateColumn({ name: 'created_on' })
   createdOn: Date;
-
-  @UpdateDateColumn({ name: 'updated_on' })
-  updatedOn: Date;
 }
