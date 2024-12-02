@@ -269,7 +269,7 @@ export class UserService {
   };
 
   sendPasswordResetEmail(email: string, passwordResetLink: string): void {
-    console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
+    // console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
     const msg = 'Use the following link to reset your password: ' + passwordResetLink;
     const htmlMsg = 'Use the following link to reset your password: <a href="' + passwordResetLink + '"> Reset Password</a>';
    
@@ -300,7 +300,7 @@ export class UserService {
   }
 
   sendEmailVerifyEmail(email: string, code: string): void {
-    console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
+    // console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
     const msg = 'Your email verification code is: ' + code + '.';
     const htmlMsg = 'Your email verification code is: ' + code + '.  ';
     
