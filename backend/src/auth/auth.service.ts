@@ -133,6 +133,10 @@ export class AuthService {
     return this.userService.verifyEmailCode(code);
   }
 
+  async testEmailSend(code: string): Promise<boolean> {
+    return this.userService.testEmailSend(code);
+  }
+
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     this.userService.resetPassword(
       resetPasswordDto.token,

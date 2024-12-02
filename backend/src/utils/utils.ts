@@ -11,7 +11,7 @@ export const sendEmail = (email: string,
   try {
   const sgMail = require('@sendgrid/mail');
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  // console.log('info', email + ' sending with key:' + process.env.SENDGRID_API_KEY);
+  console.log('info', email + ' sending with key:' + process.env.SENDGRID_API_KEY);
   const msg = {
     to: email,
     from: from,
@@ -22,7 +22,7 @@ export const sendEmail = (email: string,
   return sgMail
     .send(msg)
     .then(() => {
-      logger.log('Email sent to'+ email);
+      logger.log('Email sent to '+ email);
       return true;
     })
     .catch((error) => {
