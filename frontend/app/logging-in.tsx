@@ -27,11 +27,11 @@ export default function LoggingIn() {
       router.replace('/(sign-in-sign-up)/(sign-in)/sign-in');
       return;
     }
-    if (!user.emailVerified) {
-      console.log('waiting for email verification');
-      router.replace('/(sign-in-sign-up)/wait-for-verification');
-      return;
-    }
+    // if (!user.emailVerified) {
+    //   console.log('waiting for email verification');
+    //   router.replace('/(sign-in-sign-up)/wait-for-verification');
+    //   return;
+    // }
     if (await unconfiguredAccount(user)) {
       console.log('redirecting to settings');
       router.replace('/(home)/(settings)/settings');
