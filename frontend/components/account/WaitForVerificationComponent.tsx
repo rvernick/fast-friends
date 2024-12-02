@@ -82,8 +82,9 @@ export const WaitForVerificationComponent = () => {
     <Surface style={useStyle.container}>
       <Card mode="contained" style={useStyle.containerCentered} >
         <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
-        <Text style={{textAlign: "center"}}>Wwwwwelcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
+        <Text style={{textAlign: "center"}}>Welcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
         <Text style={{textAlign: "center"}}>We'll think about your bike needs so you don't have to</Text>
+        <Text style={{textAlign: "center"}}>If you have any difficulty, contact us: support@pedal-assistant.com</Text>
         <Text> </Text>
         <Text style={{textAlign: "center"}}>Check your email for a verification code.  Enter the code.</Text>
         <Text> </Text>
@@ -101,7 +102,7 @@ export const WaitForVerificationComponent = () => {
           accessibilityHint="Enter the verification code you received in your email"
           />
           <HelperText type={'error'} visible={showError}>Incorrect Verification Code</HelperText>
-        <Button onPress={submitCode}> Submit </Button>
+        <Button onPress={submitCode} mode="contained"> Submit </Button>
         <Text> </Text>
         <Button onPress={startEmailVerification}> Resend Verification Code </Button>
       </Card>
