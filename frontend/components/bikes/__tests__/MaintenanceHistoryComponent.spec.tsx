@@ -61,7 +61,7 @@ describe('Maintenance History Component', () => {
     console.log("rendered: Basic render");
     const bikeNameCell = await screen.findByTestId('bikeCell: 0-text-container');
     console.log("bikeNameCell: " + bikeNameCell);
-    const bikeDropdown = await screen.findByText('First');
+    const bikeDropdown = screen.getByText('First');
     console.log("bikeDropdown: " + bikeDropdown);
     const listItem = screen.getByText('Third');
     console.log("listItem: " + listItem.type);
