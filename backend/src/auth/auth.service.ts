@@ -40,6 +40,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     this.userService.createUser(username, pass);
+    this.requestVerifyEmail(username);
   }
 
   async changePassword(username: string, oldPassword: string, newPassword: string): Promise<string> {

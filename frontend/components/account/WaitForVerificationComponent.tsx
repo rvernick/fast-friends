@@ -66,6 +66,7 @@ export const WaitForVerificationComponent = () => {
         console.log('verification successful');
         router.replace('/logging-in');
       } else {
+        console.log('verification failed');
         setShowError(true);
       }
     }
@@ -88,10 +89,11 @@ export const WaitForVerificationComponent = () => {
         <Text> </Text>
         <Text style={{textAlign: "center"}}>Check your email for a verification code.  Enter the code.</Text>
         <Text> </Text>
+        <Card style={{height: 150, margin: 12, borderWidth: 1, padding: 10,}}>
         <TextInput
           label="Verification Code"
           value={code}
-          style={{textAlign: "center"}} 
+          multiline={false}
           onChangeText={updateCode}
           mode="outlined"
           keyboardType="number-pad"
@@ -103,6 +105,7 @@ export const WaitForVerificationComponent = () => {
           />
           <HelperText type={'error'} visible={showError}>Incorrect Verification Code</HelperText>
         <Button onPress={submitCode} mode="contained"> Submit </Button>
+        </Card>
         <Text> </Text>
         <Button onPress={startEmailVerification}> Resend Verification Code </Button>
       </Card>

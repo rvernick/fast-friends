@@ -54,6 +54,7 @@ export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readon
           options={options}
           value={value}
           onSelect={handleSelect}
+          testID="BikeDropdown"
         />
     )
   }
