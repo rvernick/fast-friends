@@ -30,7 +30,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.pedal_assistant",
-      "versionCode": 6
+      "versionCode": 7
     },
     "web": {
       "bundler": "metro",
