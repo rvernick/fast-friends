@@ -61,6 +61,7 @@ describe('Maintenance History Component', () => {
     console.log("rendered: Basic render");
     const bikeNameCell = await screen.findByTestId('bikeCell: 0-text-container');
     console.log("bikeNameCell: " + bikeNameCell);
+    const bikeDropdown = await screen.findByText('First')
     await waitFor(() => {
       const distanceHeader = screen.getByTestId('distanceHeader');
       expect(distanceHeader).toBeEnabled();
