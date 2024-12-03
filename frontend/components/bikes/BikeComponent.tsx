@@ -3,7 +3,7 @@ import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
-import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface, Text } from "react-native-paper";
+import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface, Text, Tooltip } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
 import { displayStringToMeters, ensureString, fetchUser, isMobile, metersToDisplayString } from "@/common/utils";
@@ -245,11 +245,13 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
           status={isElectronic ? "checked" : "unchecked"} 
           onPress={values => setIsElectronic(!isElectronic)}
           accessibilityLabel="Has Electric Assist"/>
-        <Checkbox.Item label="Retired"
-          disabled={readOnly}
-          status={isRetired ? "checked" : "unchecked"} 
-          onPress={values => setIsRetired(!isRetired)}
-          accessibilityLabel="Bike is Retired"/>
+        <Tooltip title={"Retired: No longer in use.  Suspend maintenance tracking"}>
+          <Checkbox.Item label="Retired"
+            disabled={readOnly}
+            status={isRetired ? "checked" : "unchecked"} 
+            onPress={values => setIsRetired(!isRetired)}
+            accessibilityLabel="Bike is Retired"/>
+        </Tooltip>
         </Card>
         <Card>
           <Button mode="contained"

@@ -4,7 +4,7 @@ import { useGlobalContext } from '@/common/GlobalContext';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { Text, Surface, DataTable, ActivityIndicator } from 'react-native-paper';
 import { useSession } from '@/ctx';
-import { Dimensions, ScrollView, View } from 'react-native';
+import { Dimensions } from 'react-native';
 import { createStyles, styles } from '@/common/styles';
 import { ensureString, isMobile, metersToDisplayString } from '@/common/utils';
 import { BikeDropdown } from '../common/BikeDropdown';
@@ -34,7 +34,7 @@ const MaintenanceHistoryComponent = () => {
 
   const { data: bikes, error: bikesError, isFetching: bikesFetching } = useQuery({
     queryKey: ['bikes'],
-    queryFn: () => controller.getBikes(session, email),
+    queryFn: () => controller.getAllBikes(session, email),
     initialData: [],
     refetchOnWindowFocus: 'always',
     refetchOnReconnect: 'always',
