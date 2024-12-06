@@ -39,7 +39,7 @@ export class AuthService {
       this.logger.log('info', 'attempted to create duplicate: ' + username);
       throw new UnauthorizedException();
     }
-    this.userService.createUser(username, pass);
+    const newUser = await this.userService.createUser(username, pass);
     this.requestVerifyEmail(username);
   }
 
@@ -124,8 +124,8 @@ export class AuthService {
   async requestVerifyEmail(email: string) {
     const user = await this.userService.findUsername(email.toLocaleLowerCase());
     if (user == null) {
-      this.logger.log('info', 'failed reset password attempt:' + email + ' ' + user);
-      throw new UnauthorizedException();
+      this.logger.log('info', 'failed email verify request' + email + ' ' + user);
+      return;
     }
     this.userService.initiateEmailVerify(user, email);
   }

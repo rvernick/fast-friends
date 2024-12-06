@@ -54,9 +54,10 @@ export class UserService {
     return result;
   }
 
-  createUser(username: string, password: string) {
+  async createUser(username: string, password: string): Promise<User> {
     const newUser = createNewUser(username.toLocaleLowerCase(), password);
     this.usersRepository.insert(newUser);
+    return newUser;
   }
 
   updatePassword(user: User, newPassword: string) {
