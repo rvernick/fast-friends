@@ -10,13 +10,16 @@ type ActionDropdownProps = {
   onSelect: (value: string) => void;
   useAll?: boolean;
   actions?: string[];
+  testID?: string;
 };
 
 export const ActionDropdown: React.FC<ActionDropdownProps> = ({ 
     value,
     readonly=false,
     onSelect,
-    actions=defaultOptions}) => {
+    actions=defaultOptions,
+    testID="actionDropdown"
+  }) => {
   
   const options = Object.entries(actions).map(([key, val]) => ({ label: val, value: val }));
 
@@ -35,7 +38,7 @@ export const ActionDropdown: React.FC<ActionDropdownProps> = ({
       options={options}
       value={value}
       onSelect={handleSelect}
-      testID="ActionDropdown"
+      testID={testID}
     />
   );
 }
