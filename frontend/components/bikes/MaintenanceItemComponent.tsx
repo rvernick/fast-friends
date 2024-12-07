@@ -11,6 +11,8 @@ import MaintenanceItemController from "./MaintenanceItemController";
 import { Action, MaintenanceItem, Part } from "@/models/MaintenanceItem";
 import { BooleanDropdown } from "../common/BooleanDropdown";
 import { BikeDropdown } from "../common/BikeDropdown";
+import { PartDropdown } from "../common/PartDropdown";
+import { ActionDropdown } from "../common/ActionDropdown";
 
 const groupsetBrands = [
   'Shimano',
@@ -80,10 +82,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const [defaultLongevity, setDefaultLongevity] = useState('1500');
   const [autoAdjustLongevity, setAutoAdjustLongevity] = useState(true);
 
-  const partOptions = Object.entries(Part).map(([key, val]) => ({ label: val, value: val }));
-  const [availabileParts, setAvailabileParts] = useState(partOptions);
-
-  const actionOptions = Object.entries(Action).map(([key, val]) => ({ label: val, value: val }));
+  const actionOptions = Object.entries(Action).map(([key, val]) => (val));
   const [availabileActions, setAvailableActions] = useState(actionOptions);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -183,36 +182,6 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
     }
   }
 
-  const updatePartsList = (thisBike: Bike) => {
-    const result: any[] = [];
-    const names = Object.values(Part);
-    const keys = Object.keys(Part);
-    // console.log('Update parts for bike: ', JSON.stringify(bike));
-    var substitutePartIfNeeded = '';
-    var isSubstitutePartNeeded = false;
-    for (const possible in Object.values(Part)) {
-      var unused = true;
-      for (const mi of thisBike.maintenanceItems) {
-        if (mi.id !== maintenanceId && (possible == mi.part || names[possible] == mi.part)) {
-          unused = false;
-          if (!part || part.length === 0 || part === names[possible]) {
-            isSubstitutePartNeeded = true;
-          }
-        }
-      }
-      if (unused) {
-        result.push({ label: names[possible], value: names[possible] });
-        if (substitutePartIfNeeded == '') {
-          substitutePartIfNeeded = names[possible];
-        }
-      }
-    }
-    setAvailabileParts(result);
-    if (isSubstitutePartNeeded) {
-      console.log('Setting substitute part: ', substitutePartIfNeeded);
-      setPart(substitutePartIfNeeded);
-    }
-  }
 
   // if MI is already set, then we don't need to update the parts or actions list  They should be read-only
   const updateActionsList = (bike: Bike, selectedPart: string) => {
@@ -220,7 +189,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
 
     const unusedActions = getUnusedActions(bike, selectedPart);
     const actionOptions = unusedActions.map(act => ({ label: act, value: act }))
-    setAvailableActions(actionOptions);
+    setAvailableActions(unusedActions);
     // console.log('Unused actions for part: ', selectedPart, JSON.stringify(unusedActions));
     // console.log('All actions: ' + JSON.stringify(Action));
     // console.log('current action for part: ', action);
@@ -400,26 +369,17 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           value={bikeIdString}
           readonly={readOnly || !isNew}
           onSelect={selectBike} />
-        <Dropdown
-          label="Part"
+        <PartDropdown
           value={part}
-          disabled={readOnly || !isNew}
-          mode="outlined"
-          placeholder='Select Part'
-          options={availabileParts}
+          readonly={readOnly || !isNew}
           onSelect={partSelected}
-          testID="partDropdown"
-        />
-        <Dropdown
-          label="Action"
+          />
+        <ActionDropdown
           value={action}
-          disabled={readOnly || !isNew}
-          mode="outlined"
-          placeholder='Select Action'
-          options={availabileActions}
+          readonly={readOnly || !isNew}
+          actions={availabileActions}
           onSelect={actionSelected}
-          testID="actionDropdown"
-        />
+          />
         <TextInput 
           label={dueDistanceLabel}
           value={dueMiles.toString()}

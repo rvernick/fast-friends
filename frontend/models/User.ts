@@ -15,3 +15,16 @@ export enum Units {
   KM = "km",
   MILES = "miles",
 }
+
+export const blankUser = () => {
+  return {
+    username: '',
+    emailVerified: false,
+    firstName: '',
+    lastName: '',
+    cellPhone: '',
+    stravaId: '',
+    bikes: [],
+    units: Units.MILES,
+  };
+};

@@ -100,3 +100,16 @@ export const getBaseUrl = (url: string): string => {
     return '';
   }
 }
+
+export const isLoggedIn = async (session: any): Promise<boolean> => {
+  if (session === null) {
+      console.log('get Requests has no context: ');
+      return false;
+    }
+    const jwtToken = await session.jwt_token;
+    if (jwtToken == null) {
+      console.log('get requests has no token dying: ' );
+      return false;
+    }
+    return true;
+}
