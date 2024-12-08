@@ -11,7 +11,7 @@ class MaintenanceItemController extends AppController {
     super(appContext);
   }
 
-  getMaintenanceItem = (session: any, maintenanceId: number, username: string, appContext: AppContext): Promise<MaintenanceItem | null>=> {
+  getMaintenanceItem = (session: any, maintenanceId: number, username: string): Promise<MaintenanceItem | null>=> {
     return getMaintenanceItem(session, maintenanceId, username);
   }
 

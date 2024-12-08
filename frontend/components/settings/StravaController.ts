@@ -59,7 +59,7 @@ class StravaController extends AppController {
   async saveStravaCode(session: any, appContext: AppContext, stravaCode: string) {
     console.log('saveStravaCode:'+ stravaCode);
     appContext.put('stravaCode ', stravaCode);
-    const username = appContext.getEmail();
+    const username = session.email;
     try {
       const body = {
         username: username,

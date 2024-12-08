@@ -141,7 +141,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
 
   useEffect(() => {
     if (!isInitialized) {
-      controller.getBike(session, bikeId, email, appContext).then(bike => {
+      controller.getBike(session, bikeId, email).then(bike => {
         if (bike != null) {
           resetBike(bike);
           setIsInitialized(true);
@@ -191,7 +191,6 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     return false;
   }
 
-  
   const groupsetOptions = groupsetBrands.map(brand => ({ label: brand, value: brand }));
   const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
   const typeOptions = types.map(type => ({ label: type, value: type }));

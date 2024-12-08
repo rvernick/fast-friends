@@ -9,6 +9,8 @@ import { createStyles, styles } from '@/common/styles';
 import { isMobile } from '@/common/utils';
 import InstructionController from './InstructionController';
 import { Instruction, Step } from '@/models/Instruction';
+import { PartDropdown } from '../common/PartDropdown';
+import { ActionDropdown } from '../common/ActionDropdown';
 
 type InstructionProps = {
   part: string;
@@ -171,16 +173,14 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
     return (
       <Surface style={useStyle.containerScreen}>
         <Surface style={useStyle.topButtons}>
-          <Dropdown 
-              value={partOption}
-              options={partOptions}
-              onSelect={updatePartOption}
-              />    
-            <Dropdown 
-              value={actionOption}
-              options={actionOptions}
-              onSelect={updateActionOption}
-              />
+          <PartDropdown
+            value={partOption}
+            onSelect={updatePartOption}
+            />
+          <ActionDropdown
+            value={actionOption}
+            onSelect={updateActionOption}
+            />
             <DifficultyIcon instruction={instruction}/> 
         </Surface>
         <Text variant="titleMedium">Steps:</Text>

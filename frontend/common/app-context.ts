@@ -157,21 +157,6 @@ class AppContext {
     this._jwtTokenExpiration = null;
   }
 
-  private async checkJwtExpiration() {
-    AsyncStorage.getItem('jwtExpiration')
-     .then((value) => {
-      if (value == null) { return; }
-      const expirationDate = new Date(value);
-      const now = new Date();
-      console.log('expirationDate: ' + expirationDate.toString());
-      console.log('now: ' + now.toString());
-      if (now > expirationDate) {
-        this.clearJwtToken();
-        this.clearJwtExpiration();
-      }
-    })
-  }
-
   private async getFromStorage(key: string) {
     let result = null;
     return await AsyncStorage.getItem(key)
@@ -199,18 +184,6 @@ class AppContext {
     const jwtToken = await this.getFromStorage('jwtToken');
     console.log('checking is logged in email: ' + email + 'jwtToken: ' + jwtToken);
     return email != null && email.length > 0 && jwtToken != null;
-  }
-
-  async isLoggedInPromise(): Promise<boolean> {
-    const jwtToken = await this.getJwtTokenPromise();
-    const email = await this.getFromStorage('email');
-    const expiration = await this.getFromStorage('jwtExpiration');
-
-    return Promise.resolve(email != null
-      && email.length > 0
-      && jwtToken != null 
-      && expiration != null 
-      && new Date(expiration) > new Date());
   }
 
   isLoggedIn() {
