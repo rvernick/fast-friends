@@ -264,7 +264,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
     try {
       // console.log('useEffect initialize maintenance item: ', maintenanceId);
       updateLabels();
-      controller.getMaintenanceItem(session, maintenanceId, email, appContext).then(item => {
+      controller.getMaintenanceItem(session, maintenanceId, email).then(item => {
         if (item != null) {
           resetMaintenanceItem(item);
           setIsInitialized(true);

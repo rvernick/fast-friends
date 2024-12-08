@@ -141,7 +141,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
 
   useEffect(() => {
     if (!isInitialized) {
-      controller.getBike(session, bikeId, email, appContext).then(bike => {
+      controller.getBike(session, bikeId, email).then(bike => {
         if (bike != null) {
           resetBike(bike);
           setIsInitialized(true);
