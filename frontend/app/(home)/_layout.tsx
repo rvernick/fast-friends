@@ -4,6 +4,7 @@ import { Text } from "react-native-paper"
 import { useSession } from "@/ctx";
 import { useState } from "react";
 import { tabBarIconSize } from "@/common/styles";
+import { isMobile } from "@/common/utils";
 
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
@@ -40,6 +41,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="(assistance)"
+        options={{
+          title: "Assistance",
+          headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons size={tabBarIconSize} name="notebook-check" color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="(bikes)"
         options={{
           title: "Bikes",
@@ -59,16 +71,18 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-          name="sign-out"
-          options={{
-            title: "Sign Out",
-            headerShown: false,
-            tabBarIcon: ({ color }) => (
-              <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
-            ),
-          }}
-      />
+      {isMobile() ? null :
+        <Tabs.Screen
+            name="sign-out"
+            options={{
+              title: "Sign Out",
+              headerShown: false,
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
+              ),
+            }}
+        />
+        }
     </Tabs>
   );
 }

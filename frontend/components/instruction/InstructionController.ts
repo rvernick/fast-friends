@@ -1,10 +1,9 @@
 import AppContext from "@/common/app-context";
 import AppController from "@/common/AppController";
-import { getInternal } from "@/common/http-utils";
+import { getInternal, isLoggedIn, post } from "@/common/http-utils";
+import { HelpRequest } from "@/models/HelpRequest";
 import { Instruction, Step } from "@/models/Instruction";
 import { Action, Part } from "@/models/MaintenanceItem";
-
-
 
 const createMockInstructions = (): Instruction[] => {
   const result: Instruction[] = [];
@@ -78,7 +77,6 @@ class InstructionController extends AppController {
     }
 
     // Mock data for now
-
     // return Promise.resolve(createMockInstructions().filter(i => i.part === part));
 
     try {
@@ -99,6 +97,55 @@ class InstructionController extends AppController {
       return [];
     }
   }
+
+  async getMyOpenHelpRequests(session: any): Promise<HelpRequest[] | null> {
+    if (!isLoggedIn(session)) return Promise.resolve(null);
+
+    const parameters = {
+      username: session.email,
+    };
+
+    try {
+      const result = await getInternal('/help/my-open-requests', parameters, session.jwt_token);
+      if (result) {
+        return result;
+      } else {
+        console.log('Error getting my open help requests:', result);
+        return null;
+      }
+    } catch(e: any) {
+      console.log(e.message);
+      return null;
+    }
+  }
+
+  async askQuestion(session: any, partOption: string, actionOption: string, needType: string, description: string) {
+    if (!isLoggedIn(session)) return Promise.resolve(null);
+
+    const parameters = {
+      id: 0,
+      username: session.email,
+      part: partOption,
+      action: actionOption,
+      needType: needType,
+      description: description,
+      resolved: false,
+    };
+
+    try {
+      const result = await post('/help/update-or-add-help-request/', parameters, session.jwt_token);
+      if (result) {
+        return result;
+      } else {
+        console.log('Error adding help request:', result);
+        return null;
+      }
+    } catch(e: any) {
+      console.log(e.message);
+      return null;
+    }
+  }
+
 }
 
 export default InstructionController;

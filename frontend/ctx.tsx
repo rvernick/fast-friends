@@ -2,6 +2,7 @@ import { useContext, createContext, type PropsWithChildren, useEffect } from 're
 import { useStorageState } from './useStorageState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { confirmLogin } from './common/utils';
+import { useGlobalContext } from './common/GlobalContext';
 
 export const defaultAuthState = {
   signIn: (jwtToken: string, email: string) => null,
@@ -43,7 +44,7 @@ function LoginConfirmationWrapper({ children }: PropsWithChildren) {
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
     refetchOnMount: true,
-    refetchInterval: 60*1000,
+    refetchInterval: 2*60*1000,
     refetchIntervalInBackground: true,
   });
 

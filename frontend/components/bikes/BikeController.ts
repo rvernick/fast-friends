@@ -10,11 +10,7 @@ class BikeController extends AppController {
     super(appContext);
   }
 
-  getBike = async (session: any, bikeid: number, username: string, appContext: AppContext): Promise<Bike | null>  => {
-    if (appContext === null) {
-      console.log('get bike has no context: ' + username);
-      return Promise.resolve(null);
-    }
+  getBike = async (session: any, bikeid: number, username: string): Promise<Bike | null>  => {
     return getBike(session, bikeid, username);
   }
 
