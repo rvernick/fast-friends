@@ -27,10 +27,7 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
   const controller = new InstructionController(appContext);
 
   const [isInitialized, setIsInitialized] = useState(false);
-  const partOptions = Object.entries(Part).map(([key, val]) => ({ label: val, value: val }));
-  console.log('InstructionComponent part: ', part);
   const [partOption, setPartOption] = useState(part);
-  const actionOptions = Object.entries(Action).map(([key, val]) => ({ label: val, value: val }));
   const [actionOption, setActionOption] = useState(action);
   const [instructions, setInstructions] = useState<Instruction[]>([]);
   const [instruction, setInstruction] = useState<Instruction>();
@@ -49,12 +46,11 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
   }
 
   const initialize = async () => {
-    console.log("Initializing instruction component " + partOption + " - " + actionOption);
+    // console.log("Initializing instruction component " + partOption + " - " + actionOption);
     setIsInitialized(true);
     var selectedPart = partOption;
     var selectedAction = actionOption;
     if (!selectedPart) {
-      console.log("No part selected, defaulting to Chain " + partOption);
       selectedPart = "Chain";
     }
     if (!selectedAction) {
@@ -85,11 +81,11 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
   }
 
   const updateInstructions = async (instructions: Instruction[], part: string, action: string) => {
-    console.log("Updating instructions for part: " + part + " and action: " + action);
-    console.log("Instructions: " + JSON.stringify(instructions));
+    // console.log("Updating instructions for part: " + part + " and action: " + action);
+    // console.log("Instructions: " + JSON.stringify(instructions));
     const nonEmptyInstructions = ensureInstructionsNotEmpty(instructions, part, action);
     var instruction = nonEmptyInstructions.find(i => i.part === part && i.action === action);
-    console.log("Updated instruction: " + JSON.stringify(instruction));
+    // console.log("Updated instruction: " + JSON.stringify(instruction));
     if (!instruction) {   // makes the compiler happy by ensuring not undefined
       instruction = emptyInstruction(part, action);  // not necessary as ensureInstructionsNotEmpty will handle this case already
     }
@@ -105,9 +101,14 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
     return instructions;
   }
 
+  const updatePartAction = async (updatePart: string, updateAction: string) => {
+    setPartOption(updatePart);
+    setActionOption(updateAction);
+    updateInstructions(instructions, updatePart, updateAction);
+  }
 
   const updatePartOption = async (value: string | undefined) => {
-    console.log("updatingPartOption: " + value);
+    // console.log("updatingPartOption: " + value);
     if (!value) {
       return;
     }
@@ -137,14 +138,14 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
   })
 
   const checkForHelpRequest = async (part: string, action: string) => {
-    console.log("Looking for help request for part: " + part + " and action: " + action);
-    console.log("Help requests: " + JSON.stringify(helpRequests));
+    // console.log("Looking for help request for part: " + part + " and action: " + action);
+    // console.log("Help requests: " + JSON.stringify(helpRequests));
     if (helpRequests && helpRequests.length > 0) {
       console.log("No help requests found");
       const helpRequest = helpRequests.find(hr => hr.part === part && hr.action === action);
       if (helpRequest) {
-        console.log("Found help request for part: " + part + " and action: " + action);
-        console.log("Help request: " + JSON.stringify(helpRequest));
+        // console.log("Found help request for part: " + part + " and action: " + action);
+        // console.log("Help request: " + JSON.stringify(helpRequest));
         setNeedType(helpRequest.needType);
         setDescription(helpRequest.description);
         setHelpRequestId(helpRequest.id);
@@ -195,7 +196,7 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
       )
     }
     const difficulty = instruction.difficulty;
-    console.log("Difficulty: " + difficulty);
+    // console.log("Difficulty: " + difficulty);
     var wrenches = 1;
     if (difficulty === "Easy") {
       wrenches = 2;
@@ -221,10 +222,23 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
 
   useEffect(() => {
     navigation.setOptions({ title: 'Instructions' });
+    // console.log("useEffect Part args: " + part + " - Action: " + action);
+    // console.log("useEffect Part state: " + partOption + " - Action: " + actionOption);
+    var updatePart = part;
+    var updateAction = action;
+    if ((action.length > 0 && action != actionOption) || (part.length > 0 && part!= partOption)) {
+      part = '';
+      action = '';
+      updatePartAction(updatePart, updateAction);
+    } else {
+      part = '';
+      action = '';
+    }
+
     if (!isInitialized) {
       initialize();
     }
-  }, []);
+  }, [part, action]);
 
   useEffect(() => {
     checkForHelpRequest(partOption, actionOption);

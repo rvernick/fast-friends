@@ -15,7 +15,6 @@ type PartDropdownProps = {
 export const PartDropdown: React.FC<PartDropdownProps> = ({ value, readonly = false, onSelect, testID="partDropdown" }) => {
   const [selectedValue, setSelectedValue] = useState(value);
   
-  console.log('PartDropdown value: ', value);
   const handleSelect = (value: string | undefined) => {
     if (value) {
       console.log('PartDropdown onSelect: ', value);
@@ -23,11 +22,6 @@ export const PartDropdown: React.FC<PartDropdownProps> = ({ value, readonly = fa
       setSelectedValue(value);
     }
   }
-
-  useEffect(() => {
-    console.log('PartDropdown useEffect: value ', value);
-    console.log('PartDropdown useEffect selected: ', selectedValue);
-  }, []);
 
   return (
     <Dropdown
