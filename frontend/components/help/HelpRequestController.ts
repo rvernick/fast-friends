@@ -39,7 +39,7 @@ class HelpRequestController extends AppController {
     return null;    
   }
 
-  getHelpRequest = async (id: number, session: any): Promise<HelpRequest | null> => {
+  getHelpRequest = async (session: any, id: number): Promise<HelpRequest | null> => {
     if (!isLoggedIn(session)) {
       return Promise.resolve(null);
     }
@@ -54,6 +54,24 @@ class HelpRequestController extends AppController {
       console.log(e.message);
       return Promise.resolve(null);
     }
+    return Promise.resolve(null);
+  };
+
+  addComment = async (session: any, id: number, username: string, comment: string): Promise<HelpRequest | null> => {
+    if (!isLoggedIn(session)) {
+      return Promise.resolve(null);
+    }
+
+    const parameters = {
+      id: id,
+      username: username,
+      comment: comment,
+    };
+    const result = await post('/help/add-comment', parameters, await session.jwt_token);
+    if (result.ok) {
+      return result.json();
+    }
+    return null;
   };
 
 }

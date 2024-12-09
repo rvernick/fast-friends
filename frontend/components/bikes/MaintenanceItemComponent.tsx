@@ -439,7 +439,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           </Button>
           { (!readOnly && !isNew) ? null : <Button 
             mode="outlined"
-            onPress={ () => router.push({pathname: '/(home)/(maintenanceItems)/instructions',  params: {part: part, action: action}}) }
+            onPress={ () => router.push({pathname: '/(home)/(assistance)/instructions',  params: {part: part, action: action}}) }
         >Instructions</Button>}
           { (readOnly || isNew) ? null : <Button 
             mode="contained" onPress={ cancel }

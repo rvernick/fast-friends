@@ -3,10 +3,11 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../user/user.entity";
 import { Repository } from "typeorm";
 import { HelpRequestDto } from "./help-request.dto";
-import { getNeedTypeFor, HelpRequest } from "./help-request.entity";
+import { getNeedTypeFor, HelpComment, HelpRequest } from "./help-request.entity";
 import { UserService } from "../user/user.service";
 import { getPartFor } from "../bike/part";
 import { getActionFor } from "../bike/action";
+import { AddCommentDto } from "./add-comment.dto";
 
 
 @Injectable()
@@ -21,6 +22,9 @@ export class HelpService {
 
   ) {}
 
+  async getHelpRequest(id: number): Promise<HelpRequest | null> {
+    return this.helpRequestRepository.findOneBy({ id });
+  }
 
   async getRecentOpenHelpRequests(limit: number): Promise<HelpRequest[] | null> {
     const queryBuilder = this.helpRequestRepository.createQueryBuilder("helpRequest");
@@ -28,6 +32,19 @@ export class HelpService {
     queryBuilder.orderBy("helpRequest.createdOn", "DESC");
     queryBuilder.limit(limit);
     return this.helpRequestRepository.find();;
+  }
+
+  async getOpenHelpRequests(username: string): Promise<HelpRequest[] | null> {
+    const user = await this.userService.findUsername(username);
+    if (user == null) {
+      this.logger.log('User not found: ', username);
+      return Promise.resolve(null);
+    }
+    const queryBuilder = this.helpRequestRepository.createQueryBuilder("helpRequest");
+    queryBuilder
+      .where("helpRequest.user_id = :id", { id: user.id })
+      .andWhere("helpRequest.resolved = false");
+    return queryBuilder.getMany();
   }
 
   async addOrUpdate(helpRequestDto: HelpRequestDto): Promise<HelpRequest | null> {
@@ -59,6 +76,30 @@ export class HelpService {
       this.helpRequestRepository.save(request);
     } catch (error) {
       console.error('Error updating or adding help request: ', error);
+      return null;
+    }
+  }
+
+  async addHelpRequestComment(addCommentDto: AddCommentDto): Promise<HelpRequest | null> {
+    try {
+      const user = await this.userService.findUsername(addCommentDto.username);
+      if (user == null) {
+        this.logger.log('User not found: ', addCommentDto.username);
+        return null;
+      }
+      const helpRequest = await this.helpRequestRepository.findOneBy({ id: addCommentDto.helpRequestId });
+      if (helpRequest == null) {
+        this.logger.log('Help request not found: ', addCommentDto.helpRequestId);
+        return null;
+      }
+      const comment = new HelpComment();
+      comment.user = user;
+      comment.comment = addCommentDto.comment;
+      helpRequest.comments.push(comment);
+      this.helpRequestRepository.save(helpRequest);
+      return helpRequest;
+    } catch (error) {
+      this.logger.log('Error adding comment to help request: ', error);
       return null;
     }
   }

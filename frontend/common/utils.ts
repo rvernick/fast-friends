@@ -3,7 +3,6 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@/models/User";
-import AppContext from "./app-context";
 
 export const strippedPhone = (formattedPhone: string) => {
   if (!formattedPhone) {
@@ -82,47 +81,41 @@ export async function confirmLogin(session: any): Promise<string> {
   }
 }
 
-export async function login(username: string, password: string, session: any): Promise<string> {
+export async function login(username: string, password: string, session: any) {
   console.log('Logging in... ' + username);
 
   const args = {
     username: username,
     password: password,
   };
-  try {
-    const response = post('/auth/login', args, null);
-    const result = 
-      await response.then(resp => {
-        if (resp.ok) {
-          console.log('resp: ' + resp);
-          // console.log('setting appContext.jwtToken to:'+ resp.json())
-          // console.log('body ' + resp.body);
-          // console.log('json ' + resp.body);
-          resp.json().then(body => {
-            session.signIn(body.access_token, username);
-            console.log('setting appContext.jwtToken to:' + body);
-            console.log('body ' + body.access_token);
-            if (isMobile()) {
-              remember("ff.username", username);
-              remember("ff.password", password);
-            }
-            console.log('setting appContext.email to:'+ username);
-            return '';
-          });
-        } else {
-          console.log('Login failed ' + resp.statusText)
-          return 'Invalid username or password';
-        }
-      })
-      .catch(error => {
-        console.log('Failed to log in ' + error.message);
-        return 'System error';
-      });
-      return result ? result : 'System error';
-  } catch (error) {
-    console.log('Failed to log in: ' + error);
-    return 'System error';
-  }
+  const response = post('/auth/login', args, null);
+  return response
+    .then(resp => {
+      if (resp.ok) {
+        console.log('resp: ' + resp);
+        // console.log('setting appContext.jwtToken to:'+ resp.json())
+        // console.log('body ' + resp.body);
+        // console.log('json ' + resp.body);
+        resp.json().then(body => {
+          session.signIn(body.access_token, username);
+          console.log('setting appContext.jwtToken to:' + body);
+          console.log('body ' + body.access_token);
+          if (isMobile()) {
+            remember("ff.username", username);
+            remember("ff.password", password);
+          }
+          console.log('setting appContext.email to:'+ username);
+          return '';
+        });
+      } else {
+        console.log('Login failed ' + resp.statusText)
+        return 'Invalid username or password';
+      }
+    })
+    .catch(error => {
+      console.log('Failed to log in ' + error.message);
+      return 'System error';
+    });
 };
 
 export const defaultUserPreferences = {

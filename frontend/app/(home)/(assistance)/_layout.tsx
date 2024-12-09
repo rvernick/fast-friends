@@ -9,26 +9,22 @@ export default function Layout() {
       router.back();
     } else {
       console.log("Cannot go back from current screen");
-      router.push('/(home)/(maintenanceItems)/maintenance');
+      router.push('/(home)/(assistance)/instructions');
     }
   }
   
   return (
     <Stack>
-      <Stack.Screen name="maintenance" options={{
-          title: "Maintenance",
+      <Stack.Screen name="instructions" options={{
+          title: "Instructions",
           headerShown: true,
         }} />
-      <Stack.Screen name="[maintenanceid]" options={{
-        title: 'Maintenance Item',
+      <Stack.Screen name="[helpRequest]" options={{
+        title: 'Help Request',
         headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
-      <Stack.Screen name="log-maintenance" options={{
-        title: 'Log Maintenance',
-        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
-      }} />
-      <Stack.Screen name="history" options={{
-        title: 'History',
+      <Stack.Screen name="helpRequests" options={{
+        title: 'Help Requests',
         headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
     </Stack>

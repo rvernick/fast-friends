@@ -10,7 +10,7 @@ import HelpRequestController from './HelpRequestController';
 import { ActionDropdown } from '../common/ActionDropdown';
 import { PartDropdown } from '../common/PartDropdown';
 import { NeedTypeDropdown } from '../common/NeedTypeDropdown';
-import { HelpRequest } from '@/models/HelpRequest';
+import { HelpComment, HelpRequest } from '@/models/HelpRequest';
 import { useSession } from '@/ctx';
 
 type HelpRequestProps = {
@@ -33,6 +33,9 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
   const [needType, setNeedType] = useState("I have a question");
   const [description, setDescription] = useState("");
   const [resolved, setResolved] = useState(false);
+  const [comments, setComments] = useState<HelpComment[]>([]);
+  const [descriptionPlaceholder, setDescriptionPlaceholder] = useState("Enter your question here");
+  const [newComment, setNewComment] = useState("");
 
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
@@ -94,8 +97,34 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
     }
   }
 
+  const addComment = async () => {
+    if (newComment.trim() === '') {
+      return;
+    }
+    const username = session.email? session.email : '';
+    const helpRequest = await controller.addComment(
+      session,
+      id,
+      username,
+      newComment
+    );
+
+    if (helpRequest!= null) {
+      resetHelpRequest(helpRequest);
+    }
+    setNewComment('');
+    refreshComments();
+  }
+
+  const refreshComments = async () => {
+    const helpRequest = await retrieveHelpRequest();
+    if (helpRequest!= null) {
+      setComments(helpRequest.comments);
+    }
+  }
+
   const showInstructions = () => {
-    router.push({pathname: '/(home)/(maintenanceItems)/instructions',  params: {part: partOption, action: actionOption}});
+    router.push({pathname: '/(home)/(assistance)/instructions',  params: {part: partOption, action: actionOption}});
   }
 
   const resetHelpRequest = (helpRequest: HelpRequest) => {
@@ -104,15 +133,18 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
     setNeedType(helpRequest.needType);
     setDescription(helpRequest.description);
     setResolved(helpRequest.resolved);
+    setComments(helpRequest.comments);
+  }
+
+  const retrieveHelpRequest = async (): Promise<HelpRequest | null> => {
+    return await controller.getHelpRequest(session, id);
   }
 
   const initialize = async () => {
-    controller.getHelpRequest(id, sessionStorage)
-      .then(helpRequest => {
-        if (helpRequest != null) {
-          resetHelpRequest(helpRequest);
-        }
-      });
+    const helpRequest = await retrieveHelpRequest();
+    if (helpRequest!= null) {
+      resetHelpRequest(helpRequest);
+    }
     setIsIntialized(true);
     setReadOnly(true);
   }
@@ -135,23 +167,42 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
         <PartDropdown
           value={partOption}
           onSelect={updatePartOption}
+          readonly={true}
         />
         <ActionDropdown
           value={actionOption}
           onSelect={updateActionOption}
+          readonly={true}
         />
       </Surface>
-      <NeedTypeDropdown
-        value={needType}
-        onSelect={updateNeedType}
-      />
-      <TextInput value={description} placeholder="Enter your question here" />
-      <Checkbox.Item
-        label="Resolved"
-        status={resolved ? 'checked' : 'unchecked'}
-        onPress={() => setResolved(!resolved)}
-      />
-
+      <ScrollView style={useStyle.scrollView}>
+        <NeedTypeDropdown
+          value={needType}
+          onSelect={updateNeedType}
+          readonly={readOnly}
+        />
+        <TextInput
+          value={description}
+          onChangeText={(value) => setDescription(value)}
+          placeholder={descriptionPlaceholder}
+          readOnly={readOnly}
+        />
+        <Checkbox.Item
+          label="Resolved"
+          status={resolved ? 'checked' : 'unchecked'}
+          onPress={() => setResolved(!resolved)}
+          disabled={readOnly}
+        />
+        {comments.map((comment, index) => (
+          <View key={index}>
+            <Text>{comment.comment}</Text>
+          </View>
+        ))}
+      </ScrollView>
+      <TextInput
+        value={newComment}
+        onChangeText={(value) => setNewComment(value)} placeholder="Add a comment" />
+      <Button mode="contained" onPress={addComment} disabled={newComment.length === 0}> Add Comment </Button>
       <Card>
         <Button mode="contained"
           onPress={ editOrDone }
