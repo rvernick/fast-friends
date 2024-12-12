@@ -24,7 +24,7 @@ export interface HelpRequest {
   needType: NeedType;
   description: string;
   resolved: boolean;
-  createdOn: Date;
+  createdOn: string;
 }
 
 export interface HelpComment {

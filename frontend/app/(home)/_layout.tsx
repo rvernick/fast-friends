@@ -44,7 +44,7 @@ export default function TabLayout() {
         name="(assistance)"
         options={{
           title: "Assistance",
-          headerShown: true,
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons size={tabBarIconSize} name="notebook-check" color={color} />
           ),

@@ -12,6 +12,7 @@ import { PartDropdown } from '../common/PartDropdown';
 import { NeedTypeDropdown } from '../common/NeedTypeDropdown';
 import { HelpComment, HelpRequest } from '@/models/HelpRequest';
 import { useSession } from '@/ctx';
+import { useQueryClient } from '@tanstack/react-query';
 
 type HelpRequestProps = {
   id: number;
@@ -23,10 +24,12 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
   const appContext = useGlobalContext();
   const session = useSession();
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
   const controller = new HelpRequestController(appContext);
 
   const [readOnly, setReadOnly] = useState(true);
   const [isNew, setIsNew] = useState(id === 0);
+  const [userOwned, setUserOwned] = useState(id === 0);
   const [isIntialized, setIsIntialized] = useState(false);
   const [partOption, setPartOption] = useState(part);
   const [actionOption, setActionOption] = useState(action);
@@ -70,12 +73,12 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
     setNeedType(value);
   }
 
-  const editOrDone = () => {
+  const editOrDone = async () => {
     if (readOnly) {
       setReadOnly(false);
     } else {
       const username = session.email ? session.email : '';
-      controller.updateOrAddHelpRequest(
+      await controller.updateOrAddHelpRequest(
         session,
         id,
         username,
@@ -85,7 +88,12 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
         description,
         resolved
       );
+      invalidateHelpRequests();
     }
+  }
+
+  const invalidateHelpRequests = () => {
+     queryClient.invalidateQueries({ queryKey: ['helpRequests'] });
   }
 
   const cancel = () => {
@@ -134,6 +142,7 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
     setDescription(helpRequest.description);
     setResolved(helpRequest.resolved);
     setComments(helpRequest.comments);
+    setUserOwned(helpRequest.user.username === session.email);
   }
 
   const retrieveHelpRequest = async (): Promise<HelpRequest | null> => {
@@ -192,25 +201,30 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
           status={resolved ? 'checked' : 'unchecked'}
           onPress={() => setResolved(!resolved)}
           disabled={readOnly}
-        />
+        />        
         {comments.map((comment, index) => (
           <View key={index}>
-            <Text>{comment.comment}</Text>
+            <Text variant="headlineSmall">{comment.comment}</Text>
           </View>
         ))}
+        <TextInput
+          value={newComment}
+          onChangeText={(value) => setNewComment(value)} placeholder="Add a comment" />
+        <Button mode="contained" onPress={addComment} disabled={newComment.length === 0}> Add Comment </Button>
+
       </ScrollView>
-      <TextInput
-        value={newComment}
-        onChangeText={(value) => setNewComment(value)} placeholder="Add a comment" />
-      <Button mode="contained" onPress={addComment} disabled={newComment.length === 0}> Add Comment </Button>
       <Card>
-        <Button mode="contained"
-          onPress={ editOrDone }
-          accessibilityLabel="Finished editing"
-          accessibilityHint="Will save any changes and go back">
-          { readOnly ? 'Edit' : 'Done' }
-        </Button>
-        <Button mode="contained" onPress={ cancel }> Cancel </Button>
+        {!userOwned ? null : 
+          <Button mode="contained"
+            onPress={ editOrDone }
+            accessibilityLabel="Finished editing"
+            accessibilityHint="Will save any changes and go back">
+            { readOnly ? 'Edit' : 'Done' }
+          </Button>
+        }
+        {!userOwned ? null : 
+          <Button mode="contained" onPress={ cancel }> Cancel </Button>
+        }
         { (readOnly && !isNew) ? <Button mode="contained" onPress={ showInstructions }> Instructions </Button> : null }
       </Card>
     </Surface>

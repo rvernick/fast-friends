@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
-import { Text, Surface, DataTable, ActivityIndicator } from 'react-native-paper';
+import { router, useNavigation } from 'expo-router';
+import { Button, Text, Surface, DataTable, ActivityIndicator } from 'react-native-paper';
 import { useSession } from '@/ctx';
 import { Dimensions } from 'react-native';
 import { createStyles, styles } from '@/common/styles';
 import { isMobile } from '@/common/utils';
 import HelpRequestsController from './HelpRequestsController';
 import { HelpRequest } from '@/models/HelpRequest';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const HelpRequestsComponent = () => {
-  const params = useLocalSearchParams();
   const session = useSession();
   const email = session.email ? session.email : '';
   const appContext = useGlobalContext();
@@ -19,14 +19,14 @@ const HelpRequestsComponent = () => {
 
   const controller = new HelpRequestsController(appContext);
 
-  const [sortColumn, setSortColumn] = useState('distance');
+  const [sortColumn, setSortColumn] = useState('submitted');
   const [sortDirection, setSortDirection] = useState('descending');
 
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
 
   const { data: helpRequests, isFetching: helpFetching, error: helpError} = useQuery({
-    queryKey: ['helpRequests', email],
+    queryKey: ['helpRequests'],
     queryFn: () => controller.getRequests(session),
     initialData: [],
     refetchOnWindowFocus: 'always',
@@ -42,25 +42,19 @@ const HelpRequestsComponent = () => {
       result = b.action.localeCompare(a.action);
     } else if (col === 'description') {
       result = b.description.localeCompare(a.description);
-    } 
+    } else if (col === 'needType') {
+      result = b.needType.localeCompare(a.needType);
+    }
     // Secondary sort by createdOn in case where not sorting by createdOn
     if (result === 0) {
-        result = b.createdOn.getTime() - a.createdOn.getTime();
-      }
+      const bDate = new Date(b.createdOn);
+      const aDate = new Date(a.createdOn);
+      result = bDate.getTime() - aDate.getTime();
+    }
     result = result * (upDown === 'descending'? 1 : -1);
     return result;
   }
 
-  const sortedAndFilteredHelpRequests = (col: string, upDown: string) => {
-    try {
-      // console.log('Sorted and filtered history: ' + JSON.stringify(history));
-      if (!helpRequests || helpRequests.length === 0) return [];
-      return helpRequests.sort((a, b) => { return compareHelpRequests(col, upDown, a, b); });
-    } catch (error) {
-      console.error('Error sorting help requests: ', error);
-      return [];
-    }
-  }
 
   // Switches either column or direction.  Default to descending sort for createdOn ascending otherwise
   const handleSort = (column: string) => {
@@ -69,7 +63,7 @@ const HelpRequestsComponent = () => {
       setSortDirection(sortDirection === 'ascending'? 'descending' : 'ascending');
     } else {
       setSortColumn(column);
-      if (column === 'createdOn') {
+      if (column === 'submitted') {
         setSortDirection('descending');
       } else {
         setSortDirection('ascending');
@@ -77,6 +71,16 @@ const HelpRequestsComponent = () => {
     }
   }
 
+  const sortedAndFilteredHelpRequests = (requests: HelpRequest[], col: string, upDown: string): HelpRequest[] => {
+    try {
+      if (!requests || requests.length === 0) return [];
+      return requests.sort((a, b) => { return compareHelpRequests(col, upDown, a, b); });
+    } catch (error) {
+      console.error('Error sorting help requests: ', error);
+      return [];
+    }
+  }
+    
   const sortBy = (column: string): "ascending" | "descending" | undefined => {
     if (sortColumn === column) {
       return sortDirection === 'ascending'? 'ascending' : 'descending';
@@ -84,6 +88,19 @@ const HelpRequestsComponent = () => {
     return undefined;
   }
 
+  const displayDateString = (date: string): string => {
+    try {
+      const dateObj = new Date(date);
+      return dateObj.toLocaleDateString();
+    } catch (error) {
+      console.error('Invalid date string:', date);
+      return '';
+    }
+  }
+
+  const goTo = (id: number) => {
+    router.push({ pathname: '/(home)/(assistance)/helpRequest', params: { id: id } });
+  }
 
   useEffect(() => {
     navigation.setOptions({ title: 'Help Requests' });
@@ -104,9 +121,9 @@ const HelpRequestsComponent = () => {
   } else {
     return (
       <Surface style={useStyle.containerScreen}>
-        <ActivityIndicator animating={helpFetching} size="large" />
+        {helpFetching ? <ActivityIndicator animating={helpFetching} size="large" /> : null}
         
-        <DataTable style={useStyle.containerBody} testID='historyTable'>
+        <DataTable style={useStyle.containerBodyFull} testID='historyTable'>
           <DataTable.Header>
             <DataTable.Title
               numeric={false}
@@ -118,11 +135,20 @@ const HelpRequestsComponent = () => {
               sortDirection={sortBy('action')}
               onPress={() => handleSort('action')}>
                 Action</DataTable.Title>
+                {isMobile() ? null : 
+                  <DataTable.Title
+                    numeric={false}
+                    sortDirection={sortBy('needType')}
+                    testID='needTypeHeader'
+                    onPress={() => handleSort('needType')}>
+                    Need Type
+                  </DataTable.Title>}
             <DataTable.Title
               numeric={false}
               sortDirection={sortBy('description')}
               onPress={() => handleSort('description')}>
-                Description</DataTable.Title>
+                Description
+            </DataTable.Title>
             <DataTable.Title
               numeric={false}
               sortDirection={sortBy('submitted')}
@@ -130,15 +156,19 @@ const HelpRequestsComponent = () => {
               onPress={() => handleSort('submitted')}>
                 Submitted</DataTable.Title>
           </DataTable.Header>
-          {sortedAndFilteredHelpRequests(sortColumn, sortDirection).map((helpRequest, index, histories) => (
-            <DataTable.Row key={'history' + helpRequest.id} testID={"row: " + index}>
-              <DataTable.Cell testID={"partCell: " + index}>{helpRequest.part}</DataTable.Cell>
-              <DataTable.Cell testID={"actionCell: " + index}>{helpRequest.action}</DataTable.Cell>
-             <DataTable.Cell testID={"descriptionCell: " + index}>{helpRequest.description}</DataTable.Cell>
-             <DataTable.Cell testID={"createdOn: " + index}>{helpRequest.createdOn.toLocaleDateString()}</DataTable.Cell>
-            </DataTable.Row>
-          ))}
+          <ScrollView>
+            {sortedAndFilteredHelpRequests(helpRequests, sortColumn, sortDirection).map((helpRequest, index) => (
+              <DataTable.Row onPress={() => goTo(helpRequest.id)} key={'history' + helpRequest.id} testID={"row: " + index}>
+                <DataTable.Cell testID={"partCell: " + index}>{helpRequest.part}</DataTable.Cell>
+                <DataTable.Cell testID={"actionCell: " + index}>{helpRequest.action}</DataTable.Cell>
+                {isMobile()? null : <DataTable.Cell testID={"needTypeCell: " + index}>{helpRequest.needType} </DataTable.Cell>}
+                <DataTable.Cell testID={"descriptionCell: " + index}>{helpRequest.description}</DataTable.Cell>
+                <DataTable.Cell testID={"createdOn: " + index}>{displayDateString(helpRequest.createdOn)}</DataTable.Cell>
+              </DataTable.Row>
+            ))}
+          </ScrollView>
         </DataTable>
+        <Button mode="contained" onPress={() => router.push('/(assistance)/instructions') }> Instructions</Button>
       </Surface>
     );
   }

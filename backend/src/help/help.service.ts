@@ -74,6 +74,7 @@ export class HelpService {
       request.resolved = helpRequestDto.resolved;
 
       this.helpRequestRepository.save(request);
+      return request;
     } catch (error) {
       console.error('Error updating or adding help request: ', error);
       return null;
@@ -87,9 +88,9 @@ export class HelpService {
         this.logger.log('User not found: ', addCommentDto.username);
         return null;
       }
-      const helpRequest = await this.helpRequestRepository.findOneBy({ id: addCommentDto.helpRequestId });
+      const helpRequest = await this.helpRequestRepository.findOneBy({ id: addCommentDto.id });
       if (helpRequest == null) {
-        this.logger.log('Help request not found: ', addCommentDto.helpRequestId);
+        this.logger.log('Help request not found: ', addCommentDto.id);
         return null;
       }
       const comment = new HelpComment();

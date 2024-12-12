@@ -176,11 +176,11 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
 
   const handleAskQuestion = async () => {
     await controller.askQuestion(session, partOption, actionOption, needType, description);
-    queryClient.invalidateQueries({ queryKey: ['helpRequests', session.email] });
+    queryClient.invalidateQueries({ queryKey: ['helpRequests'] });
   }
 
   const goToHelpRequestDetails = () => {
-    router.push( { pathname: '/(home)/(assistance)', params: { id: helpRequestId } });
+    router.push( { pathname: '/(home)/(assistance)/helpRequest', params: { id: helpRequestId } });
   }
 
   type DifficultyItemProps = {
@@ -303,7 +303,6 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
               {helpRequestId == 0 ? 
                 <Button onPress={handleAskQuestion}> Ask </Button> : 
                 <Button onPress={goToHelpRequestDetails}> Details </Button>  }
-              
             </Card>
             {references.length > 0 ? <Text variant="titleMedium">References:</Text> : null}
             <List.Section>

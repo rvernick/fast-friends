@@ -15,16 +15,16 @@ export default function Layout() {
   
   return (
     <Stack>
+      <Stack.Screen name="helpRequests" options={{
+        title: 'Help Requests',
+        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
+      }} />
       <Stack.Screen name="instructions" options={{
           title: "Instructions",
           headerShown: true,
         }} />
-      <Stack.Screen name="[helpRequest]" options={{
+      <Stack.Screen name="helpRequest" options={{
         title: 'Help Request',
-        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
-      }} />
-      <Stack.Screen name="helpRequests" options={{
-        title: 'Help Requests',
         headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
     </Stack>

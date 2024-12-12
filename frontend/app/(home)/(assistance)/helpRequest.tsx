@@ -1,13 +1,13 @@
-import BikeComponent from "@/components/bikes/BikeComponent";
 import HelpRequestComponent from "@/components/help/HelpRequestComponent";
 import { useLocalSearchParams } from "expo-router";
 
-const BikePage = () => {
+const HelpRequestPage = () => {
   const search = useLocalSearchParams();
+  console.log('HelpRequestPage search: '+ JSON.stringify(search)  +'');
   const helpRequestId = new Number(search.id) || 0;
   return (
     <HelpRequestComponent id={helpRequestId.valueOf()}/>
   );
 };
 
-export default BikePage;
+export default HelpRequestPage;

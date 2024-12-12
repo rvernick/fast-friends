@@ -52,6 +52,13 @@ export function createStyles(width: number, height: number) {
       width: width,
       height: height-75,
     },
+    containerBodyFull: {
+      flex: 1,
+      top: 5,
+      left: 1,
+      right: width-1,
+      marginBottom: 5,
+    },
     containerBody: {
       flex: 1,
       top: 5,
@@ -122,6 +129,12 @@ export const styles = StyleSheet.create({
   containerOneBottom: {
     flex: 1,
     paddingBottom: 75,
+  },
+  containerBodyFull: {
+      flex: 1,
+      top: 5,
+      left: 1,
+      marginBottom: 5,
   },
   containerBody: {
       flex: 1,

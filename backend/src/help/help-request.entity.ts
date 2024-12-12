@@ -47,7 +47,7 @@ export class HelpRequest {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne((type) => User, { nullable: false, cascade: false })
+  @ManyToOne((type) => User, { nullable: false, cascade: false, eager: true })
   @JoinColumn({ name: "user_id" })
   user: User;
 

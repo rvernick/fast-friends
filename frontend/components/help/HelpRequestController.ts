@@ -17,7 +17,6 @@ class HelpRequestController extends AppController {
         description: string,
         resolved: boolean): Promise<HelpRequest | null> => {
 
-
     if (!isLoggedIn(session)) {
       return Promise.resolve(null);
     }
