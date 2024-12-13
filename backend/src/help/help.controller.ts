@@ -57,5 +57,4 @@ export class HelpController {
     console.log('help/add-comment'+ JSON.stringify(commentDto));
     return this.helpService.addHelpRequestComment(commentDto);
   }
-  
 }

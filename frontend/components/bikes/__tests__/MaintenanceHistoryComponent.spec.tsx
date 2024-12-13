@@ -43,37 +43,37 @@ jest.mock('../../../common/data-utils', () => {
 
 describe('Maintenance History Component', () => {
   
-  // it('Basic render', async () => {
-  //   const wrappedMI = jest.fn(() => 
-  //       <ProviderWrapper>
-  //         <MaintenanceHistoryComponent/>
-  //       </ProviderWrapper>);
-  //   renderRouter(
-  //     {
-  //       index: wrappedMI,
-  //       'directory/a': wrappedMI,
-  //       '(group)/b': wrappedMI,
-  //     },
-  //     {
-  //       initialUrl: '/directory/a',
-  //     }
-  //   );
-  //   console.log("rendered: Basic render");
-  //   const bikeNameCell = await screen.findByTestId('bikeCell: 0-text-container');
-  //   console.log("bikeNameCell: " + bikeNameCell);
-  //   const bikeDropdown = screen.getByText('First');
-  //   console.log("bikeDropdown: " + bikeDropdown);
-  //   const listItem = screen.getByText('Third');
-  //   console.log("listItem: " + listItem.type);
-  //   await waitFor(() => {
-  //     const distanceHeader = screen.getByTestId('distanceHeader');
-  //     expect(distanceHeader).toBeEnabled();
-  //     console.log('done right render');
-  //   }, {
-  //       timeout: 2000,
-  //   });
+  it('Basic render', async () => {
+    const wrappedMI = jest.fn(() => 
+        <ProviderWrapper>
+          <MaintenanceHistoryComponent/>
+        </ProviderWrapper>);
+    renderRouter(
+      {
+        index: wrappedMI,
+        'directory/a': wrappedMI,
+        '(group)/b': wrappedMI,
+      },
+      {
+        initialUrl: '/directory/a',
+      }
+    );
+    console.log("rendered: Basic render");
+    const bikeNameCell = await screen.findByTestId('bikeCell: 0-text-container');
+    console.log("bikeNameCell: " + bikeNameCell);
+    const bikeDropdown = screen.getByText('First');
+    console.log("bikeDropdown: " + bikeDropdown);
+    const listItem = screen.getByText('Third');
+    console.log("listItem: " + listItem.type);
+    await waitFor(() => {
+      const distanceHeader = screen.getByTestId('distanceHeader');
+      expect(distanceHeader).toBeEnabled();
+      console.log('done right render');
+    }, {
+        timeout: 2000,
+    });
     
-  // });
+  });
 
   it('Starts sorted by milage descending', async () => {
     // jest.mock('MaintenanceHistoryController'); // this happens automatically with automocking

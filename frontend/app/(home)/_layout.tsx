@@ -25,9 +25,7 @@ export default function TabLayout() {
     setRedirected(true);
     router.replace('/(sign-in-sign-up)/(sign-in)/sign-in')
   }
-
-  // console.log("User authenticated " + jwt_token + " " + email);
-
+  
   return (
     <Tabs initialRouteName="(maintenanceItems)">
       <Tabs.Screen
@@ -71,18 +69,32 @@ export default function TabLayout() {
           ),
         }}
       />
-      {isMobile() ? null :
+      {/* // If on mobile, hide the sign out tab for space savings */}
+      {isMobile() ? 
         <Tabs.Screen
             name="sign-out"
             options={{
+              href: null,
               title: "Sign Out",
               headerShown: false,
               tabBarIcon: ({ color }) => (
                 <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
               ),
             }}
+          />
+          :
+          <Tabs.Screen
+          name="sign-out"
+          options={{
+            title: "Sign Out",
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
+            ),
+          }}
         />
-        }
+      }
+  
     </Tabs>
   );
 }

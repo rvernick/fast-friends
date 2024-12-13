@@ -8,7 +8,6 @@ type ActionDropdownProps = {
   value: string;
   readonly?: boolean;
   onSelect: (value: string) => void;
-  useAll?: boolean;
   actions?: string[];
   testID?: string;
 };

@@ -10,5 +10,3 @@ export class AddCommentDto {
   @IsString()
   comment: string;
 }
-
-

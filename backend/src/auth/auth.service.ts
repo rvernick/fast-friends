@@ -41,6 +41,7 @@ export class AuthService {
     }
     const newUser = await this.userService.createUser(username, pass);
     this.requestVerifyEmail(username);
+    return newUser;
   }
 
   async changePassword(username: string, oldPassword: string, newPassword: string): Promise<string> {
