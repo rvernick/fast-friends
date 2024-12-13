@@ -4,6 +4,7 @@ import { Text } from "react-native-paper"
 import { useSession } from "@/ctx";
 import { useState } from "react";
 import { tabBarIconSize } from "@/common/styles";
+import { isMobile } from "@/common/utils";
 
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
@@ -24,9 +25,7 @@ export default function TabLayout() {
     setRedirected(true);
     router.replace('/(sign-in-sign-up)/(sign-in)/sign-in')
   }
-
-  // console.log("User authenticated " + jwt_token + " " + email);
-
+  
   return (
     <Tabs initialRouteName="(maintenanceItems)">
       <Tabs.Screen
@@ -39,6 +38,17 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="(assistance)"
+        options={{
+          title: "Assistance",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons size={tabBarIconSize} name="notebook-check" color={color} />
+          ),
+        }}
+      />
+
       <Tabs.Screen
         name="(bikes)"
         options={{
@@ -59,7 +69,21 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
+      {/* // If on mobile, hide the sign out tab for space savings */}
+      {isMobile() ? 
+        <Tabs.Screen
+            name="sign-out"
+            options={{
+              href: null,
+              title: "Sign Out",
+              headerShown: false,
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
+              ),
+            }}
+          />
+          :
+          <Tabs.Screen
           name="sign-out"
           options={{
             title: "Sign Out",
@@ -68,7 +92,9 @@ export default function TabLayout() {
               <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
             ),
           }}
-      />
+        />
+      }
+  
     </Tabs>
   );
 }

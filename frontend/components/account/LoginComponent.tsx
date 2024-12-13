@@ -8,6 +8,7 @@ import { Card, TextInput, Surface } from 'react-native-paper';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { createStyles, styles } from "@/common/styles";
 import { useSession } from "@/ctx";
+import { useGlobalContext } from "@/common/GlobalContext";
 
 export const LoginComponent = () => {
   const session = useSession();
@@ -127,7 +128,7 @@ export const LoginComponent = () => {
         attemptLoginViaDeviceId();
       } else {
         console.log('Face ID login failed');
-        setUseFaceRecognition(false);
+        turnOffFaceRecognition();
         setLoginErrorMessage('Face ID login failed');
       }
     }
@@ -154,65 +155,65 @@ export const LoginComponent = () => {
       <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
 
       <ActivityIndicator animating={useFaceRecognition} testID="activity"></ActivityIndicator>
-        <Card >
-          <Card.Content>
-              <TextInput
-                  label="Email"
-                  keyboardType="email-address"
-                  inputMode="email"
-                  textContentType="emailAddress"
-                  onChangeText={updateEmail}
-                  value={email}
-                  autoComplete="email"
-                  autoCapitalize="none"
-                  testID="emailInput"
-                  accessibilityLabel="email input"
-                  accessibilityHint="The email address for the account being logged in"/>
-              <TextInput label="Password"
-                  secureTextEntry={passwordHidden}
-                  inputMode="text"
-                  textContentType="password"
-                  autoCapitalize="none"
-                  onChangeText={updatePassword}
-                  onSubmitEditing={loginSubmit}
-                  value={password}
-                  right={<TextInput.Icon icon="eye" onPress={() => setPasswordHidden(!passwordHidden)}/>}
-                  testID="passwordInput"
-                  accessibilityLabel="password input"
-                  accessibilityHint="The password for the account being logged in"/>
-              <HelperText 
-                  type="error"
-                  visible={loginErrorMessage.length > 0}
-                  testID="loginError">
-                {loginErrorMessage}
-              </HelperText>
-              <Button
-                mode="contained"
-                onPress={loginButton}
-                testID="loginButton"
-                accessibilityLabel="confirm button"
-                accessibilityHint="Will attempt to login based on the user and password entered">
-                Confirm
+      <Card >
+        <Card.Content>
+            <TextInput
+                label="Email"
+                keyboardType="email-address"
+                inputMode="email"
+                textContentType="emailAddress"
+                onChangeText={updateEmail}
+                value={email}
+                autoComplete="email"
+                autoCapitalize="none"
+                testID="emailInput"
+                accessibilityLabel="email input"
+                accessibilityHint="The email address for the account being logged in"/>
+            <TextInput label="Password"
+                secureTextEntry={passwordHidden}
+                inputMode="text"
+                textContentType="password"
+                autoCapitalize="none"
+                onChangeText={updatePassword}
+                onSubmitEditing={loginSubmit}
+                value={password}
+                right={<TextInput.Icon icon="eye" onPress={() => setPasswordHidden(!passwordHidden)}/>}
+                testID="passwordInput"
+                accessibilityLabel="password input"
+                accessibilityHint="The password for the account being logged in"/>
+            <HelperText 
+                type="error"
+                visible={loginErrorMessage.length > 0}
+                testID="loginError">
+              {loginErrorMessage}
+            </HelperText>
+            <Button
+              mode="contained"
+              onPress={loginButton}
+              testID="loginButton"
+              accessibilityLabel="confirm button"
+              accessibilityHint="Will attempt to login based on the user and password entered">
+              Confirm
+            </Button>
+            <Button
+              onPress={() => router.push('/(sign-in)/password-reset')}
+              accessibilityLabel="forgot password button"
+              accessibilityHint="Go to the screen to request a password reset">
+              Forgot email/password
+            </Button>
+            <Button
+              onPress={() => router.replace('/(sign-in-sign-up)/sign-up')}
+              accessibilityLabel="Sign Up button"
+              accessibilityHint="Go to the create account screen">
+              Sign Up
+            </Button>
+            {canUseFaceId ? (
+              <Button onPress={loginWithFaceRecognition}>
+                [ Use Face ID ]
               </Button>
-              <Button
-                onPress={() => router.push('/(sign-in)/password-reset')}
-                accessibilityLabel="forgot password button"
-                accessibilityHint="Go to the screen to request a password reset">
-                Forgot email/password
-              </Button>
-              <Button
-                onPress={() => router.replace('/(sign-in-sign-up)/sign-up')}
-                accessibilityLabel="Sign Up button"
-                accessibilityHint="Go to the create account screen">
-                Sign Up
-              </Button>
-              {canUseFaceId ? (
-                <Button onPress={loginWithFaceRecognition}>
-                  [ Use Face ID ]
-                </Button>
-              ) : null}
-          </Card.Content>
-        </Card>  
+            ) : null}
+        </Card.Content>
+      </Card>  
     </Surface>
   );
 }

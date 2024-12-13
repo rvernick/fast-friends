@@ -161,7 +161,7 @@ const MaintenanceHistoryComponent = () => {
   if (!history || historyFetching || history.length === 0) {
     return (
       <Text>
-        No bikes found. Add a bike or sync with Strava.
+        No history found.  Log maintenance on a bike for history.
       </Text>
     )
   } else if (historyError || bikesError) {

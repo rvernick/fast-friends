@@ -61,6 +61,10 @@ describe('Maintenance History Component', () => {
     console.log("rendered: Basic render");
     const bikeNameCell = await screen.findByTestId('bikeCell: 0-text-container');
     console.log("bikeNameCell: " + bikeNameCell);
+    const bikeDropdown = screen.getByText('First');
+    console.log("bikeDropdown: " + bikeDropdown);
+    const listItem = screen.getByText('Third');
+    console.log("listItem: " + listItem.type);
     await waitFor(() => {
       const distanceHeader = screen.getByTestId('distanceHeader');
       expect(distanceHeader).toBeEnabled();
@@ -107,9 +111,9 @@ describe('Maintenance History Component', () => {
     fireEvent.press(distanceHeader);
     console.log("Pressed the distance header");
     const firstDistanceCellA = await screen.findByTestId('distanceCell: 0-text-container');
-    const secondDistanceCellA = await screen.findByTestId('distanceCell: 1-text-container');
-    const thirdDistanceCellA = await screen.findByTestId('distanceCell: 2-text-container');
-    const fourthDistanceCellA = await screen.findByTestId('distanceCell: 3-text-container');
+    const secondDistanceCellA = screen.getByTestId('distanceCell: 1-text-container');
+    const thirdDistanceCellA = screen.getByTestId('distanceCell: 2-text-container');
+    const fourthDistanceCellA = screen.getByTestId('distanceCell: 3-text-container');
 
     console.log("Running through last expecations MaintenanceHistoryComponent");
     expect(firstDistanceCellA.props.children).toBe("1000");

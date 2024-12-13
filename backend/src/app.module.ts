@@ -22,6 +22,8 @@ import { Instruction } from './instruction/instruction.entity';
 import { InstructionReference } from './instruction/instruction-reference.entity';
 import { InstructionModule } from './instruction/instruction.module';
 import { EmailVerify } from './user/email-verify.entity';
+import { HelpRequestModule } from './help/help-request.module';
+import { HelpComment, HelpCommentVote, HelpOffer, HelpRequest } from './help/help-request.entity';
 
 @Module({
   imports: [
@@ -31,6 +33,7 @@ import { EmailVerify } from './user/email-verify.entity';
     BikeModule,
     StravaModule,
     InstructionModule,
+    HelpRequestModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `config/env/${process.env.NODE_ENV}.env`,
@@ -52,7 +55,9 @@ import { EmailVerify } from './user/email-verify.entity';
           PasswordReset, Notification,
           BatchProcess,
           Instruction, Step, ToolNeed, Tool, InstructionReference,
-          EmailVerify],
+          EmailVerify,
+          HelpRequest, HelpComment, HelpCommentVote, HelpOffer
+        ],
         synchronize: true,
       }),
     }),
