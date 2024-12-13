@@ -265,7 +265,7 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
             <DifficultyIcon instruction={instruction}/> 
         </Surface>
         <Text variant="titleMedium">Steps:</Text>
-          <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
+          <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBodyFull}>
             <List.Section>
               {/* <List.Accordion
                 title="Tools"
