@@ -13,6 +13,8 @@ import { BooleanDropdown } from "../common/BooleanDropdown";
 import { BikeDropdown } from "../common/BikeDropdown";
 import { PartDropdown } from "../common/PartDropdown";
 import { ActionDropdown } from "../common/ActionDropdown";
+import { Dimensions } from "react-native";
+import { createStyles, defaultWebStyles } from "@/common/styles";
 
 const groupsetBrands = [
   'Shimano',
@@ -88,6 +90,9 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
 
   const controller = new MaintenanceItemController(appContext);
   const preferences = controller.getUserPreferences(session);
+
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const { data: bikes } = useQuery({
     queryKey: ['bikes'],
@@ -361,9 +366,9 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   }), [part, bikeName];
 
   return (
-    <Surface>
-      <ActivityIndicator animating={!isInitialized} />
+    <Surface style={useStyle.containerScreen}>
       <Card>
+      {!isInitialized ? <ActivityIndicator animating={!isInitialized}  size="large"/> : null }
         <BikeDropdown
           bikes={bikes}
           value={bikeIdString}
@@ -428,30 +433,34 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           accessibilityLabel="Link"
           accessibilityHint="URL of part used"/>
         </Card>
-        <Card>
+        <Surface style={useStyle.bottomButtons}>
           <Button
             mode="contained"
+            style={{flex: 1}}
             onPress={ editOrDone }
             disabled={!readOnly && (part == null || bikeIdString == '0') }
             accessibilityLabel="Finished"
             accessibilityHint="Save any changes and go back">
             { readOnly? 'Edit' : 'Done' }
           </Button>
-          { (!readOnly && !isNew) ? null : <Button 
+          { (!readOnly || isNew) ? null : <Button 
             mode="outlined"
-            onPress={ () => router.push({pathname: '/(home)/(assistance)/instructions',  params: {part: part, action: action}}) }
-        >Instructions</Button>}
+            style={{flex: 1}}
+            onPress={ () => router.replace({pathname: '/(home)/(assistance)/instructions',  params: {part: part, action: action}}) }
+            >Instructions</Button>}
           { (readOnly || isNew) ? null : <Button 
             mode="contained" onPress={ cancel }
+            style={{flex: 1}}
             accessibilityLabel="Cancel"
             accessibilityHint="Go back without saving changes">
           Cancel </Button>}
           { (readOnly || isNew) ? null : <Button
             mode="contained"
+            style={{flex: 1}}
             onPress={ deleteMaintenanceItem }
             accessibilityLabel="Delete"
             accessibilityHint="Delete maintenance item"> Delete </Button>}
-      </Card>
+      </Surface>
     </Surface>
   )
 };

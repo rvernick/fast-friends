@@ -6,7 +6,7 @@ import { ActivityIndicator, Button, HelperText, IconButton, Text } from "react-n
 import { router } from "expo-router";
 import { Card, TextInput, Surface } from 'react-native-paper';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { createStyles, styles } from "@/common/styles";
+import { createStyles, defaultWebStyles } from "@/common/styles";
 import { useSession } from "@/ctx";
 import { useGlobalContext } from "@/common/GlobalContext";
 
@@ -19,6 +19,9 @@ export const LoginComponent = () => {
   if (baseUrl().includes('localhost:')) {
     user = 't5@t.com';
     pword = 'h@ppyHappy';
+  // } else if (isMobile()) {
+    // user = 'rvernick@yahoo.com';
+    // pword = 'h@ppyHappy';
   }
 
   const [email, setEnteredEmail] = useState(user);
@@ -29,7 +32,7 @@ export const LoginComponent = () => {
   const [passwordHidden, setPasswordHidden] = useState(true);
 
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles;
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles;
 
   const updateEmail = function(newText: string) {
     setLoginErrorMessage('');
@@ -154,7 +157,7 @@ export const LoginComponent = () => {
     <Surface style={useStyle.container}>
       <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
 
-      <ActivityIndicator animating={useFaceRecognition} testID="activity"></ActivityIndicator>
+      <ActivityIndicator animating={useFaceRecognition} testID="activity" size="large"/>
       <Card >
         <Card.Content>
             <TextInput

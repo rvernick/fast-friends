@@ -8,7 +8,8 @@ import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/ctx";
 import { displayStringToMeters, ensureString, fetchUser, isMobile, metersToDisplayString } from "@/common/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { Linking } from "react-native";
+import { Dimensions, Linking } from "react-native";
+import { createStyles, defaultWebStyles } from "@/common/styles";
 
 const groupsetBrands = [
   'Shimano',
@@ -55,6 +56,9 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const [milage, setMileage] = useState(newBike.odometerMeters.toFixed(0));
   const [milageLabel, setMileageLabel] = useState('Mileage');
   const [isRetired, setIsRetired] = useState(newBike.isRetired);
+
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const controller = new BikeController(appContext);
   const preferences = controller.getUserPreferences(session);
@@ -196,9 +200,9 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const typeOptions = types.map(type => ({ label: type, value: type }));
 
   return (
-    <Surface>
-      <ActivityIndicator animating={!isInitialized} />      
+    <Surface style={useStyle.containerScreen}>
       <Card>
+        {!isInitialized ? <ActivityIndicator animating={!isInitialized} size="large"/> : null }
         <TextInput label="Name" readOnly={readOnly}
           value={bikeName}
           onChangeText={updateName}
@@ -251,24 +255,30 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
             onPress={values => setIsRetired(!isRetired)}
             accessibilityLabel="Bike is Retired"/>
         </Tooltip>
-        </Card>
-        <Card>
-          <Button mode="contained"
-            onPress={ editOrDone }
-            accessibilityLabel="Finished editing"
-            accessibilityHint="Will save any changes and go back">
-            { readOnly? 'Edit' : 'Done' }
-          </Button>
-          { (readOnly || isNew) ? null : <Button mode="contained" onPress={ cancel }> Cancel </Button>}
-          { (readOnly || isNew) ? null : <Button mode="contained" onPress={ deleteBike }> Delete </Button>}
-          { (readOnly && !isNew) ? <Button mode="contained" onPress={ maintenanceHistory }> History </Button> : null }
-        {connectedToStrava() ? <Button
-          mode="outlined"
-          onPress={ viewOnStrava }
-          accessibilityLabel="View on Strava"
-          accessibilityHint="Open up the bike details on Strava">View on Strava
-        </Button> : null}
       </Card>
+      
+      <Surface style={useStyle.bottomButton}>
+        <Button mode="contained"
+          onPress={ editOrDone }
+          style={{flex: 1}}
+          accessibilityLabel="Finished editing"
+          accessibilityHint="Will save any changes and go back">
+          { readOnly? 'Edit' : 'Done' }
+        </Button>
+        { (readOnly || isNew) ? null : <Button mode="contained" style={{flex: 1}} onPress={ cancel }> Cancel </Button>}
+        { (readOnly || isNew) ? null : <Button mode="contained" style={{flex: 1}} onPress={ deleteBike }> Delete </Button>}
+        { (readOnly && !isNew) ? <Button mode="contained" style={{flex: 1}} onPress={ maintenanceHistory }> History </Button> : null }
+        {(connectedToStrava() && readOnly &&!isNew ) ?
+          <Tooltip title={"View Strava: Will open the bike details on Strava"}>
+            <Button
+            mode="outlined"
+            style={{flex: 1}}
+            onPress={ viewOnStrava }
+            accessibilityLabel="View on Strava"
+            accessibilityHint="Open up the bike details on Strava">View on Strava
+          </Button>
+        </Tooltip> : null}
+      </Surface>
     </Surface>
   )
 };

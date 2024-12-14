@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { MaintenanceItem, Part } from "@/models/MaintenanceItem";
 import { Dimensions, ScrollView, View } from "react-native";
-import { createStyles, styles } from "@/common/styles";
+import { createStyles, defaultWebStyles } from "@/common/styles";
 import { BikeDropdown } from "../common/BikeDropdown";
 
 const threeThousandMilesInMeters = milesToMeters(3000);
@@ -69,7 +69,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   const preferences = controller.getUserPreferences(session);
 
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles;
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles;
 
   const { data: bikes } = useQuery({
     queryKey: ['bikes'],
@@ -198,21 +198,21 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
 
     return (
       <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
-        <View style={{ width: "15%", padding: 10}}>
+        <View style={{ width: "15%", padding: 1}}>
           <Checkbox key={"cb" + rowKey} status={checkedIds.includes(log.id) ? 'checked' : 'unchecked'}
             onPress={toggleSelectedRow}/>
         </View>
-        <View style={{justifyContent: "center", width: "20%", padding: 10}}>
+        <View style={{justifyContent: "center", width: "20%", padding: 1}}>
           <Text key={"prt" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.part}</Text>
         </View>
-        <View style={{justifyContent: "center", width: "18%", padding: 10}}>
+        <View style={{justifyContent: "center", width: "18%", padding: 1}}>
           <Text key={"act" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.action}</Text>
         </View>
-        <View style={{ justifyContent: "center", width: "23%"}}>
+        <View style={{ justifyContent: "center", width: "23%", padding: 1}}>
           <Text key={"due" + rowKey} onPress={toggleSelectedRow}>
             {dueDistanceString}</Text>
         </View>
-        <View style={{ justifyContent: "center", width: "24%", padding: 10}}>
+        <View style={{ justifyContent: "center", width: "24%", padding: 1}}>
           <TextInput
             onChangeText={(newValue) => {setNextDue(newValue)}}
             value={ nextDueString }

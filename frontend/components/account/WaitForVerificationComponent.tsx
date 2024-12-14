@@ -3,7 +3,7 @@ import { Button, Card, HelperText, Surface, Text, TextInput } from 'react-native
 import { useEffect, useState } from 'react';
 import { ensureString, fetchUser, isMobile, sleep } from '@/common/utils';
 import { Dimensions } from 'react-native';
-import { createStyles, styles } from '@/common/styles';
+import { createStyles, defaultWebStyles } from '@/common/styles';
 import { post } from '@/common/http-utils';
 import { router, useNavigation } from 'expo-router';
 import { useGlobalContext } from '@/common/GlobalContext';
@@ -21,7 +21,7 @@ export const WaitForVerificationComponent = () => {
   const [startedVerification, setStartedVerification] = useState(false);
   
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const startEmailVerification = async () => {
     try {

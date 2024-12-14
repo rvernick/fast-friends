@@ -57,7 +57,7 @@ export function createStyles(width: number, height: number) {
       top: 5,
       left: 1,
       right: width-1,
-      marginBottom: 5,
+      marginBottom: 150,
     },
     containerBody: {
       flex: 1,
@@ -85,15 +85,17 @@ export function createStyles(width: number, height: number) {
     },
     bottomButtons: {
       position: 'absolute',
-      top: height-225,
-      left: 16,
-      right: 16,
+      top: height-220,
+      left: 2,
+      right: 2,
       flexDirection: 'row',
       justifyContent: 'space-between',
     },
     bottomButton: {
       position: 'absolute',
-      top: height-225,
+      bottom: 230,
+      // top: height-225,
+      flexDirection: 'row',
       left: 16,
       right: 16,
     },
@@ -103,7 +105,7 @@ export function createStyles(width: number, height: number) {
   });
 };
 
-export const styles = StyleSheet.create({
+export const defaultWebStyles = StyleSheet.create({
   containerScreen: {
     flex: 1,
     marginBottom: 0,
@@ -172,6 +174,8 @@ export const styles = StyleSheet.create({
     bottom: 16,
     left: 16,
     right: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   text: {
     fontSize: 42,

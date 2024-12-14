@@ -4,7 +4,7 @@ import { Text, Button, TextInput, HelperText, Card, Surface } from "react-native
 import { router } from "expo-router";
 import CreateAccountController from "./CreateAccountController";
 import { Dimensions } from "react-native";
-import { createStyles, styles } from "@/common/styles";
+import { createStyles, defaultWebStyles } from "@/common/styles";
 
 interface CreateAccountComponentProps {
   controller: CreateAccountController;
@@ -19,7 +19,7 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
   const [passwordConfirmErrorMessage, setPasswordConfirmErrorMessage] = useState('');
 
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles;
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles;
 
   const updateEmail = function(newText: string) {
     setEnteredEmail(newText);

@@ -4,12 +4,11 @@ import { useGlobalContext } from '@/common/GlobalContext';
 import { router, useNavigation } from 'expo-router';
 import { Button, Text, Surface, DataTable, ActivityIndicator } from 'react-native-paper';
 import { useSession } from '@/ctx';
-import { Dimensions } from 'react-native';
-import { createStyles, styles } from '@/common/styles';
+import { Dimensions, ScrollView } from 'react-native';
+import { createStyles, defaultWebStyles } from '@/common/styles';
 import { isMobile } from '@/common/utils';
 import HelpRequestsController from './HelpRequestsController';
 import { HelpRequest } from '@/models/HelpRequest';
-import { ScrollView } from 'react-native-gesture-handler';
 
 const HelpRequestsComponent = () => {
   const session = useSession();
@@ -23,7 +22,7 @@ const HelpRequestsComponent = () => {
   const [sortDirection, setSortDirection] = useState('descending');
 
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const { data: helpRequests, isFetching: helpFetching, error: helpError} = useQuery({
     queryKey: ['helpRequests'],
@@ -104,9 +103,9 @@ const HelpRequestsComponent = () => {
 
   useEffect(() => {
     navigation.setOptions({ title: 'Help Requests' });
-  }, [history, helpFetching]);
+  }, [helpRequests, helpFetching]);
 
-  if (!history || helpFetching || helpRequests.length === 0) {
+  if (!helpRequests || helpFetching || helpRequests.length === 0) {
     return (
       <Text>
         No help requests.
@@ -158,7 +157,7 @@ const HelpRequestsComponent = () => {
           </DataTable.Header>
           <ScrollView>
             {sortedAndFilteredHelpRequests(helpRequests, sortColumn, sortDirection).map((helpRequest, index) => (
-              <DataTable.Row onPress={() => goTo(helpRequest.id)} key={'history' + helpRequest.id} testID={"row: " + index}>
+              <DataTable.Row onPress={() => goTo(helpRequest.id)} key={'requestRow' + helpRequest.id} testID={"row: " + index}>
                 <DataTable.Cell testID={"partCell: " + index}>{helpRequest.part}</DataTable.Cell>
                 <DataTable.Cell testID={"actionCell: " + index}>{helpRequest.action}</DataTable.Cell>
                 {isMobile()? null : <DataTable.Cell testID={"needTypeCell: " + index}>{helpRequest.needType} </DataTable.Cell>}

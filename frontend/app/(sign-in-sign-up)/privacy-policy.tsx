@@ -1,4 +1,4 @@
-import { createStyles, styles } from "@/common/styles";
+import { createStyles, defaultWebStyles } from "@/common/styles";
 import { isMobile } from "@/common/utils";
 import { router } from "expo-router";
 import { Dimensions } from "react-native";
@@ -8,7 +8,7 @@ export default function Index() {
   const theme = useTheme();
 
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const signIn = () => { router.replace("/(sign-in-sign-up)/(sign-in)/sign-in") };
 
