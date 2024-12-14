@@ -79,17 +79,19 @@ const MaintenanceHistoryComponent = () => {
       if (result === 0) {
         result = b.part.localeCompare(a.part);
       }
+    } else if (col === 'action') {
+      result = b.action.localeCompare(a.action);
       if (result === 0) {
-        result = b.distanceMeters - a.distanceMeters;
+        result = b.bikeName.localeCompare(a.bikeName);
       }
     } else {
       result = b.part.localeCompare(a.part);
       if (result === 0) {
         result = b.bikeName.localeCompare(a.bikeName);
       }
-      if (result === 0) {
-        result = b.distanceMeters - a.distanceMeters;
-      }
+    }
+    if (result === 0) {
+      result = b.distanceMeters - a.distanceMeters;
     }
     result = result * (upDown === 'descending'? 1 : -1);
     return result;
@@ -194,7 +196,9 @@ const MaintenanceHistoryComponent = () => {
               onPress={() => handleSort('part')}>
                 Part</DataTable.Title>
             <DataTable.Title
-              numeric={false}>
+              numeric={false}
+              sortDirection={sortBy('action')}
+              onPress={() => handleSort('action')}>
                 Action</DataTable.Title>
             <DataTable.Title
               numeric={true}
