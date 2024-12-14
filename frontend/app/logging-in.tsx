@@ -53,7 +53,7 @@ export default function LoggingIn() {
 
   return (
     <Surface>
-      <ActivityIndicator animating={true} />
+      <ActivityIndicator animating={true} size="large" />
       <Text>Setting Up</Text>
       </Surface>
   );

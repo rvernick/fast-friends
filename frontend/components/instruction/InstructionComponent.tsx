@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useGlobalContext } from '@/common/GlobalContext';
 import { router, useNavigation } from 'expo-router';
-import { List, Text, useTheme, Surface, Tooltip, Card, Button, TextInput } from 'react-native-paper';
-import { Action, Part } from '@/models/MaintenanceItem';
+import { List, Text, useTheme, Surface, Tooltip, Card, Button, TextInput, ActivityIndicator } from 'react-native-paper';
 import { Dimensions, ScrollView, View } from 'react-native';
-import { createStyles, styles } from '@/common/styles';
+import { createStyles, defaultWebStyles } from '@/common/styles';
 import { isMobile } from '@/common/utils';
 import InstructionController from './InstructionController';
 import { Instruction, InstructionReference, Step } from '@/models/Instruction';
@@ -39,7 +38,7 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
   const [descriptionPlaceholder, setDescriptionPlaceholder] = useState("Enter your question here");
 
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const sortSteps = (steps: Step[]): Step[] => {
     return steps.sort((a, b) => a.stepNumber - b.stepNumber);
@@ -246,9 +245,12 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
 
   if (!instructions || instructions.length === 0) {
     return (
-      <Text>
-       Loading...
-      </Text>
+      <Surface>
+        <ActivityIndicator size="large" />
+        <Text>
+        Loading...
+        </Text>
+      </Surface>
     )
   } else {
     return (
@@ -264,8 +266,8 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
             />
             <DifficultyIcon instruction={instruction}/> 
         </Surface>
-        <Text variant="titleMedium">Steps:</Text>
-          <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBodyFull}>
+        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBodyFull}>
+          <Text variant="titleMedium">Steps:</Text>
             <List.Section>
               {/* <List.Accordion
                 title="Tools"
@@ -310,12 +312,11 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
                 <List.Item key={"ref" + reference.id} title={reference.title} description={reference.link}/>
               ))}
             </List.Section>
+            {isMobile() ? <Text testID="spacer"> </Text> : null }
         </ScrollView>
       </Surface>
     );
   }
 };
-
-// navigation.push('Bike', { bike })
 
 export default InstructionComponent;

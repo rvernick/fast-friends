@@ -9,8 +9,12 @@ export default function Layout() {
       router.back();
     } else {
       console.log("Cannot go back from current screen");
-      router.push('/(home)/(assistance)/instructions');
+      goToHelpRequests();
     }
+  }
+
+  const goToHelpRequests = () => {
+    router.replace('/(home)/(assistance)/helpRequests');
   }
   
   return (
@@ -22,6 +26,7 @@ export default function Layout() {
       <Stack.Screen name="instructions" options={{
           title: "Instructions",
           headerShown: true,
+          headerLeft: () => <Button onPress={goToHelpRequests} icon="arrow-left">{""}</Button>,
         }} />
       <Stack.Screen name="helpRequest" options={{
         title: 'Help Request',

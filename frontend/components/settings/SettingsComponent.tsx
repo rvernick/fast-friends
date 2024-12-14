@@ -214,7 +214,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     }
   }, [data, isFetching]);
 
-  if (isFetching) return <ActivityIndicator />;
+  if (isFetching) return <ActivityIndicator  size="large"/>;
   return (
     <Surface >
       {/* <ScrollView style={styles.container}> */}

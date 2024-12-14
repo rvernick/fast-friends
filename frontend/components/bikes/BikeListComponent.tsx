@@ -8,7 +8,7 @@ import { Bike } from '../../models/Bike';
 import { useSession } from '@/ctx';
 import { Dimensions, ScrollView, View } from 'react-native';
 import { isMobile } from '@/common/utils';
-import { createStyles, styles } from '@/common/styles';
+import { createStyles, defaultWebStyles } from '@/common/styles';
 
 type BikeListProps = {
   bikes: Bike[] | undefined;
@@ -26,7 +26,7 @@ const BikeListComponent = () => {
   const [isUpdating, setIsUpdating] = useState(true);
 
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const { data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
@@ -89,7 +89,9 @@ const BikeListComponent = () => {
       <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
         <BikeList bikes={data ? data : []} isUpdating={isUpdating} />
       </ScrollView>
-      <Button style={useStyle.bottomButtons} mode="contained" onPress={addBike}> Add Bike</Button>
+      <Surface style={useStyle.bottomButtons}>
+        <Button style={{flex: 1}} mode="contained" onPress={addBike}> Add Bike</Button>
+      </Surface>
     </Surface>
   );
 };

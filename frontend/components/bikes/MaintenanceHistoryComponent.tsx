@@ -5,7 +5,7 @@ import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { Text, Surface, DataTable, ActivityIndicator } from 'react-native-paper';
 import { useSession } from '@/ctx';
 import { Dimensions } from 'react-native';
-import { createStyles, styles } from '@/common/styles';
+import { createStyles, defaultWebStyles } from '@/common/styles';
 import { ensureString, isMobile, metersToDisplayString } from '@/common/utils';
 import { BikeDropdown } from '../common/BikeDropdown';
 import MaintenanceHistoryController from './MaintenanceHistoryController';
@@ -30,7 +30,7 @@ const MaintenanceHistoryComponent = () => {
   const [distanceHeader, setDistanceHeader ] = useState('Distance (miles)');
 
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const { data: bikes, error: bikesError, isFetching: bikesFetching } = useQuery({
     queryKey: ['bikes'],
@@ -79,17 +79,19 @@ const MaintenanceHistoryComponent = () => {
       if (result === 0) {
         result = b.part.localeCompare(a.part);
       }
+    } else if (col === 'action') {
+      result = b.action.localeCompare(a.action);
       if (result === 0) {
-        result = b.distanceMeters - a.distanceMeters;
+        result = b.bikeName.localeCompare(a.bikeName);
       }
     } else {
       result = b.part.localeCompare(a.part);
       if (result === 0) {
         result = b.bikeName.localeCompare(a.bikeName);
       }
-      if (result === 0) {
-        result = b.distanceMeters - a.distanceMeters;
-      }
+    }
+    if (result === 0) {
+      result = b.distanceMeters - a.distanceMeters;
     }
     result = result * (upDown === 'descending'? 1 : -1);
     return result;
@@ -158,7 +160,7 @@ const MaintenanceHistoryComponent = () => {
     initialize();
   }, [history, bikeId, historyFetching]);
 
-  if (!history || historyFetching || history.length === 0) {
+  if (!historyFetching && (!history  || history.length === 0)) {
     return (
       <Text>
         No history found.  Log maintenance on a bike for history.
@@ -173,7 +175,7 @@ const MaintenanceHistoryComponent = () => {
   } else {
     return (
       <Surface style={useStyle.containerScreen}>
-        <ActivityIndicator animating={historyFetching} size="large" />
+        {historyFetching ? <ActivityIndicator animating={historyFetching} size="large" /> : null }
         <BikeDropdown
           bikes={bikes}
           value={bikeId}
@@ -194,7 +196,9 @@ const MaintenanceHistoryComponent = () => {
               onPress={() => handleSort('part')}>
                 Part</DataTable.Title>
             <DataTable.Title
-              numeric={false}>
+              numeric={false}
+              sortDirection={sortBy('action')}
+              onPress={() => handleSort('action')}>
                 Action</DataTable.Title>
             <DataTable.Title
               numeric={true}

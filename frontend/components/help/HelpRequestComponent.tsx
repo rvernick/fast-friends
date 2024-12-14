@@ -3,9 +3,8 @@ import { useGlobalContext } from '@/common/GlobalContext';
 import { router, useNavigation } from 'expo-router';
 import { List, Text, Surface, TextInput, Checkbox, Card, Button } from 'react-native-paper';
 import { Dimensions, ScrollView, View } from 'react-native';
-import { createStyles, styles } from '@/common/styles';
+import { createStyles, defaultWebStyles } from '@/common/styles';
 import { isMobile } from '@/common/utils';
-import { Instruction, Step } from '@/models/Instruction';
 import HelpRequestController from './HelpRequestController';
 import { ActionDropdown } from '../common/ActionDropdown';
 import { PartDropdown } from '../common/PartDropdown';
@@ -41,7 +40,7 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
   const [newComment, setNewComment] = useState("");
 
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const goBack = () => {
     if (router.canGoBack()) {
@@ -98,11 +97,15 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
 
   const cancel = () => {
     if (readOnly || isNew) {
-      goBack();
+      router.replace('/(home)/(assistance)/helpRequests');
     } else {
       initialize();
       setReadOnly(true);
     }
+  }
+
+  const submitComment = async () => {
+    addComment();
   }
 
   const addComment = async () => {
@@ -209,24 +212,27 @@ const HelpRequestComponent: React.FC<HelpRequestProps> = ({id, part="Chain", act
         ))}
         <TextInput
           value={newComment}
+          onSubmitEditing={submitComment}
           onChangeText={(value) => setNewComment(value)} placeholder="Add a comment" />
         <Button mode="contained" onPress={addComment} disabled={newComment.length === 0}> Add Comment </Button>
 
       </ScrollView>
-      <Card>
-        {!userOwned ? null : 
+      <Surface style={useStyle.bottomButtons}>
+        
+                  {!userOwned ? null : 
           <Button mode="contained"
+            style={{flex: 1}}
             onPress={ editOrDone }
             accessibilityLabel="Finished editing"
             accessibilityHint="Will save any changes and go back">
             { readOnly ? 'Edit' : 'Done' }
           </Button>
         }
-        {!userOwned ? null : 
-          <Button mode="contained" onPress={ cancel }> Cancel </Button>
+        {(readOnly && !isNew )? null : 
+          <Button mode="contained" style={{flex: 1}} onPress={ cancel }> Cancel </Button>
         }
-        { (readOnly && !isNew) ? <Button mode="contained" onPress={ showInstructions }> Instructions </Button> : null }
-      </Card>
+        { (readOnly && !isNew) ? <Button mode="contained" style={{flex: 1}} onPress={ showInstructions }> Instructions </Button> : null }
+   </Surface>
     </Surface>
   );
 };

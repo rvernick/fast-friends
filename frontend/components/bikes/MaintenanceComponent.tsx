@@ -9,7 +9,7 @@ import { MaintenanceItem } from '@/models/MaintenanceItem';
 import MaintenanceListController from './MaintenanceListController';
 import { Dropdown } from 'react-native-paper-dropdown';
 import { Dimensions, ScrollView, View } from 'react-native';
-import { createStyles, styles } from '@/common/styles';
+import { createStyles, defaultWebStyles } from '@/common/styles';
 import { isMobile, metersToDisplayString } from '@/common/utils';
 
 type MaintenanceListProps = {
@@ -38,7 +38,7 @@ const MaintenanceComponent = () => {
   // const [sortOption, setSortOption] = useState('dueDate');
 
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : styles
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const { data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
