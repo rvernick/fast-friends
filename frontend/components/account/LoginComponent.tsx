@@ -19,9 +19,6 @@ export const LoginComponent = () => {
   if (baseUrl().includes('localhost:')) {
     user = 't5@t.com';
     pword = 'h@ppyHappy';
-  // } else if (isMobile()) {
-    // user = 'rvernick@yahoo.com';
-    // pword = 'h@ppyHappy';
   }
 
   const [email, setEnteredEmail] = useState(user);
