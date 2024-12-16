@@ -108,7 +108,9 @@ export async function login(username: string, password: string, session: any) {
           return '';
         });
       } else {
-        console.log('Login failed ' + resp.statusText)
+        console.log('Login failed ' + resp.statusText);
+        forget("ff.username");
+        forget("ff.password");
         return 'Invalid username or password';
       }
     })

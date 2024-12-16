@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Dimensions, GestureResponderEvent, NativeSyntheticEvent, TextInputSubmitEditingEventData } from "react-native";
-import { forget, login, remind, isMobile } from '@/common/utils';
+import { login, remind, isMobile } from '@/common/utils';
 import { baseUrl } from "../../common/http-utils";
 import { ActivityIndicator, Button, HelperText, IconButton, Text } from "react-native-paper";
 import { router } from "expo-router";
@@ -8,7 +8,6 @@ import { Card, TextInput, Surface } from 'react-native-paper';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { createStyles, defaultWebStyles } from "@/common/styles";
 import { useSession } from "@/ctx";
-import { useGlobalContext } from "@/common/GlobalContext";
 
 export const LoginComponent = () => {
   const session = useSession();
@@ -77,8 +76,6 @@ export const LoginComponent = () => {
 
   const turnOffFaceRecognition = () => {
     setUseFaceRecognition(false);
-    forget('ff.username');
-    forget('ff.password');
   }
 
   const attemptLoginViaDeviceId = async () => {
@@ -109,11 +106,11 @@ export const LoginComponent = () => {
       || !(lastPass && lastPass.length > 0)) {
       setUseFaceRecognition(false);
       setCanUseFaceId(false);
+      return false;
     } else {
       setCanUseFaceId(true);
       return true;
     }
-    return false;
   }
 
   const loginWithFaceRecognition = async () => {
@@ -208,7 +205,7 @@ export const LoginComponent = () => {
               Sign Up
             </Button>
             {canUseFaceId ? (
-              <Button onPress={loginWithFaceRecognition}>
+              <Button onPress={() => setUseFaceRecognition(true)}>
                 [ Use Face ID ]
               </Button>
             ) : null}
