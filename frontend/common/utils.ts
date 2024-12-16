@@ -84,6 +84,11 @@ export async function confirmLogin(session: any): Promise<string> {
 export async function login(username: string, password: string, session: any) {
   console.log('Logging in... ' + username);
 
+  if (username === '' || password === '') {
+    console.log('Invalid username or password');
+    return 'Invalid username or password';
+  }
+  
   const args = {
     username: username,
     password: password,
