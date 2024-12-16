@@ -65,7 +65,7 @@ export class MaintenanceChecker {
   }
 
   private performMaintenanceChecks(user: User) {
-    console.log('Checking maintenance for bike '+ user.username);
+    console.log('Checking maintenance for user '+ user.username);
     this.updateOdometers(user);
     const overdueMaintenanceItems = this.getOverdueMaintenanceItems(user);
     if (overdueMaintenanceItems.length > 0) {
@@ -85,7 +85,7 @@ export class MaintenanceChecker {
   }
 
   createNotificationBody(user: User, overdueMaintenanceItems: MaintenanceItem[]): string {
-    var msg = 'Dear ${user.firstName},\n\nYou have some maintenance needed on your bikes';
+    var msg = `Dear ${user.firstName},\n\nYou have some maintenance needed on your bikes`;
     msg = msg + 'Based on our records, you should check the following maintenance items:\n\n';
 
     // TODO: create deep link to the maintenance item
@@ -104,6 +104,7 @@ export class MaintenanceChecker {
         }
       }
     });
+    msg = msg + '\nPlease review and make any necessary adjustments.\n\nBest regards,\nYour Pedal Assistant';
     return msg
   }
 
@@ -140,7 +141,7 @@ export class MaintenanceChecker {
   }
 
   private shouldRunChecks(batchProcess: BatchProcess): boolean {
-  //  console.log('Checking if maintenance checks should run...' + JSON.stringify(batchProcess) + '\n');
+      //  console.log('Checking if maintenance checks should run...' + JSON.stringify(batchProcess) + '\n');
     if (batchProcess.lockedKey != null) {
       return this.isOverdue(batchProcess.lockedOn);
     }

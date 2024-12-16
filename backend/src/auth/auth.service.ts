@@ -128,6 +128,10 @@ export class AuthService {
       this.logger.log('info', 'failed email verify request' + email + ' ' + user);
       return;
     }
+    if (user.emailVerified) {
+      this.logger.log('info', 'email already verified: '+ email);
+      return;
+    }
     this.userService.initiateEmailVerify(user, email);
   }
   
