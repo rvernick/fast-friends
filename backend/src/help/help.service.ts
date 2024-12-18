@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "../user/user.entity";
 import { Repository } from "typeorm";
 import { HelpRequestDto } from "./help-request.dto";
 import { getNeedTypeFor, HelpComment, HelpRequest } from "./help-request.entity";
@@ -31,7 +30,7 @@ export class HelpService {
     queryBuilder.where("helpRequest.resolved = false");
     queryBuilder.orderBy("helpRequest.createdOn", "DESC");
     queryBuilder.limit(limit);
-    return this.helpRequestRepository.find();;
+    return queryBuilder.getMany();
   }
 
   async getOpenHelpRequests(username: string): Promise<HelpRequest[] | null> {

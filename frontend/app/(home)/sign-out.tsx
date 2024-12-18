@@ -11,6 +11,8 @@ export default function SignOut() {
   const signOut = () => {
     forget("ff.username");
     forget("ff.password");
+    forget('ff.deeplink');
+    forget('ff.deeplinkParams');
     session.signOut();
   }
 
