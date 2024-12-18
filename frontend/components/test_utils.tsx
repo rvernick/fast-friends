@@ -1,7 +1,7 @@
 import { GlobalStateProvider } from "../common/GlobalContext";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MD3DarkTheme, MD3LightTheme, PaperProvider, ThemeProvider } from "react-native-paper";
-import { SessionProvider } from "../ctx";
+import { SessionProvider } from "@/common/ctx";
 
 import { Colors } from "../constants/Colors";
 import { useColorScheme } from 'react-native';

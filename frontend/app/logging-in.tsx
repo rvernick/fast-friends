@@ -1,5 +1,5 @@
 import { ensureString, fetchUser, forget, remind } from '@/common/utils';
-import { useSession } from '@/ctx';
+import { useSession } from '@/common/ctx';
 import { User } from '@/models/User';
 import { router, useNavigation } from 'expo-router';
 import { useEffect } from 'react';

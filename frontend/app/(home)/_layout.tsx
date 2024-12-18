@@ -1,7 +1,7 @@
 import { router, Tabs } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text } from "react-native-paper"
-import { useSession } from "@/ctx";
+import { useSession } from "@/common/ctx";
 import { useState } from "react";
 import { tabBarIconSize } from "@/common/styles";
 import { isMobile } from "@/common/utils";

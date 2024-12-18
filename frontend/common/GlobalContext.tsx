@@ -1,7 +1,7 @@
 import { createContext, useState, ReactNode, useContext } from 'react';
 import AppContext from "./app-context";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
-import { useSession } from '@/ctx';
+import { useSession } from '@/common/ctx';
 
 const initialQueryClient = new QueryClient();
 export const GlobalStateContext = createContext({ appContext: new AppContext(initialQueryClient, null) });

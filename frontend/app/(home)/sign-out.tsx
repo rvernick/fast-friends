@@ -1,4 +1,4 @@
-import { useSession } from '@/ctx';
+import { useSession } from '@/common/ctx';
 import { Surface, Text } from 'react-native-paper';
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';

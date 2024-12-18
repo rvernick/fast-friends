@@ -7,7 +7,7 @@ import { router } from "expo-router";
 import { Card, TextInput, Surface } from 'react-native-paper';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { createStyles, defaultWebStyles } from "@/common/styles";
-import { useSession } from "@/ctx";
+import { useSession } from "@/common/ctx";
 
 export const LoginComponent = () => {
   const session = useSession();
