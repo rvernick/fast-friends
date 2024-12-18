@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText } from "react-native-paper";
 import { useSession } from "@/ctx";
 import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters } from "@/common/utils";
@@ -92,6 +92,14 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
       } else {
         console.log('Bike not found: ', idString);
       }
+    }
+  }
+
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(home)/maintenance');
     }
   }
 
@@ -289,7 +297,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
         <Button
           style={{flex: 1}}
           mode="contained"
-          onPress={() => navigation.goBack()}>
+          onPress={goBack}>
             Cancel
         </Button>
         <Button

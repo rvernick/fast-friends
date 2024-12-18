@@ -280,8 +280,12 @@ export class UserService {
     return passwordReset;
   }
 
+  getClientBaseUrl(): string {
+    return this.configService.get<string>('CLIENT_URL');
+  };
+
   createPasswordResetLink(passwordReset: PasswordReset): string {
-    const baseUrl = this.configService.get<string>('CLIENT_URL');
+    const baseUrl = this.getClientBaseUrl();
     return baseUrl + '/new-password-on-reset?token=' + passwordReset.token;
   };
 

@@ -63,7 +63,7 @@ export class StravaService {
     if (token == null) return null;
 
     const stravaAthlete = await get('https://www.strava.com/api/v3/athlete', {}, token.access_token);
-    console.log('Strava athlete: returned '+ JSON.stringify(stravaAthlete));
+    // console.log('Strava athlete: returned '+ JSON.stringify(stravaAthlete));
 
     if (stravaAthlete == null || stravaAthlete.bikes == null) {
       return null;

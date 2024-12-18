@@ -11,7 +11,7 @@ export const sendEmail = (email: string,
   try {
   const sgMail = require('@sendgrid/mail');
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  // console.log('info', email + ' sending with key:' + process.env.SENDGRID_API_KEY);
+  console.log('info', email + ' sending with body:' + body);
   const msg = {
     to: email,
     from: from,

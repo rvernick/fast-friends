@@ -30,7 +30,7 @@ export const get = (url: string, parameters: any, access_token: string | null): 
         // }),
     })
   .then((res) => {
-    console.log('GET: '+ url + '\n' + JSON.stringify(res.data));
+    // console.log('GET: '+ url + '\n' + JSON.stringify(res.data));
     return res.data
   })
   .catch((err) => console.log(err));
