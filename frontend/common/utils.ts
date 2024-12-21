@@ -143,6 +143,7 @@ const initializeLogRocket = (user: User) => {
 
   console.log('Initializing LogRocket...');
   try {
+    LogRocket.init('e1y6b7/pedal-assistant');
     const name = user.firstName + ' ' + user.lastName;
     LogRocket.identify('PEDAL_ASSISTANT_USER', {
       name: name,
