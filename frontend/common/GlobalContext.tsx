@@ -23,12 +23,20 @@ export function GlobalStateProvider({ children }: GlobalStateProviderProps) {
   const [appContext, setAppContext] = useState(new AppContext(queryClient, session));
   const [logRocketInitialized, setLogRocketInitialized] = useState(false);
 
+  const initializeLogRocket = () => {
+    if (isProduction()) {
+      LogRocket.init('e1y6b7/pedal-assistant');
+    }
+    setLogRocketInitialized(true);
+  };
+
   useEffect(() => {
     if (!logRocketInitialized) {
-      if (isProduction()) {
-        LogRocket.init('e1y6b7/pedal-assistant');
+      try {
+        initializeLogRocket();
+      } catch (error) {
+        console.log('Error initializing LogRocket: ', error);
       }
-      setLogRocketInitialized(true);
     }
   }, [logRocketInitialized]);
 
