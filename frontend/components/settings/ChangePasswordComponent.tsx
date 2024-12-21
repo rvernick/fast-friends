@@ -3,7 +3,7 @@ import ChangePasswordController from "./ChangePasswordController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Button, Card, HelperText, TextInput, Surface } from "react-native-paper";
 import { router } from "expo-router";
-import { useSession } from "@/ctx";
+import { useSession } from "@/common/ctx";
 
 export const ChangePasswordComponent = () => {
   const session = useSession();

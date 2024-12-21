@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@/models/User";
+import LogRocket from "logrocket";
 
 export const strippedPhone = (formattedPhone: string) => {
   if (!formattedPhone) {
@@ -17,6 +18,10 @@ export const isValidPhone = (phone: string) => {
 
 export const isMobile = (): boolean => {
   return Platform.OS === 'android' || Platform.OS === 'ios';
+}
+
+export const isProduction = (): boolean => {
+  return isMobile() || process.env.NODE_ENV === 'production';
 }
 
 export const remember = (key: string, value: string) => {
@@ -109,6 +114,7 @@ export async function login(username: string, password: string, session: any) {
             remember("ff.username", username);
             remember("ff.password", password);
           }
+          initializeLogRocket(body.user);
           console.log('setting appContext.email to:'+ username);
           return '';
         });
@@ -128,6 +134,26 @@ export async function login(username: string, password: string, session: any) {
 export const defaultUserPreferences = {
   units: "miles",
 };
+
+const initializeLogRocket = (user: User) => {
+  if (!isProduction()) {
+    console.log('Not initializing LogRocket.');
+    return;
+  }
+
+  console.log('Initializing LogRocket...');
+  try {
+    const name = user.firstName + ' ' + user.lastName;
+    LogRocket.identify('PEDAL_ASSISTANT_USER', {
+      name: name,
+      email: user.username,
+
+      // Add your own custom user variables here, ie:
+    });
+  } catch (error: any) {
+    console.error('Failed to initialize LogRocket:', error);
+  }
+}
 
 export const updateUserPreferences = async (session: any): Promise<any | null> => {
   const user = await fetchUser(session, session.email);

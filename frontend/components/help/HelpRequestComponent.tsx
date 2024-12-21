@@ -10,7 +10,7 @@ import { ActionDropdown } from '../common/ActionDropdown';
 import { PartDropdown } from '../common/PartDropdown';
 import { NeedTypeDropdown } from '../common/NeedTypeDropdown';
 import { HelpComment, HelpRequest } from '@/models/HelpRequest';
-import { useSession } from '@/ctx';
+import { useSession } from '@/common/ctx';
 import { useQueryClient } from '@tanstack/react-query';
 
 type HelpRequestProps = {

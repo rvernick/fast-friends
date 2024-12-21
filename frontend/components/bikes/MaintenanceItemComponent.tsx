@@ -4,7 +4,7 @@ import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { Button, TextInput, ActivityIndicator, Card, Surface, Tooltip, Text } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
-import { useSession } from "@/ctx";
+import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";

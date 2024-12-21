@@ -3,7 +3,7 @@ import { useQuery } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
 import { router, useNavigation } from 'expo-router';
 import { Button, Text, Surface, DataTable, ActivityIndicator } from 'react-native-paper';
-import { useSession } from '@/ctx';
+import { useSession } from '@/common/ctx';
 import { Dimensions, ScrollView } from 'react-native';
 import { createStyles, defaultWebStyles } from '@/common/styles';
 import { isMobile } from '@/common/utils';

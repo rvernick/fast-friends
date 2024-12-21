@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import { useSession } from "@/ctx";
+import { useSession } from "@/common/ctx";
 import { useGlobalContext } from "@/common/GlobalContext";
 import StravaController from "../settings/StravaController";
 import { ensureString, sleep } from "@/common/utils";

@@ -3,7 +3,7 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText } from "react-native-paper";
-import { useSession } from "@/ctx";
+import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters } from "@/common/utils";
 import { useQuery } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";

@@ -1,5 +1,5 @@
 import { router, Slot } from 'expo-router';
-import { SessionProvider } from "../ctx";
+import { SessionProvider } from "@/common/ctx";
 import {
   adaptNavigationTheme,
   MD3DarkTheme,

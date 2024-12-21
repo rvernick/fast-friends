@@ -10,7 +10,7 @@ import { Instruction, InstructionReference, Step } from '@/models/Instruction';
 import { PartDropdown } from '../common/PartDropdown';
 import { ActionDropdown } from '../common/ActionDropdown';
 import { NeedTypeDropdown } from '../common/NeedTypeDropdown';
-import { useSession } from '@/ctx';
+import { useSession } from '@/common/ctx';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 type InstructionProps = {

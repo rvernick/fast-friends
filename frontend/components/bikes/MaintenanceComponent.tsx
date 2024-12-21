@@ -4,7 +4,7 @@ import { useGlobalContext } from '@/common/GlobalContext';
 import { useNavigation, useRouter } from 'expo-router';
 import { Button, Card, List, Text, useTheme, Surface } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
-import { useSession } from '@/ctx';
+import { useSession } from '@/common/ctx';
 import { MaintenanceItem } from '@/models/MaintenanceItem';
 import MaintenanceListController from './MaintenanceListController';
 import { Dropdown } from 'react-native-paper-dropdown';

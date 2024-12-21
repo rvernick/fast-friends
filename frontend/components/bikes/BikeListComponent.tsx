@@ -5,7 +5,7 @@ import BikeListController from './BikeListController';
 import { useRouter } from 'expo-router';
 import { Button, List, Text, Surface, Card, useTheme } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
-import { useSession } from '@/ctx';
+import { useSession } from '@/common/ctx';
 import { Dimensions, ScrollView, View } from 'react-native';
 import { isMobile } from '@/common/utils';
 import { createStyles, defaultWebStyles } from '@/common/styles';

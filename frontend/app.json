@@ -40,6 +40,7 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
+      "@logrocket/react-native",
       [
         "expo-asset",
         {

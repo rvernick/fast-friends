@@ -1,8 +1,8 @@
 import { useContext, createContext, type PropsWithChildren, useEffect } from 'react';
-import { useStorageState } from './useStorageState';
+import { useStorageState } from '../useStorageState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { confirmLogin } from './common/utils';
-import { useGlobalContext } from './common/GlobalContext';
+import { confirmLogin } from './utils';
+import { useGlobalContext } from './GlobalContext';
 
 export const defaultAuthState = {
   signIn: (jwtToken: string, email: string) => null,

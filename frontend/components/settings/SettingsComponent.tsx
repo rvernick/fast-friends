@@ -6,7 +6,7 @@ import { ensureString, forget, isMobile, isValidPhone, strippedPhone } from '../
 import StravaController from "./StravaController";
 import { ActivityIndicator, Button, Card, Dialog, HelperText, IconButton, Portal, SegmentedButtons, Surface, Text, TextInput } from "react-native-paper";
 import { router, useLocalSearchParams } from "expo-router";
-import { useSession } from "@/ctx";
+import { useSession } from "@/common/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchUser } from "../../common/utils";
 

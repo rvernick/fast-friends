@@ -5,7 +5,7 @@ import { invalidPasswordMessage } from '../../../common/utils';
 import CreateAccountController from '../CreateAccountController';
 import AppContext from '@/common/app-context';
 import { QueryClient } from '@tanstack/react-query';
-import { defaultAuthState } from '@/ctx';
+import { defaultAuthState } from '@/common/ctx';
 import { renderRouter } from 'expo-router/testing-library';
 
 const createController = () => {

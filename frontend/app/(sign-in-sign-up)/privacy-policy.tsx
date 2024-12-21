@@ -17,7 +17,8 @@ export default function Index() {
       <Card style={useStyle.containerScreen}>
         <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant Privacy</Text>
           <Text style={{textAlign: "center"}}>Pedal Assistant does its best to maintain your data securly and privately</Text>
-          <Text style={{textAlign: "center"}}>Currently, we do not track your use of the app or share any data.</Text>
+          <Text style={{textAlign: "center"}}>We track your use of the app to better support you.  We use the data for customer support and to know how best to update the experience.</Text>
+          <Text style={{textAlign: "center"}}>We DO NOT sell this data nor do we use it for advertising.</Text>
           <Text style={{textAlign: "center"}}>Our privacy policy is evolving.  We'll notify you when it changes.</Text>
           <Text style={{textAlign: "center"}}>If you have questions, contact: privacy@pedal-assistant.com</Text>
           <Text> </Text>
