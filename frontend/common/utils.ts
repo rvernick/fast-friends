@@ -20,6 +20,10 @@ export const isMobile = (): boolean => {
   return Platform.OS === 'android' || Platform.OS === 'ios';
 }
 
+export const isProduction = (): boolean => {
+  return isMobile() || process.env.NODE_ENV === 'production';
+}
+
 export const remember = (key: string, value: string) => {
   if (isMobile()) {
     SecureStore.setItemAsync(key, value);
@@ -132,7 +136,13 @@ export const defaultUserPreferences = {
 };
 
 const initializeLogRocket = (user: User) => {
-  if (process.env.NODE_ENV !== 'production') {
+  if (!isProduction()) {
+    console.log('Not initializing LogRocket.');
+    return;
+  }
+
+  console.log('Initializing LogRocket...');
+  try {
     const name = user.firstName + ' ' + user.lastName;
     LogRocket.identify('PEDAL_ASSISTANT_USER', {
       name: name,
@@ -140,6 +150,8 @@ const initializeLogRocket = (user: User) => {
 
       // Add your own custom user variables here, ie:
     });
+  } catch (error: any) {
+    console.error('Failed to initialize LogRocket:', error);
   }
 }
 
