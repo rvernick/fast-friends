@@ -1,7 +1,8 @@
-import { createContext, useState, ReactNode, useContext } from 'react';
+import { createContext, useState, ReactNode, useContext, useEffect } from 'react';
 import AppContext from "./app-context";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useSession } from '@/common/ctx';
+import LogRocket from 'logrocket';
 
 const initialQueryClient = new QueryClient();
 export const GlobalStateContext = createContext({ appContext: new AppContext(initialQueryClient, null) });
@@ -19,6 +20,16 @@ export function GlobalStateProvider({ children }: GlobalStateProviderProps) {
   const session = useSession();
   const queryClient = useQueryClient()
   const [appContext, setAppContext] = useState(new AppContext(queryClient, session));
+  const [logRocketInitialized, setLogRocketInitialized] = useState(false);
+
+  useEffect(() => {
+    if (!logRocketInitialized) {
+      if (process.env.NODE_ENV !== 'production') {
+        LogRocket.init('e1y6b7/pedal-assistant');
+      }
+      setLogRocketInitialized(true);
+    }
+  }, [logRocketInitialized]);
 
   return (
     <GlobalStateContext.Provider value={{ appContext }}>
