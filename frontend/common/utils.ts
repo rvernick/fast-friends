@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@/models/User";
-import LogRocket from "logrocket";
+import LogRocket from '@logrocket/react-native';
 
 export const strippedPhone = (formattedPhone: string) => {
   if (!formattedPhone) {

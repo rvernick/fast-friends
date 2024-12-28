@@ -2,7 +2,7 @@ import { createContext, useState, ReactNode, useContext, useEffect } from 'react
 import AppContext from "./app-context";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useSession } from '@/common/ctx';
-import LogRocket from 'logrocket';
+import LogRocket from '@logrocket/react-native';
 import { isProduction } from './utils';
 
 const initialQueryClient = new QueryClient();
@@ -25,6 +25,7 @@ export function GlobalStateProvider({ children }: GlobalStateProviderProps) {
 
   const initializeLogRocket = () => {
     if (isProduction()) {
+      console.log('Initializing LogRocket in GlobalContext...');
       LogRocket.init('e1y6b7/pedal-assistant');
     }
     setLogRocketInitialized(true);
