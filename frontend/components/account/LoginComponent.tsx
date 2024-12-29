@@ -8,9 +8,11 @@ import { Card, TextInput, Surface } from 'react-native-paper';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { createStyles, defaultWebStyles } from "@/common/styles";
 import { useSession } from "@/common/ctx";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const LoginComponent = () => {
   const session = useSession();
+  const queryClient = useQueryClient();
   
   var user = '';
   var pword = '';
@@ -54,7 +56,13 @@ export const LoginComponent = () => {
     attemptLoginUsing(email, password);
   }
 
+  const invalidateLoginConfirmation = () => {
+    console.log('Invalidate login confirmation');
+    queryClient.removeQueries({queryKey: ['loginConfirmation']});
+  }
+
   const attemptLoginUsing = (username: string, pass: string) => {
+    invalidateLoginConfirmation();
     const loginAttempt = login(username, pass, session);
     loginAttempt
       .then(msg => {

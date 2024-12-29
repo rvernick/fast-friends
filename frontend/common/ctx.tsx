@@ -1,8 +1,7 @@
 import { useContext, createContext, type PropsWithChildren, useEffect } from 'react';
 import { useStorageState } from '../useStorageState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { confirmLogin } from './utils';
-import { useGlobalContext } from './GlobalContext';
+import { confirmLogin, sleep } from './utils';
 
 export const defaultAuthState = {
   signIn: (jwtToken: string, email: string) => null,
@@ -48,11 +47,20 @@ function LoginConfirmationWrapper({ children }: PropsWithChildren) {
     refetchIntervalInBackground: true,
   });
 
-  useEffect(() => {
-    if (session && session.jwt_token && !isFetching && ('not-logged-in' === data || isError)) {
+  const ensureServerRecognizesSession = async () => {
+    await sleep(10);  // let the login process complete before checking
+    if (session 
+          && session.jwt_token 
+          && session.jwt_token.length > 0
+          && !isFetching
+          && ('not-logged-in' === data || isError)) {
       console.log('Signing out.... ' + session.jwt_token + ' ' + data);
       session.signOut();
     }
+  }
+
+  useEffect(() => {
+    ensureServerRecognizesSession();
   }, [session, data, isFetching, isError]);
 
   return (
