@@ -1,8 +1,15 @@
 import LogRocket from 'logrocket';
 
-
 export const initializeLogRocketWeb = () => {
   LogRocket.init('e1y6b7/pedal-assistant');
+}
+
+export const initializeLogRocketMobile = () => {
+  throw new Error('LogRocket mobile initialization not supported');
+}
+
+export const identifyLogRocketMobile = (username: string, firstName: string, lastName: string) => {
+  throw new Error('LogRocket mobile identification not supported');
 }
 
 export const identifyLogRocketWeb = (username: string, firstName: string, lastName: string) => {

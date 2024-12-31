@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@/models/User";
-import { identifyLogRocketWeb } from "./logrocket";
+import { identifyLogRocketMobile, identifyLogRocketWeb } from "./logrocket";
 
 export const strippedPhone = (formattedPhone: string) => {
   if (!formattedPhone) {
@@ -145,7 +145,9 @@ const initializeLogRocket = (user: User) => {
 
   console.log('Initializing LogRocket...');
   try {
-    if (!isMobile()) {
+    if (isMobile()) {
+      identifyLogRocketMobile(user.username, user.firstName, user.lastName);
+    } else {
       identifyLogRocketWeb(user.username, user.firstName, user.lastName);
     }
   } catch (error: any) {

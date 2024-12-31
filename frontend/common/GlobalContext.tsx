@@ -3,7 +3,7 @@ import AppContext from "./app-context";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useSession } from '@/common/ctx';
 import { isMobile, isProduction } from './utils';
-import { initializeLogRocketWeb } from './logrocket';
+import { initializeLogRocketMobile, initializeLogRocketWeb } from './logrocket';
 
 const initialQueryClient = new QueryClient();
 export const GlobalStateContext = createContext({ appContext: new AppContext(initialQueryClient, null) });
@@ -26,7 +26,9 @@ export function GlobalStateProvider({ children }: GlobalStateProviderProps) {
   const initializeLogRocket = () => {
     if (isProduction()) {
       console.log('Initializing LogRocket in GlobalContext...');
-      if (!isMobile()) {
+      if (isMobile()) {
+        initializeLogRocketMobile();
+      } else {
         initializeLogRocketWeb();
       }
     }
