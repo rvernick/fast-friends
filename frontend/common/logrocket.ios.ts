@@ -13,7 +13,6 @@ export const identifyLogRocketWeb = (username: string, firstName: string, lastNa
 }
 
 export const identifyLogRocketMobile = (username: string, firstName: string, lastName: string) => {
-  
   console.log('Initializing LogRocket mobile...');
   try {
     initializeLogRocketMobile();

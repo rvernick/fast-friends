@@ -69,8 +69,7 @@ export const isValidEmail = (email: string): boolean => {
 }
 
 export async function confirmLogin(session: any): Promise<string> {
-  console.log('Checking session...' + session);
-  console.log('Checking session jwt' + session.jwt_token);
+  console.log('Confirm Login.  Checking session...');
   if (session === null || session.jwt_token === null) {
     return '';
   }

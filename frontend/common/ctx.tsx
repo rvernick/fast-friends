@@ -1,6 +1,6 @@
 import { useContext, createContext, type PropsWithChildren, useEffect } from 'react';
 import { useStorageState } from '../useStorageState';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { confirmLogin, sleep } from './utils';
 
 export const defaultAuthState = {
@@ -35,7 +35,6 @@ export function useSession() {
 
 function LoginConfirmationWrapper({ children }: PropsWithChildren) {
   const session = useSession();
-  const queryClient = useQueryClient();
   const { data, isFetching, isError } = useQuery({
     queryKey: ['loginConfirmation'],
     queryFn: async () => confirmLogin(session),
@@ -43,12 +42,11 @@ function LoginConfirmationWrapper({ children }: PropsWithChildren) {
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
     refetchOnMount: true,
-    refetchInterval: 2*60*1000,
+    refetchInterval: 2*6*1000,
     refetchIntervalInBackground: true,
   });
 
   const ensureServerRecognizesSession = async () => {
-    await sleep(10);  // let the login process complete before checking
     if (session 
           && session.jwt_token 
           && session.jwt_token.length > 0
@@ -61,7 +59,7 @@ function LoginConfirmationWrapper({ children }: PropsWithChildren) {
 
   useEffect(() => {
     ensureServerRecognizesSession();
-  }, [session, data, isFetching, isError]);
+  }, [data, isError]);
 
   return (
     <LoginConfirmation.Provider value={'aString'}>
