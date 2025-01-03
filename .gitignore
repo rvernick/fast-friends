@@ -64,4 +64,5 @@ temp/
 */.env
 
 notes
-frontend/app/(home)/deepLinkAttempt.tsx
+
+trash/*
