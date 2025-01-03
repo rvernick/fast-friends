@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@/models/User";
-import LogRocket from "logrocket";
+import { identifyLogRocketMobile, identifyLogRocketWeb } from "./logrocket";
 
 export const strippedPhone = (formattedPhone: string) => {
   if (!formattedPhone) {
@@ -73,6 +73,7 @@ export async function confirmLogin(session: any): Promise<string> {
     return '';
   }
   try {
+    console.log('Confirm Login.  Checking session...');
     const result = await getInternal('/auth/check-session', {  }, session.jwt_token);
     if (result.status === 'logged-in') {
       return 'logged-in';
@@ -143,14 +144,11 @@ const initializeLogRocket = (user: User) => {
 
   console.log('Initializing LogRocket...');
   try {
-    LogRocket.init('e1y6b7/pedal-assistant');
-    const name = user.firstName + ' ' + user.lastName;
-    LogRocket.identify('PEDAL_ASSISTANT_USER', {
-      name: name,
-      email: user.username,
-
-      // Add your own custom user variables here, ie:
-    });
+    if (isMobile()) {
+      identifyLogRocketMobile(user.username, user.firstName, user.lastName);
+    } else {
+      identifyLogRocketWeb(user.username, user.firstName, user.lastName);
+    }
   } catch (error: any) {
     console.error('Failed to initialize LogRocket:', error);
   }

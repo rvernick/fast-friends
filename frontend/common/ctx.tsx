@@ -1,8 +1,7 @@
 import { useContext, createContext, type PropsWithChildren, useEffect } from 'react';
 import { useStorageState } from '../useStorageState';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { confirmLogin } from './utils';
-import { useGlobalContext } from './GlobalContext';
 
 export const defaultAuthState = {
   signIn: (jwtToken: string, email: string) => null,
@@ -36,7 +35,6 @@ export function useSession() {
 
 function LoginConfirmationWrapper({ children }: PropsWithChildren) {
   const session = useSession();
-  const queryClient = useQueryClient();
   const { data, isFetching, isError } = useQuery({
     queryKey: ['loginConfirmation'],
     queryFn: async () => confirmLogin(session),
@@ -48,12 +46,21 @@ function LoginConfirmationWrapper({ children }: PropsWithChildren) {
     refetchIntervalInBackground: true,
   });
 
-  useEffect(() => {
-    if (session && session.jwt_token && !isFetching && ('not-logged-in' === data || isError)) {
+  const ensureServerRecognizesSession = async () => {
+    if (session 
+        && session.jwt_token 
+        && session.jwt_token.length > 0
+        && !isFetching
+        && ('not-logged-in' === data || isError)) {
       console.log('Signing out.... ' + session.jwt_token + ' ' + data);
       session.signOut();
     }
-  }, [session, data, isFetching, isError]);
+  }
+
+  useEffect(() => {
+    ensureServerRecognizesSession();
+  }, [data, isError]);
+
 
   return (
     <LoginConfirmation.Provider value={'aString'}>
