@@ -90,10 +90,10 @@ const MaintenanceHistoryComponent = () => {
         result = b.bikeName.localeCompare(a.bikeName);
       }
     }
+    result = result * (upDown === 'descending'? 1 : -1);
     if (result === 0) {
       result = b.distanceMeters - a.distanceMeters;
     }
-    result = result * (upDown === 'descending'? 1 : -1);
     return result;
   }
 
