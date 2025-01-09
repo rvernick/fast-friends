@@ -18,6 +18,9 @@ export class UpdateMaintenanceItemDto {
   @IsNumber()
   duemiles: number;
 
+  @IsNumber()
+  duedate: number;
+
   @IsString()
   brand: string;
 

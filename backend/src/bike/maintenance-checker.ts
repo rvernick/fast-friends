@@ -7,6 +7,7 @@ import { Notification, NotificationStatus } from "./notification";
 import { StravaService } from "./strava.service";
 import { BatchProcessService } from "../batch/batch-process.service";
 import { BatchProcess } from "../batch/batch-process.entity";
+import { Bike } from "./bike.entity";
 
 const last_run_maintenance = "MaintenanceChecker";
 const twelve_hours = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
@@ -126,13 +127,24 @@ export class MaintenanceChecker {
     for (const bike of user.bikes) {
       const maintenanceItems = bike.maintenanceItems;
       for (const item of maintenanceItems) {
-        if (bike.odometerMeters >= item.dueDistanceMeters && !item.wasNotified) {
-          // TODO: should exclude items that have recent notifications
+        if (!item.wasNotified && this.isMaintenanceOverdue(item, bike)) {
           result.push(item);
         }
       }
     }
     return result;
+  }
+
+  private isMaintenanceOverdue(item: MaintenanceItem, bike: Bike): boolean {
+    if (item.dueDate) {
+      if (item.dueDate.getTime() > new Date().getTime()) {
+        return true;
+      }
+    }
+    if (item.dueDistanceMeters) {
+      return bike.odometerMeters >= item.dueDistanceMeters;
+    }
+    return false;
   }
 
   private updateOdometers(user: User) {

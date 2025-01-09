@@ -4,6 +4,7 @@ import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useSession } from '@/common/ctx';
 import { isMobile, isProduction } from './utils';
 import { initializeLogRocketMobile, initializeLogRocketWeb } from './logrocket';
+import { en, registerTranslation } from 'react-native-paper-dates'
 
 const initialQueryClient = new QueryClient();
 export const GlobalStateContext = createContext({ appContext: new AppContext(initialQueryClient, null) });
@@ -22,6 +23,7 @@ export function GlobalStateProvider({ children }: GlobalStateProviderProps) {
   const queryClient = useQueryClient()
   const [appContext, setAppContext] = useState(new AppContext(queryClient, session));
   const [logRocketInitialized, setLogRocketInitialized] = useState(false);
+  const [datePickerInitialized, setDatePickerInitialized] = useState(false);
 
   const initializeLogRocket = () => {
     if (isProduction()) {
@@ -44,6 +46,18 @@ export function GlobalStateProvider({ children }: GlobalStateProviderProps) {
       }
     }
   }, [logRocketInitialized]);
+
+  useEffect(() => {
+    if (!datePickerInitialized) {
+      try {
+        registerTranslation('en', en)
+        setDatePickerInitialized(true);
+        console.log('Initialized date picker.');
+      } catch (error) {
+        console.log('Error initializing date picker: ', error);
+      }
+    }
+  }, [datePickerInitialized]);
 
   return (
     <GlobalStateContext.Provider value={{ appContext }}>

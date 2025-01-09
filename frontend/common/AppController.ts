@@ -36,8 +36,14 @@ class AppController {
 
   getCurrentBikes = async (session: any, username: string): Promise<Bike[] | null> => {
     const result = await getBikes(session, username);
-    console.log('get bikes result: ', result);
+    console.log('get current bikes result: ', result);
     if (result) {
+      for (const bike of result) {
+        for (const maintenanceItem of bike.maintenanceItems) {
+          maintenanceItem.bikeDistance = bike.odometerMeters;
+        }
+      }
+
       return result.filter(bike => bike.isRetired === false);
     }
     return result;

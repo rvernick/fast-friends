@@ -32,10 +32,7 @@ const MaintenanceComponent = () => {
   const preferences = controller.getUserPreferences(session);
 
   const [sortOption, setSortOption] = useState('Due');
-  const [sortedBikes, setSortedBikes] = useState<Bike[]>([]);
-
   const [expandedBike, setExpandedBike] = useState(0);
-  // const [sortOption, setSortOption] = useState('dueDate');
 
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
@@ -48,7 +45,7 @@ const MaintenanceComponent = () => {
     refetchOnReconnect: 'always',
     refetchOnMount: 'always',
   })
-  
+
   const addMaintenanceItem = () => {
     queryClient.removeQueries({ queryKey: ['maintenanceItems'] });
     router.push( { pathname: '/(home)/(maintenanceItems)', params: { id: '0', bikeid: expandedBike.toString() } });
@@ -68,13 +65,21 @@ const MaintenanceComponent = () => {
   type MaintenanceListItemProps = {
     maintenanceItem: MaintenanceItem;
     bikeId: number;
+    keyVal: string;
   }
 
-  const MaintenanceListItem: React.FC<MaintenanceListItemProps> = ({ maintenanceItem, bikeId }) => {
+  const MaintenanceListItem: React.FC<MaintenanceListItemProps> = ({ maintenanceItem, bikeId, keyVal }) => {
     const [description, setDescription ] = useState('');
 
     const syncDescription = async () => {
-      setDescription(maintenanceItem.action +' at: ' + metersToDisplayString(maintenanceItem.dueDistanceMeters, await preferences));
+      var desc = maintenanceItem.action;
+      if (maintenanceItem.dueDistanceMeters && maintenanceItem.dueDistanceMeters > 0) {
+        desc += ' at: '+ metersToDisplayString(maintenanceItem.dueDistanceMeters, await preferences);
+      }
+      if (maintenanceItem.dueDate) {
+        desc += ' by: '+ new Date(maintenanceItem.dueDate).toLocaleDateString('en-US');
+      }
+      setDescription(desc);
     }
 
     useEffect(() => {
@@ -83,9 +88,9 @@ const MaintenanceComponent = () => {
 
     return (
       <List.Item
-        key={'mi' + maintenanceItem.id + 'milage' + maintenanceItem.dueDistanceMeters.toFixed(0)}
+        key={keyVal}
         title={maintenanceItem.part}
-        id={'MLI' + bikeId}
+        id={'MLI' + keyVal}
         description={description}
         onPress={() => editMaintenanceItem(maintenanceItem.id, bikeId)}
         left={props => <BikePartIcon maintenanceItem={maintenanceItem}/>}
@@ -97,6 +102,7 @@ const MaintenanceComponent = () => {
     bike: Bike;
     isOpen?: boolean;
     sortBy: string;
+    key: string;
   };
 
   const sortOptions = ["A-Z", "Due"].map(option => ({ label: option, value: option}));
@@ -106,7 +112,24 @@ const MaintenanceComponent = () => {
       return items.sort((a, b) => a.part.localeCompare(b.part));
     }
     // sort option Due by default
-    return items.sort((a, b) => a.dueDistanceMeters - b.dueDistanceMeters);
+    return items.sort((a, b) => dueDistanceVal(a) - dueDistanceVal(b));
+  }
+
+  const dueDistanceVal = (item: MaintenanceItem): number => {
+    // assume 70k per week (10k/day) for due date calculation
+    var daysDiffAsMeters = Infinity;
+    if (item.dueDate) {
+      const diff = new Date(item.dueDate).getTime() - new Date().getTime();
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      daysDiffAsMeters = item.bikeDistance + 10000 * days;
+    }
+    // return smaller of deadlines
+    if (item.dueDistanceMeters && item.dueDistanceMeters > 0) {
+      if (item.dueDistanceMeters < daysDiffAsMeters) {
+        return item.dueDistanceMeters;
+      }
+    }
+    return daysDiffAsMeters;
   }
 
   const handleBikePress = (bikeId: number) => {
@@ -125,7 +148,7 @@ const MaintenanceComponent = () => {
    }
   };
 
-  const BikeAccordian: React.FC<BikeAccordainProps> = ({ bike, isOpen}) => {
+  const BikeAccordian: React.FC<BikeAccordainProps> = ({ bike, key}) => {
     const [description, setDescription ] = useState('');
 
     if (!bike.maintenanceItems || bike.maintenanceItems.length ==0) return null;
@@ -147,10 +170,13 @@ const MaintenanceComponent = () => {
           title={bike.name}
           description={description}
           onPress={() => handleBikePress(bike.id)}
-          key={'bike exa' + bike.id}
-          id={'bike exa' + bike.id}>
+          key={'bike exa' + key}
+          id={'bike exa' + key}>
         {sortedItems.map(maintenanceItem => (
-          <MaintenanceListItem maintenanceItem={maintenanceItem} bikeId={bike.id} key={'mlie' + maintenanceItem.id}/>
+          <MaintenanceListItem
+            maintenanceItem={maintenanceItem}
+            bikeId={bike.id}
+            keyVal={maintenanceItem.id.toFixed(0) + '-' + maintenanceItem.dueDistanceMeters.toFixed(0)}/>
         ))}
       </List.Accordion>
     );
@@ -219,7 +245,6 @@ const MaintenanceComponent = () => {
   const updateSorting = (newSortValue: string | undefined) => {
     const newSort = newSortValue ? newSortValue : 'A-Z';
     setSortOption(newSort);
-    setSortedBikes(getSortedBikes(data, newSort));
   }
 
 
@@ -227,7 +252,6 @@ const MaintenanceComponent = () => {
     navigation.setOptions({ title: 'Maintenance' });
     if (expandedBike === 0 && data && data.length > 0) {
       const bikeList = getSortedBikes(data, sortOption);
-      setSortedBikes(bikeList);
       handleBikePress(bikeList[0].id);
     }
     
@@ -259,13 +283,13 @@ const MaintenanceComponent = () => {
         </Card>
           <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
             <List.Section>
-              {sortedBikes?.map(bike => (
+              {getSortedBikes(data, sortOption).map(bike => (
                 <BikeAccordian
                   bike={bike}
                   sortBy={sortOption}
                   isOpen={true}
                   // isOpen={bike.id === expandedBike}
-                  key={"bikeAccordian" + bike.id}/>
+                  key={"bikeAccordian" + bikeId(bike)}/>
               ))}
             </List.Section>
         </ScrollView>
@@ -288,6 +312,13 @@ const MaintenanceComponent = () => {
   }
 };
 
+export const bikeId = (bike: Bike): string => {
+  var dueMiles = 0;
+  for (const item of bike.maintenanceItems) {
+    dueMiles += item.dueDistanceMeters;
+  }
+  return bike.id.toString() + '-' + dueMiles.toString();
+}
 // navigation.push('Bike', { bike })
 
 export const getSortedBikes = (bikes: Bike[] | null, sortBy: string): Bike[] => {
