@@ -13,16 +13,10 @@ import { BooleanDropdown } from "../common/BooleanDropdown";
 import { BikeDropdown } from "../common/BikeDropdown";
 import { PartDropdown } from "../common/PartDropdown";
 import { ActionDropdown } from "../common/ActionDropdown";
-import { Dimensions } from "react-native";
+import { Dimensions, ScrollView, View } from "react-native";
 import { createStyles, defaultWebStyles } from "@/common/styles";
+import { DatePickerInput } from 'react-native-paper-dates';
 
-const groupsetBrands = [
-  'Shimano',
-  'SRAM',
-  'Campagnolo',
-  'Other',
-]
-const groupsetSpeeds = ['1', '9', '10', '11', '12', '13'];
 const threeThousandMilesInMeters = milesToMeters(3000);
 
 const newMaintenanceItem = {
@@ -35,6 +29,7 @@ const newMaintenanceItem = {
   link: '',
   bikeDistance: 0,
   dueDistanceMeters: threeThousandMilesInMeters,
+  dueDate: new Date(),
   defaultLongevity: 3000,
   autoAdjustLongevity: true,
 };
@@ -57,6 +52,8 @@ type MaintenanceItemProps = {
   bikeid: number,
 };
 
+const ninetyDays = 90 * 24 * 60 * 60 * 1000;
+
 const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid, bikeid}) => {
   const session = useSession();
   const queryClient = useQueryClient();
@@ -76,6 +73,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const [part, setPart] = useState(Part.CHAIN.toString())
   const [action, setAction] = useState(Action.REPLACE.toString());
   const [dueMiles, setDueMiles] = useState('1500');
+  const [dueDate, setDueDate] = useState(new Date(Date.now() + ninetyDays));
   const [dueDistanceLabel, setDueDistanceLabel] = useState('Due Distance (miles)');
   const [defaultLongevityLabel, setDefaultLongevityLabel] = useState('Default Longevity (miles)');
   const [brand, setBrand] = useState('Shimano');
@@ -88,6 +86,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const [availabileActions, setAvailableActions] = useState(actionOptions);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  const deadlineOptions = ['Distance', 'Date', 'Both'].map((val) => ({ label: val, value: val }));
+  const [deadline, setDeadline] = useState('Distance');
   const controller = new MaintenanceItemController(appContext);
   const preferences = controller.getUserPreferences(session);
 
@@ -101,6 +101,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   });
 
   const updateOrAddMaintenanceItem = async function() {
+    const newDueDate = deadline == 'Distance' ? null : dueDate;
+    const newDueMiles = deadline == 'Date' ? 0 : displayStringToMeters(dueMiles, await preferences);
     const successful = await controller.updateOrAddMaintenanceItem(
       session,
       email,
@@ -108,7 +110,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       bike.id,
       part,
       action,
-      displayStringToMeters(dueMiles, await preferences),
+      newDueMiles,
+      newDueDate,
       brand,
       model,
       link,
@@ -116,7 +119,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       autoAdjustLongevity,
     );
     if (successful) {
-      queryClient.invalidateQueries({ queryKey: ['bikes'] });
+      queryClient.refetchQueries({ queryKey: ['bikes'] });
       if (isNew) {
         // don't know the id so can't reset
         navigation.goBack();
@@ -150,6 +153,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   }
 
   const resetMaintenanceItem = async (item: MaintenanceItem) => {
+    var bike: Bike | null = null;
     if (item) {
       setMaintenanceItem(item);
       if (item.id === 0) {
@@ -159,7 +163,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         }
         if (bikes && bikes.length > 0) {
           const latestBike = bikes[bikes.length - 1];
-          selectBike(ensureString(latestBike.id));
+          bike = await selectBike(ensureString(latestBike.id));
         }
       } else {
         setIsNew(false);
@@ -167,7 +171,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           for (const bikeItem of bikes) {
 //            console.log('Reset checking bikeItems: ', JSON.stringify(bikeItem));
             if (bikeItem.maintenanceItems.some(mi => mi.id === item.id)) {
-              selectBike(ensureString(bikeItem.id));
+              bike = await selectBike(ensureString(bikeItem.id));
             }
           }
         }
@@ -176,12 +180,30 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       console.log('setting part to: ' + item.part.toString());
       setPart(ensureString(item.part.toString()));
       setAction(ensureString(item.action.toString()));
-      setDueMiles(metersToDisplayString(item.dueDistanceMeters, await preferences));
+      if (item.dueDistanceMeters  && item.dueDistanceMeters> 0) {
+        setDueMiles(metersToDisplayString(item.dueDistanceMeters, await preferences));
+      } else {
+        if (bike) {
+          setDueMiles(metersToDisplayString(bike.odometerMeters + item.defaultLongevity, await preferences));
+        }
+      }
       setBrand(ensureString(item.brand));
       setModel(ensureString(item.model));
       setLink(ensureString(item.link));
       setDefaultLongevity(metersToDisplayString(item.defaultLongevity, await preferences));
       setAutoAdjustLongevity(item.autoAdjustLongevity);
+      if (item.dueDate == null) {
+        const newDueDate = Date.now() + ninetyDays;
+        setDueDate(new Date(newDueDate));
+        setDeadline('Distance');
+      } else {
+        setDueDate(new Date(item.dueDate));
+        if (item.dueDistanceMeters && item.dueDistanceMeters > 0) {
+          setDeadline('Both');
+        } else {
+          setDeadline('Date');
+        }
+      }
       console.log('Reset maintenance item: ', item.id );
       // console.log('Reset bike: ', bikes.length );
     }
@@ -232,7 +254,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   }
 
 
-  const selectBike = async (idString: string | undefined) => {
+  const selectBike = async (idString: string | undefined): Promise<Bike | null> => {
     if (idString && bikes) {
       const id = parseInt(idString);
       const bikeById = bikes.find(bike => bike.id === id);
@@ -248,10 +270,12 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         updateActionsList(bikeById, part);
         ensureDueMilageAhead(bikeById);
         console.log('Selected bikeById id: ', id);
+        return bikeById;
       } else {
         console.log('Bike not found: ', idString);
       }
     }
+    return null;
   }
 
   const ensureDueMilageAhead = async (toBike: Bike) => {
@@ -313,10 +337,6 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
     }
   }, [bikes, maintenanceItem]);
   
-  // const groupsetOptions = groupsetBrands.map(brand => ({ label: brand, value: brand }));
-  // const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
-  // const typeOptions = types.map(type => ({ label: type, value: type }));
-
   const partSelected = (part: string | undefined) => {
     console.log('partSelected: ', part);
     if (null === part) return;
@@ -331,7 +351,6 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   }
 
   const dueMilesChange = (miles: string) => {
-    console.log('dueMilesChange: ', miles);
     if (miles === '') {
       setDueMiles('0');
       return;
@@ -367,72 +386,91 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
 
   return (
     <Surface style={useStyle.containerScreen}>
-      <Card>
       {!isInitialized ? <ActivityIndicator animating={!isInitialized}  size="large"/> : null }
-        <BikeDropdown
-          bikes={bikes}
-          value={bikeIdString}
-          readonly={readOnly || !isNew}
-          onSelect={selectBike} />
-        <PartDropdown
-          value={part}
-          readonly={readOnly || !isNew}
-          onSelect={partSelected}
+        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
+          <BikeDropdown
+            bikes={bikes}
+            value={bikeIdString}
+            readonly={readOnly || !isNew}
+            onSelect={selectBike} />
+          <PartDropdown
+            value={part}
+            readonly={readOnly || !isNew}
+            onSelect={partSelected}
+            />
+          <ActionDropdown
+            value={action}
+            readonly={readOnly || !isNew}
+            actions={availabileActions}
+            onSelect={actionSelected}
+            />
+            {readOnly? null : <Dropdown
+              options={deadlineOptions}
+              label="Track by"
+              placeholder={ensureString(deadline)}
+              value={deadline}
+              onSelect={(val) => val ? setDeadline(val) : null}
+              testID="deadlineDropdown"  />}
+          <TextInput 
+            label={dueDistanceLabel}
+            value={dueMiles.toString()}
+            disabled={readOnly || deadline == "Date"}
+            onChangeText={dueMilesChange}
+            testID="dueMilesInput"
+            accessibilityLabel="Due Milage"
+            accessibilityHint="Milage when this maintenance should be performed"
           />
-        <ActionDropdown
-          value={action}
-          readonly={readOnly || !isNew}
-          actions={availabileActions}
-          onSelect={actionSelected}
-          />
-        <TextInput 
-          label={dueDistanceLabel}
-          value={dueMiles.toString()}
-          disabled={readOnly}
-          onChangeText={dueMilesChange}
-          testID="dueMilesInput"
-          accessibilityLabel="Due Milage"
-          accessibilityHint="Milage when this maintenance should be performed"
-       />
-        <TextInput 
-          label={defaultLongevityLabel}
-          value={defaultLongevity.toString()}
-          disabled={readOnly}
-          onChangeText={defaultLongevityChange}
-          testID="defaultLongevityInput"
-          accessibilityLabel="Default Longevity"
-          accessibilityHint="Typical milage when this maintenance should be performed"
-       />
-       <Tooltip title="Auto Adjust: Use historical maintenance pattern to update longevity">
-        <BooleanDropdown
-            label={"Auto Adjust Longevity"}
-            value={autoAdjustLongevity}
-            readonly={readOnly}
-            onSelect={(value: boolean) => setAutoAdjustLongevity(value)}
-          />
-       </Tooltip>
-        <TextInput
-          label={"Brand"}
-          value={brand}
-          disabled={readOnly}
-          onChangeText={(text) => setBrand(text)}
-          accessibilityLabel="Brand"
-          accessibilityHint="Brand of part used"/>
-        <TextInput
-          label={"Model"}
-          value={model}
-          disabled={readOnly}
-          onChangeText={(text) => setModel(text)}
-          accessibilityLabel="Model"
-          accessibilityHint="Model of part used"/>
-        <TextInput
-          label={"Link"}
-          value={link}
-          disabled={readOnly}
-          onChangeText={(text) => setLink(text)}
-          accessibilityLabel="Link"
-          accessibilityHint="URL of part used"/>
-        </Card>
+          <View style={{flexDirection: 'row', justifyContent: 'flex-start', flexWrap: 'nowrap'}}>
+            <DatePickerInput
+              locale="en"
+              validRange={{startDate: new Date()}}
+              disableStatusBarPadding={true}
+              label="Deadline"
+              value={dueDate}
+              onChange={(d) => d instanceof Date ? setDueDate(d) : null}
+              inputEnabled={!readOnly && deadline != "Distance"}
+              inputMode="start"
+            />
+          </View>
+          <TextInput 
+            label={defaultLongevityLabel}
+            value={defaultLongevity.toString()}
+            disabled={readOnly}
+            onChangeText={defaultLongevityChange}
+            testID="defaultLongevityInput"
+            accessibilityLabel="Default Longevity"
+            accessibilityHint="Typical milage when this maintenance should be performed"
+        />
+        <Tooltip title="Auto Adjust: Use historical maintenance pattern to update longevity">
+          <BooleanDropdown
+              label={"Auto Adjust Longevity"}
+              value={autoAdjustLongevity}
+              readonly={readOnly}
+              onSelect={(value: boolean) => setAutoAdjustLongevity(value)}
+            />
+        </Tooltip>
+          <TextInput
+            label={"Brand"}
+            value={brand}
+            disabled={readOnly}
+            onChangeText={(text) => setBrand(text)}
+            accessibilityLabel="Brand"
+            accessibilityHint="Brand of part used"/>
+          <TextInput
+            label={"Model"}
+            value={model}
+            disabled={readOnly}
+            onChangeText={(text) => setModel(text)}
+            accessibilityLabel="Model"
+            accessibilityHint="Model of part used"/>
+          <TextInput
+            label={"Link"}
+            value={link}
+            disabled={readOnly}
+            onChangeText={(text) => setLink(text)}
+            accessibilityLabel="Link"
+            accessibilityHint="URL of part used"/>
+          </ScrollView>
         <Surface style={useStyle.bottomButtons}>
           <Button
             mode="contained"

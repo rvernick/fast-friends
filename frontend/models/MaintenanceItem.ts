@@ -10,6 +10,7 @@ export interface MaintenanceItem {
   link: string;
   bikeDistance: number;
   dueDistanceMeters: number;
+  dueDate: Date;
   defaultLongevity: number;
   autoAdjustLongevity: boolean;
 };

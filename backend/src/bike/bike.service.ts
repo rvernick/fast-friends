@@ -286,7 +286,17 @@ export class BikeService {
       } else {
         maintenanceInfo.action = Action.REPLACE;
       }
+      if (maintenanceInfo.duemiles && maintenanceInfo.duemiles > 0) {
+        maintenanceItem.dueDistanceMeters = Math.round(maintenanceInfo.duemiles);
+      } else {
+        maintenanceItem.dueDistanceMeters = null;
+      }
       maintenanceItem.dueDistanceMeters = Math.round(maintenanceInfo.duemiles);
+      if (maintenanceInfo.duedate && maintenanceInfo.duedate > 0) {
+        maintenanceItem.dueDate = new Date(maintenanceInfo.duedate);
+      } else {
+        maintenanceItem.dueDate = null;
+      }
       maintenanceItem.defaultLongevity = Math.round(maintenanceInfo.defaultLongevity);
       maintenanceItem.autoAdjustLongevity = maintenanceInfo.autoAdjustLongevity;
       maintenanceItem.brand = maintenanceInfo.brand;
@@ -402,6 +412,7 @@ export class BikeService {
     this.maintenanceHistoryRepository.save(maintenanceHistory);
 
     maintenanceItem.dueDistanceMeters = Math.round(log.nextDue);
+    maintenanceItem.wasNotified = false;
     this.maintenanceItemsRepository.save(maintenanceItem);
   }
 

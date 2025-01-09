@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsString } from 'class-validator'
+import { IsBoolean, IsDate, IsNumber, IsString } from 'class-validator'
 
 export class UpdateMaintenanceItemDto {
   @IsString()
@@ -17,6 +17,9 @@ export class UpdateMaintenanceItemDto {
   
   @IsNumber()
   duemiles: number;
+
+  @IsNumber()
+  duedate: number;
 
   @IsString()
   brand: string;
