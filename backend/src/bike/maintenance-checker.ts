@@ -127,7 +127,7 @@ export class MaintenanceChecker {
     for (const bike of user.bikes) {
       const maintenanceItems = bike.maintenanceItems;
       for (const item of maintenanceItems) {
-        if (this.isMaintenanceOverdue(item, bike)) {
+        if (!item.wasNotified && this.isMaintenanceOverdue(item, bike)) {
           result.push(item);
         }
       }
