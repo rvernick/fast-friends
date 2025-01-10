@@ -3,7 +3,7 @@ import { isMobile } from "@/common/utils";
 import { router } from "expo-router";
 import { Dimensions } from "react-native";
 import { Image } from "react-native";
-import { Button, useTheme, Text, Surface, Card, IconButton } from "react-native-paper";
+import { Button, Text, Surface, Card, IconButton } from "react-native-paper";
 
 export default function Index() {
   const dimensions = Dimensions.get('window');

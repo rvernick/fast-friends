@@ -2,11 +2,9 @@ import { createStyles, defaultWebStyles } from "@/common/styles";
 import { isMobile } from "@/common/utils";
 import { router } from "expo-router";
 import { Dimensions } from "react-native";
-import { Button, useTheme, Text, Surface, Card } from "react-native-paper";
+import { Button, Text, Surface, Card } from "react-native-paper";
 
 export default function Index() {
-  const theme = useTheme();
-
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
