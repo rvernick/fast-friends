@@ -4,26 +4,17 @@ import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText } from "react-native-paper";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters } from "@/common/utils";
+import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
 import { useQuery } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
-import { MaintenanceItem, Part } from "@/models/MaintenanceItem";
+import { Part } from "@/models/MaintenanceItem";
+import { MaintenanceLog } from "@/models/MaintenanceLog";
 import { Dimensions, ScrollView, View } from "react-native";
 import { createStyles, defaultWebStyles } from "@/common/styles";
 import { BikeDropdown } from "../common/BikeDropdown";
+import { DatePickerInput } from "react-native-paper-dates";
 
 const threeThousandMilesInMeters = milesToMeters(3000);
-
-const newMaintenanceItem = {
-  id: 0,
-  part: '',
-  name: '',
-  brand: 'Shimano',
-  model: '',
-  link: '',
-  bikeDistance: 0,
-  dueDistanceMeters: threeThousandMilesInMeters,
-};
 
 const newBike = {
   id: 0,
@@ -37,15 +28,6 @@ const newBike = {
   stravaId: '',
   isRetired: false,
 }
-/**
- * 
-type MaintenanceItemProps = {
-  maintenanceid: number,
-  bikeid: number,
-};
-
-const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid, bikeid}) => {
- */
 
 type LogMaintenanceProps = {
   bikeid: string,
@@ -110,18 +92,35 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     }
     for (const bike of bikes) {
       for (const item of bike.maintenanceItems) {
+        const nextDue = item.dueDistanceMeters ? bike.odometerMeters + item.defaultLongevity : null;
+        const nextDate = item.dueDate ? new Date(today().getTime() + item.defaultLongevityDays * 24 * 60 * 60 * 1000) : null;
         var log = {
           id: item.id,
           bikeId: bike.id,
+          bikeMileage: bike.odometerMeters,
           maintenanceItem: item,
           due: item.dueDistanceMeters,
-          nextDue: bike.odometerMeters + item.defaultLongevity,
+          nextDue: nextDue,
+          nextDate: nextDate,
           selected: false,
         };
         maintenanceLogs.push(log);
       }
     }
-    setMaintenanceLogs(maintenanceLogs.sort((a, b) => a.due - b.due));
+    setMaintenanceLogs(maintenanceLogs.sort((a, b) => sortValue(a) - sortValue(b)));
+  }
+
+  const sortValue = (mlog: MaintenanceLog): number => {
+    if (mlog.due) {
+      return mlog.due;
+    }
+    if (mlog.nextDate) {
+      const milisecondsTillDue = mlog.nextDate?.getTime() - today().getTime();
+      const daysTilDue = milisecondsTillDue / (1000 * 60 * 60 * 24);
+      const metersTillDue = daysTilDue * 10*1000;
+      return metersTillDue + mlog.bikeMileage;  // 10k per day
+    }
+    return Infinity;
   }
 
   const selectDefaultBike = () => {
@@ -164,6 +163,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
 
   const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log, rowKey }) => {
     const [nextDueValue, setNextDueValue] = useState(log.nextDue);
+    const [nextDueDate, setNextDueDate] = useState(log.nextDate);
     const [nextDueString, setNextDueString] = useState('0');
     const [dueDistanceString, setDueDistanceString] = useState('0');
 
@@ -189,6 +189,18 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
       }
     }
 
+    const setNextDate = async (newValue: Date) => {
+      try {
+        if (newValue) {
+          console.log('new date date: ', newValue.toLocaleDateString());
+          setNextDueDate(newValue);
+          log.nextDate = newValue;
+        }
+      } catch (error) {
+        console.error('Error setting next due: ', error);
+      }
+    }
+
     const ensureSelected = () => {
       if (!checkedIds.includes(log.id)) {
         setCheckedIds((prevIds) => [...prevIds, log.id]);
@@ -196,7 +208,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     }
 
     const syncNextDueString = async () => {
-      setNextDueString(metersToDisplayString(nextDueValue, await preferences));
+      setNextDueString(metersToDisplayString(nextDueValue ? nextDueValue : 0, await preferences));
       setDueDistanceString(metersToDisplayString(log.maintenanceItem.dueDistanceMeters, await preferences));
     }
     
@@ -221,12 +233,22 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
             {dueDistanceString}</Text>
         </View>
         <View style={{ justifyContent: "center", width: "24%", padding: 1}}>
-          <TextInput
+          {log.nextDue ? (<TextInput
             onChangeText={(newValue) => {setNextDue(newValue)}}
             value={ nextDueString }
             onBlur={ensureSelected}
+            inputMode="numeric"
             key={"nextDue" + rowKey}
-          />
+          />) : (
+            <DatePickerInput
+              locale="en"
+              validRange={{startDate: today()}}
+              disableStatusBarPadding={true}
+              value={nextDueDate ? nextDueDate : new Date(today().getTime() + 90 * 24 * 60 * 60 * 1000)}
+              onChange={(d) => d instanceof Date ? setNextDate(d) : null}
+              inputEnabled={nextDueDate != null}
+              inputMode="start"
+            />)}
         </View>
       </View>
     )
@@ -319,14 +341,5 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     </Surface>
   )
 };
-
-interface MaintenanceLog {
-  id: number;
-  bikeId: number;
-  maintenanceItem: MaintenanceItem;
-  due: number;
-  nextDue: number;
-  selected: boolean;
-}
 
 export default LogMaintenanceComponent;

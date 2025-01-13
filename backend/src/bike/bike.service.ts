@@ -298,6 +298,7 @@ export class BikeService {
         maintenanceItem.dueDate = null;
       }
       maintenanceItem.defaultLongevity = Math.round(maintenanceInfo.defaultLongevity);
+      maintenanceItem.defaultLongevityDays = Math.round(maintenanceInfo.defaultLongevityDays);
       maintenanceItem.autoAdjustLongevity = maintenanceInfo.autoAdjustLongevity;
       maintenanceItem.brand = maintenanceInfo.brand;
       maintenanceItem.model = maintenanceInfo.model;
@@ -411,7 +412,16 @@ export class BikeService {
     maintenanceHistory.link = maintenanceItem.link;
     this.maintenanceHistoryRepository.save(maintenanceHistory);
 
-    maintenanceItem.dueDistanceMeters = Math.round(log.nextDue);
+    if (log.nextDue && log.nextDue > 0) {
+      maintenanceItem.dueDistanceMeters = Math.round(log.nextDue);
+    } else {
+      maintenanceItem.dueDistanceMeters = null;
+    }
+    if (log.nextDueDate && log.nextDueDate > 0) {
+      maintenanceItem.dueDate = new Date(log.nextDueDate);
+    } else {
+      maintenanceItem.dueDate = null;
+    }
     maintenanceItem.wasNotified = false;
     this.maintenanceItemsRepository.save(maintenanceItem);
   }

@@ -9,6 +9,9 @@ export class MaintenanceLogDto {
 
   @IsNumber()
   nextDue: number;
+
+  @IsNumber()
+  nextDueDate: number;
 }
 
 export class MaintenanceLogRequestDto {

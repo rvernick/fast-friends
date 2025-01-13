@@ -216,6 +216,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
           disabled={readOnly || connectedToStrava()}
           value={milage}
           onChangeText={(value) => setMileage(value ? value : '')}
+          inputMode="numeric"
           testID="mileageField"
           accessibilityLabel="Milage"
           accessibilityHint="Mileage of the bike"/>

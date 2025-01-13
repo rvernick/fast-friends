@@ -33,6 +33,9 @@ export class UpdateMaintenanceItemDto {
   @IsNumber()
   defaultLongevity: number;
 
+  @IsNumber()
+  defaultLongevityDays: number;
+
   @IsBoolean()
   autoAdjustLongevity: boolean;
 }

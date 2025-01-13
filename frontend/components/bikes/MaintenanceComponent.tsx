@@ -10,7 +10,7 @@ import MaintenanceListController from './MaintenanceListController';
 import { Dropdown } from 'react-native-paper-dropdown';
 import { Dimensions, ScrollView, View } from 'react-native';
 import { createStyles, defaultWebStyles } from '@/common/styles';
-import { isMobile, metersToDisplayString } from '@/common/utils';
+import { isMobile, metersToDisplayString, today } from '@/common/utils';
 
 type MaintenanceListProps = {
   bikes: Bike[] | null | undefined;
@@ -119,7 +119,7 @@ const MaintenanceComponent = () => {
     // assume 70k per week (10k/day) for due date calculation
     var daysDiffAsMeters = Infinity;
     if (item.dueDate) {
-      const diff = new Date(item.dueDate).getTime() - new Date().getTime();
+      const diff = new Date(item.dueDate).getTime() - today().getTime();
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       daysDiffAsMeters = item.bikeDistance + 10000 * days;
     }
@@ -160,6 +160,16 @@ const MaintenanceComponent = () => {
       setDescription(val);
     }
 
+    const keyFor = (maintenanceItem: MaintenanceItem): string => {
+      var result = maintenanceItem.part + '-' + maintenanceItem.action;
+      if (maintenanceItem.dueDistanceMeters && maintenanceItem.dueDistanceMeters > 0) {
+        result += 'at:'+ maintenanceItem.dueDistanceMeters;
+      } else if (maintenanceItem.dueDate) {
+        result += 'by:'+ new Date(maintenanceItem.dueDate).toLocaleDateString('en-US');
+      }
+      return result;
+    }
+
     useEffect(() => {
       syncDescription();
     }, []);
@@ -176,7 +186,7 @@ const MaintenanceComponent = () => {
           <MaintenanceListItem
             maintenanceItem={maintenanceItem}
             bikeId={bike.id}
-            keyVal={maintenanceItem.id.toFixed(0) + '-' + maintenanceItem.dueDistanceMeters.toFixed(0)}/>
+            keyVal={keyFor(maintenanceItem)}/>
         ))}
       </List.Accordion>
     );

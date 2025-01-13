@@ -108,6 +108,9 @@ export class MaintenanceItem {
   @Column({nullable: false, default: threeThousandMilesInMeters, name: 'default_longevity' })
   defaultLongevity: number;
 
+  @Column({nullable: false, default: 90, name: 'default_longevity_days' })
+  defaultLongevityDays: number;
+
   @Column({nullable: false, default: true, name: 'auto_adjust_longevity'  })
   autoAdjustLongevity: boolean;
 
