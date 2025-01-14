@@ -194,7 +194,11 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       setModel(ensureString(item.model));
       setLink(ensureString(item.link));
       setDefaultLongevity(metersToDisplayString(item.defaultLongevity, await preferences));
-      setDefaultLongevityDays(ensureString(item.defaultLongevityDays));
+      if (item.defaultLongevityDays && item.defaultLongevityDays < 10000) {
+        setDefaultLongevityDays(ensureString(item.defaultLongevityDays));
+      } else {
+        setDefaultLongevityDays('90');
+      }
       setAutoAdjustLongevity(item.autoAdjustLongevity);
       if (item.dueDate == null) {
         const newDueDate = today().getTime() + ninetyDays;

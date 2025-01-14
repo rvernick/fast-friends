@@ -65,11 +65,17 @@ const MaintenanceComponent = () => {
   type MaintenanceListItemProps = {
     maintenanceItem: MaintenanceItem;
     bikeId: number;
-    keyVal: string;
   }
 
-  const MaintenanceListItem: React.FC<MaintenanceListItemProps> = ({ maintenanceItem, bikeId, keyVal }) => {
+  const MaintenanceListItem: React.FC<MaintenanceListItemProps> = ({ maintenanceItem, bikeId }) => {
     const [description, setDescription ] = useState('');
+
+    var keyVal = maintenanceItem.part + maintenanceItem.action;
+    if (maintenanceItem.dueDistanceMeters && maintenanceItem.dueDistanceMeters > 0) {
+      keyVal += 'at:'+ maintenanceItem.dueDistanceMeters;
+    } else if (maintenanceItem.dueDate) {
+      keyVal += 'by:'+ new Date(maintenanceItem.dueDate).toLocaleDateString('en-US');
+    }
 
     const syncDescription = async () => {
       var desc = maintenanceItem.action;
@@ -102,7 +108,6 @@ const MaintenanceComponent = () => {
     bike: Bike;
     isOpen?: boolean;
     sortBy: string;
-    key: string;
   };
 
   const sortOptions = ["A-Z", "Due"].map(option => ({ label: option, value: option}));
@@ -148,7 +153,7 @@ const MaintenanceComponent = () => {
    }
   };
 
-  const BikeAccordian: React.FC<BikeAccordainProps> = ({ bike, key}) => {
+  const BikeAccordian: React.FC<BikeAccordainProps> = ({ bike}) => {
     const [description, setDescription ] = useState('');
 
     if (!bike.maintenanceItems || bike.maintenanceItems.length ==0) return null;
@@ -161,7 +166,7 @@ const MaintenanceComponent = () => {
     }
 
     const keyFor = (maintenanceItem: MaintenanceItem): string => {
-      var result = maintenanceItem.part + '-' + maintenanceItem.action;
+      var result = maintenanceItem.part + maintenanceItem.action;
       if (maintenanceItem.dueDistanceMeters && maintenanceItem.dueDistanceMeters > 0) {
         result += 'at:'+ maintenanceItem.dueDistanceMeters;
       } else if (maintenanceItem.dueDate) {
@@ -174,19 +179,20 @@ const MaintenanceComponent = () => {
       syncDescription();
     }, []);
 
+    const keyVal = "bikeAccordian" + bikeId(bike)
     return (
       <List.Accordion
           expanded={expandedBike === bike.id}
           title={bike.name}
           description={description}
           onPress={() => handleBikePress(bike.id)}
-          key={'bike exa' + key}
-          id={'bike exa' + key}>
+          key={'bike exa' + keyVal}
+          id={'bike exa' + keyVal}>
         {sortedItems.map(maintenanceItem => (
           <MaintenanceListItem
+            key={keyFor(maintenanceItem)}
             maintenanceItem={maintenanceItem}
-            bikeId={bike.id}
-            keyVal={keyFor(maintenanceItem)}/>
+            bikeId={bike.id}/>
         ))}
       </List.Accordion>
     );
@@ -296,10 +302,9 @@ const MaintenanceComponent = () => {
               {getSortedBikes(data, sortOption).map(bike => (
                 <BikeAccordian
                   bike={bike}
+                  key={bike.id}
                   sortBy={sortOption}
-                  isOpen={true}
-                  // isOpen={bike.id === expandedBike}
-                  key={"bikeAccordian" + bikeId(bike)}/>
+                  isOpen={true}/>
               ))}
             </List.Section>
         </ScrollView>
@@ -327,7 +332,7 @@ export const bikeId = (bike: Bike): string => {
   for (const item of bike.maintenanceItems) {
     dueMiles += item.dueDistanceMeters;
   }
-  return bike.id.toString() + '-' + dueMiles.toString();
+  return bike.id.toString() + dueMiles.toString();
 }
 // navigation.push('Bike', { bike })
 
