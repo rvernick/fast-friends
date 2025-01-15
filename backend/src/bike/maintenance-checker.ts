@@ -137,7 +137,7 @@ export class MaintenanceChecker {
 
   private isMaintenanceOverdue(item: MaintenanceItem, bike: Bike): boolean {
     if (item.dueDate) {
-      if (item.dueDate.getTime() > new Date().getTime()) {
+      if (item.dueDate.getTime() < new Date().getTime()) {
         return true;
       }
     }
