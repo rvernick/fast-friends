@@ -57,7 +57,9 @@ export class MaintenanceChecker {
     const userIds = await this.userService.getUserIdsWithStravaLinked();
     for (const userId of userIds) {
       const user = await this.userService.findOne(userId);
-      await this.checkBikeMaintenance(user);
+      if (user.lastName == 'Vernick') {
+        await this.checkBikeMaintenance(user);
+      }
     }
   }
 
