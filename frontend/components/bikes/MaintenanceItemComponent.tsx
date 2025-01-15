@@ -5,7 +5,7 @@ import { router, useNavigation } from "expo-router";
 import { Button, TextInput, ActivityIndicator, Card, Surface, Tooltip, Text } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters } from "@/common/utils";
+import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { Action, MaintenanceItem, Part } from "@/models/MaintenanceItem";
@@ -29,8 +29,9 @@ const newMaintenanceItem = {
   link: '',
   bikeDistance: 0,
   dueDistanceMeters: threeThousandMilesInMeters,
-  dueDate: new Date(),
+  dueDate: today(),
   defaultLongevity: 3000,
+  defaultLongevityDays: 90,
   autoAdjustLongevity: true,
 };
 
@@ -73,13 +74,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const [part, setPart] = useState(Part.CHAIN.toString())
   const [action, setAction] = useState(Action.REPLACE.toString());
   const [dueMiles, setDueMiles] = useState('1500');
-  const [dueDate, setDueDate] = useState(new Date(Date.now() + ninetyDays));
+  const [dueDate, setDueDate] = useState(new Date(today().getTime() + ninetyDays));
   const [dueDistanceLabel, setDueDistanceLabel] = useState('Due Distance (miles)');
   const [defaultLongevityLabel, setDefaultLongevityLabel] = useState('Default Longevity (miles)');
   const [brand, setBrand] = useState('Shimano');
   const [model, setModel] = useState('');
   const [link, setLink] = useState('');
   const [defaultLongevity, setDefaultLongevity] = useState('1500');
+  const [defaultLongevityDays, setDefaultLongevityDays] = useState('90');
   const [autoAdjustLongevity, setAutoAdjustLongevity] = useState(true);
 
   const actionOptions = Object.entries(Action).map(([key, val]) => (val));
@@ -103,6 +105,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const updateOrAddMaintenanceItem = async function() {
     const newDueDate = deadline == 'Distance' ? null : dueDate;
     const newDueMiles = deadline == 'Date' ? 0 : displayStringToMeters(dueMiles, await preferences);
+    const defaultLongevityInDays = defaultLongevity ? parseInt(defaultLongevityDays) : 0;
     const successful = await controller.updateOrAddMaintenanceItem(
       session,
       email,
@@ -116,6 +119,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       model,
       link,
       displayStringToMeters(defaultLongevity, await preferences),
+      defaultLongevityInDays,
       autoAdjustLongevity,
     );
     if (successful) {
@@ -177,7 +181,6 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         }
       }
       
-      console.log('setting part to: ' + item.part.toString());
       setPart(ensureString(item.part.toString()));
       setAction(ensureString(item.action.toString()));
       if (item.dueDistanceMeters  && item.dueDistanceMeters> 0) {
@@ -191,9 +194,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       setModel(ensureString(item.model));
       setLink(ensureString(item.link));
       setDefaultLongevity(metersToDisplayString(item.defaultLongevity, await preferences));
+      if (item.defaultLongevityDays && item.defaultLongevityDays < 10000) {
+        setDefaultLongevityDays(ensureString(item.defaultLongevityDays));
+      } else {
+        setDefaultLongevityDays('90');
+      }
       setAutoAdjustLongevity(item.autoAdjustLongevity);
       if (item.dueDate == null) {
-        const newDueDate = Date.now() + ninetyDays;
+        const newDueDate = today().getTime() + ninetyDays;
         setDueDate(new Date(newDueDate));
         setDeadline('Distance');
       } else {
@@ -380,6 +388,21 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
     }
   }
 
+  const defaultLongevityDaysChange = (days: string) => {
+    if (days === '') {
+      setDefaultLongevityDays('0');
+      return;
+    }
+    try {
+      const parsedDays = parseInt(days).toFixed(0);
+      if (parsedDays.match(/^[0-9]+$/)) {
+        setDefaultLongevityDays(parsedDays);
+      }
+    } catch (error) {
+      console.log('Invalid default longevity days: ', days);
+    }
+  }
+
   useEffect(() => {
     navigation.setOptions({ title: ensureString(part) +' : '+ bikeName });
   }), [part, bikeName];
@@ -416,6 +439,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             value={dueMiles.toString()}
             disabled={readOnly || deadline == "Date"}
             onChangeText={dueMilesChange}
+            inputMode="numeric"
             testID="dueMilesInput"
             accessibilityLabel="Due Milage"
             accessibilityHint="Milage when this maintenance should be performed"
@@ -423,7 +447,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           <View style={{flexDirection: 'row', justifyContent: 'flex-start', flexWrap: 'nowrap'}}>
             <DatePickerInput
               locale="en"
-              validRange={{startDate: new Date()}}
+              validRange={{startDate: today()}}
               disableStatusBarPadding={true}
               label="Deadline"
               value={dueDate}
@@ -434,12 +458,23 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           </View>
           <TextInput 
             label={defaultLongevityLabel}
-            value={defaultLongevity.toString()}
-            disabled={readOnly}
+            value={defaultLongevity}
+            disabled={readOnly || deadline == "Date"}
             onChangeText={defaultLongevityChange}
+            inputMode="numeric"
             testID="defaultLongevityInput"
             accessibilityLabel="Default Longevity"
             accessibilityHint="Typical milage when this maintenance should be performed"
+        />
+          <TextInput 
+            label="Days between maintenance"
+            value={defaultLongevityDays}
+            disabled={readOnly || deadline == "Distance"}
+            onChangeText={defaultLongevityDaysChange}
+            inputMode="numeric"
+            testID="defaultLongevityDaysInput"
+            accessibilityLabel="Default Longevity Days"
+            accessibilityHint="Typical number of days between when this maintenance should be performed"
         />
         <Tooltip title="Auto Adjust: Use historical maintenance pattern to update longevity">
           <BooleanDropdown

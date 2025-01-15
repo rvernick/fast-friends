@@ -5,13 +5,18 @@
     "allowJs": true,
     "jsx": "react-native",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "plugins/withInfoPlist.js", "config/jestSetupFile.js", "config/jestDebugSetupFile.js"  ]
+    "expo-env.d.ts",
+    "plugins/withInfoPlist.js",
+    "config/jestSetupFile.js",
+    "config/jestDebugSetupFile.js"
+  ]
 }

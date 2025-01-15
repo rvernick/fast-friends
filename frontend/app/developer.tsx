@@ -1,9 +1,8 @@
 import { baseUrl } from "@/common/http-utils";
 import { router } from "expo-router";
-import { Button, useTheme, Text, Surface, List } from "react-native-paper";
+import { Button, Text, Surface, List } from "react-native-paper";
 
 export default function Index() {
-  const theme = useTheme();
   const signIn = () => { router.replace("/(sign-in-sign-up)/(sign-in)/sign-in") };  
   
   return (

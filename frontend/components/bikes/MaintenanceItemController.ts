@@ -1,10 +1,10 @@
 import AppContext from "@/common/app-context";
 import AppController from "@/common/AppController";
 import { getMaintenanceItem } from "@/common/data-utils";
-import { getInternal, post } from "@/common/http-utils";
-import { ensureString, sleep } from "@/common/utils";
-import { Bike } from "@/models/Bike";
+import { post } from "@/common/http-utils";
+import { ensureString } from "@/common/utils";
 import { MaintenanceItem } from "@/models/MaintenanceItem";
+import { MaintenanceLog } from "@/models/MaintenanceLog";
 
 class MaintenanceItemController extends AppController {
   constructor(appContext: AppContext) {
@@ -54,6 +54,7 @@ class MaintenanceItemController extends AppController {
       model: string,
       link: string,
       defaultLongevity: number,
+      defaultLongevityDays: number,
       autoAdjustLongevity: boolean,
     ) => {
 
@@ -81,6 +82,7 @@ class MaintenanceItemController extends AppController {
         maintenanceid: maintenanceItemId,
         link: ensureString(link),
         defaultLongevity: defaultLongevity,
+        defaultLongevityDays: defaultLongevityDays,
         autoAdjustLongevity: autoAdjustLongevity,
       };
       console.log('update maintenanceItem ' + maintenanceItemId);
@@ -98,7 +100,8 @@ class MaintenanceItemController extends AppController {
     const logUpdates = selectedItems.map(item => ({
       maintenanceItemId: item.maintenanceItem.id,
       bikeId: item.bikeId,
-      nextDue: item.nextDue,
+      nextDue: item.nextDue ? item.nextDue : 0,
+      nextDueDate: item.nextDate ? item.nextDate.getTime() : 0,
     }));
 
     try {
@@ -113,14 +116,6 @@ class MaintenanceItemController extends AppController {
       return e.message;
     }
   }
-}
-
-interface MaintenanceLog {
-  id: number;
-  bikeId: number;
-  maintenanceItem: MaintenanceItem;
-  nextDue: number;
-  selected: boolean;
 }
 
 export default MaintenanceItemController;

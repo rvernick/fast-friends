@@ -12,6 +12,7 @@ export interface MaintenanceItem {
   dueDistanceMeters: number;
   dueDate: Date;
   defaultLongevity: number;
+  defaultLongevityDays: number;
   autoAdjustLongevity: boolean;
 };
 

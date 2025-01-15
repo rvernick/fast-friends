@@ -57,7 +57,9 @@ export class MaintenanceChecker {
     const userIds = await this.userService.getUserIdsWithStravaLinked();
     for (const userId of userIds) {
       const user = await this.userService.findOne(userId);
-      await this.checkBikeMaintenance(user);
+      if (user.lastName == 'Vernick') {
+        await this.checkBikeMaintenance(user);
+      }
     }
   }
 
@@ -76,8 +78,9 @@ export class MaintenanceChecker {
 
   private sendNotification(user: User, overdueMaintenanceItems: MaintenanceItem[]) {
     const body = this.createNotificationBody(user, overdueMaintenanceItems);
+    const html = this.createNotificationBody(user, overdueMaintenanceItems, true);
     const notification = new Notification(user, 'Overdue Maintenance Items', overdueMaintenanceItems);
-    if (sendEmail(user.username, 'Overdue Maintenance Items', body)) {
+    if (sendEmail(user.username, 'Overdue Maintenance Items', body, html)) {
       notification.status = NotificationStatus.SENT;
     } else {
       notification.status = NotificationStatus.FAILED;
@@ -85,12 +88,15 @@ export class MaintenanceChecker {
     this.notificationRepository.save(notification);
   }
 
-  createNotificationBody(user: User, overdueMaintenanceItems: MaintenanceItem[]): string {
+  createNotificationBody(user: User, overdueMaintenanceItems: MaintenanceItem[], useHTML: boolean = false): string {
     const baseUrl = this.userService.getClientBaseUrl();
-    const deepLinkStart = `\nTo log maintenance performed, visit ${baseUrl}/log-maintenance`
     const bikeIds = [];
 
-    var msg = `Dear ${user.firstName},\n\nYou have some maintenance needed on your bikes\n`;
+    var msg = '';
+    if (useHTML) {
+      msg = '<html><body>';
+    }
+    msg = msg + `Dear ${user.firstName},\n\nYou have some maintenance needed on your bikes\n`;
     msg = msg + 'Based on our records, you should check the following maintenance items:\n\n';
 
     // TODO: create deep link to the maintenance item
@@ -112,12 +118,26 @@ export class MaintenanceChecker {
         }
       }
     });
+    const deepLinkStart = `\nTo log maintenance performed, visit ${baseUrl}/log-maintenance`
 
+    msg = msg + '\nTo log maintenance performed, visit: ';
+    if (useHTML) {
+      msg = msg + `<a href="${baseUrl}/log-maintenance">`;
+    } else {
+      msg = msg + baseUrl + '/log-maintenance';
+    }
     msg = msg + deepLinkStart;
     if (bikeIds.length == 1) {
       msg = msg + `?bikeid=${bikeIds[0]}`;
     }
+    if (useHTML) {
+      msg = msg + '</a>';
+    }
+
     msg = msg + '\n\nPlease review and make any necessary adjustments.\n\nBest regards,\nYour Pedal Assistant\n\n';
+    if (useHTML) {
+      msg = msg + '</body></html>';
+    }
     console.log('Notification body: ', msg);
     return msg
   }
@@ -137,7 +157,7 @@ export class MaintenanceChecker {
 
   private isMaintenanceOverdue(item: MaintenanceItem, bike: Bike): boolean {
     if (item.dueDate) {
-      if (item.dueDate.getTime() > new Date().getTime()) {
+      if (item.dueDate.getTime() < new Date().getTime()) {
         return true;
       }
     }
