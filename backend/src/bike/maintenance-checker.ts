@@ -16,15 +16,18 @@ export class MaintenanceChecker {
   private stravaService: StravaService;
   private userService: UserService;
   private notificationRepository: Repository<Notification>;
+  private maintenanceItemRepository: Repository<MaintenanceItem>;
   private batchProcessService: BatchProcessService;
   
   constructor(theStravaService: StravaService,
       userService: UserService,
       notificationRepository: Repository<Notification>,
+      maintenanceItemRepository: Repository<MaintenanceItem>,
       lastRunService: BatchProcessService) {
     this.stravaService = theStravaService;
     this.userService = userService;
     this.notificationRepository = notificationRepository;
+    this.maintenanceItemRepository = maintenanceItemRepository;
     this.batchProcessService = lastRunService;
   }
 
@@ -57,11 +60,9 @@ export class MaintenanceChecker {
     const userIds = await this.userService.getUserIdsWithStravaLinked();
     for (const userId of userIds) {
       const user = await this.userService.findOne(userId);
-      if (user.lastName == 'Vernick') {
         await this.checkBikeMaintenance(user);
       }
     }
-  }
 
   private async checkBikeMaintenance(user: User) {
     await this.performMaintenanceChecks(user);
@@ -78,24 +79,25 @@ export class MaintenanceChecker {
 
   private sendNotification(user: User, overdueMaintenanceItems: MaintenanceItem[]) {
     const body = this.createNotificationBody(user, overdueMaintenanceItems);
-    const html = this.createNotificationBody(user, overdueMaintenanceItems, true);
+    const html = this.createNotificationBodyHTML(user, overdueMaintenanceItems);
     const notification = new Notification(user, 'Overdue Maintenance Items', overdueMaintenanceItems);
     if (sendEmail(user.username, 'Overdue Maintenance Items', body, html)) {
       notification.status = NotificationStatus.SENT;
+      for (const maintenanceItem of overdueMaintenanceItems) {
+        maintenanceItem.wasNotified = true;
+        this.maintenanceItemRepository.save(maintenanceItem);
+      }
     } else {
       notification.status = NotificationStatus.FAILED;
     }
     this.notificationRepository.save(notification);
   }
 
-  createNotificationBody(user: User, overdueMaintenanceItems: MaintenanceItem[], useHTML: boolean = false): string {
+  createNotificationBody(user: User, overdueMaintenanceItems: MaintenanceItem[]): string {
     const baseUrl = this.userService.getClientBaseUrl();
     const bikeIds = [];
 
     var msg = '';
-    if (useHTML) {
-      msg = '<html><body>';
-    }
     msg = msg + `Dear ${user.firstName},\n\nYou have some maintenance needed on your bikes\n`;
     msg = msg + 'Based on our records, you should check the following maintenance items:\n\n';
 
@@ -120,27 +122,59 @@ export class MaintenanceChecker {
     });
     const deepLinkStart = `\nTo log maintenance performed, visit ${baseUrl}/log-maintenance`
 
-    msg = msg + '\nTo log maintenance performed, visit: ';
-    if (useHTML) {
-      msg = msg + `<a href="${baseUrl}/log-maintenance">`;
-    } else {
-      msg = msg + baseUrl + '/log-maintenance';
-    }
     msg = msg + deepLinkStart;
     if (bikeIds.length == 1) {
       msg = msg + `?bikeid=${bikeIds[0]}`;
     }
-    if (useHTML) {
-      msg = msg + '</a>';
-    }
 
     msg = msg + '\n\nPlease review and make any necessary adjustments.\n\nBest regards,\nYour Pedal Assistant\n\n';
-    if (useHTML) {
-      msg = msg + '</body></html>';
-    }
     console.log('Notification body: ', msg);
     return msg
   }
+
+    createNotificationBodyHTML(user: User, overdueMaintenanceItems: MaintenanceItem[]): string {
+    const baseUrl = this.userService.getClientBaseUrl();
+    const bikeIds = [];
+
+    var msg = '<html><body>';
+    msg = msg + `Dear ${user.firstName},\n\n<p><p>You have some maintenance needed on your bikes\n<p>`;
+    msg = msg + 'Based on our records, you should check the following maintenance items:\n\n<p><p>';
+
+    // TODO: create deep link to the maintenance item
+    user.bikes.forEach((bike) => {
+      const maintenanceItems = bike.maintenanceItems;
+      for (const item of maintenanceItems) {
+        if (overdueMaintenanceItems.some((overdueItem) => overdueItem.id === item.id)) {
+          if (!bikeIds.includes(bike.id)) {
+            bikeIds.push(bike.id);
+          }
+          const brand = item.brand || '';
+          const model = item.model || '';
+          if (item.lastPerformedDistanceMeters !== null && item.lastPerformedDistanceMeters > 0) {
+            const meters = bike.odometerMeters - item.lastPerformedDistanceMeters;
+            const miles = meters / 1609.34;
+            const milesString = miles.toFixed(0);
+            msg = msg + `<li>${bike.name} - ${item.part} ${item.action} - miles: ${milesString} - ${brand} ${model}</li>`;
+          } else {
+            msg = msg + `<li>${bike.name} - ${item.part} ${item.action} - ${brand} ${model}</li>`;
+          }
+        }
+      }
+    });
+
+    msg = msg + '<p>To log maintenance performed, visit: ';
+    msg = msg + `<a href="${baseUrl}/log-maintenance`;
+    if (bikeIds.length == 1) {
+      msg = msg + `?bikeid=${bikeIds[0]}`;
+    }
+    msg = msg + '">Log Maintenance</a><p><p>';
+
+    msg = msg + '\n\nPlease review and make any necessary adjustments.\n\n<p><p>Best regards,\n<p>Your Pedal Assistant\n\n<p><p>';
+    msg = msg + '</body></html>';
+    console.log('Notification body HTML: ', msg);
+    return msg
+  }
+
 
   private getOverdueMaintenanceItems(user: User): MaintenanceItem[] {
     const result = [];

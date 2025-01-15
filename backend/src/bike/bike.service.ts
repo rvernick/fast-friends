@@ -53,6 +53,7 @@ export class BikeService {
         this.stravaService,
         this.userService,
         this.notificationRepository,
+        this.maintenanceItemsRepository,
         this.lastRunService,
       );
     }
