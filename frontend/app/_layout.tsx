@@ -19,6 +19,7 @@ import { useColorScheme } from 'react-native';
 import { GlobalStateProvider } from '@/common/GlobalContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from 'react-native-error-boundary';
+import { NotificationProvider } from '@/common/NotificationContext';
 
 const customDarkTheme = { ...MD3DarkTheme, colors: Colors.dark };
 const customLightTheme = { ...MD3LightTheme, colors: Colors.light };
@@ -50,13 +51,15 @@ export default function RootLayout() {
     <ErrorBoundary onError={onError}>
       <QueryClientProvider client={queryClient}>
         <SessionProvider>
-          <GlobalStateProvider>
-            <ThemeProvider value={colorScheme}>
-              <PaperProvider theme={colorScheme}> 
-                <Slot />
-              </PaperProvider>
-            </ThemeProvider>
-          </GlobalStateProvider>
+          <NotificationProvider>
+            <GlobalStateProvider>
+              <ThemeProvider value={colorScheme}>
+                <PaperProvider theme={colorScheme}> 
+                  <Slot />
+                </PaperProvider>
+              </ThemeProvider>
+            </GlobalStateProvider>
+          </NotificationProvider>
         </SessionProvider>
       </QueryClientProvider>
     </ErrorBoundary>

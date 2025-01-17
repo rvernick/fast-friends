@@ -9,6 +9,7 @@ export interface User {
   stravaId: string;
   bikes: Bike[];
   units: string;
+  pushToken: string;
 };
 
 export enum Units {
