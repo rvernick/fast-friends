@@ -9,7 +9,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchUser } from "../../common/utils";
-import { useNotification } from "@/common/NotificationContext";
 
 type SettingsProps = {
   strava_id: string;
@@ -17,7 +16,6 @@ type SettingsProps = {
 
 export const SettingsComponent: React.FC<SettingsProps> = () => {
   const session = useSession();
-  const notification = useNotification();
   const { strava_id } = useLocalSearchParams();
   const [providedStravaId, setProvidedStravaId] = useState(ensureString(strava_id));
 
@@ -59,7 +57,6 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     setIsDirty(false);
   }
   
-  const [notificationToken, setNotificationToken] = useState(notification.expoPushToken || 'not_set');
   const [firstName, setEnteredFirstName] = useState(ensureString(data?.firstName));
   const [lastName, setEnteredLastName] = useState(ensureString(data?.lastName));
   const [cellPhone, setEnteredCellPhone] = useState(ensureString(data?.cellPhone));
@@ -215,23 +212,6 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     router.replace('/(home)/sign-out');
   }
 
-  const updateToken = async (newText: string) => {
-    console.log('Updating notification token: ' + newText);
-    setNotificationToken(newText);
-    await setUserPushToken(session, newText);
-  }
-
-  useEffect(() => {
-    console.log('notification.expoPushToken updated settings update');
-    setNotificationToken(notification.expoPushToken || 'not_set');
-  }, [notification.expoPushToken]);
-
-  useEffect(() => {
-    console.log('notification updated settings update');
-    setNotificationToken(notification.expoPushToken || 'not_set');
-  }, [notification]);
-
-
   useEffect(() => {
     try {
       userUpdated();
@@ -289,17 +269,6 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
         <Card>
           <Card.Title title={firstName + ': ' + email} />
           <Card.Content>
-        <TextInput label="Notification Token"
-          value={notificationToken || 'not available'}
-          onChangeText={updateToken}
-          mode="outlined"
-          autoCapitalize="words"
-          autoCorrect={false}
-          testID="notification-token"
-          accessibilityLabel="Notification Token"
-          accessibilityHint="Notification Token"
-        />
-        <Button mode="contained" onPress={notification.updateInitialized}>Init Notificiations</Button>
         <TextInput label="First Name"
           value={firstName}
           onChangeText={updateFirstName}

@@ -10,7 +10,7 @@ import * as Notifications from "expo-notifications";
 import { Subscription } from "expo-modules-core";
 import { registerForPushNotificationsAsync } from "./notification";
 import { useSession } from "./ctx";
-import { setUserPushToken } from "./utils";
+import { isMobile, setUserPushToken } from "./utils";
 import { router } from "expo-router";
 
 interface NotificationContextType {
@@ -60,6 +60,10 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     console.log("Registering for push notifications...", session.jwt_token || "No JWT token");
     if (!session.jwt_token) return;
     if (initialized) return;
+    if (!isMobile()) {
+      setInitialized(true);
+      return;
+    }
 
     registerForPushNotificationsAsync().then(
       (token) => registerPushToken(token),

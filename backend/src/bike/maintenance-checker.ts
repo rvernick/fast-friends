@@ -129,7 +129,7 @@ export class MaintenanceChecker {
   private createPushNotifications(user: User): PushNotification[] {
     const notifications: PushNotification[] = [];
     const bikes = this.getBikesWithOverdueMaintenanceItems(user);
-    console.log('Creating push notification for user: '+ JSON.stringify(user));
+    console.log('Creating push notification for user: '+ user.username);
     for (const bike of bikes) {      
       console.log('Creating push notification for bike: '+ bike.name);
       notifications.push({
