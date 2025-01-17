@@ -1,20 +1,16 @@
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   Post,
   UseGuards,
-  Query,
 } from '@nestjs/common';
 
 import { UserService } from './user.service';
-import { Bike } from '../bike/bike.entity';
 import { User } from './user.entity';
 import { StravaAuthenticationDto } from './strava-authentication';
-import { UpdateBikeDto } from '../bike/update-bike.dto';
-import { DeleteBikeDto } from '../bike/delete-bike.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -26,4 +22,12 @@ export class UserController {
     console.log('user/sync-strava stravaAuthDto:' + JSON.stringify(stravaAuthDto));
     return this.userService.syncStravaUser(stravaAuthDto);
   }
+
+  @HttpCode(HttpStatus.OK)
+    @UseGuards(AuthGuard)
+    @Post('update-push-token')
+    updatePushToken(@Body("username") username: string, @Body("push_token") pushToken: string): Promise<User | null> {
+      return this.userService.updatePushToken(username, pushToken);
+    }
+  
 }

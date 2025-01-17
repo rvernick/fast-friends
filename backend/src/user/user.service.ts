@@ -93,6 +93,18 @@ export class UserService {
     this.usersRepository.softDelete(user.id);
   }
 
+  async updatePushToken(username: string, pushToken: string): Promise<User | null> {
+    const user = await this.findUsername(username);
+    if (user == null) return null;
+    this.logger.log ('info', 'Updated push token for user was: '+ user.pushToken);
+
+    user.pushToken = pushToken || '';
+
+    this.usersRepository.save(user);
+    this.logger.log ('info', 'Updated push token for user'+ user.pushToken);
+    return user;
+  }
+
   unlinkFromStrava(user: User) {
     user.stravaId = null;
     user.stravaCode = null;
