@@ -198,6 +198,19 @@ export const fetchUser = async (session: any, username: string): Promise<User | 
   }
 }
 
+export const setUserPushToken = async (session: any, pushToken: string): Promise<User | null> => {
+try {
+    const parameters = {
+      username: session.email,
+      push_token: pushToken,
+    };
+    return post('/user/update-push-token', parameters, session.jwt_token) as Promise<any | null>;
+  } catch(e: any) {
+    console.log(e.message);
+    return null;
+  }
+}
+
 export const fetchSecrets = async (session: any): Promise<any | null> => {
   console.log('fetchSecrets jwt: ' + session.jwt_token);
   try {
