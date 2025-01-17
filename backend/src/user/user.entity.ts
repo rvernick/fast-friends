@@ -140,6 +140,17 @@ export class User {
   })
   units: Units;
 
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    transformer: new EncryptionTransformer({
+      key: key,
+      algorithm: 'aes-256-gcm',
+      ivLength: 16
+    })
+  })
+  pushToken: string;
+
   @DeleteDateColumn()
   deletedOn: boolean;
 

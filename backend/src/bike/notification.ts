@@ -18,6 +18,12 @@ export enum NotificationStatus {
   FAILED = "failed",
 }
 
+export enum NotificationType {
+  EMAIL = "email",
+  SMS = "sms",
+  PUSH = "push",
+}
+
 @Entity()
 export class Notification {
   // user.username, 'Overdue Maintenance Items', user, overdueMaintenanceItems
@@ -43,7 +49,7 @@ export class Notification {
   })
   title: string;
 
-@Column({
+  @Column({
     type: "enum",
     enum: NotificationStatus,
     default: NotificationStatus.CREATED,
@@ -51,6 +57,14 @@ export class Notification {
   })
   status: NotificationStatus;
 
+  @Column({
+    type: "enum",
+    enum: NotificationType,
+    default: NotificationType.EMAIL,
+    nullable: false,
+  })
+  type: NotificationType;
+  
   @DeleteDateColumn({nullable: true})
   deletedOn: Date;
 
