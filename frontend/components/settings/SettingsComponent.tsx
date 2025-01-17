@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Image } from "react-native";
 import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
-import { ensureString, forget, isMobile, isValidPhone, setUserPushToken, strippedPhone } from '../../common/utils';
+import { ensureString, forget, isMobile, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
-import { ActivityIndicator, Button, Card, Dialog, HelperText, IconButton, Portal, SegmentedButtons, Surface, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, Card, Dialog, HelperText, Portal, SegmentedButtons, Surface, Text, TextInput } from "react-native-paper";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -225,132 +225,130 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     <Surface >
       {/* <ScrollView style={styles.container}> */}
       <Card>
-          <Card.Content>
-            <Button
-              icon={() =>
-              <Image
-                source={ require("../../assets/images/btn_strava_connectwith_orange.png")}
-                style={{ width: 196, height: 48}}
-                />}
-              onPress={ linkToStrava }
-              disabled={stravaId.length > 0}
-              accessibilityLabel="Link to Strava"
-              accessibilityHint="Login to Strava account">
-                {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : ''}
-              </Button>
-              {stravaId.length == 0 ? null : <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
-                Unlink
-              </Button>}
-              <Portal>
-                <Dialog visible={warnAgainstLinking} onDismiss={hideWarnAgainstLinking}>
-                  <Dialog.Title>Alert</Dialog.Title>
-                  <Dialog.Content>
-                    <Text variant="bodyMedium">Log in through browser to link with Strava https://www.pedal-assistant.com</Text>
-                  </Dialog.Content>
-                  <Dialog.Actions>
-                    <Button onPress={hideWarnAgainstLinking}>Done</Button>
-                  </Dialog.Actions>
-                </Dialog>
-              </Portal> 
-              <Portal>
-                <Dialog visible={warnOnLosingData} onDismiss={cancelLinkToStrava}>
-                  <Dialog.Title>Alert</Dialog.Title>
-                  <Dialog.Content>
-                    <Text variant="bodyMedium">Do you want to save changes before linking to Strava</Text>
-                  </Dialog.Content>
-                  <Dialog.Actions>
-                    <Button onPress={saveAndGoToStrava}>Save and Link to Strava</Button>
-                    <Button onPress={cancelLinkToStrava}>Cancel</Button>
-                  </Dialog.Actions>
-                </Dialog>
-              </Portal> 
-          </Card.Content>
-        </Card>
-        <Card>
-          <Card.Title title={firstName + ': ' + email} />
-          <Card.Content>
-        <TextInput label="First Name"
-          value={firstName}
-          onChangeText={updateFirstName}
-          mode="outlined"
-          autoCapitalize="words"
-          autoCorrect={false}
-          testID="first-name"
-          accessibilityLabel="First Name"
-          accessibilityHint="First Name"
-        />
-        <TextInput label="Last Name"
-          value={lastName}
-          onChangeText={updateLastName}
-          mode="outlined"
-          autoCapitalize="words"
-          autoCorrect={false}
-          accessibilityLabel="Last Name"
-          accessibilityHint="Last Name"
-        />
-        <TextInput label="Mobile"
-          value={phoneFormat(cellPhone)}
-          onChangeText={updateMobile}
-          mode="outlined"
-          keyboardType="phone-pad"
-          accessibilityLabel="Mobile number"
-          accessibilityHint="Mobile number"
-        />
-        <SegmentedButtons
-          value={ensureString(units)}
-          onValueChange={updateUnits}
-          
-          buttons={[
-            {
-              value: 'miles',
-              label: 'Miles',
-              testID: 'unit-miles',
-            },
-            {
-              value: 'km',
-              label: 'Kilometers',
-              testID: 'unit-km',
-            },
-          ]}
-          
-      />
-        <HelperText type="error" visible={mobileErrorMessage.length > 0} style={{ marginTop: 10 }}>
-          {mobileErrorMessage}
-        </HelperText>
-        <HelperText type="error" visible={errorMessage.length > 0} style={{ marginTop: 10 }}>
-          {errorMessage}
-        </HelperText>
+        <Card.Content>
+          <Button
+            icon={() =>
+            <Image
+              source={ require("../../assets/images/btn_strava_connectwith_orange.png")}
+              style={{ width: 196, height: 48}}
+              />}
+            onPress={ linkToStrava }
+            disabled={stravaId.length > 0}
+            accessibilityLabel="Link to Strava"
+            accessibilityHint="Login to Strava account">
+              {(stravaId.length > 0) ? ('Strava id: ' + stravaId) : ''}
+          </Button>
+          {stravaId.length == 0 ? null : <Button mode="contained-tonal" onPress={ unlinkFromStrava } disabled={stravaId.length == 0}>
+              Unlink
+            </Button>}
+          <Portal>
+            <Dialog visible={warnAgainstLinking} onDismiss={hideWarnAgainstLinking}>
+              <Dialog.Title>Alert</Dialog.Title>
+              <Dialog.Content>
+                <Text variant="bodyMedium">Log in through browser to link with Strava https://www.pedal-assistant.com</Text>
+              </Dialog.Content>
+              <Dialog.Actions>
+                <Button onPress={hideWarnAgainstLinking}>Done</Button>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal> 
+          <Portal>
+            <Dialog visible={warnOnLosingData} onDismiss={cancelLinkToStrava}>
+              <Dialog.Title>Alert</Dialog.Title>
+              <Dialog.Content>
+                <Text variant="bodyMedium">Do you want to save changes before linking to Strava</Text>
+              </Dialog.Content>
+              <Dialog.Actions>
+                <Button onPress={saveAndGoToStrava}>Save and Link to Strava</Button>
+                <Button onPress={cancelLinkToStrava}>Cancel</Button>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal> 
+        </Card.Content>
+      </Card>
+      <Card>
+        <Card.Title title={firstName + ': ' + email} />
+        <Card.Content>
+          <TextInput label="First Name"
+            value={firstName}
+            onChangeText={updateFirstName}
+            mode="outlined"
+            autoCapitalize="words"
+            autoCorrect={false}
+            testID="first-name"
+            accessibilityLabel="First Name"
+            accessibilityHint="First Name"
+          />
+          <TextInput label="Last Name"
+            value={lastName}
+            onChangeText={updateLastName}
+            mode="outlined"
+            autoCapitalize="words"
+            autoCorrect={false}
+            accessibilityLabel="Last Name"
+            accessibilityHint="Last Name"
+          />
+          <TextInput label="Mobile"
+            value={phoneFormat(cellPhone)}
+            onChangeText={updateMobile}
+            mode="outlined"
+            keyboardType="phone-pad"
+            accessibilityLabel="Mobile number"
+            accessibilityHint="Mobile number"
+          />
+          <SegmentedButtons
+            value={ensureString(units)}
+            onValueChange={updateUnits}
+            buttons={[
+              {
+                value: 'miles',
+                label: 'Miles',
+                testID: 'unit-miles',
+              },
+              {
+                value: 'km',
+                label: 'Kilometers',
+                testID: 'unit-km',
+              },
+            ]}
+          />
+          <HelperText type="error" visible={mobileErrorMessage.length > 0} style={{ marginTop: 10 }}>
+            {mobileErrorMessage}
+          </HelperText>
+          <HelperText type="error" visible={errorMessage.length > 0} style={{ marginTop: 10 }}>
+            {errorMessage}
+          </HelperText>
         
-        <HelperText type="error"> </HelperText>
-        <Button
-          mode="contained"
-          onPress={ updateAccount }
-          disabled={!isDirty || mobileErrorMessage.length > 0}
-          testID="update-button"
-          accessibilityLabel="Save Changes"
-          accessibilityHint="Save settings changes">
-              Update Account
-        </Button>
-        {isDirty ? <Button
-          mode="contained"
-          onPress={ cancel }
-          testID="cancel-button"
-          accessibilityLabel="Cancel Changes"
-          accessibilityHint="Cancel settings changes">
-              Cancel
-        </Button> : null}
-        <Portal>
-          <Dialog visible={saveSuccessful} onDismiss={ () => setSaveSuccessful(false)}>
-            <Dialog.Title>Alert</Dialog.Title>
-            <Dialog.Content>
-              <Text variant="bodyMedium">Account Update Successful</Text>
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Button onPress={() => setSaveSuccessful(false)}>Ok</Button>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal> 
-        <HelperText type="error"> </HelperText>
+          <HelperText type="error"> </HelperText>
+          <Button
+            mode="contained"
+            onPress={ updateAccount }
+            disabled={!isDirty || mobileErrorMessage.length > 0}
+            testID="update-button"
+            accessibilityLabel="Save Changes"
+            accessibilityHint="Save settings changes">
+                Update Account
+          </Button>
+          {isDirty ? <Button
+            mode="contained"
+            onPress={ cancel }
+            testID="cancel-button"
+            accessibilityLabel="Cancel Changes"
+            accessibilityHint="Cancel settings changes">
+                Cancel
+          </Button> : null}
+          <Portal>
+            <Dialog visible={saveSuccessful} onDismiss={ () => setSaveSuccessful(false)}>
+              <Dialog.Title>Alert</Dialog.Title>
+              <Dialog.Content>
+                <Text variant="bodyMedium">Account Update Successful</Text>
+              </Dialog.Content>
+              <Dialog.Actions>
+                <Button onPress={() => setSaveSuccessful(false)}>Ok</Button>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal> 
+          <HelperText type="error"> </HelperText>
           <Button mode="contained" onPress={ () => router.push('/(home)/(settings)/change-password') }>
               Change Password
           </Button>
@@ -370,8 +368,8 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
               </Dialog.Actions>
             </Dialog>
           </Portal> 
-          </Card.Content>
-        </Card>
+        </Card.Content>
+      </Card>
       {/* </ScrollView> */}
     </Surface>
   )
