@@ -11,6 +11,7 @@ import { Subscription } from "expo-modules-core";
 import { registerForPushNotificationsAsync } from "./notification";
 import { useSession } from "./ctx";
 import { setUserPushToken } from "./utils";
+import { router } from "expo-router";
 
 interface NotificationContextType {
   expoPushToken: string | null;
@@ -58,6 +59,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const initializeNotifications = () => {
     console.log("Registering for push notifications...", session.jwt_token || "No JWT token");
     if (!session.jwt_token) return;
+    if (initialized) return;
 
     registerForPushNotificationsAsync().then(
       (token) => registerPushToken(token),
@@ -77,9 +79,22 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
           JSON.stringify(response, null, 2),
           JSON.stringify(response.notification.request.content.data, null, 2)
         );
+        if (response.notification.request.content.data) {
+          const routing = response.notification.request.content.data;
+          if (routing.location == "log-maintenance") {
+            const param = {
+              "bikeid": routing.bikeid,
+            }
+            // Navigate to log maintenance page
+            console.log("Navigating to log maintenance page");
+            router.push({pathname: '/(home)/log-maintenance', params: param});
+            // handleNavigation(routing.location);
+          }
+        }
         // Handle the notification response here
       });
-
+    
+    setInitialized(true);
     return () => {
       if (notificationListener.current) {
         Notifications.removeNotificationSubscription(
@@ -106,11 +121,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     console.log("NotificationProvider useEffect - session updated");
     initializeNotifications();
   }, [session]);
-
-  useEffect(() => {
-    console.log("NotificationProvider useEffect - initialized updated");
-    initializeNotifications();
-  }, [initialized]);
 
 
   return (

@@ -57,17 +57,35 @@ export class MaintenanceChecker {
   }
 
   private async doChecks() {
+    await this.syncStravaActivities();
+    await this.checkAndSendPushNotifications();
+    this.checkAndSendNotificationEmails();
+  }
+
+  private async syncStravaActivities() {
+    const userIds = await this.userService.getUserIdsWithStravaLinked();
+    for (const userId of userIds) {
+      const user = await this.userService.findOne(userId);
+      await this.updateOdometers(user);
+    }
+  }
+
+  private async checkAndSendNotificationEmails() {
     const userIds = await this.userService.getUserIdsWithStravaLinked();
     for (const userId of userIds) {
       const user = await this.userService.findOne(userId);
       await this.checkBikeMaintenance(user);
     }
+  }
+
+  private async checkAndSendPushNotifications() {
     const notifications = await this.createOverdueNotifications();
-    sendPushNotifications(notifications);
+    await sendPushNotifications(notifications);
   }
 
   private async createOverdueNotifications(): Promise<PushNotification[]> {
     var result: PushNotification[] = [];
+    console.log('Checking for overdue maintenance items...');
     const userIds = await this.userService.getUserIdsWithStravaLinked();
     for (const userId of userIds) {
       const user = await this.userService.findOne(userId);
@@ -86,7 +104,6 @@ export class MaintenanceChecker {
 
   private performMaintenanceChecks(user: User) {
     console.log('Checking maintenance for user '+ user.username);
-    this.updateOdometers(user);
     const overdueMaintenanceItems = this.getOverdueMaintenanceItems(user);
     if (overdueMaintenanceItems.length > 0) {
       this.sendNotification(user, overdueMaintenanceItems);
@@ -111,23 +128,18 @@ export class MaintenanceChecker {
 
   private createPushNotifications(user: User): PushNotification[] {
     const notifications: PushNotification[] = [];
-    const overdueMaintenanceItems = this.getOverdueMaintenanceItems(user);
-    if (overdueMaintenanceItems.length === 0) {
-      return null;
-    }
-    const baseUrl = this.userService.getClientBaseUrl();
-    user.bikes.forEach((bike) => {
-      const link = `${baseUrl}/log-maintenance?bikeid=${bike.id}`;
-      const bikeOverdueItems = overdueMaintenanceItems.filter((item) => item.bike.id === bike.id);
-      if (bikeOverdueItems.length > 0) {
-        notifications.push({
-          user: user,
-          title: bike.name + 'Maintenance Required ',
-          subtitle: bikeOverdueItems.length +'overdue item(s) found',
-          body: `Bike: ${bike.name} has overdue maintenance.  To log maintenance, click here: ${link}`,
-        });
-      }
-    });
+    const bikes = this.getBikesWithOverdueMaintenanceItems(user);
+    console.log('Creating push notification for user: '+ JSON.stringify(user));
+    for (const bike of bikes) {      
+      console.log('Creating push notification for bike: '+ bike.name);
+      notifications.push({
+        user: user,
+        title: bike.name + ' Maintenance Required ',
+        subtitle: 'Overdue item(s) found',
+        data: {"location": "log-maintenance", "bikeid": bike.id },
+        body: `Bike: ${bike.name} has overdue maintenance.  To log maintenance, click notification`,
+      });
+    };
     return notifications;
   }
 
@@ -213,6 +225,24 @@ export class MaintenanceChecker {
     return msg
   }
 
+  private getBikesWithOverdueMaintenanceItems(user: User): Bike[] {
+    const result = [];
+    for (const bike of user.bikes) {
+      if (this.isBikeWithOverdueMaintenance(bike)) {
+        result.push(bike);
+      }
+    }
+    return result;
+  }
+
+  private isBikeWithOverdueMaintenance(bike: Bike): boolean {
+    for (const item of bike.maintenanceItems) {
+      if (!item.wasNotified && this.isMaintenanceOverdue(item, bike)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   private getOverdueMaintenanceItems(user: User): MaintenanceItem[] {
     const result = [];

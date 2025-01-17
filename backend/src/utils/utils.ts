@@ -42,6 +42,7 @@ export interface PushNotification {
   user: User;
   title: string;
   subtitle: string;
+  data: any;
   body: string;
 }
 
@@ -61,8 +62,11 @@ export const sendPushNotifications = async (notifications: PushNotification[]) =
         sound: 'default',
         title: notification.title,
         subtitle: notification.subtitle,
+        data: notification.data,
         body: notification.body,
       });
+    } else {
+      console.error(`Push token ${pushToken} is not a valid Expo push token.`);
     }
   }
 
