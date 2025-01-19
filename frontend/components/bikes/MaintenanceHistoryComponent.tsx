@@ -10,6 +10,7 @@ import { ensureString, isMobile, metersToDisplayString } from '@/common/utils';
 import { BikeDropdown } from '../common/BikeDropdown';
 import MaintenanceHistoryController from './MaintenanceHistoryController';
 import { MaintenanceHistoryItem } from '@/models/MaintenanceHistory';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const MaintenanceHistoryComponent = () => {
   const params = useLocalSearchParams();
@@ -183,6 +184,7 @@ const MaintenanceHistoryComponent = () => {
           onSelect={handleBikePress}
           useAll={true}
         />
+        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
         <DataTable style={useStyle.containerBody} testID='historyTable'>
           <DataTable.Header>
             <DataTable.Title
@@ -217,6 +219,7 @@ const MaintenanceHistoryComponent = () => {
             </DataTable.Row>
           ))}
         </DataTable>
+        </ScrollView>
       </Surface>
     );
   }

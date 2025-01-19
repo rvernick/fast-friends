@@ -281,6 +281,10 @@ export const displayStringToMeters = (displayString: string, preferences: any): 
   return milesToMeters(parseInt(displayString));
 }
 
+export const distanceUnitDisplayString = (preferences: any): string => {
+  return preferences.units === 'km'? 'km' :' miles';
+}
+
 export const today = (): Date => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);

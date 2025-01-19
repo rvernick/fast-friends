@@ -10,7 +10,7 @@ import MaintenanceListController from './MaintenanceListController';
 import { Dropdown } from 'react-native-paper-dropdown';
 import { Dimensions, ScrollView, View } from 'react-native';
 import { createStyles, defaultWebStyles } from '@/common/styles';
-import { isMobile, metersToDisplayString, today } from '@/common/utils';
+import { distanceUnitDisplayString, isMobile, metersToDisplayString, today } from '@/common/utils';
 
 type MaintenanceListProps = {
   bikes: Bike[] | null | undefined;
@@ -79,11 +79,31 @@ const MaintenanceComponent = () => {
 
     const syncDescription = async () => {
       var desc = maintenanceItem.action;
+      const prefs = await preferences;
       if (maintenanceItem.dueDistanceMeters && maintenanceItem.dueDistanceMeters > 0) {
-        desc += ' at: '+ metersToDisplayString(maintenanceItem.dueDistanceMeters, await preferences);
+        if (maintenanceItem.bikeDistance && maintenanceItem.bikeDistance > 0) {
+          if (maintenanceItem.bikeDistance > maintenanceItem.dueDistanceMeters) {
+            const metersOverdue = maintenanceItem.bikeDistance - maintenanceItem.dueDistanceMeters;
+            desc += ' overdue: ' + metersToDisplayString(metersOverdue, prefs);
+            desc += distanceUnitDisplayString(prefs);
+            desc += ' ('+ metersToDisplayString(maintenanceItem.dueDistanceMeters, prefs) + ')';
+          } else {
+            const metersRemaining = maintenanceItem.dueDistanceMeters - maintenanceItem.bikeDistance;
+            desc += ' in: '+ metersToDisplayString(metersRemaining, prefs);
+            desc += distanceUnitDisplayString(prefs);
+            desc += ' ('+ metersToDisplayString(maintenanceItem.dueDistanceMeters, prefs) + ')';
+          }
+        } else {
+          desc += ' at: '+ metersToDisplayString(maintenanceItem.dueDistanceMeters, prefs);
+        }
       }
       if (maintenanceItem.dueDate) {
-        desc += ' by: '+ new Date(maintenanceItem.dueDate).toLocaleDateString('en-US');
+        if (today().getTime() > new Date(maintenanceItem.dueDate).getTime()) {
+          desc += ' overdue: ';
+        } else {
+          desc += ' by: ';
+        }
+        desc += new Date(maintenanceItem.dueDate).toLocaleDateString('en-US');
       }
       setDescription(desc);
     }
