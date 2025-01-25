@@ -27,8 +27,9 @@ export default function Layout() {
         title: 'Log Maintenance',
         headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
-      <Stack.Screen name="history" options={{
+      <Stack.Screen name="(maintenanceHistory)" options={{
         title: 'History',
+        headerShown: false,
         headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
     </Stack>

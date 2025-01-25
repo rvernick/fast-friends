@@ -1,6 +1,6 @@
-import { IsBoolean, IsNumber, IsString } from 'class-validator'
+import { IsNumber, IsString } from 'class-validator'
 
-export class UpdateMaintenanceItemDto {
+export class UpdateMaintenanceHistoryItemDto {
   @IsString()
   username: string;
 
@@ -17,10 +17,10 @@ export class UpdateMaintenanceItemDto {
   action: string;
   
   @IsNumber()
-  duemiles: number;
+  donemiles: number;
 
   @IsNumber()
-  duedate: number;
+  donedate: number;
 
   @IsString()
   brand: string;
@@ -30,13 +30,4 @@ export class UpdateMaintenanceItemDto {
 
   @IsString()
   link: string;
-
-  @IsNumber()
-  defaultLongevity: number;
-
-  @IsNumber()
-  defaultLongevityDays: number;
-
-  @IsBoolean()
-  autoAdjustLongevity: boolean;
 }

@@ -1,4 +1,4 @@
-import { router, Tabs } from "expo-router";
+import { router, Tabs, useLocalSearchParams } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text } from "react-native-paper"
 import { useSession } from "@/common/ctx";
@@ -8,6 +8,7 @@ import { isMobile } from "@/common/utils";
 
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
+// TODO: there's also a library to use native tab bars
 
 export default function TabLayout() {
   const { jwt_token, email, isLoading } = useSession();
@@ -39,6 +40,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="(maintenanceHistory)"
+        options={{
+          href: null,
+          title: "History",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="(assistance)"
         options={{
           title: "Assistance",
@@ -48,12 +60,11 @@ export default function TabLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="(bikes)"
         options={{
           title: "Bikes",
-          headerShown: true,
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons size={tabBarIconSize} name="bike-fast" color={color} />
           ),

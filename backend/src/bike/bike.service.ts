@@ -19,6 +19,7 @@ import { MaintenanceLogDto, MaintenanceLogRequestDto } from './log-maintenance.d
 import { MaintenanceHistory } from './maintenance-history.entity';
 import { MaintenanceHistorySummary } from './maintenance-history-summary';
 import { Action } from './action';
+import { UpdateMaintenanceHistoryItemDto } from './update-maintenance-history-item.dto';
 
 
 @Injectable()
@@ -315,6 +316,72 @@ export class BikeService {
     }
   }
 
+  async updateOrAddMaintenanceHistoryItem(maintenanceInfo: UpdateMaintenanceHistoryItemDto): Promise<MaintenanceHistory> {
+    this.logger.log('info', 'Updating or adding maintenance item: ', JSON.stringify(maintenanceInfo));
+    try {
+      const maintenanceHistoryItem = await this.getOrCreateMaintenanceHistoryItem(maintenanceInfo);
+      if (maintenanceHistoryItem.maintenanceItem == null) {
+        maintenanceHistoryItem.maintenanceItem = await this.findOrCreateMaintenanceItem(maintenanceInfo);
+      }
+
+      maintenanceHistoryItem.distanceMeters = Math.round(maintenanceInfo.donemiles);
+      maintenanceHistoryItem.doneDate = new Date(maintenanceInfo.donedate);
+      maintenanceHistoryItem.brand = maintenanceInfo.brand;
+      maintenanceHistoryItem.model = maintenanceInfo.model;
+      maintenanceHistoryItem.link = maintenanceInfo.link;
+      this.maintenanceHistoryRepository.save(maintenanceHistoryItem);
+      return maintenanceHistoryItem;
+    } catch (error) {
+      console.error('Error updating or adding maintenance history: ', error);
+      return null;
+    }
+  }
+
+  async findOrCreateMaintenanceItem(maintenanceInfo: UpdateMaintenanceHistoryItemDto): Promise<MaintenanceItem> {
+    const existing = await this.searchForMaintenanceItem(maintenanceInfo.bikeid, maintenanceInfo.part, maintenanceInfo.action);
+    if (existing != null) {
+      return existing;
+    }
+    const maintenanceItem = new MaintenanceItem();
+    maintenanceItem.bike = await this.findOne(maintenanceInfo.bikeid);
+    maintenanceItem.part = this.getPartFor(maintenanceInfo.part);
+    maintenanceItem.action = this.getActionFor(maintenanceInfo.action);
+    maintenanceItem.brand = maintenanceInfo.brand;
+    maintenanceItem.model = maintenanceInfo.model;
+    this.maintenanceItemsRepository.save(maintenanceItem);
+    return maintenanceItem;
+  }
+
+  async getOrCreateMaintenanceHistoryItem(maintenanceInfo: UpdateMaintenanceHistoryItemDto): Promise<MaintenanceHistory> {
+    if (maintenanceInfo.id == 0) {
+      return new MaintenanceHistory();
+    }
+
+    const result = await this.maintenanceHistoryRepository.findOneBy({ id: maintenanceInfo.id });
+    if (result == null) {
+      this.logger.log('info', 'Missing maintenance histor item: ' + maintenanceInfo.id);
+      return new MaintenanceHistory();
+    }
+    return result;
+  }
+
+  async createNewMaintenanceHistoryItem(maintenanceHistoryInfo: UpdateMaintenanceHistoryItemDto): Promise<MaintenanceHistory> {
+    const result = this.maintenanceHistoryRepository.create();
+    var maintenanceItem = await this.searchForMaintenanceItem(maintenanceHistoryInfo.bikeid, maintenanceHistoryInfo.part, maintenanceHistoryInfo.action);
+    if (maintenanceItem == null) {
+      this.logger.log('info', 'Creating maintenance item: ' + maintenanceHistoryInfo.bikeid +' '+ maintenanceHistoryInfo.part +' '+ maintenanceHistoryInfo.action);
+      maintenanceItem = new MaintenanceItem();
+      maintenanceItem.bike = await this.findOne(maintenanceHistoryInfo.bikeid);
+      maintenanceItem.part = this.getPartFor(maintenanceHistoryInfo.part);
+      maintenanceItem.action = this.getActionFor(maintenanceHistoryInfo.action);
+      this.maintenanceItemsRepository.save(maintenanceItem);
+    }
+
+    result.maintenanceItem = maintenanceItem;
+    result.distanceMeters = Math.round(maintenanceHistoryInfo.donemiles);
+    return result;
+  }
+
   async getOrCreateMaintenanceItem(maintenanceInfo: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
     if (maintenanceInfo.id == 0) {
       const zombieMaintenanceItem = await this.searchForZombieMaintenanceItem(maintenanceInfo);
@@ -326,11 +393,11 @@ export class BikeService {
     return await this.getMaintenanceItem(maintenanceInfo.id, maintenanceInfo.username);
   }
 
-  async searchForZombieMaintenanceItem(maintenanceInfo: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
+  async searchForMaintenanceItem(bikeId: number, part: string, action: string): Promise<MaintenanceItem> {
     const queryBuilder = this.maintenanceItemsRepository.createQueryBuilder("mi")
-      .where("mi.bikeId = :bikeId", { bikeId: maintenanceInfo.bikeid })
-      .andWhere("mi.part = :part", { part: maintenanceInfo.part })
-      .andWhere("mi.action = :action", { action: maintenanceInfo.action})
+      .where("mi.bikeId = :bikeId", { bikeId: bikeId })
+      .andWhere("mi.part = :part", { part: part })
+      .andWhere("mi.action = :action", { action: action})
       .withDeleted();
     const zombieMaintenanceItems = await queryBuilder.getMany();
   
@@ -342,18 +409,36 @@ export class BikeService {
     return null;
   }
 
-  async deleteMaintenanceItem(maintenanceId: number, username): Promise<void> {
+  async searchForZombieMaintenanceItem(maintenanceInfo: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
+    return this.searchForMaintenanceItem(maintenanceInfo.bikeid, maintenanceInfo.part, maintenanceInfo.action);
+  }
+
+  async deleteMaintenanceItem(maintenanceId: number, username): Promise<boolean> {
+    if (await this.hasHistory(maintenanceId)) {
+      this.logger.log('info', 'Cannot delete maintenance item with history: '+ maintenanceId);
+      return false;
+    }
+
     try {
       const maintenanceItem = await this.getMaintenanceItem(maintenanceId, username);
       if (maintenanceItem == null) {
         console.error('Maintenance item not found for user '+ username +' and id '+ maintenanceId);
-        return;
+        return false;
       }
-      await this.maintenanceItemsRepository.softDelete(maintenanceItem.id);
+      const result = await this.maintenanceItemsRepository.softDelete(maintenanceItem.id);
+      return result.affected > 0;
     } catch (error) {
       console.error('Error deleting maintenance item: ', error);
       throw error;
     }
+  }
+
+  private async hasHistory(maintenanceId: number): Promise<boolean> {
+    const queryBuilder = this.maintenanceHistoryRepository.createQueryBuilder("mh")
+      .where("mh.maintenanceItem.id = :maintenanceItemId", { maintenanceItemId: maintenanceId })
+      
+    const count = await queryBuilder.getCount();
+    return count > 0;
   }
 
   /**
@@ -369,13 +454,44 @@ export class BikeService {
       .createQueryBuilder(MaintenanceHistory, "maintenanceHistory")
       .innerJoinAndSelect("maintenanceHistory.maintenanceItem", "maintenanceItem")
       .innerJoinAndSelect("maintenanceItem.bike", "bike")
-      .innerJoin("bike.user", "user")
-      .where("user.id = :id", { id: user.id })
+      .where("bike.userId = :userId", { userId: user.id });
     
     const result = await historyQueryBuilder.getMany();
-    console.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
-    this.logger.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
+    // console.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
+    // this.logger.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
     return result.map((history) => new MaintenanceHistorySummary(history));
+  }
+
+  async getMaintenanceHistoryItem(maintenanceHistoryId: number, username: string): Promise<MaintenanceHistorySummary> {
+    const user = await this.findUsername(username);
+
+    const historyQueryBuilder = await this.dataSource.manager
+      .createQueryBuilder(MaintenanceHistory, "maintenanceHistory")
+      .innerJoinAndSelect("maintenanceHistory.maintenanceItem", "maintenanceItem")
+      .innerJoinAndSelect("maintenanceItem.bike", "bike")
+      .where("bike.userId = :userId", { userId: user.id })
+      .andWhere("maintenanceHistory.id = :id", { id: maintenanceHistoryId });
+    
+    // console.log('info', 'Query:'+ historyQueryBuilder.getQuery());
+    const result = await historyQueryBuilder.getOne();
+    // console.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
+    // this.logger.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
+    
+    if (result == null) {
+      console.error('Maintenance history item not found for user '+ username +' and id '+ maintenanceHistoryId);
+      return null;
+    }
+    return new MaintenanceHistorySummary(result);
+  }
+
+  async deleteMaintenanceHistoryItem(maintenanceHistoryId: number, username: string): Promise<void> {
+    const maintenanceHistory = await this.maintenanceHistoryRepository.findOneBy({ id: maintenanceHistoryId });
+
+    if (maintenanceHistory == null) {
+      console.error('Maintenance history item not found for user '+ username +' and id '+ maintenanceHistoryId);
+      return;
+    }
+    await this.maintenanceHistoryRepository.softDelete(maintenanceHistory.id);
   }
 
   async logPerformedMaintenance(maintenanceLogs: MaintenanceLogRequestDto): Promise<string> {
@@ -405,7 +521,6 @@ export class BikeService {
     }
    const maintenanceHistory = this.maintenanceHistoryRepository.create();
     maintenanceHistory.maintenanceItem = maintenanceItem;
-    maintenanceHistory.part = maintenanceItem.part;
     maintenanceHistory.distanceMeters = Math.round(bike.odometerMeters);
     maintenanceHistory.type = maintenanceItem.type;
     maintenanceHistory.brand = maintenanceItem.brand;

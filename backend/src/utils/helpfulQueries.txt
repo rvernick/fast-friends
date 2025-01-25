@@ -16,3 +16,10 @@ update maintenance_item
 set was_notified = FALSE
 where was_notified = TRUE
 ;
+
+select mh.*, mi.*, b.*
+from maintenance_history mh
+INNER JOIN maintenance_item mi on mh.maintenance_item_id = mi.id
+INNER JOIN bike b on b.id = mi."bikeId"
+WHERE mh.id = 12
+;

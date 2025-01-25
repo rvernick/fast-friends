@@ -152,7 +152,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     const result = await controller.logMaintenance(session, selectedItems);
     console.log('submit maintenance result: ', result);
     if (result == '') {
-      router.replace({ pathname: '/(home)/(maintenanceItems)/history', params: { bikeId: bike.id }});
+      router.replace({ pathname: '/(home)/(maintenanceHistory)/history', params: { bikeId: bike.id }});
     }
   }
 
@@ -325,7 +325,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
         <Button
           style={{flex: 1}}
           mode="contained"
-          onPress={() => {router.push('/(home)/(maintenanceItems)/instructions')}}>
+          onPress={() => {router.push('/(home)/(assistance)/instructions')}}>
             Instructions
         </Button>
         <Button
