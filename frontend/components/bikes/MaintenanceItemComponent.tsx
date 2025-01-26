@@ -499,14 +499,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             accessibilityLabel="Default Longevity Days"
             accessibilityHint="Typical number of days between when this maintenance should be performed"
         />
-        <Tooltip title="Auto Adjust: Use historical maintenance pattern to update longevity">
+        {/* <Tooltip title="Auto Adjust: Use historical maintenance pattern to update longevity">
           <BooleanDropdown
               label={"Auto Adjust Longevity"}
               value={autoAdjustLongevity}
               readonly={readOnly}
               onSelect={(value: boolean) => setAutoAdjustLongevity(value)}
             />
-        </Tooltip>
+        </Tooltip> */}
           <TextInput
             label={"Brand"}
             value={brand}

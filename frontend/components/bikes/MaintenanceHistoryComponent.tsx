@@ -159,8 +159,7 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
 
   const logMaintenance = () => {
     console.log('Logging maintenance for bikefdsa: ' + bikeId);
-    // router.push({pathname: '/(home)/(maintenanceItems)/log-maintenance', params: { bikeid: bikeId} });
-    router.push('/(home)/(maintenanceItems)/log-maintenance');
+    router.push({pathname: '/(home)/(maintenanceItems)/log-maintenance', params: { bikeid: bikeId} });
   }
 
   const initialize = async () => {
@@ -216,50 +215,51 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
           useAll={true}
         />
         <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
-        <DataTable style={useStyle.containerBody} testID='historyTable'>
-          <DataTable.Header>
-            <DataTable.Title
-              numeric={false}
-              sortDirection={sortBy('bike')}
-              onPress={() => handleSort('bike')}>
-                Bike</DataTable.Title>
-            <DataTable.Title
-              numeric={false}
-              sortDirection={sortBy('part')}
-              onPress={() => handleSort('part')}>
-                Part</DataTable.Title>
-            <DataTable.Title
-              numeric={false}
-              sortDirection={sortBy('action')}
-              onPress={() => handleSort('action')}>
-                Action</DataTable.Title>
-            <DataTable.Title
-              numeric={true}
-              sortDirection={sortBy('distance')}
-              testID='distanceHeader'
-              onPress={() => handleSort('distance')}>
-                {distanceHeader}</DataTable.Title>
-          </DataTable.Header>
-          {sortedAndFilteredHistory(history, sortColumn, sortDirection).map((historyItem, index, histories) => (
-            <DataTable.Row
-                onPress={() => editHistoryItem(historyItem)}
-                key={'history' + historyItem.id}
-                testID={"row: " + index}>
-              <DataTable.Cell testID={"bikeCell: " + index}>{historyItem.bikeName}</DataTable.Cell>
-              <DataTable.Cell testID={"partCell: " + index}>{historyItem.part}</DataTable.Cell>
-              <DataTable.Cell testID={"actionCell: " + index}>{historyItem.action}</DataTable.Cell>
-              <DataTable.Cell testID={"distanceCell: " + index} numeric>{distanceStrings.get(historyItem.id.toFixed(0))}</DataTable.Cell>
+          <DataTable style={useStyle.containerBody} testID='historyTable'>
+            <DataTable.Header>
+              <DataTable.Title
+                numeric={false}
+                sortDirection={sortBy('bike')}
+                onPress={() => handleSort('bike')}>
+                  Bike</DataTable.Title>
+              <DataTable.Title
+                numeric={false}
+                sortDirection={sortBy('part')}
+                onPress={() => handleSort('part')}>
+                  Part</DataTable.Title>
+              <DataTable.Title
+                numeric={false}
+                sortDirection={sortBy('action')}
+                onPress={() => handleSort('action')}>
+                  Action</DataTable.Title>
+              <DataTable.Title
+                numeric={true}
+                sortDirection={sortBy('distance')}
+                testID='distanceHeader'
+                onPress={() => handleSort('distance')}>
+                  {distanceHeader}</DataTable.Title>
+            </DataTable.Header>
+            {history && history.length > 0 ? (
+              sortedAndFilteredHistory(history, sortColumn, sortDirection).map((historyItem, index, histories) => (
+                <DataTable.Row
+                    onPress={() => editHistoryItem(historyItem)}
+                    key={'history' + historyItem.id}
+                    testID={"row: " + index}>
+                  <DataTable.Cell testID={"bikeCell: " + index}>{historyItem.bikeName}</DataTable.Cell>
+                  <DataTable.Cell testID={"partCell: " + index}>{historyItem.part}</DataTable.Cell>
+                  <DataTable.Cell testID={"actionCell: " + index}>{historyItem.action}</DataTable.Cell>
+                  <DataTable.Cell testID={"distanceCell: " + index} numeric>{distanceStrings.get(historyItem.id.toFixed(0))}</DataTable.Cell>
 
-            </DataTable.Row>
-          ))}
-        </DataTable>
+                </DataTable.Row>
+              ))) : null}
+          </DataTable>
         </ScrollView>
         <Surface style={useStyle.bottomButtons}>
           <Button
             style={{flex: 1}}
             mode="contained"
             onPress={ logMaintenance }
-            testID="add-button"
+            testID="log-maintenance-button"
             accessibilityLabel="Log Maintenance"
             accessibilityHint="Log Maintenance">
                 Log Maintenance
@@ -268,7 +268,7 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
             style={{flex: 1}}
             mode="contained"
             onPress={ createHistoryItem }
-            testID="add-button"
+            testID="add-history-button"
             accessibilityLabel="Add History Item"
             accessibilityHint="Add History Item">
                 Add History Item

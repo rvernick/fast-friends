@@ -72,8 +72,6 @@ type MaintenanceHistoryItemProps = {
   bikeid: number,
 };
 
-const ninetyDays = 90 * 24 * 60 * 60 * 1000;
-
 const MaintenanceHistoryItemComponent: React.FC<MaintenanceHistoryItemProps> = ({maintenancehistoryid, bikeid}) => {
   const session = useSession();
   const queryClient = useQueryClient();

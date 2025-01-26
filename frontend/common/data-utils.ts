@@ -44,8 +44,7 @@ export const getHistory = async (session: any, username: string): Promise<Mainte
       username: username,
     };
     console.log('get history ' +'username:'+ username);
-    const result = await getInternal('/bike/maintenance-history', parameters, jwtToken);
-    return result;
+    return getInternal('/bike/maintenance-history', parameters, jwtToken);
   } catch(e: any) {
     console.log(e.message);
     return [];

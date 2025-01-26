@@ -147,7 +147,7 @@ export class BikeController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Post('delete-maintenance-history-item')
-  deleteMaintenanceHistoryItem(@Body('maintenance_history_id') maintenanceHistoryId: number, @Body('username') username: string): Promise<void> {
+  deleteMaintenanceHistoryItem(@Body('maintenance_history_id') maintenanceHistoryId: number, @Body('username') username: string): Promise<boolean> {
     console.log('bike/delete-maintenance-history-item:'+ maintenanceHistoryId +' username: '+ username);
     if (maintenanceHistoryId === undefined || maintenanceHistoryId === null) {
       throw Error('Maintenance History id is required');

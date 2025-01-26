@@ -342,6 +342,10 @@ export class BikeService {
     if (existing != null) {
       return existing;
     }
+    return this.createMaintenanceItem(maintenanceInfo);
+  }
+
+  async createMaintenanceItem(maintenanceInfo: UpdateMaintenanceHistoryItemDto): Promise<MaintenanceItem> {
     const maintenanceItem = new MaintenanceItem();
     maintenanceItem.bike = await this.findOne(maintenanceInfo.bikeid);
     maintenanceItem.part = this.getPartFor(maintenanceInfo.part);
@@ -362,23 +366,6 @@ export class BikeService {
       this.logger.log('info', 'Missing maintenance histor item: ' + maintenanceInfo.id);
       return new MaintenanceHistory();
     }
-    return result;
-  }
-
-  async createNewMaintenanceHistoryItem(maintenanceHistoryInfo: UpdateMaintenanceHistoryItemDto): Promise<MaintenanceHistory> {
-    const result = this.maintenanceHistoryRepository.create();
-    var maintenanceItem = await this.searchForMaintenanceItem(maintenanceHistoryInfo.bikeid, maintenanceHistoryInfo.part, maintenanceHistoryInfo.action);
-    if (maintenanceItem == null) {
-      this.logger.log('info', 'Creating maintenance item: ' + maintenanceHistoryInfo.bikeid +' '+ maintenanceHistoryInfo.part +' '+ maintenanceHistoryInfo.action);
-      maintenanceItem = new MaintenanceItem();
-      maintenanceItem.bike = await this.findOne(maintenanceHistoryInfo.bikeid);
-      maintenanceItem.part = this.getPartFor(maintenanceHistoryInfo.part);
-      maintenanceItem.action = this.getActionFor(maintenanceHistoryInfo.action);
-      this.maintenanceItemsRepository.save(maintenanceItem);
-    }
-
-    result.maintenanceItem = maintenanceItem;
-    result.distanceMeters = Math.round(maintenanceHistoryInfo.donemiles);
     return result;
   }
 
@@ -484,14 +471,15 @@ export class BikeService {
     return new MaintenanceHistorySummary(result);
   }
 
-  async deleteMaintenanceHistoryItem(maintenanceHistoryId: number, username: string): Promise<void> {
+  async deleteMaintenanceHistoryItem(maintenanceHistoryId: number, username: string): Promise<boolean> {
     const maintenanceHistory = await this.maintenanceHistoryRepository.findOneBy({ id: maintenanceHistoryId });
 
     if (maintenanceHistory == null) {
       console.error('Maintenance history item not found for user '+ username +' and id '+ maintenanceHistoryId);
-      return;
+      return false;
     }
-    await this.maintenanceHistoryRepository.softDelete(maintenanceHistory.id);
+    const result = await this.maintenanceHistoryRepository.softDelete(maintenanceHistory.id);
+    return result.affected > 0;
   }
 
   async logPerformedMaintenance(maintenanceLogs: MaintenanceLogRequestDto): Promise<string> {
