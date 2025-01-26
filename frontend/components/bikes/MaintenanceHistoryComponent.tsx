@@ -4,13 +4,12 @@ import { useGlobalContext } from '@/common/GlobalContext';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Text, Surface, DataTable, ActivityIndicator, Button } from 'react-native-paper';
 import { useSession } from '@/common/ctx';
-import { Dimensions } from 'react-native';
+import { Dimensions, ScrollView } from 'react-native';
 import { createStyles, defaultWebStyles } from '@/common/styles';
 import { ensureString, isMobile, metersToDisplayString } from '@/common/utils';
 import { BikeDropdown } from '../common/BikeDropdown';
 import MaintenanceHistoryController from './MaintenanceHistoryController';
 import { MaintenanceHistoryItem } from '@/models/MaintenanceHistory';
-import { ScrollView } from 'react-native-gesture-handler';
 
 type MaintenanceHistoryProps = {
   bikeid: number,
@@ -251,7 +250,14 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
                   <DataTable.Cell testID={"distanceCell: " + index} numeric>{distanceStrings.get(historyItem.id.toFixed(0))}</DataTable.Cell>
 
                 </DataTable.Row>
-              ))) : null}
+              ))) : (
+                <DataTable.Row>
+                  <DataTable.Cell>No history found</DataTable.Cell>
+                  <DataTable.Cell>Log history</DataTable.Cell>
+                  <DataTable.Cell>To start tracking</DataTable.Cell>
+                  <DataTable.Cell>{"0"}</DataTable.Cell>
+                </DataTable.Row>
+              )}
           </DataTable>
         </ScrollView>
         <Surface style={useStyle.bottomButtons}>

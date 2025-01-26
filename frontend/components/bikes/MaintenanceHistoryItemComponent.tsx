@@ -346,7 +346,7 @@ const MaintenanceHistoryItemComponent: React.FC<MaintenanceHistoryItemProps> = (
             <DatePickerInput
               locale="en"
               validRange={{endDate: today()}}
-              disableStatusBarPadding={true}
+              disableStatusBarPadding={false}
               label="Done On"
               value={doneOnDate}
               onChange={(d) => d instanceof Date ? setDoneOnDate(d) : null}

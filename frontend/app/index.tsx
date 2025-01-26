@@ -20,10 +20,10 @@ export default function Index() {
         }}
         />
       <Card mode="contained" style={useStyle.containerCentered} >
-        <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
-        <Text style={{textAlign: "center"}}>Welcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
-        <Text style={{textAlign: "center"}}>You think about your rides and who you want to ride with next.</Text>
-        <Text style={{textAlign: "center"}}>We'll think about your bike needs so you don't have to</Text>
+        <Text style={{textAlign: "center"}} variant="displayLarge">Pedal Assistant</Text>
+        <Text style={{textAlign: "center"}} variant="titleLarge">Welcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
+        <Text style={{textAlign: "center"}} variant="titleLarge">You think about your rides and who you want to ride with next.</Text>
+        <Text style={{textAlign: "center"}} variant="titleLarge">We'll think about your bike needs so you don't have to</Text>
         <Text> </Text>
         <Text> </Text>
         <Button icon="bike-fast" mode="contained" onPress={signIn}>

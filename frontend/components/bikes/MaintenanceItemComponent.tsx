@@ -471,7 +471,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             <DatePickerInput
               locale="en"
               validRange={{startDate: today()}}
-              disableStatusBarPadding={true}
+              disableStatusBarPadding={false}
               label="Deadline"
               value={dueDate}
               onChange={dueDateChange}

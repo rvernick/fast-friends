@@ -5,7 +5,7 @@ import { router, useNavigation } from "expo-router";
 import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText } from "react-native-paper";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { Part } from "@/models/MaintenanceItem";
 import { MaintenanceLog } from "@/models/MaintenanceLog";
@@ -37,6 +37,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   const session = useSession();
   const appContext = useGlobalContext();
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
   
   const [bike, setBike] = useState<Bike>(newBike);
@@ -151,6 +152,8 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     console.log('submitMaintenance selected bike: ', bike.id);
     const result = await controller.logMaintenance(session, selectedItems);
     console.log('submit maintenance result: ', result);
+    queryClient.removeQueries({ queryKey: ['history'] });
+
     if (result == '') {
       router.replace({ pathname: '/(home)/(maintenanceHistory)/history', params: { bikeId: bike.id }});
     }
@@ -243,7 +246,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
             <DatePickerInput
               locale="en"
               validRange={{startDate: today()}}
-              disableStatusBarPadding={true}
+              disableStatusBarPadding={false}
               value={nextDueDate ? nextDueDate : new Date(today().getTime() + 90 * 24 * 60 * 60 * 1000)}
               onChange={(d) => d instanceof Date ? setNextDate(d) : null}
               inputEnabled={nextDueDate != null}
