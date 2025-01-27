@@ -9,11 +9,10 @@ import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, m
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { Action, MaintenanceItem, Part } from "@/models/MaintenanceItem";
-import { BooleanDropdown } from "../common/BooleanDropdown";
 import { BikeDropdown } from "../common/BikeDropdown";
 import { PartDropdown } from "../common/PartDropdown";
 import { ActionDropdown } from "../common/ActionDropdown";
-import { Dimensions, ScrollView, View } from "react-native";
+import { Dimensions, Keyboard, ScrollView, View } from "react-native";
 import { createStyles, defaultWebStyles } from "@/common/styles";
 import { DatePickerInput } from 'react-native-paper-dates';
 
@@ -64,7 +63,10 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
 
   const maintenanceId = maintenanceid ? parseInt(ensureString(maintenanceid)) : 0;
   const initialBikeId = bikeid ? ensureString(bikeid) : '0';
-  
+
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
+
   const [isNew, setIsNew] = useState(maintenanceId === 0);
   const [maintenanceItem, setMaintenanceItem] = useState<MaintenanceItem>(newMaintenanceItem);
   const [bike, setBike] = useState<Bike>(newBike);
@@ -85,6 +87,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const [autoAdjustLongevity, setAutoAdjustLongevity] = useState(true);
   const [deleteLabel, setDeleteLabel] = useState('Delete');
   const [errorMessage, setErrorMessage] = useState('');
+  const [keyboardStatus, setKeyboardStatus] = useState('Keyboard Hidden');
+  const [scrollStyle, setScrollStyle] = useState(useStyle);
 
   const actionOptions = Object.entries(Action).map(([key, val]) => (val));
   const [availabileActions, setAvailableActions] = useState(actionOptions);
@@ -94,9 +98,6 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const [deadline, setDeadline] = useState('Distance');
   const controller = new MaintenanceItemController(appContext);
   const preferences = controller.getUserPreferences(session);
-
-  const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const { data: bikes } = useQuery({
     queryKey: ['bikes'],
@@ -331,7 +332,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const updateLabels = async () => {
     const pref = await preferences;
     setDueDistanceLabel('Due Distance (' + pref.units + ')');
-    setDefaultLongevityLabel('Default Longevity (' + pref.units + ')');
+    setDefaultLongevityLabel(pref.units + ' between maintenance');
     setErrorMessage('');
   }
 
@@ -426,14 +427,41 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
     }
   }
 
+  const updateScrollStyle = () => {
+    const dimensions = Dimensions.get('window');
+    const keyboardHeight = Keyboard.metrics()?.height;
+    const adjustedHeight = keyboardHeight ? dimensions.height - (keyboardHeight - 80) : dimensions.height;
+    const useStyle = isMobile() ? createStyles(dimensions.width, adjustedHeight) : defaultWebStyles
+    setScrollStyle(useStyle);
+  }
+
   useEffect(() => {
     navigation.setOptions({ title: 'Due: ' + ensureString(part) +' : '+ bikeName });
   }), [part, bikeName];
 
+  useEffect(() => {
+    
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardStatus('Keyboard Shown');
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardStatus('Keyboard Hidden');
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    updateScrollStyle()
+  }, [keyboardStatus]);
+  
   return (
-    <Surface style={useStyle.containerScreen}>
+    <Surface style={scrollStyle.containerScreen}>
       {!isInitialized ? <ActivityIndicator animating={!isInitialized}  size="large"/> : null }
-        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
+        <ScrollView contentContainerStyle={{flexGrow:1}} style={scrollStyle.containerBody}>
           <BikeDropdown
             bikes={bikes}
             value={bikeIdString}
@@ -535,7 +563,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             {errorMessage}
           </HelperText>
           </ScrollView>
-        <Surface style={useStyle.bottomButtons}>
+        <Surface style={scrollStyle.bottomButtons}>
           <Button
             mode="contained"
             style={{flex: 1}}

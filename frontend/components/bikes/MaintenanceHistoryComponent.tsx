@@ -250,14 +250,21 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
                   <DataTable.Cell testID={"distanceCell: " + index} numeric>{distanceStrings.get(historyItem.id.toFixed(0))}</DataTable.Cell>
 
                 </DataTable.Row>
-              ))) : (
+              ))) : (historyFetching ? (
+                  <DataTable.Row>
+                  <DataTable.Cell>Fetching </DataTable.Cell>
+                  <DataTable.Cell>History</DataTable.Cell>
+                  <DataTable.Cell> </DataTable.Cell>
+                  <DataTable.Cell>{"0"}</DataTable.Cell>
+                </DataTable.Row>
+              ) : (
                 <DataTable.Row>
                   <DataTable.Cell>No history found</DataTable.Cell>
                   <DataTable.Cell>Log history</DataTable.Cell>
                   <DataTable.Cell>To start tracking</DataTable.Cell>
                   <DataTable.Cell>{"0"}</DataTable.Cell>
                 </DataTable.Row>
-              )}
+              ))}
           </DataTable>
         </ScrollView>
         <Surface style={useStyle.bottomButtons}>

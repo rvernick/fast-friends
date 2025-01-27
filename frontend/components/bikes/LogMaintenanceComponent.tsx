@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
-import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText } from "react-native-paper";
+import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText, ActivityIndicator } from "react-native-paper";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -303,6 +303,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
 
   return (
     <Surface style={useStyle.containerScreen}>
+      {isInitialized ? null : <ActivityIndicator animating={true} size="large" /> }
       <Card style={useStyle.input} >
         {bikes && bikes.length > 1 ? <BikeDropdown
           bikes={bikes}

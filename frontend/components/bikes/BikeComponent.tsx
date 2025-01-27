@@ -258,7 +258,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
         </Tooltip>
       </Card>
       
-      <Surface style={useStyle.bottomButton}>
+      <Surface style={useStyle.bottomButtons}>
         <Button mode="contained"
           onPress={ editOrDone }
           style={{flex: 1}}
