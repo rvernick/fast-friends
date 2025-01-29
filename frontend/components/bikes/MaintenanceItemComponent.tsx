@@ -489,48 +489,56 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
               value={deadline}
               onSelect={deadlineSelected}
               testID="deadlineDropdown"  />}
-          <TextInput 
-            label={dueDistanceLabel}
-            value={dueMiles.toString()}
-            disabled={readOnly || deadline == "Date"}
-            onChangeText={dueMilesChange}
-            inputMode="numeric"
-            testID="dueMilesInput"
-            accessibilityLabel="Due Milage"
-            accessibilityHint="Milage when this maintenance should be performed"
-          />
-          <View style={{flexDirection: 'row', justifyContent: 'flex-start', flexWrap: 'nowrap'}}>
-            <DatePickerInput
-              locale="en"
-              validRange={{startDate: today()}}
-              disableStatusBarPadding={false}
-              label="Deadline"
-              value={dueDate}
-              onChange={dueDateChange}
-              inputEnabled={!readOnly && deadline != "Distance"}
-              inputMode="start"
-            />
-          </View>
-          <TextInput 
-            label={defaultLongevityLabel}
-            value={defaultLongevity}
-            disabled={readOnly || deadline == "Date"}
-            onChangeText={defaultLongevityChange}
-            inputMode="numeric"
-            testID="defaultLongevityInput"
-            accessibilityLabel="Default Longevity"
-            accessibilityHint="Typical milage when this maintenance should be performed"
-        />
-          <TextInput 
-            label="Days between maintenance"
-            value={defaultLongevityDays}
-            disabled={readOnly || deadline == "Distance"}
-            onChangeText={defaultLongevityDaysChange}
-            inputMode="numeric"
-            testID="defaultLongevityDaysInput"
-            accessibilityLabel="Default Longevity Days"
-            accessibilityHint="Typical number of days between when this maintenance should be performed"
-        />
+          {readOnly && deadline == "Date"? null : (
+            <TextInput 
+              label={dueDistanceLabel}
+              value={dueMiles.toString()}
+              disabled={readOnly || deadline == "Date"}
+              onChangeText={dueMilesChange}
+              inputMode="numeric"
+              testID="dueMilesInput"
+              accessibilityLabel="Due Milage"
+              accessibilityHint="Milage when this maintenance should be performed"
+            />)
+          }
+          {readOnly && deadline == "Distance"? null : (
+            <View style={{flexDirection: 'row', justifyContent: 'flex-start', flexWrap: 'nowrap'}}>
+              <DatePickerInput
+                locale="en"
+                validRange={{startDate: today()}}
+                disableStatusBarPadding={false}
+                label="Deadline"
+                value={dueDate}
+                onChange={dueDateChange}
+                inputEnabled={!readOnly && deadline != "Distance"}
+                inputMode="start"
+              />
+            </View>)
+          }
+          {readOnly && deadline == "Date"? null : (
+            <TextInput 
+              label={defaultLongevityLabel}
+              value={defaultLongevity}
+              disabled={readOnly || deadline == "Date"}
+              onChangeText={defaultLongevityChange}
+              inputMode="numeric"
+              testID="defaultLongevityInput"
+              accessibilityLabel="Default Longevity"
+              accessibilityHint="Typical milage when this maintenance should be performed"
+            />)
+          }
+          {readOnly && deadline == "Distance"? null : (
+            <TextInput 
+              label="Days between maintenance"
+              value={defaultLongevityDays}
+              disabled={readOnly || deadline == "Distance"}
+              onChangeText={defaultLongevityDaysChange}
+              inputMode="numeric"
+              testID="defaultLongevityDaysInput"
+              accessibilityLabel="Default Longevity Days"
+              accessibilityHint="Typical number of days between when this maintenance should be performed"
+            />)
+          }
         {/* <Tooltip title="Auto Adjust: Use historical maintenance pattern to update longevity">
           <BooleanDropdown
               label={"Auto Adjust Longevity"}
