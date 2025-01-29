@@ -428,11 +428,13 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   }
 
   const updateScrollStyle = () => {
-    const dimensions = Dimensions.get('window');
-    const keyboardHeight = Keyboard.metrics()?.height;
-    const adjustedHeight = keyboardHeight ? dimensions.height - (keyboardHeight - 80) : dimensions.height;
-    const useStyle = isMobile() ? createStyles(dimensions.width, adjustedHeight) : defaultWebStyles
-    setScrollStyle(useStyle);
+    if (isMobile()) {
+      const dimensions = Dimensions.get('window');
+      const keyboardHeight = Keyboard.metrics()?.height;
+      const adjustedHeight = keyboardHeight ? dimensions.height - (keyboardHeight - 80) : dimensions.height;
+      const useStyle = isMobile() ? createStyles(dimensions.width, adjustedHeight) : defaultWebStyles
+      setScrollStyle(useStyle);
+    }
   }
 
   useEffect(() => {
@@ -440,18 +442,19 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   }), [part, bikeName];
 
   useEffect(() => {
-    
-    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardStatus('Keyboard Shown');
-    });
-    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardStatus('Keyboard Hidden');
-    });
+    if (isMobile()) {
+      const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+        setKeyboardStatus('Keyboard Shown');
+      });
+      const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardStatus('Keyboard Hidden');
+      });
 
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
+      return () => {
+        showSubscription.remove();
+        hideSubscription.remove();
+      };
+    }
   }, []);
 
   useEffect(() => {
@@ -479,6 +482,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             onSelect={actionSelected}
             />
             {readOnly? null : <Dropdown
+              mode="outlined"
               options={deadlineOptions}
               label="Track by"
               placeholder={ensureString(deadline)}

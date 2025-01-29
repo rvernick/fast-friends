@@ -74,7 +74,7 @@ export default function TabLayout() {
         name="(settings)"
         options={{
           title: "Settings",
-          headerShown: true,
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons size={tabBarIconSize} name="account-settings" color={color} />
           ),

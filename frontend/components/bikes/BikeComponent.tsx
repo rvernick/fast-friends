@@ -221,6 +221,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
           accessibilityLabel="Milage"
           accessibilityHint="Mileage of the bike"/>
         <Dropdown
+          mode="outlined"
           disabled={readOnly}
           label="Groupset"
           placeholder="SRAM"
@@ -229,6 +230,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
           onSelect={(value) => setGroupsetBrand(value ? value : '')}
         />
         <Dropdown
+          mode="outlined"
           disabled={readOnly}
           label="Type"
           placeholder="Road"
@@ -237,6 +239,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
           onSelect={(value) => setType(value ? value : '')}
         />
         <Dropdown
+          mode="outlined"
           disabled={readOnly}
           label="Speeds"
           placeholder="11"

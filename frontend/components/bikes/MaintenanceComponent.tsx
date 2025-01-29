@@ -311,6 +311,7 @@ const MaintenanceComponent = () => {
         <Card style={useStyle.input} >
           <Card.Title title="Sort By:" right={() =>
             <Dropdown 
+              mode="outlined"
               value={sortOption}
               options={sortOptions}
               onSelect={updateSorting}

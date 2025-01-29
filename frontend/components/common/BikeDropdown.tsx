@@ -48,13 +48,14 @@ export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readon
     
     return (
       <Dropdown
-          disabled={readonly}
-          label="Bike"
-          placeholder={ensureString(value)}
-          options={options}
-          value={value}
-          onSelect={handleSelect}
-          testID="BikeDropdown"
-        />
+        mode="outlined"
+        disabled={readonly}
+        label="Bike"
+        placeholder={ensureString(value)}
+        options={options}
+        value={value}
+        onSelect={handleSelect}
+        testID="BikeDropdown"
+      />
     )
   }

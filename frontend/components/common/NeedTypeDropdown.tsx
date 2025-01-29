@@ -21,13 +21,14 @@ export const NeedTypeDropdown: React.FC<NeedTypeDropdownProps> = ({ value, reado
 
   return (
     <Dropdown
-        disabled={readonly}
-        label="Need Type"
-        placeholder={ensureString(value)}
-        options={options}
-        value={value}
-        onSelect={handleSelect}
-        testID="NeedTypeDropdown"
-      />
+      mode="outlined"
+      disabled={readonly}
+      label="Need Type"
+      placeholder={ensureString(value)}
+      options={options}
+      value={value}
+      onSelect={handleSelect}
+      testID="NeedTypeDropdown"
+    />
   );
 }

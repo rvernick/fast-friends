@@ -1,6 +1,7 @@
 import { ensureString } from "@/common/utils";
 import { Part } from "@/models/MaintenanceItem";
 import { useEffect, useState } from "react";
+import { View } from "react-native";
 import { Dropdown } from "react-native-paper-dropdown";
 
 const options = Object.entries(Part).map(([key, val]) => ({ label: val, value: val }));
@@ -25,13 +26,14 @@ export const PartDropdown: React.FC<PartDropdownProps> = ({ value, readonly = fa
 
   return (
     <Dropdown
-        disabled={readonly}
-        label="Part"
-        placeholder={ensureString(value)}
-        options={options}
-        value={value}
-        onSelect={handleSelect}
-        testID={testID}
-      />
+      mode="outlined"
+      disabled={readonly}
+      label="Part"
+      placeholder={ensureString(value)}
+      options={options}
+      value={value}
+      onSelect={handleSelect}
+      testID={testID}
+    />    
   );
 }
