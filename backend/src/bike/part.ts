@@ -22,6 +22,8 @@ export enum Part {
   REAR_DERAILLEUR_BATTERY = "Rear Derailleur Battery",
   FRONT_TIRE_SEALANT = "Front Tire Sealant",
   REAR_TIRE_SEALANT = "Rear Tire Sealant",
+  LEFT_SHIFTER_BATTERY = "Left Shifter Battery",
+  RIGHT_SHIFTER_BATTERY = "Right Shifter Battery",
 };
 
 export const getPartFor = (partCode: string): Part | null => {

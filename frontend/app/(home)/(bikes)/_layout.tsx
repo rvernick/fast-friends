@@ -9,10 +9,11 @@ export default function Layout() {
     <Stack >
       <Stack.Screen name="index" options={{
           title: "Bikes",
-          headerShown: false,
+          headerShown: true,
         }} />
       <Stack.Screen name="[bikeid]" options={{
         title: 'Bike',
+        headerShown: true,
         headerLeft: () => <Button onPress={() => router.push('/(home)/(bikes)')} icon="arrow-left">{""}</Button>,
       }} />
     </Stack>    

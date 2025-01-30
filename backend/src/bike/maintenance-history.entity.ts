@@ -8,7 +8,6 @@ import {
   DeleteDateColumn,
   JoinColumn,
 } from 'typeorm';
-import { Part } from './part';
 import { MaintenanceItem } from './maintenance-item.entity';
 
 @Entity()
@@ -23,16 +22,11 @@ export class MaintenanceHistory {
   @JoinColumn({ name: "maintenance_item_id" })
   maintenanceItem: MaintenanceItem;
 
-  @Column({
-    type: "enum",
-    enum: Part,
-    default: Part.CHAIN,
-    nullable: false,
-  })
-  part: Part;
-
   @Column({nullable: false, name: 'distance_meters' })
   distanceMeters: number;
+
+  @Column({nullable: false, name: 'done_date', default: '1/1/1970'})
+  doneDate: Date;
 
   @Column({
     type: 'varchar',

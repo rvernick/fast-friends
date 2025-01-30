@@ -1,8 +1,6 @@
 import { router, Stack } from "expo-router";
 import { Button } from "react-native-paper";
 
-// TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
-
 export default function Layout() {
   const goBack = () => {
     if (router.canGoBack()) {
@@ -12,19 +10,16 @@ export default function Layout() {
       router.push('/(home)/(maintenanceItems)/maintenance');
     }
   }
-  
+  // TODO: moved all history under home for easier navigation  Need to update links
   return (
     <Stack>
-      <Stack.Screen name="maintenance" options={{
-          title: "Maintenance",
+      <Stack.Screen name="history" options={{
+          title: "History",
           headerShown: true,
+          // headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
         }} />
-      <Stack.Screen name="[maintenanceid]" options={{
-        title: 'Maintenance Item',
-        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
-      }} />
-      <Stack.Screen name="log-maintenance" options={{
-        title: 'Log Maintenance',
+      <Stack.Screen name="[maintenancehistoryid]" options={{
+        title: 'Maintenance History',
         headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
     </Stack>

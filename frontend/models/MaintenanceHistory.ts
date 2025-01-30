@@ -4,15 +4,15 @@ export interface MaintenanceHistoryItem {
   bikeName: string;
   bikeId: number;
   distanceMeters: number;
+  doneDate: Date;
   part: string;
   action: string;
   name: string;
   brand: string;
   model: string;
   link: string;
-  bikeDistance: number;
+  bikeOdemeterMeters: number;
   dueDistanceMeters: number;
   defaultLongevity: number;
   autoAdjustLongevity: boolean;
 };
-

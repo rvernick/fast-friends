@@ -1,26 +1,27 @@
 import AppContext from "@/common/app-context";
 import AppController from "@/common/AppController";
-import { getMaintenanceItem } from "@/common/data-utils";
+import { getMaintenanceHistoryItem } from "@/common/data-utils";
 import { post } from "@/common/http-utils";
 import { ensureString } from "@/common/utils";
-import { MaintenanceItem } from "@/models/MaintenanceItem";
+import { MaintenanceHistoryItem } from "@/models/MaintenanceHistory";
 import { MaintenanceLog } from "@/models/MaintenanceLog";
 
-class MaintenanceItemController extends AppController {
+class MaintenanceHistoryItemController extends AppController {
   constructor(appContext: AppContext) {
     super(appContext);
   }
 
-  getMaintenanceItem = (session: any, maintenanceId: number, username: string): Promise<MaintenanceItem | null>=> {
-    return getMaintenanceItem(session, maintenanceId, username);
+  getMaintenanceHistoryItem = (session: any, maintenanceId: number, username: string): Promise<MaintenanceHistoryItem | null>=> {
+    return getMaintenanceHistoryItem(session, maintenanceId, username);
   }
 
-  deleteMaintenanceItem = async (session: any, username: string, maintenanceItemId: number): Promise<boolean> => {
+  deleteMaintenanceHistoryItem = async (session: any, maintenanceHistoryItemId: number): Promise<boolean> => {
     if (session === null) {
-      console.log('get maintenanceItem has no context: ' + username);
+      console.log('get maintenanceItem has no context: ' + session);
       return Promise.resolve(false);
     }
     const jwtToken = session.jwt_token;
+    const username = session.email;
     if (jwtToken == null) {
       console.log('delete maintenance item has no token dying: ' + username);
       return Promise.resolve(false);
@@ -29,34 +30,30 @@ class MaintenanceItemController extends AppController {
     try {
       const parameters = {
         username: username,
-        maintenanceid: maintenanceItemId,
+        maintenance_history_id: maintenanceHistoryItemId,
       };
-      console.log('delete maintenanceItem ' + maintenanceItemId);
-      console.log('/bike/delete-maintenance-item', JSON.stringify(parameters));
-      const response = await post('/bike/delete-maintenance-item', parameters, jwtToken);
-      const result = await response.json();
-      return response.ok && result;
+      console.log('delete maintenanceHistoryItem ' + maintenanceHistoryItemId);
+      console.log('/bike/delete-maintenance-history-item', JSON.stringify(parameters));
+      const response = await post('/bike/delete-maintenance-history-item', parameters, jwtToken);
+      return response.ok;
     } catch(e: any) {
       console.log(e.message);
       return Promise.resolve(false);
     }
   }
 
-  updateOrAddMaintenanceItem = async (
+  updateOrAddMaintenanceHistoryItem = async (
       session: any,
       username: string,
       maintenanceItemId: number,
       bikeId: number,
       part: string,
       action: string,
-      dueMiles: number | null,
-      dueDate: Date | null,
+      doneMiles: number | null,
+      doneDate: Date | null,
       brand: string,
       model: string,
-      link: string,
-      defaultLongevity: number,
-      defaultLongevityDays: number,
-      autoAdjustLongevity: boolean,
+      link: string
     ) => {
 
     if (session === null) {
@@ -76,19 +73,16 @@ class MaintenanceItemController extends AppController {
         bikeid: bikeId,
         part: ensureString(part),
         action: ensureString(action),
-        duemiles: dueMiles,
-        duedate: dueDate ? dueDate.getTime() : 0,
+        donemiles: doneMiles,
+        donedate: doneDate ? doneDate.getTime() : 0,
         brand: ensureString(brand),
         model: ensureString(model),
         maintenanceid: maintenanceItemId,
         link: ensureString(link),
-        defaultLongevity: defaultLongevity,
-        defaultLongevityDays: defaultLongevityDays,
-        autoAdjustLongevity: autoAdjustLongevity,
       };
       console.log('update maintenanceItem ' + maintenanceItemId);
       console.log('/bike/update-or-add-maintenance-item', JSON.stringify(parameters));
-      const response = await post('/bike/update-or-add-maintenance-item', parameters, jwtToken);
+      const response = await post('/bike/update-or-add-maintenance-history-item', parameters, jwtToken);
       return response.ok;
     } catch(e: any) {
       console.log(e.message);
@@ -119,4 +113,4 @@ class MaintenanceItemController extends AppController {
   }
 }
 
-export default MaintenanceItemController;
+export default MaintenanceHistoryItemController;

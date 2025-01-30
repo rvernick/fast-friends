@@ -93,3 +93,28 @@ export const getMaintenanceItem = (session: any, maintenanceId: number, username
     return Promise.resolve(null);
   }
 };
+
+export const getMaintenanceHistoryItem = (session: any, maintenanceHistoryId: number, username: string): Promise<MaintenanceHistoryItem | null>=> {
+  if (session === null) {
+    console.log('get maintenanceHistoryItem has no context: ' + username);
+    return Promise.resolve(null);
+  }
+  const jwtToken = session.jwt_token;
+  if (jwtToken == null) {
+    console.log('get maintenance history item has no token dying: ' + username);
+    return Promise.resolve(null);
+  }
+
+  try {
+    const parameters = {
+      username: username,
+      maintenance_history_id: maintenanceHistoryId,
+    };
+    console.log('get maintenanceItem');
+    return getInternal('/bike/maintenance-history-item', parameters, jwtToken);
+  } catch(e: any) {
+    console.log(e.message);
+    return Promise.resolve(null);
+  }
+};
+

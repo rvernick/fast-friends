@@ -256,15 +256,19 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
     return (
       <Surface style={useStyle.containerScreen}>
         <Surface style={useStyle.topButtons}>
-          <PartDropdown
-            value={partOption}
-            onSelect={updatePartOption}
-            />
-          <ActionDropdown
-            value={actionOption}
-            onSelect={updateActionOption}
-            />
-            <DifficultyIcon instruction={instruction}/> 
+          <View style={{flex: 1}}>
+            <PartDropdown
+              value={partOption}
+              onSelect={updatePartOption}
+              />
+          </View>
+          <View style={{flex: 1}}>
+            <ActionDropdown
+              value={actionOption}
+              onSelect={updateActionOption}
+              />
+          </View>
+          <DifficultyIcon instruction={instruction}/> 
         </Surface>
         <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBodyFull}>
           <Text variant="titleMedium">Steps:</Text>

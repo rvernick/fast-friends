@@ -167,7 +167,20 @@ const HelpRequestsComponent = () => {
             ))}
           </ScrollView>
         </DataTable>
-        <Button mode="contained" onPress={() => router.push('/(assistance)/instructions') }> Instructions</Button>
+        <Surface style={useStyle.bottomButtons}>
+          <Button
+            style={{flex: 1}}
+            mode="contained"
+            onPress={() => router.push('/(assistance)/instructions')}>
+              Instructions
+          </Button>
+          <Button
+            style={{flex: 1}}
+            mode="contained"
+            onPress={() => router.push('/(home)/(settings)/getting-started')}>
+              Using Pedal Assistant
+          </Button>
+        </Surface>
       </Surface>
     );
   }

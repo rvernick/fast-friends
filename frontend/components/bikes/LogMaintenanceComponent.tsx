@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
-import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText } from "react-native-paper";
+import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText, ActivityIndicator } from "react-native-paper";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { Part } from "@/models/MaintenanceItem";
 import { MaintenanceLog } from "@/models/MaintenanceLog";
@@ -37,6 +37,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   const session = useSession();
   const appContext = useGlobalContext();
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
   
   const [bike, setBike] = useState<Bike>(newBike);
@@ -151,8 +152,10 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     console.log('submitMaintenance selected bike: ', bike.id);
     const result = await controller.logMaintenance(session, selectedItems);
     console.log('submit maintenance result: ', result);
+    queryClient.removeQueries({ queryKey: ['history'] });
+
     if (result == '') {
-      router.replace({ pathname: '/(home)/(maintenanceItems)/history', params: { bikeId: bike.id }});
+      router.replace({ pathname: '/(home)/(maintenanceHistory)/history', params: { bikeId: bike.id }});
     }
   }
 
@@ -243,7 +246,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
             <DatePickerInput
               locale="en"
               validRange={{startDate: today()}}
-              disableStatusBarPadding={true}
+              disableStatusBarPadding={false}
               value={nextDueDate ? nextDueDate : new Date(today().getTime() + 90 * 24 * 60 * 60 * 1000)}
               onChange={(d) => d instanceof Date ? setNextDate(d) : null}
               inputEnabled={nextDueDate != null}
@@ -300,6 +303,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
 
   return (
     <Surface style={useStyle.containerScreen}>
+      {isInitialized ? null : <ActivityIndicator animating={true} size="large" /> }
       <Card style={useStyle.input} >
         {bikes && bikes.length > 1 ? <BikeDropdown
           bikes={bikes}
@@ -325,7 +329,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
         <Button
           style={{flex: 1}}
           mode="contained"
-          onPress={() => {router.push('/(home)/(maintenanceItems)/instructions')}}>
+          onPress={() => {router.push('/(home)/(assistance)/instructions')}}>
             Instructions
         </Button>
         <Button

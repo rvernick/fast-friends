@@ -1,0 +1,25 @@
+delete from batch_process
+where id > 0
+;
+
+update maintenance_item
+set was_notified = FALSE
+where "bikeId" = 20
+and was_notified = TRUE
+;
+
+select * from maintenance_item
+where was_notified = true;
+
+
+update maintenance_item
+set was_notified = FALSE
+where was_notified = TRUE
+;
+
+select mh.*, mi.*, b.*
+from maintenance_history mh
+INNER JOIN maintenance_item mi on mh.maintenance_item_id = mi.id
+INNER JOIN bike b on b.id = mi."bikeId"
+WHERE mh.id = 12
+;

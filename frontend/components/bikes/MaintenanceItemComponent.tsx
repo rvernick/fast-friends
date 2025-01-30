@@ -2,18 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
-import { Button, TextInput, ActivityIndicator, Card, Surface, Tooltip, Text } from "react-native-paper";
+import { Button, TextInput, ActivityIndicator, Surface, Tooltip, HelperText } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { Action, MaintenanceItem, Part } from "@/models/MaintenanceItem";
-import { BooleanDropdown } from "../common/BooleanDropdown";
 import { BikeDropdown } from "../common/BikeDropdown";
 import { PartDropdown } from "../common/PartDropdown";
 import { ActionDropdown } from "../common/ActionDropdown";
-import { Dimensions, ScrollView, View } from "react-native";
+import { Dimensions, Keyboard, ScrollView, View } from "react-native";
 import { createStyles, defaultWebStyles } from "@/common/styles";
 import { DatePickerInput } from 'react-native-paper-dates';
 
@@ -64,7 +63,10 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
 
   const maintenanceId = maintenanceid ? parseInt(ensureString(maintenanceid)) : 0;
   const initialBikeId = bikeid ? ensureString(bikeid) : '0';
-  
+
+  const dimensions = Dimensions.get('window');
+  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
+
   const [isNew, setIsNew] = useState(maintenanceId === 0);
   const [maintenanceItem, setMaintenanceItem] = useState<MaintenanceItem>(newMaintenanceItem);
   const [bike, setBike] = useState<Bike>(newBike);
@@ -83,6 +85,10 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const [defaultLongevity, setDefaultLongevity] = useState('1500');
   const [defaultLongevityDays, setDefaultLongevityDays] = useState('90');
   const [autoAdjustLongevity, setAutoAdjustLongevity] = useState(true);
+  const [deleteLabel, setDeleteLabel] = useState('Delete');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [keyboardStatus, setKeyboardStatus] = useState('Keyboard Hidden');
+  const [scrollStyle, setScrollStyle] = useState(useStyle);
 
   const actionOptions = Object.entries(Action).map(([key, val]) => (val));
   const [availabileActions, setAvailableActions] = useState(actionOptions);
@@ -92,9 +98,6 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const [deadline, setDeadline] = useState('Distance');
   const controller = new MaintenanceItemController(appContext);
   const preferences = controller.getUserPreferences(session);
-
-  const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const { data: bikes } = useQuery({
     queryKey: ['bikes'],
@@ -147,7 +150,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       bike.maintenanceItems = bike.maintenanceItems.filter(mi => mi.id!== maintenanceItem.id);
       queryClient.removeQueries({ queryKey: ['bikes'] });
       navigation.goBack();
+    } else {
+      setDeleteLabel('History');
+      setErrorMessage('Cannot delete maintenance item with history');
     }
+  }
+
+  const goToHistory = () => {
+    router.push( { pathname: '/(home)/(maintenanceHistory)/history', params: { bikeId: bikeIdString }});
   }
 
   const cancel = () => {
@@ -322,7 +332,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const updateLabels = async () => {
     const pref = await preferences;
     setDueDistanceLabel('Due Distance (' + pref.units + ')');
-    setDefaultLongevityLabel('Default Longevity (' + pref.units + ')');
+    setDefaultLongevityLabel(pref.units + ' between maintenance');
+    setErrorMessage('');
   }
 
   useEffect(() => {
@@ -351,14 +362,27 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
     console.log('PartSelected: ', part);
     setPart(ensureString(part));
     updateActionsList(bike, ensureString(part));
+    setErrorMessage('');
   }
 
   const actionSelected = (selection: string | undefined) => {
     if (selection === null) return;
     setAction(ensureString(selection));
+    setErrorMessage('');
+  }
+
+  const deadlineSelected = (selection: string | undefined) => {
+    selection ? setDeadline(selection) : null;
+    setErrorMessage('');
+  }
+
+  const dueDateChange = (date: Date | undefined) => {
+    date instanceof Date ? setDueDate(date) : null;
+    setErrorMessage('');
   }
 
   const dueMilesChange = (miles: string) => {
+    setErrorMessage('');
     if (miles === '') {
       setDueMiles('0');
       return;
@@ -403,14 +427,44 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
     }
   }
 
+  const updateScrollStyle = () => {
+    if (isMobile()) {
+      const dimensions = Dimensions.get('window');
+      const keyboardHeight = Keyboard.metrics()?.height;
+      const adjustedHeight = keyboardHeight ? dimensions.height - (keyboardHeight - 80) : dimensions.height;
+      const useStyle = isMobile() ? createStyles(dimensions.width, adjustedHeight) : defaultWebStyles
+      setScrollStyle(useStyle);
+    }
+  }
+
   useEffect(() => {
-    navigation.setOptions({ title: ensureString(part) +' : '+ bikeName });
+    navigation.setOptions({ title: 'Due: ' + ensureString(part) +' : '+ bikeName });
   }), [part, bikeName];
 
+  useEffect(() => {
+    if (isMobile()) {
+      const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+        setKeyboardStatus('Keyboard Shown');
+      });
+      const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardStatus('Keyboard Hidden');
+      });
+
+      return () => {
+        showSubscription.remove();
+        hideSubscription.remove();
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    updateScrollStyle()
+  }, [keyboardStatus]);
+  
   return (
-    <Surface style={useStyle.containerScreen}>
+    <Surface style={scrollStyle.containerScreen}>
       {!isInitialized ? <ActivityIndicator animating={!isInitialized}  size="large"/> : null }
-        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
+        <ScrollView contentContainerStyle={{flexGrow:1}} style={scrollStyle.containerBody}>
           <BikeDropdown
             bikes={bikes}
             value={bikeIdString}
@@ -428,62 +482,71 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             onSelect={actionSelected}
             />
             {readOnly? null : <Dropdown
+              mode="outlined"
               options={deadlineOptions}
               label="Track by"
               placeholder={ensureString(deadline)}
               value={deadline}
-              onSelect={(val) => val ? setDeadline(val) : null}
+              onSelect={deadlineSelected}
               testID="deadlineDropdown"  />}
-          <TextInput 
-            label={dueDistanceLabel}
-            value={dueMiles.toString()}
-            disabled={readOnly || deadline == "Date"}
-            onChangeText={dueMilesChange}
-            inputMode="numeric"
-            testID="dueMilesInput"
-            accessibilityLabel="Due Milage"
-            accessibilityHint="Milage when this maintenance should be performed"
-          />
-          <View style={{flexDirection: 'row', justifyContent: 'flex-start', flexWrap: 'nowrap'}}>
-            <DatePickerInput
-              locale="en"
-              validRange={{startDate: today()}}
-              disableStatusBarPadding={true}
-              label="Deadline"
-              value={dueDate}
-              onChange={(d) => d instanceof Date ? setDueDate(d) : null}
-              inputEnabled={!readOnly && deadline != "Distance"}
-              inputMode="start"
-            />
-          </View>
-          <TextInput 
-            label={defaultLongevityLabel}
-            value={defaultLongevity}
-            disabled={readOnly || deadline == "Date"}
-            onChangeText={defaultLongevityChange}
-            inputMode="numeric"
-            testID="defaultLongevityInput"
-            accessibilityLabel="Default Longevity"
-            accessibilityHint="Typical milage when this maintenance should be performed"
-        />
-          <TextInput 
-            label="Days between maintenance"
-            value={defaultLongevityDays}
-            disabled={readOnly || deadline == "Distance"}
-            onChangeText={defaultLongevityDaysChange}
-            inputMode="numeric"
-            testID="defaultLongevityDaysInput"
-            accessibilityLabel="Default Longevity Days"
-            accessibilityHint="Typical number of days between when this maintenance should be performed"
-        />
-        <Tooltip title="Auto Adjust: Use historical maintenance pattern to update longevity">
+          {readOnly && deadline == "Date"? null : (
+            <TextInput 
+              label={dueDistanceLabel}
+              value={dueMiles.toString()}
+              disabled={readOnly || deadline == "Date"}
+              onChangeText={dueMilesChange}
+              inputMode="numeric"
+              testID="dueMilesInput"
+              accessibilityLabel="Due Milage"
+              accessibilityHint="Milage when this maintenance should be performed"
+            />)
+          }
+          {readOnly && deadline == "Distance"? null : (
+            <View style={{flexDirection: 'row', justifyContent: 'flex-start', flexWrap: 'nowrap'}}>
+              <DatePickerInput
+                locale="en"
+                validRange={{startDate: today()}}
+                disableStatusBarPadding={false}
+                label="Deadline"
+                value={dueDate}
+                onChange={dueDateChange}
+                inputEnabled={!readOnly && deadline != "Distance"}
+                inputMode="start"
+              />
+            </View>)
+          }
+          {readOnly && deadline == "Date"? null : (
+            <TextInput 
+              label={defaultLongevityLabel}
+              value={defaultLongevity}
+              disabled={readOnly || deadline == "Date"}
+              onChangeText={defaultLongevityChange}
+              inputMode="numeric"
+              testID="defaultLongevityInput"
+              accessibilityLabel="Default Longevity"
+              accessibilityHint="Typical milage when this maintenance should be performed"
+            />)
+          }
+          {readOnly && deadline == "Distance"? null : (
+            <TextInput 
+              label="Days between maintenance"
+              value={defaultLongevityDays}
+              disabled={readOnly || deadline == "Distance"}
+              onChangeText={defaultLongevityDaysChange}
+              inputMode="numeric"
+              testID="defaultLongevityDaysInput"
+              accessibilityLabel="Default Longevity Days"
+              accessibilityHint="Typical number of days between when this maintenance should be performed"
+            />)
+          }
+        {/* <Tooltip title="Auto Adjust: Use historical maintenance pattern to update longevity">
           <BooleanDropdown
               label={"Auto Adjust Longevity"}
               value={autoAdjustLongevity}
               readonly={readOnly}
               onSelect={(value: boolean) => setAutoAdjustLongevity(value)}
             />
-        </Tooltip>
+        </Tooltip> */}
           <TextInput
             label={"Brand"}
             value={brand}
@@ -505,8 +568,14 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             onChangeText={(text) => setLink(text)}
             accessibilityLabel="Link"
             accessibilityHint="URL of part used"/>
+          <HelperText type="error"
+            disabled={errorMessage.length == 0}
+            testID="emailErrorHelperText"
+            visible={errorMessage.length > 0}>
+            {errorMessage}
+          </HelperText>
           </ScrollView>
-        <Surface style={useStyle.bottomButtons}>
+        <Surface style={scrollStyle.bottomButtons}>
           <Button
             mode="contained"
             style={{flex: 1}}
@@ -527,12 +596,18 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             accessibilityLabel="Cancel"
             accessibilityHint="Go back without saving changes">
           Cancel </Button>}
-          { (readOnly || isNew) ? null : <Button
+          { (readOnly || isNew || deleteLabel === 'History') ? null : <Button
             mode="contained"
             style={{flex: 1}}
             onPress={ deleteMaintenanceItem }
             accessibilityLabel="Delete"
-            accessibilityHint="Delete maintenance item"> Delete </Button>}
+            accessibilityHint="Delete maintenance item"> {deleteLabel} </Button>}
+          { (readOnly || isNew || deleteLabel === 'History') ? <Button
+            mode="contained"
+            style={{flex: 1}}
+            onPress={ goToHistory }
+            accessibilityLabel="History"
+            accessibilityHint="Maintenance History">History</Button> : null}
       </Surface>
     </Surface>
   )

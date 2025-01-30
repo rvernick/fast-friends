@@ -36,7 +36,7 @@ export default function LoggingIn() {
     }
     if (await unconfiguredAccount(user)) {
       console.log('redirecting to settings');
-      router.replace('/(home)/(settings)/settings');
+      router.replace('/(home)/(settings)/getting-started');
       return;
     }
     router.replace('/(home)/maintenance');

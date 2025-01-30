@@ -18,6 +18,8 @@ import { MaintenanceItem } from './maintenance-item.entity';
 import { UpdateMaintenanceItemDto } from './update-maintenance-item.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { MaintenanceHistorySummary } from './maintenance-history-summary';
+import { MaintenanceHistory } from './maintenance-history.entity';
+import { UpdateMaintenanceHistoryItemDto } from './update-maintenance-history-item.dto';
 
 @Controller('bike')
 export class BikeController {
@@ -98,7 +100,7 @@ export class BikeController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Post('delete-maintenance-item')
-  deleteMaintenanceItem(@Body('maintenanceid') maintenanceId: number, @Body('username') username: string): Promise<void> {
+  deleteMaintenanceItem(@Body('maintenanceid') maintenanceId: number, @Body('username') username: string): Promise<boolean> {
     console.log('bike/delete-maintenance-items user:'+ maintenanceId +' username: '+ username);
     if (maintenanceId === undefined || maintenanceId === null) {
       throw Error('Maintenance id is required');
@@ -120,6 +122,37 @@ export class BikeController {
   getMaintenanceHistory(@Query('username') username: string): Promise<MaintenanceHistorySummary[]> {
     console.log('bike/maintenance-history user:'+ username);
     return this.bikeService.getMaintenanceHistory(username);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Get('maintenance-history-item')
+  getMaintenanceHistoryItem(@Query('maintenance_history_id') maintenanceHistoryId: number, @Query('username') username: string): Promise<MaintenanceHistorySummary | null> {
+    console.log('bike/maintenance-history-item user:'+ maintenanceHistoryId +' username: '+ username);
+    if (maintenanceHistoryId === undefined || maintenanceHistoryId === null) {
+      throw Error('Maintenance id is required');
+    }
+    return this.bikeService.getMaintenanceHistoryItem(maintenanceHistoryId, username);
+  }
+
+  // update-or-add-maintenance-history-item
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Post('update-or-add-maintenance-history-item')
+  updateMaintenanceHistoryItem(@Body() maintenanceHistoryItem: UpdateMaintenanceHistoryItemDto): Promise<MaintenanceHistory> {
+    console.log('bike/update-or-add-maintenance-item user:'+ maintenanceHistoryItem.username +' id: '+ maintenanceHistoryItem.id);
+    return this.bikeService.updateOrAddMaintenanceHistoryItem(maintenanceHistoryItem);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Post('delete-maintenance-history-item')
+  deleteMaintenanceHistoryItem(@Body('maintenance_history_id') maintenanceHistoryId: number, @Body('username') username: string): Promise<boolean> {
+    console.log('bike/delete-maintenance-history-item:'+ maintenanceHistoryId +' username: '+ username);
+    if (maintenanceHistoryId === undefined || maintenanceHistoryId === null) {
+      throw Error('Maintenance History id is required');
+    }
+    return this.bikeService.deleteMaintenanceHistoryItem(maintenanceHistoryId, username);
   }
 
 }

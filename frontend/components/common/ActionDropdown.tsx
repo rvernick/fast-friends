@@ -31,6 +31,7 @@ export const ActionDropdown: React.FC<ActionDropdownProps> = ({
 
   return (
     <Dropdown
+      mode="outlined"
       disabled={readonly}
       label="Action"
       placeholder={ensureString(value)}
