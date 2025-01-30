@@ -10,9 +10,9 @@ import { AxiosError } from 'axios';
 import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
 import { defaultMaintenanceItems } from '../bike/maintenance-item.entity';
-import { sendEmail } from '../utils/utils';
+import { createSixDigitCode, sendEmail } from '../utils/utils';
 import { EmailVerify } from './email-verify.entity';
-import { randomInt } from 'crypto';
+import { StravaVerify } from './strava-verify.entity';
 
 @Injectable()
 export class UserService {
@@ -27,6 +27,8 @@ export class UserService {
     private passwordResetRepository: Repository<PasswordReset>,
     @InjectRepository(EmailVerify)
     private emailVerifyRepository: Repository<EmailVerify>,
+    @InjectRepository(StravaVerify)
+    private stravaVerifyRepository: Repository<StravaVerify>,
     @Inject(ConfigService)
     private readonly configService: ConfigService,
     @Inject(HttpService)
@@ -103,6 +105,17 @@ export class UserService {
     this.usersRepository.save(user);
     this.logger.log ('info', 'Updated push token for user'+ user.pushToken);
     return user;
+  }
+
+  async getStravaVerifyCode(username: string): Promise<string | null> {
+    const tenMinutesInMilliseconds = 1000 * 60 * 10;
+    const user = await this.findUsername(username);
+    const stravaVerify = await this.stravaVerifyRepository.create();
+    stravaVerify.code = createSixDigitCode();
+    stravaVerify.user = user;
+    stravaVerify.expiresOn = new Date(Date.now() + tenMinutesInMilliseconds);
+    this.stravaVerifyRepository.save(stravaVerify);
+    return stravaVerify.code;
   }
 
   unlinkFromStrava(user: User) {
@@ -315,7 +328,7 @@ export class UserService {
   }
 
   createEmailVerify(user: User, email: string): EmailVerify {
-    const code = this.createSixDigitCode();
+    const code = createSixDigitCode();
     const now = new Date();
     const tenMinutesInMilliseconds = 10*60*1000;
     const expirationDate = new Date(now.getTime() + tenMinutesInMilliseconds);
@@ -323,13 +336,6 @@ export class UserService {
     console.log('emailVerify', 'Creating email verify for:'+ JSON.stringify(emailVerify));
     this.emailVerifyRepository.save(emailVerify);
     return emailVerify;
-  }
-
-  createSixDigitCode(): string {
-    const basis = randomInt(1000001, 9999999);
-    // console.log('random basis:'+ basis);
-    const basisString = basis.toString();
-    return basisString.substring(1, 7);
   }
 
   sendEmailVerifyEmail(email: string, code: string): void {

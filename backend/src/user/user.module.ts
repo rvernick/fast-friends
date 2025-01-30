@@ -9,9 +9,10 @@ import { AuthGuard } from '../auth/auth.guard';
 import { UserController } from './user.controller';
 import { PasswordReset } from './password-reset.entity';
 import { EmailVerify } from './email-verify.entity';
+import { StravaVerify } from './strava-verify.entity';
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, PasswordReset, EmailVerify])],
+  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, PasswordReset, EmailVerify, StravaVerify])],
   providers: [
     {
       provide: APP_GUARD,

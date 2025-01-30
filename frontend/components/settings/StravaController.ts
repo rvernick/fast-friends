@@ -2,7 +2,7 @@ import { Linking } from "react-native";
 import AppContext from "../../common/app-context";
 import AppController from "../../common/AppController";
 import { authorize } from 'react-native-app-auth';
-import { getBaseUrl, post, postExternal } from "../../common/http-utils";
+import { getBaseUrl, getInternal, post, postExternal } from "../../common/http-utils";
 import { stravaBase } from "../strava/utils";
 import { isMobile } from "@/common/utils";
 import * as WebBrowser from 'expo-web-browser';
@@ -163,7 +163,8 @@ class StravaController extends AppController {
 
   async createStravaAuthUrl(session: any): Promise<string> {
     const replyUrl = await this.getLocationBaseUrl();
-    const redirectUri = replyUrl + '/strava-reply';
+    const stravaVerifyCode = await this.getStravaVerifyCode(session);
+    const redirectUri = replyUrl + '/strava-reply/' + stravaVerifyCode;
     const clientId = await this.appContext.getStravaClientId(session);
     console.log('redirect ' + redirectUri);
 
@@ -180,6 +181,23 @@ class StravaController extends AppController {
     console.log('url:'+ url);
     return url;
   };
+
+  async getStravaVerifyCode(session: any): Promise<string> {
+    try {
+      const parameters = {
+        username: session.email,
+      };
+      return await getInternal('/user/strava-verify-code', parameters, session.jwt_token) as Promise<string>;
+    } catch(e: any) {
+      console.log(e.message);
+      return '';
+    }
+  }
+
+  // https://www.strava.com/oauth/authorize
+  // ?client_id=125563&response_type=code
+  // &approval_prompt=force&scope=read_all%2Cprofile%3Aread_all%2Cactivity%3Aread
+  // &redirect_uri=http://localhost:8081/strava-reply
 
   async linkToStravaMobileExpo(session: any, appContext: AppContext, code: string) {
     WebBrowser.maybeCompleteAuthSession();

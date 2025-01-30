@@ -25,7 +25,8 @@ const StravaReply = () => {
 
   return (
     <Surface>
-      <StravaReplyComponent 
+      <StravaReplyComponent
+        verifycode={ensureString(reply.verifycode)} 
         code={ensureString(reply.code)} 
         scope={ensureString(reply.scope)} 
         state={ensureString(reply.state)} />
@@ -34,3 +35,6 @@ const StravaReply = () => {
 };
 
 export default StravaReply;
+
+
+// http://localhost:8081/strava-user/12345?code=blah?scope=scp?state=CA

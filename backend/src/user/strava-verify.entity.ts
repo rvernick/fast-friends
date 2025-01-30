@@ -18,12 +18,8 @@ export const createToken = (user: User): string => {
 }
 
 @Entity()
-export class EmailVerify {
-  constructor(aUser: User, aCode: string, anExpiration: Date) {
-    this.user = aUser;
-    this.code = aCode;
-    this.expiresOn = anExpiration;
-  }
+export class StravaVerify {
+  constructor() {}
 
   @PrimaryGeneratedColumn()
   id: number;

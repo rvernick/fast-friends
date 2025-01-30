@@ -14,6 +14,7 @@ import { ToolNeed } from './instruction/tool-need.entity';
 import { Tool } from './instruction/tool.entity';
 import { EmailVerify } from './user/email-verify.entity';
 import { HelpComment, HelpCommentVote, HelpOffer, HelpRequest } from './help/help-request.entity';
+import { StravaVerify } from './user/strava-verify.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -28,7 +29,8 @@ export const AppDataSource = new DataSource({
     PasswordReset, Notification, BatchProcess,
     Instruction, InstructionReference, Step, ToolNeed, Tool,
     EmailVerify,
-    HelpRequest, HelpComment, HelpCommentVote, HelpOffer
+    HelpRequest, HelpComment, HelpCommentVote, HelpOffer,
+    StravaVerify
   ],
   migrations: ["./migrations/*"],
   subscribers: [],

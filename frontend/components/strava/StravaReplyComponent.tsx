@@ -7,13 +7,14 @@ import { ensureString, sleep } from "@/common/utils";
 import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
 type StravaReplyProps = {
+  verifycode: string;   // TODO: change the sync code to use verifycode within the expiration time
+  // TODO: create migration for verify entity
   code: string;
   scope: string;
   state: string;
 };
 
-const StravaReplyComponent: React.FC<StravaReplyProps> = () => {
-  const { code, scope, state } = useLocalSearchParams();
+const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, scope, state}) => {
   const session = useSession();  
   const appContext = useGlobalContext();
   appContext.setSession(session);
@@ -22,6 +23,7 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = () => {
   const email = session.email? session.email : '';
   
   console.log('email: ' + email);
+  console.log('verifycode: ' + verifycode);
   console.log('state: ' + state);
   console.log('scope: ' + scope);
   console.log('code: ' + code);
@@ -44,11 +46,11 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = () => {
   useEffect(() => {
     try {
       if (code) {
-        if (session.jwt_token) {
-          updateStravaAndReturn(ensureString(code));
-        } else {
+        // if (session.jwt_token) {
+        //   updateStravaAndReturn(ensureString(code));
+        // } else {
           console.log('no token found');
-        }
+        // }
       } else {
         console.log('no code found');
       }

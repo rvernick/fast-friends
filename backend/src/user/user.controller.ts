@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -24,10 +26,17 @@ export class UserController {
   }
 
   @HttpCode(HttpStatus.OK)
-    @UseGuards(AuthGuard)
-    @Post('update-push-token')
-    updatePushToken(@Body("username") username: string, @Body("push_token") pushToken: string): Promise<User | null> {
-      return this.userService.updatePushToken(username, pushToken);
-    }
+  @UseGuards(AuthGuard)
+  @Post('update-push-token')
+  updatePushToken(@Body("username") username: string, @Body("push_token") pushToken: string): Promise<User | null> {
+    return this.userService.updatePushToken(username, pushToken);
+  }
   
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Get('strava-verify-code')
+  getStravaVerifyCode(@Query('username') username: string): Promise<string | null> {
+    console.log('user/strava-verify-code user:'+ username);
+    return this.userService.getStravaVerifyCode(username);
+  }
 }
