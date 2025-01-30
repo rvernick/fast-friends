@@ -3,7 +3,7 @@
     "name": "Pedal Assistant",
     "slug": "fast-friends",
     "owner": "fast-friends",
-    "version": "1.0.17",
+    "version": "1.0.18",
     "orientation": "portrait",
     "icon": "./assets/images/spiral-gears.jpg",
     "scheme": "com.pedal-assistant",

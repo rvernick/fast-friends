@@ -107,16 +107,6 @@ class StravaController extends AppController {
     }
   };
 
-  async linkToStrava(session: any) {
-    console.log('Sending account to Strava for linking... ');
-
-    if (isMobile()) {
-      this.linkToStravaMobile(session);
-    } else {
-      this.linkToStravaWeb(session);
-    }
-  }
-
   async unlinkFromStrava(session: any, appContext: AppContext, user: any): Promise<string> {
     user.stravaToken = null;
     user.stravaId = null;
@@ -146,8 +136,19 @@ class StravaController extends AppController {
     if (initialUrl) {
       return getBaseUrl(initialUrl);
     }
-    return '';
+    return 'https://www.pedal-assistant.com';
   }
+
+    async linkToStrava(session: any) {
+    console.log('Sending account to Strava for linking... ');
+
+    if (isMobile()) {
+      this.linkToStravaMobile(session);
+    } else {
+      this.linkToStravaWeb(session);
+    }
+  }
+
   /**
    * ,
       redirect_uri: redirectUri
@@ -156,6 +157,11 @@ class StravaController extends AppController {
    * @param appContext
    */
   async linkToStravaWeb(session: any) {
+    const url = await this.createStravaAuthUrl(session);
+    window.open(url);
+  }
+
+  async createStravaAuthUrl(session: any): Promise<string> {
     const replyUrl = await this.getLocationBaseUrl();
     const redirectUri = replyUrl + '/strava-reply';
     const clientId = await this.appContext.getStravaClientId(session);
@@ -172,11 +178,10 @@ class StravaController extends AppController {
       + searchParams.toString()
       + '&redirect_uri=' + redirectUri;
     console.log('url:'+ url);
-    window.open(url);
+    return url;
   };
 
   async linkToStravaMobileExpo(session: any, appContext: AppContext, code: string) {
-
     WebBrowser.maybeCompleteAuthSession();
 
     // Endpoint
@@ -203,11 +208,20 @@ class StravaController extends AppController {
     }
   };
 
+  async linkToStravaMobile(session: any) {
+    this.linkToStravaMobileThroughBrowser(session);
+  }
+
+  async linkToStravaMobileThroughBrowser(session: any) {
+    const url = await this.createStravaAuthUrl(session);
+    Linking.openURL(url);
+  }
+
   /*
   * Connect to strava using: FormidableLabs SDK
   * https://github.com/FormidableLabs/react-native-app-auth/blob/main/docs/config-examples/strava.md
   */
-  async linkToStravaMobile(session: any) {
+  async linkToStravaMobileThroughAuthConfig(session: any) {
     const appContext = this.appContext;
     const redirectUri = 'https://pedal-assistant.com/strava-reply';
     const authEndpoint = 'https://www.strava.com/oauth/cellPhone/authorize';
