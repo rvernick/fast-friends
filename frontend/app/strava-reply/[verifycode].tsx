@@ -26,6 +26,3 @@ const StravaReply = () => {
 };
 
 export default StravaReply;
-
-
-// http://localhost:8081/strava-user/12345?code=blah?scope=scp?state=CA

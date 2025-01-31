@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { useGlobalContext } from "@/common/GlobalContext";
 import StravaController from "../settings/StravaController";
@@ -27,8 +27,6 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
   console.log('scope: ' + scope);
   console.log('code: ' + code);
 
-  var message = 'Updating your Strava settings...';
-
   const updateStravaAndReturn = async (code: string) => {
     const stravaInfo = await controller.updateStravaCode(session, appContext, code, verifycode);
     console.log('updated strava code: ' + JSON.stringify(stravaInfo));
@@ -45,11 +43,7 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
   useEffect(() => {
     try {
       if (code) {
-        // if (session.jwt_token) {
         updateStravaAndReturn(ensureString(code));
-        // } else {
-          console.log('no token found');
-        // }
       } else {
         console.log('no code found');
       }
@@ -63,9 +57,6 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
       <ActivityIndicator size="large"/>
       <Text variant="displayLarge">Strava Connection successful. Syncing Now.</Text>
       <Text variant="displayMedium">Window will stay open when finished</Text>
-      {/* <Text>Code: {ensureString(code)}</Text>
-      <Text>Scope:  {ensureString(scope)}</Text>
-      <Text>State:  {ensureString(state)}</Text> */}
     </Surface>
     );
   };

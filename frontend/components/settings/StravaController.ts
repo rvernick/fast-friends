@@ -196,11 +196,6 @@ class StravaController extends AppController {
     }
   }
 
-  // https://www.strava.com/oauth/authorize
-  // ?client_id=125563&response_type=code
-  // &approval_prompt=force&scope=read_all%2Cprofile%3Aread_all%2Cactivity%3Aread
-  // &redirect_uri=http://localhost:8081/strava-reply
-
   async linkToStravaMobileExpo(session: any, appContext: AppContext, code: string) {
     WebBrowser.maybeCompleteAuthSession();
 
