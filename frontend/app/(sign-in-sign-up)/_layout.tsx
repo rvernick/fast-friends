@@ -2,8 +2,6 @@ import { Tabs } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { tabBarIconSize } from "@/common/styles";
 
-// TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
-
 export default function SignInSignUp() {
 
   return (

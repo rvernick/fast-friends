@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from './user.entity';
@@ -32,6 +33,7 @@ export class StravaVerify {
   code: string;
 
   @ManyToOne((type) => User, { nullable: false, cascade: false, eager: true })
+  @JoinColumn({ name: "user_id" })
   user: User;
 
   @Column({ name: 'expires_on' })

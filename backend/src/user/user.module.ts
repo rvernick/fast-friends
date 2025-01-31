@@ -12,7 +12,9 @@ import { EmailVerify } from './email-verify.entity';
 import { StravaVerify } from './strava-verify.entity';
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, PasswordReset, EmailVerify, StravaVerify])],
+  imports: [HttpModule, TypeOrmModule.forFeature([
+    User, Bike, PasswordReset, EmailVerify,
+    StravaVerify])],
   providers: [
     {
       provide: APP_GUARD,

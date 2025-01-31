@@ -7,8 +7,7 @@ import { ensureString, sleep } from "@/common/utils";
 import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
 type StravaReplyProps = {
-  verifycode: string;   // TODO: change the sync code to use verifycode within the expiration time
-  // TODO: create migration for verify entity
+  verifycode: string;
   code: string;
   scope: string;
   state: string;
