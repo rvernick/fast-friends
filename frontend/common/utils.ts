@@ -223,6 +223,19 @@ export const fetchSecrets = async (session: any): Promise<any | null> => {
   }
 }
 
+export const fetchSecretsByVerify = async (verifyCode: string): Promise<any | null> => {
+  try {
+    const parameters = {
+      verifyCode: verifyCode,
+    };
+    console.log('fetching secrets: ' + verifyCode);
+    return getInternal('/user/v1/secrets', parameters, '') as Promise<any | null>;
+  } catch(e: any) {
+    console.log(e.message);
+    return null;
+  }
+}
+
 export const sleep = (seconds: number): Promise<void> => {
   return new Promise(resolve => {
     setTimeout(resolve, 1000*seconds);

@@ -31,13 +31,13 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
   var message = 'Updating your Strava settings...';
 
   const updateStravaAndReturn = async (code: string) => {
-    const stravaInfo = await controller.updateStravaCode(session, appContext, code);
+    const stravaInfo = await controller.updateStravaCode(session, appContext, code, verifycode);
     console.log('updated strava code: ' + JSON.stringify(stravaInfo));
     if (stravaInfo?.athlete?.id) {
       // window.close();
       await sleep(5);
       appContext.invalidateUser(session);
-      router.replace('/settings?strava_id=' + stravaInfo?.athlete?.id);
+      router.replace({pathname: '/settings', params: {stravaid: stravaInfo?.athlete?.id}});
     } else {
       router.replace('/settings');
     }
@@ -47,7 +47,7 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
     try {
       if (code) {
         // if (session.jwt_token) {
-        //   updateStravaAndReturn(ensureString(code));
+        updateStravaAndReturn(ensureString(code));
         // } else {
           console.log('no token found');
         // }

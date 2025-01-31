@@ -122,10 +122,10 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   };
 
   const linkToStrava = async () => {
-    if (isMobile()) {
-      setWarnAgainstLinking(true);
-      return;
-    }
+    // if (isMobile()) {
+    //   setWarnAgainstLinking(true);
+    //   return;
+    // }
     if (isDirty) {
       if (validate()) {
         setWarnOnLosingData(true);

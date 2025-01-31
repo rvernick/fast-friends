@@ -1,4 +1,4 @@
-import { Logger, Injectable, Inject } from '@nestjs/common';
+import { Logger, Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Units, User, createNewUser } from './user.entity';
@@ -155,6 +155,13 @@ export class UserService {
       });
   }
 
+  async syncStravaUserV1(stravaAuthDto: StravaAuthenticationDto): Promise<User> {
+    if (stravaAuthDto.verifyCode == null) return null;
+    const stravaVerify = await this.getAndVerifyStravaCode(stravaAuthDto.verifyCode);
+
+    return this.syncUserToStrava(stravaVerify.user, stravaAuthDto);
+  }
+
   private async syncUserToStrava(user: User, stravaAuthDto: StravaAuthenticationDto): Promise<User> {
     const athlete = await this.getStravaAthlete(stravaAuthDto.stravaToken);
     user.stravaId = athlete.id ? athlete.id.toString() : null;
@@ -237,6 +244,49 @@ export class UserService {
     return data;
   }
 
+    async updateStravaV1(stravaCode: string, verifyCode: string): Promise<boolean> {
+      const verify = await this.getAndVerifyStravaCode(verifyCode);
+      try {
+        this.updateUser(
+          verify.user,
+          null,
+          null,
+          null,
+          null,
+          stravaCode,
+          null,
+          null,
+        );
+        return true;
+      } catch (e) {
+        console.log('error updating user', e.message);
+        return false;
+      }
+    }
+
+  async getSecretsV1(verifyCode: string): Promise<any> {
+    await this.getAndVerifyStravaCode(verifyCode);
+    return {
+      stravaClientId: this.configService.get('STRAVA_CLIENT_ID'),
+      stravaSecret: this.configService.get('STRAVA_CLIENT_SECRET'),
+    };
+  }
+
+  async getAndVerifyStravaCode(verifyCode: string): Promise<StravaVerify> {
+    const verify = await this.stravaVerifyRepository.findOne({
+      where: {
+        code: verifyCode,
+      },
+    });
+
+    const user = verify.user;
+    if (verify == null || user == null || verify.expiresOn < new Date()) {
+      this.logger.log('info', 'failed update user attempt:'+ verifyCode);
+      throw new UnauthorizedException();
+    }
+    return verify;
+  }
+  
   async remove(id: number): Promise<void> {
     await this.usersRepository.softDelete(id);
   }

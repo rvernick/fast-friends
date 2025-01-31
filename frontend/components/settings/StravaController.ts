@@ -10,17 +10,18 @@ import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 
 class StravaController extends AppController {
 
-  async updateStravaCode(session: any, appContext: AppContext, stravaCode: string): Promise<any> {
-    this.saveStravaCode(session, appContext, stravaCode);
-    console.log('calling doTokenExchange');
-    return this.doTokenExchange(session, appContext, stravaCode)
+  async updateStravaCode(session: any, appContext: AppContext, stravaCode: string, verifyCode: string): Promise<any> {
+    this.saveStravaCode(session, appContext, stravaCode, verifyCode);
+    console.log('calling doTokenExchange: ' + stravaCode + ','+ verifyCode);
+    return this.doTokenExchange(session, appContext, stravaCode, verifyCode)
       .then((result: any) => {
-        this.syncStravaInfo(session, result, stravaCode)
+        this.syncStravaInfo(session, result, stravaCode, verifyCode)
         appContext.invalidateUser(session)
         return result;
       });
   }
 
+  //https://www.strava.com/oauth/token
   //appContext.put('stravaToken', result.access_token);
   // appContext.put('stravaRefreshToken', result.refresh_token);
   // appContext.put('stravaExpiresAt', result.expires_at);
@@ -30,13 +31,14 @@ class StravaController extends AppController {
 // "access_token":"xxxxx",
 // "athlete":
 
-  async syncStravaInfo(session: any, info: any, stravaCode: string) {
+  async syncStravaInfo(session: any, info: any, stravaCode: string, verifyCode: string): Promise<any> {
     console.log('syncStravaInfo');
-    const username = session.email;
+    const username = (session && session.email) ? session.email : '';
     console.log('sync username:'+ username);
     try {
       const body = {
         username: username,
+        verifyCode: verifyCode,
         stravaCode: stravaCode,
         stravaToken: info.access_token,
         stravaTokenType: info.token_type,
@@ -45,7 +47,7 @@ class StravaController extends AppController {
         stravaExpiresAt: '', // info.expires_at,
       }
       console.log('sync body:'+ JSON.stringify(body));
-      const response = await post('/user/sync-strava', body, session.jwt_token);
+      const response = await post('/user/v1/sync-strava', body, session.jwt_token);
       if (response.ok) {
         console.log('sync response:'+ JSON.stringify(response));
         return '';
@@ -56,17 +58,17 @@ class StravaController extends AppController {
     }
   }
 
-  async saveStravaCode(session: any, appContext: AppContext, stravaCode: string) {
+  async saveStravaCode(session: any, appContext: AppContext, stravaCode: string, verifyCode: string) {
     console.log('saveStravaCode:'+ stravaCode);
     appContext.put('stravaCode ', stravaCode);
     const username = session.email;
     try {
       const body = {
-        username: username,
         stravaCode: stravaCode,
+        verifyCode: verifyCode,
       };
 
-      const response = await post('/auth/update-strava', body, session.jwt_token);
+      const response = await post('/user/v1/update-strava', body, session.jwt_token);
       if (response.ok) {
         return '';
       }
@@ -165,7 +167,7 @@ class StravaController extends AppController {
     const replyUrl = await this.getLocationBaseUrl();
     const stravaVerifyCode = await this.getStravaVerifyCode(session);
     const redirectUri = replyUrl + '/strava-reply/' + stravaVerifyCode;
-    const clientId = await this.appContext.getStravaClientId(session);
+    const clientId = await this.appContext.getStravaClientId(session, '');
     console.log('redirect ' + redirectUri);
 
     const paramsObj = {
@@ -243,8 +245,8 @@ class StravaController extends AppController {
     const appContext = this.appContext;
     const redirectUri = 'https://pedal-assistant.com/strava-reply';
     const authEndpoint = 'https://www.strava.com/oauth/cellPhone/authorize';
-    const clientId = await appContext.getStravaClientId(session);
-    const clientSecret = await appContext.getStravaClientSecret(session);
+    const clientId = await appContext.getStravaClientId(session, '');
+    const clientSecret = await appContext.getStravaClientSecret(session, 'dummy');
     const tokenEndpoint = 'https://www.strava.com/oauth/token?client_id=' + clientId + '&client_secret=' + clientSecret;
     const config = {
       issuer: 'https://www.strava.com/oauth/mobile/authorize',
@@ -294,10 +296,10 @@ class StravaController extends AppController {
 // "summit":true,"created_at":"2010-08-17T17:40:48Z",
 // "updated_at":"2023-07-28T20:01:19Z","badge_type_id":1,"weight":74.8427,
 // "profile_medium":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/medium.jpg","profile":"https://dgalywyr863hv.cloudfront.net/pictures/athletes/7128/352077/2/large.jpg","friend":null,"follower":null}}
-  async doTokenExchange(session: any, appContext: AppContext, stravaCode: string): Promise<any> {
-    console.log('doTokenExchange');
-    const clientId = await appContext.getStravaClientId(session);
-    const clientSecret = await appContext.getStravaClientSecret(session);
+  async doTokenExchange(session: any, appContext: AppContext, stravaCode: string, verifyCode: string): Promise<any> {
+    console.log('doTokenExchange: ' + stravaCode +'-'+ verifyCode);
+    const clientId = await appContext.getStravaClientId(session, verifyCode);
+    const clientSecret = await appContext.getStravaClientSecret(session, verifyCode);
     const params = {
       client_id: clientId,
       client_secret: clientSecret,
