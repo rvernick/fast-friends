@@ -55,13 +55,6 @@ export const GettingStartedComponent = () => {
   const [stravaId, setStravaId] = useState('');
 
   const linkToStrava = async () => {
-    if (isMobile()) {
-      return;
-    }
-    doLinkToStrava();
-  }
-
-  const doLinkToStrava = async () => {
     await stravaController.linkToStrava(session);
     setStravaId('Connecting to Strava...');
     invalidateUser();

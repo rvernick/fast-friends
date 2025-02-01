@@ -23,3 +23,11 @@ INNER JOIN maintenance_item mi on mh.maintenance_item_id = mi.id
 INNER JOIN bike b on b.id = mi."bikeId"
 WHERE mh.id = 12
 ;
+
+select usr.id, bike.name, bike.id, bike.name, bike."stravaId"
+from  public.user usr
+INNER JOIN bike bike on usr.id = bike."userId"
+where
+usr.username = 'ts@t.com'
+and bike."deletedOn" is NULL
+;

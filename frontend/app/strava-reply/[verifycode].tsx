@@ -14,18 +14,10 @@ const StravaReply = () => {
     );
   }
 
-  // return (
-  //   <Surface>
-  //     <Text>Strava Connection successful. Please return to Settings.</Text>
-  //     <Text>Code: {ensureString(reply.code)}</Text>
-  //     <Text>Scope:  {ensureString(reply.scope)}</Text>
-  //     <Text>State:  {ensureString(reply.state)}</Text>
-  //   </Surface>
-  // );
-
   return (
     <Surface>
-      <StravaReplyComponent 
+      <StravaReplyComponent
+        verifycode={ensureString(reply.verifycode)} 
         code={ensureString(reply.code)} 
         scope={ensureString(reply.scope)} 
         state={ensureString(reply.state)} />

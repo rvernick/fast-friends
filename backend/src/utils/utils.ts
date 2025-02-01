@@ -1,8 +1,16 @@
 import { Logger } from "@nestjs/common";
 import { Expo } from 'expo-server-sdk';
 import { User } from "../user/user.entity";
+import { randomInt } from "crypto";
 
 const logger = new Logger('App');
+
+export const createSixDigitCode = (): string => {
+  const basis = randomInt(1000001, 9999999);
+  // console.log('random basis:'+ basis);
+  const basisString = basis.toString();
+  return basisString.substring(1, 7);
+}
 
 export const sendEmail = (email: string,
     subject: string,

@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { baseUrl } from "./http-utils";
 import AsyncStorage  from '@react-native-async-storage/async-storage';
-import { fetchUser, fetchSecrets } from "../common/utils";
+import { fetchUser, fetchSecrets, fetchSecretsByVerify } from "../common/utils";
 
 class AppContext {
   private queryClient: QueryClient;
@@ -111,16 +111,23 @@ class AppContext {
     });
   }
 
-  public async getStravaClientId(session: any): Promise<string> {
-    this.setSession(session);
-    const secrets = await this.getSecrets(session);
-    console.log('secrets:'+ JSON.stringify(secrets));
+  public async getStravaClientId(session: any, verifyCode: string): Promise<string> {
+    if (session.jwt_token != null) {
+      this.setSession(session);
+      const secrets = await this.getSecrets(session);
+      return secrets['stravaClientId'];
+    }
+    const secrets = await fetchSecretsByVerify(verifyCode);
     return secrets['stravaClientId'];
   }
 
-  public async getStravaClientSecret(session: any): Promise<string> {
-    this.setSession(session);
-    const secrets = await this.getSecrets(session);
+  public async getStravaClientSecret(session: any, verifyCode: string): Promise<string> {
+    if (session.jwt_token != null) {
+      this.setSession(session);
+      const secrets = await this.getSecrets(session);
+      return secrets['stravaSecret'];
+    }
+    const secrets = await fetchSecretsByVerify(verifyCode);
     return secrets['stravaSecret'];
   }
 

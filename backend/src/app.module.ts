@@ -24,6 +24,7 @@ import { InstructionModule } from './instruction/instruction.module';
 import { EmailVerify } from './user/email-verify.entity';
 import { HelpRequestModule } from './help/help-request.module';
 import { HelpComment, HelpCommentVote, HelpOffer, HelpRequest } from './help/help-request.entity';
+import { StravaVerify } from './user/strava-verify.entity';
 
 @Module({
   imports: [
@@ -56,7 +57,8 @@ import { HelpComment, HelpCommentVote, HelpOffer, HelpRequest } from './help/hel
           BatchProcess,
           Instruction, Step, ToolNeed, Tool, InstructionReference,
           EmailVerify,
-          HelpRequest, HelpComment, HelpCommentVote, HelpOffer
+          HelpRequest, HelpComment, HelpCommentVote, HelpOffer,
+          StravaVerify
         ],
         synchronize: true,
       }),

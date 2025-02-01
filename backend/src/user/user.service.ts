@@ -1,4 +1,4 @@
-import { Logger, Injectable, Inject } from '@nestjs/common';
+import { Logger, Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Units, User, createNewUser } from './user.entity';
@@ -10,9 +10,9 @@ import { AxiosError } from 'axios';
 import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
 import { defaultMaintenanceItems } from '../bike/maintenance-item.entity';
-import { sendEmail } from '../utils/utils';
+import { createSixDigitCode, sendEmail } from '../utils/utils';
 import { EmailVerify } from './email-verify.entity';
-import { randomInt } from 'crypto';
+import { StravaVerify } from './strava-verify.entity';
 
 @Injectable()
 export class UserService {
@@ -27,6 +27,8 @@ export class UserService {
     private passwordResetRepository: Repository<PasswordReset>,
     @InjectRepository(EmailVerify)
     private emailVerifyRepository: Repository<EmailVerify>,
+    @InjectRepository(StravaVerify)
+    private stravaVerifyRepository: Repository<StravaVerify>,
     @Inject(ConfigService)
     private readonly configService: ConfigService,
     @Inject(HttpService)
@@ -105,6 +107,17 @@ export class UserService {
     return user;
   }
 
+  async getStravaVerifyCode(username: string): Promise<string | null> {
+    const tenMinutesInMilliseconds = 1000 * 60 * 10;
+    const user = await this.findUsername(username);
+    const stravaVerify = await this.stravaVerifyRepository.create();
+    stravaVerify.code = createSixDigitCode();
+    stravaVerify.user = user;
+    stravaVerify.expiresOn = new Date(Date.now() + tenMinutesInMilliseconds);
+    this.stravaVerifyRepository.save(stravaVerify);
+    return stravaVerify.code;
+  }
+
   unlinkFromStrava(user: User) {
     user.stravaId = null;
     user.stravaCode = null;
@@ -142,6 +155,13 @@ export class UserService {
       });
   }
 
+  async syncStravaUserV1(stravaAuthDto: StravaAuthenticationDto): Promise<User> {
+    if (stravaAuthDto.verifyCode == null) return null;
+    const stravaVerify = await this.getAndVerifyStravaCode(stravaAuthDto.verifyCode);
+
+    return this.syncUserToStrava(stravaVerify.user, stravaAuthDto);
+  }
+
   private async syncUserToStrava(user: User, stravaAuthDto: StravaAuthenticationDto): Promise<User> {
     const athlete = await this.getStravaAthlete(stravaAuthDto.stravaToken);
     user.stravaId = athlete.id ? athlete.id.toString() : null;
@@ -161,15 +181,19 @@ export class UserService {
     }
     this.usersRepository.save(user);
 
-    console.log('bikes: ' + JSON.stringify(athlete.bikes));
+    // console.log('bikes: ' + JSON.stringify(athlete.bikes));
     for (const bike of athlete.bikes) {
       const existingBike = this.findMatchingBike(bike, user.bikes);
       if (existingBike) {
+        this.logger.log('Updating bike: '+ existingBike.id);
         this.syncStravaBike(existingBike, bike);
-        this.bikesRepository.save(existingBike);
+        await this.bikesRepository.save(existingBike);
+        this.logger.log('bike updated: '+ existingBike.id)
       } else {
+        this.logger.log('Adding bike:' + bike.name);
         var newBike = this.addStravaBike(user, bike);
-        this.bikesRepository.save(newBike);
+        const savedBike = await this.bikesRepository.save(newBike);
+        this.logger.log('New bike saved:' + savedBike.id);
       }
     }
     return user;
@@ -194,8 +218,8 @@ export class UserService {
     newBike.maintenanceItems = defaultMaintenanceItems(newBike);
 //    user.addBike(newBike);
 //    this.bikesRepository.save(newBike);
-    this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
-    console.log('created and added: ' + JSON.stringify(newBike));
+    // this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
+    // console.log('created and added: ' + JSON.stringify(newBike));
     return newBike;
   }
 
@@ -224,6 +248,49 @@ export class UserService {
     return data;
   }
 
+    async updateStravaV1(stravaCode: string, verifyCode: string): Promise<boolean> {
+      const verify = await this.getAndVerifyStravaCode(verifyCode);
+      try {
+        this.updateUser(
+          verify.user,
+          null,
+          null,
+          null,
+          null,
+          stravaCode,
+          null,
+          null,
+        );
+        return true;
+      } catch (e) {
+        console.log('error updating user', e.message);
+        return false;
+      }
+    }
+
+  async getSecretsV1(verifyCode: string): Promise<any> {
+    await this.getAndVerifyStravaCode(verifyCode);
+    return {
+      stravaClientId: this.configService.get('STRAVA_CLIENT_ID'),
+      stravaSecret: this.configService.get('STRAVA_CLIENT_SECRET'),
+    };
+  }
+
+  async getAndVerifyStravaCode(verifyCode: string): Promise<StravaVerify> {
+    const verify = await this.stravaVerifyRepository.findOne({
+      where: {
+        code: verifyCode,
+      },
+    });
+
+    const user = verify.user;
+    if (verify == null || user == null || verify.expiresOn < new Date()) {
+      this.logger.log('info', 'failed update user attempt:'+ verifyCode);
+      throw new UnauthorizedException();
+    }
+    return verify;
+  }
+  
   async remove(id: number): Promise<void> {
     await this.usersRepository.softDelete(id);
   }
@@ -315,7 +382,7 @@ export class UserService {
   }
 
   createEmailVerify(user: User, email: string): EmailVerify {
-    const code = this.createSixDigitCode();
+    const code = createSixDigitCode();
     const now = new Date();
     const tenMinutesInMilliseconds = 10*60*1000;
     const expirationDate = new Date(now.getTime() + tenMinutesInMilliseconds);
@@ -323,13 +390,6 @@ export class UserService {
     console.log('emailVerify', 'Creating email verify for:'+ JSON.stringify(emailVerify));
     this.emailVerifyRepository.save(emailVerify);
     return emailVerify;
-  }
-
-  createSixDigitCode(): string {
-    const basis = randomInt(1000001, 9999999);
-    // console.log('random basis:'+ basis);
-    const basisString = basis.toString();
-    return basisString.substring(1, 7);
   }
 
   sendEmailVerifyEmail(email: string, code: string): void {
