@@ -2,9 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { Bike } from '../bike/bike.entity';
 import { User } from './user.entity';
+import { createSixDigitCode } from '../utils/utils';
 
 const dummyService = () => {
-  return new UserService(null, null, null, null, null, null);
+  return new UserService(null, null, null, null, null, null, null);
 }
 
 describe('UserService', () => {
@@ -97,7 +98,7 @@ describe('UserService', () => {
     var tries = 0;
     const service = dummyService();
     while (tries++ < 100) {
-      var code = service.createSixDigitCode();
+      var code = createSixDigitCode();
       // console.log(code);
       expect(code).toHaveLength(6);
       expect(code).toMatch(/^[0-9]+$/);
