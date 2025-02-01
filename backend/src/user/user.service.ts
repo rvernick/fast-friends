@@ -181,15 +181,19 @@ export class UserService {
     }
     this.usersRepository.save(user);
 
-    console.log('bikes: ' + JSON.stringify(athlete.bikes));
+    // console.log('bikes: ' + JSON.stringify(athlete.bikes));
     for (const bike of athlete.bikes) {
       const existingBike = this.findMatchingBike(bike, user.bikes);
       if (existingBike) {
+        this.logger.log('Updating bike: '+ existingBike.id);
         this.syncStravaBike(existingBike, bike);
-        this.bikesRepository.save(existingBike);
+        await this.bikesRepository.save(existingBike);
+        this.logger.log('bike updated: '+ existingBike.id)
       } else {
+        this.logger.log('Adding bike:' + bike.name);
         var newBike = this.addStravaBike(user, bike);
-        this.bikesRepository.save(newBike);
+        const savedBike = await this.bikesRepository.save(newBike);
+        this.logger.log('New bike saved:' + savedBike.id);
       }
     }
     return user;
@@ -214,8 +218,8 @@ export class UserService {
     newBike.maintenanceItems = defaultMaintenanceItems(newBike);
 //    user.addBike(newBike);
 //    this.bikesRepository.save(newBike);
-    this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
-    console.log('created and added: ' + JSON.stringify(newBike));
+    // this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));
+    // console.log('created and added: ' + JSON.stringify(newBike));
     return newBike;
   }
 
