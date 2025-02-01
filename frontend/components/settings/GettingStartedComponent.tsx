@@ -15,6 +15,8 @@ export const GettingStartedComponent = () => {
   const session = useSession();
   const { strava_id } = useLocalSearchParams();
   const [providedStravaId, setProvidedStravaId] = useState(ensureString(strava_id));
+  const [stravaId, setStravaId] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
@@ -52,11 +54,14 @@ export const GettingStartedComponent = () => {
     forget("ff.preferences");
   }
   
-  const [stravaId, setStravaId] = useState('');
-
   const linkToStrava = async () => {
-    await stravaController.linkToStrava(session);
-    setStravaId('Connecting to Strava...');
+    setErrorMessage('');
+    const linked = await stravaController.linkToStrava(session);
+    if (linked.length > 0) {
+      setErrorMessage(linked);
+    } else {
+      setStravaId('Connecting to Strava...');
+    }
     invalidateUser();
   }
 
@@ -81,7 +86,7 @@ export const GettingStartedComponent = () => {
                 disabled={stravaId.length > 0}
                 accessibilityLabel="Link to Strava"
                 accessibilityHint="Login to Strava account">
-                  Press to link
+                  {errorMessage ? errorMessage : (stravaId ? stravaId : "Press to link ")}
               </Button>} />
             <List.Item title="Click link" description="This will link your bikes and start a maintenance schedule for each bike"/>
             <List.Item title="Authorize" description="Allow Pedal Assistant access to your bikes and rides on Strava"/>

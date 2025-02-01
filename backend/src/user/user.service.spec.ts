@@ -5,7 +5,7 @@ import { User } from './user.entity';
 import { createSixDigitCode } from '../utils/utils';
 
 const dummyService = () => {
-  return new UserService(null, null, null, null, null, null, null);
+  return new UserService(null, null, null, null, null, null, null, null);
 }
 
 describe('UserService', () => {

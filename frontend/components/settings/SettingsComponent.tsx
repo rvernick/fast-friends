@@ -132,8 +132,13 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   }
 
   const doLinkToStrava = async () => {
-    await stravaController.linkToStrava(session);
-    setStravaId('Connecting to Strava...');
+    setErrorMessage('');
+    const linking = await stravaController.linkToStrava(session);
+    if (linking.length > 0) {
+      setErrorMessage(linking);
+    } else {
+      setStravaId('Connecting to Strava...');
+    }
     invalidateUser();
   }
 
@@ -265,6 +270,9 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
       <Card>
         <Card.Title title={firstName + ': ' + email} />
         <Card.Content>
+          <HelperText type="error" visible={errorMessage.length > 0} style={{ marginTop: 10 }}>
+            {errorMessage}
+          </HelperText>
           <TextInput label="First Name"
             value={firstName}
             onChangeText={updateFirstName}
@@ -310,9 +318,6 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           />
           <HelperText type="error" visible={mobileErrorMessage.length > 0} style={{ marginTop: 10 }}>
             {mobileErrorMessage}
-          </HelperText>
-          <HelperText type="error" visible={errorMessage.length > 0} style={{ marginTop: 10 }}>
-            {errorMessage}
           </HelperText>
         
           <HelperText type="error"> </HelperText>

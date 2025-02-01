@@ -141,13 +141,13 @@ class StravaController extends AppController {
     return 'https://www.pedal-assistant.com';
   }
 
-    async linkToStrava(session: any) {
+  async linkToStrava(session: any): Promise<string> {
     console.log('Sending account to Strava for linking... ');
 
     if (isMobile()) {
-      this.linkToStravaMobile(session);
+      return this.linkToStravaMobile(session);
     } else {
-      this.linkToStravaWeb(session);
+      return this.linkToStravaWeb(session);
     }
   }
 
@@ -158,14 +158,22 @@ class StravaController extends AppController {
    * @param user
    * @param appContext
    */
-  async linkToStravaWeb(session: any) {
+  async linkToStravaWeb(session: any): Promise<string> {
     const url = await this.createStravaAuthUrl(session);
+    if (!url || url.length === 0) {
+      return 'Unable to generate Strava Auth URL.  Press to try again.';
+    }
     window.open(url);
+    return '';
   }
 
   async createStravaAuthUrl(session: any): Promise<string> {
     const replyUrl = await this.getLocationBaseUrl();
     const stravaVerifyCode = await this.getStravaVerifyCode(session);
+    if (!stravaVerifyCode || stravaVerifyCode.length === 0) {
+      console.log('Unable to generate Strava Verify Code');
+      return '';
+    }
     const redirectUri = replyUrl + '/strava-reply/' + stravaVerifyCode;
     const clientId = await this.appContext.getStravaClientId(session, '');
     console.log('redirect ' + redirectUri);
@@ -223,13 +231,17 @@ class StravaController extends AppController {
     }
   };
 
-  async linkToStravaMobile(session: any) {
-    this.linkToStravaMobileThroughBrowser(session);
+  async linkToStravaMobile(session: any): Promise<string> {
+    return this.linkToStravaMobileThroughBrowser(session);
   }
 
-  async linkToStravaMobileThroughBrowser(session: any) {
+  async linkToStravaMobileThroughBrowser(session: any): Promise<string> {
     const url = await this.createStravaAuthUrl(session);
+    if (!url || url.length === 0) {
+      return 'Unable to create Strava Auth URL.  Press to try again.';
+    }
     Linking.openURL(url);
+    return '';
   }
 
   /*

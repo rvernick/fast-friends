@@ -13,6 +13,8 @@ import { defaultMaintenanceItems } from '../bike/maintenance-item.entity';
 import { createSixDigitCode, sendEmail } from '../utils/utils';
 import { EmailVerify } from './email-verify.entity';
 import { StravaVerify } from './strava-verify.entity';
+import { BatchProcessService } from '../batch/batch-process.service';
+import { BatchProcess } from '../batch/batch-process.entity';
 
 @Injectable()
 export class UserService {
@@ -33,6 +35,8 @@ export class UserService {
     private readonly configService: ConfigService,
     @Inject(HttpService)
     private readonly httpService: HttpService,
+    @Inject(BatchProcessService)
+    private batchProcessService: BatchProcessService,
   ) {}
 
   findAll(): Promise<User[]> {
@@ -110,7 +114,7 @@ export class UserService {
   async getStravaVerifyCode(username: string): Promise<string | null> {
     const tenMinutesInMilliseconds = 1000 * 60 * 10;
     const user = await this.findUsername(username);
-    const stravaVerify = await this.stravaVerifyRepository.create();
+    const stravaVerify = this.stravaVerifyRepository.create();
     stravaVerify.code = createSixDigitCode();
     stravaVerify.user = user;
     stravaVerify.expiresOn = new Date(Date.now() + tenMinutesInMilliseconds);
@@ -156,10 +160,20 @@ export class UserService {
   }
 
   async syncStravaUserV1(stravaAuthDto: StravaAuthenticationDto): Promise<User> {
-    if (stravaAuthDto.verifyCode == null) return null;
+    if (stravaAuthDto.verifyCode == null || stravaAuthDto.stravaCode == null) return null;
     const stravaVerify = await this.getAndVerifyStravaCode(stravaAuthDto.verifyCode);
-
-    return this.syncUserToStrava(stravaVerify.user, stravaAuthDto);
+    var lock: BatchProcess;
+    try {
+      lock = await this.batchProcessService.attemptLockOn(stravaAuthDto.stravaCode);
+      if (lock) {
+        return this.syncUserToStrava(stravaVerify.user, stravaAuthDto);
+      }
+      return stravaVerify.user;
+    } catch (e) {
+      this.logger.log('Error syncing user to strava:'+ e.message);
+    } finally {
+      if (lock) this.batchProcessService.unlock(lock);
+    }
   }
 
   private async syncUserToStrava(user: User, stravaAuthDto: StravaAuthenticationDto): Promise<User> {

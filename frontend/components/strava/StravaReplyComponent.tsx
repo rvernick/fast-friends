@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { router } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { useGlobalContext } from "@/common/GlobalContext";
@@ -17,6 +17,7 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
   const session = useSession();  
   const appContext = useGlobalContext();
   appContext.setSession(session);
+  const [synced, setSynced] = useState(false);
 
   const controller = new StravaController(appContext);
   const email = session.email? session.email : '';
@@ -41,16 +42,19 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
   }
 
   useEffect(() => {
-    try {
-      if (code) {
-        updateStravaAndReturn(ensureString(code));
-      } else {
-        console.log('no code found');
+    if (!synced) {
+      setSynced(true);
+      try {
+        if (code) {
+          updateStravaAndReturn(ensureString(code));
+        } else {
+          console.log('no code found');
+        }
+      } catch (error) {
+        console.log('error during login: ', error);
       }
-    } catch (error) {
-      console.log('error during login: ', error);
     }
-  }, [session]);
+  }, [session, synced]);
 
   return (
     <Surface>

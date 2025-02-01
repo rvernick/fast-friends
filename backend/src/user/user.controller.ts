@@ -52,7 +52,7 @@ export class UserController {
   @Public()
   @Post('v1/update-strava')
   stravaCallbackV1(@Body("stravaCode") stravaCode: string, @Body("verifyCode") verifyCode: string): Promise<boolean> {
-    console.log('auth/v1/update-strava user:' + stravaCode + " verifyCode: " + verifyCode);
+    console.log('user/v1/update-strava user:' + stravaCode + " verifyCode: " + verifyCode);
     return this.userService.updateStravaV1(stravaCode, verifyCode);
   }
 
