@@ -40,6 +40,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     stravaId: providedStravaId,
     units: "miles",
     pushToken: '' };
+    
   const { status, data, error, isFetching } = useQuery({
     queryKey: ['user'],
     queryFn: () => fetchUser(session, email),

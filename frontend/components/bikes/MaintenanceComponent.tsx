@@ -11,11 +11,7 @@ import { Dropdown } from 'react-native-paper-dropdown';
 import { Dimensions, ScrollView, View } from 'react-native';
 import { createStyles, defaultWebStyles } from '@/common/styles';
 import { distanceUnitDisplayString, isMobile, metersToDisplayString, today } from '@/common/utils';
-
-type MaintenanceListProps = {
-  bikes: Bike[] | null | undefined;
-  isUpdating: boolean;
-};
+import { useIsFocused } from '@react-navigation/native';
 
 type MaintenanceItemProps = {
   maintenanceItem: MaintenanceItem;
@@ -28,6 +24,8 @@ const MaintenanceComponent = () => {
   const appContext = useGlobalContext();
   const router = useRouter();
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
+
   const controller = new MaintenanceListController(appContext);
   const preferences = controller.getUserPreferences(session);
 
@@ -158,19 +156,19 @@ const MaintenanceComponent = () => {
   }
 
   const handleBikePress = (bikeId: number) => {
-   if (!data || data.length == 0) return;
-   if (data?.length == 1) {
-    setExpandedBike(data[0].id);
-    return;
-   }
-   if (expandedBike != bikeId) {
-     setExpandedBike(bikeId);
-     return;
-   }
-   if (expandedBike === bikeId) {
-    setExpandedBike(0);
-    return;
-   }
+    if (!data || data.length == 0) return;
+    if (data?.length == 1) {
+      setExpandedBike(data[0].id);
+      return;
+    }
+    if (expandedBike != bikeId) {
+      setExpandedBike(bikeId);
+      return;
+    }
+    if (expandedBike === bikeId) {
+      setExpandedBike(0);
+      return;
+    }
   };
 
   const BikeAccordian: React.FC<BikeAccordainProps> = ({ bike}) => {
@@ -218,6 +216,25 @@ const MaintenanceComponent = () => {
     );
   };
   
+  type BikeListProps = {
+    bikes: Bike[];
+    sortBy: string;
+  };
+
+  const BikeListComponent: React.FC<BikeListProps> = ({ bikes, sortBy}) => {
+    return (
+      <List.Section>
+        {getSortedBikes(bikes, sortBy).map(bike => (
+          <BikeAccordian
+            bike={bike}
+            key={bike.id}
+            sortBy={sortBy}
+            isOpen={true}/>
+        ))}
+      </List.Section>
+    );
+  }
+
   /**
    * 
    * @param param0 CHAIN = "Chain",
@@ -283,6 +300,13 @@ const MaintenanceComponent = () => {
     setSortOption(newSort);
   }
 
+  const refresh = async () => {
+    if (sortOption === 'A-Z') {
+      setSortOption('Due');
+    } else {
+      setSortOption('A-Z');
+    }
+  }
 
   useEffect(() => {
     navigation.setOptions({ title: 'Maintenance' });
@@ -290,14 +314,19 @@ const MaintenanceComponent = () => {
       const bikeList = getSortedBikes(data, sortOption);
       handleBikePress(bikeList[0].id);
     }
-    
-  }, [data]);
+  }, [data, isFocused]);
 
-  if (!data || isFetching || data.length === 0) {
+  if (!data || !isFocused || isFetching || data.length === 0) {
     return (
-      <Text>
-        No bikes found. Add a bike or sync with Strava.
-      </Text>
+      <Surface style={useStyle.containerScreen}>
+        <Text>
+          No bikes found. Add a bike or sync with Strava.
+        </Text>
+        <Button
+          style={{marginTop: 16}}
+          mode="contained"
+          onPress={refresh}> Refresh </Button>
+      </Surface>
     )
   } else if (error) {
     return (
@@ -318,16 +347,8 @@ const MaintenanceComponent = () => {
               />      
           }/>
         </Card>
-          <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
-            <List.Section>
-              {getSortedBikes(data, sortOption).map(bike => (
-                <BikeAccordian
-                  bike={bike}
-                  key={bike.id}
-                  sortBy={sortOption}
-                  isOpen={true}/>
-              ))}
-            </List.Section>
+        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
+          <BikeListComponent bikes={data} sortBy={sortOption}/>
         </ScrollView>
         <Surface style={useStyle.bottomButtons}>
           <Button
