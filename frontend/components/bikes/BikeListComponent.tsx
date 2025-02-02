@@ -9,10 +9,12 @@ import { useSession } from '@/common/ctx';
 import { Dimensions, ScrollView, View } from 'react-native';
 import { isMobile } from '@/common/utils';
 import { createStyles, defaultWebStyles } from '@/common/styles';
+import { useIsFocused } from '@react-navigation/native';
 
 type BikeListProps = {
   bikes: Bike[] | undefined;
   isUpdating: boolean;
+  isInFocus: boolean;
 };
 
 // Example component
@@ -22,6 +24,7 @@ const BikeListComponent = () => {
   const email = session.email ? session.email : '';
   const appContext = useGlobalContext();
   const router = useRouter();
+  const isFocused = useIsFocused();
   const controller = new BikeListController(appContext);
   const [isUpdating, setIsUpdating] = useState(true);
 
@@ -87,7 +90,7 @@ const BikeListComponent = () => {
   return (
     <Surface style={useStyle.containerScreen}>
       <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
-        <BikeList bikes={data ? data : []} isUpdating={isUpdating} />
+        <BikeList bikes={data ? data : []} isUpdating={isUpdating} isInFocus={isFocused}/>
       </ScrollView>
       <Surface style={useStyle.bottomButtons}>
         <Button style={{flex: 1}} mode="contained" onPress={addBike}> Add Bike</Button>
