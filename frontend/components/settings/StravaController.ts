@@ -253,7 +253,7 @@ class StravaController extends AppController {
     const redirectUri = 'https://pedal-assistant.com/strava-reply';
     const authEndpoint = 'https://www.strava.com/oauth/cellPhone/authorize';
     const clientId = await appContext.getStravaClientId(session, '');
-    const clientSecret = await appContext.getStravaClientSecret(session, 'dummy');
+    const clientSecret = await appContext.getStravaClientSecret(session, '');
     const tokenEndpoint = 'https://www.strava.com/oauth/token?client_id=' + clientId + '&client_secret=' + clientSecret;
     const config = {
       issuer: 'https://www.strava.com/oauth/mobile/authorize',

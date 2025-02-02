@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dimensions, Image, ScrollView } from "react-native";
 import { useGlobalContext } from "../../common/GlobalContext";
 import { ensureString, forget, isMobile } from '../../common/utils';
@@ -38,6 +38,7 @@ export const GettingStartedComponent = () => {
     stravaId: providedStravaId,
     units: "miles",
     pushToken: '' };
+
   const { status, data, error, isFetching } = useQuery({
     queryKey: ['user'],
     queryFn: () => fetchUser(session, email),
@@ -65,6 +66,19 @@ export const GettingStartedComponent = () => {
     invalidateUser();
   }
 
+  const syncUser = async () => {
+    const userStravaId = ensureString(data?.stravaId);
+    setStravaId(userStravaId);
+  }
+
+  useEffect(() => {
+    try {
+      syncUser();
+    } catch (error) {
+      console.error('Error updating user', error);
+    }
+  }, [data, isFetching]);
+  
   return (
     <Surface style={useStyle.containerScreen}>
       {isFetching ? <ActivityIndicator  size="large"/> : null}

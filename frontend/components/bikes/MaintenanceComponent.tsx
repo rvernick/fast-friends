@@ -218,6 +218,25 @@ const MaintenanceComponent = () => {
     );
   };
   
+  type BikeListProps = {
+    bikes: Bike[];
+    sortBy: string;
+  };
+
+  const BikeListComponent: React.FC<BikeListProps> = ({ bikes, sortBy}) => {
+    return (
+      <List.Section>
+        {getSortedBikes(bikes, sortBy).map(bike => (
+          <BikeAccordian
+            bike={bike}
+            key={bike.id}
+            sortBy={sortBy}
+            isOpen={true}/>
+        ))}
+      </List.Section>
+    );
+  }
+
   /**
    * 
    * @param param0 CHAIN = "Chain",
@@ -318,16 +337,8 @@ const MaintenanceComponent = () => {
               />      
           }/>
         </Card>
-          <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
-            <List.Section>
-              {getSortedBikes(data, sortOption).map(bike => (
-                <BikeAccordian
-                  bike={bike}
-                  key={bike.id}
-                  sortBy={sortOption}
-                  isOpen={true}/>
-              ))}
-            </List.Section>
+        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
+          <BikeListComponent bikes={data} sortBy={sortOption}/>
         </ScrollView>
         <Surface style={useStyle.bottomButtons}>
           <Button
