@@ -22,7 +22,7 @@ export class InstructionService {
 
   findOne(id: number): Promise<Instruction | null> {
     const result = this.instructionRepository.findOneBy({ id });
-    this.logger.log('info', 'Searching for: ' + id + ' found: ' + result);
+    // this.logger.log('info', 'Searching for: ' + id + ' found: ' + result);
     return result;
   }
 
@@ -56,7 +56,7 @@ export class InstructionService {
           part: part,
         },
       });
-      console.log('Instructions for'+ partName + ':'+ JSON.stringify(result));
+      // console.log('Instructions for'+ partName + ':'+ JSON.stringify(result));
       return result;
     } catch (e: any) {
       console.log(e.message);

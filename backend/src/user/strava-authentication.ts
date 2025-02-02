@@ -4,6 +4,8 @@ export class StravaAuthenticationDto {
   @IsString()
   username: string;
 
+  verifyCode: string;
+
   @IsString()
   stravaCode: string;
 

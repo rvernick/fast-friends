@@ -25,13 +25,28 @@ export class BatchProcessService {
     return result;
   };
 
+  async attemptLockOn(lockName: string): Promise<BatchProcess> {
+    const batchProcess = await this.findByName(lockName);
+    return this.attemptToLock(batchProcess);
+  }
+
   async attemptToLock(batchProcess: BatchProcess): Promise<BatchProcess> {
     try {
-      batchProcess.lockedKey = Math.random().toString(36).substr(2, 10);
-      batchProcess.lockedOn = new Date();
-      this.logger.log('Locked batch process'+ JSON.stringify(batchProcess));
-      await this.batchProcessRepository.save(batchProcess);
-      return batchProcess;
+      const wasLocked = await this.findByName(batchProcess.name);
+      if (wasLocked.lockedKey == null) {
+        batchProcess.lockedKey = Math.random().toString(36).substr(2, 10);
+        batchProcess.lockedOn = new Date();
+        this.logger.log('Locked batch process');
+        await this.batchProcessRepository.save(batchProcess);
+        const lockedConfirmation = await this.findByName(batchProcess.name);
+        if (lockedConfirmation.lockedKey === batchProcess.lockedKey) {
+          this.logger.log('Locked batch process successfully');
+          return lockedConfirmation;
+        } else {
+          this.logger.error('Locked batch process key mismatch');
+          return null;
+        }
+      }
     } catch (error) {
       this.logger.log('Error locking batch process name: ', error);
       return null;
@@ -56,6 +71,7 @@ export class BatchProcessService {
   }
 
   async unlock(batchProcess: BatchProcess) {
+    if (batchProcess == null) return;
     try {
       const id = batchProcess.id;
       const currentBatchProcess = await this.batchProcessRepository.findOneBy({ id });

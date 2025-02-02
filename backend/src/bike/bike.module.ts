@@ -16,9 +16,13 @@ import { BatchProcess } from '../batch/batch-process.entity';
 import { BatchProcessService } from '../batch/batch-process.service';
 import { MaintenanceHistory } from './maintenance-history.entity';
 import { EmailVerify } from '../user/email-verify.entity';
+import { StravaVerify } from '../user/strava-verify.entity';
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([User, Bike, MaintenanceItem, MaintenanceHistory, PasswordReset, Notification, BatchProcess, EmailVerify])],
+  imports: [HttpModule, TypeOrmModule.forFeature([
+    User, Bike, MaintenanceItem, MaintenanceHistory,
+    PasswordReset, Notification, BatchProcess, EmailVerify,
+    StravaVerify])],
   providers: [
     {
       provide: APP_GUARD,

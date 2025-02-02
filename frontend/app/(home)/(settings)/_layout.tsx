@@ -15,6 +15,7 @@ export default function Layout() {
       <Stack.Screen name="getting-started" options={{
           title: "Getting Started",
           headerShown: true,
+          headerLeft: () => <Button onPress={() => router.replace('/(home)/(settings)/settings')} icon="arrow-left">{""}</Button>,
         }} />
       {/* <Stack.Screen name="load-user" options={{}} /> */}
     </Stack>
