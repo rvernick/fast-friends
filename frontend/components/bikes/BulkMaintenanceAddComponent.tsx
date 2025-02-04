@@ -46,6 +46,7 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
   const [isInitialized, setIsInitialized] = useState(false);
   const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceLog[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [saveLabel, setSaveLabel] = useState('Save & Next Bike');
 
   const controller = new MaintenanceItemController(appContext);
   const preferences = controller.getUserPreferences(session);
@@ -79,18 +80,58 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
   const selectBike = async (idString: string | undefined) => {
     if (idString && idString !== bikeIdString && bikes) {
       const id = parseInt(idString);
-      const bikeById = bikes.find(bike => bike.id === id);
+      var isLastBike = true;
+      var bikeById: Bike | undefined;
+      for (const bike of bikes) {
+        if (bike.id === id) {
+          bikeById = bike;
+        } else {
+          if (bikeById) {
+            isLastBike = false;
+          }
+        }
+      }
       if (bikeById) {
         console.log('Selected bike id: ', id);
         setBike(bikeById);
         setBikeName(bikeById.name + ": " + metersToDisplayString(bikeById.odometerMeters, await preferences));
         setBikeIdString(idString);
-        selectAllFor(bikeById);
+        selectTopEight(bikeById);
+        if (isLastBike) {
+          setSaveLabel('Save & Finish');
+        } else {
+          setSaveLabel('Save & Next Bike');
+        }
         setErrorMessage('');
         console.log('Selected bikeById id: ', idString);
       } else {
         console.log('Bike not found: ', idString);
       }
+    }
+  }
+
+  const goToNextBike = () => {
+    if (!bikes || bikes.length === 0) return;
+    var bikeMatched = false;
+    for (const bike of bikes) {
+      if (bikeMatched) {
+        selectBike(ensureString(bike.id));
+        break;
+      }
+      if (bike.id === parseInt(bikeIdString)) {
+        bikeMatched = true;
+      }
+    }
+  }
+
+  const saveAndNext = async () => {
+    createMaintenanceItems(bike);
+
+    if (saveLabel === 'Save & Next Bike') {
+      goToNextBike();
+    } else {
+      queryClient.removeQueries({ queryKey: ['bikes'] });
+      goBack();
     }
   }
 
@@ -102,10 +143,11 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     }
   }
 
-  const selectAllFor = (bike: Bike) => {
+  const selectTopEight = (bike: Bike) => {
     const newCheckedIds = [];
+    var addedCount = 0;
     for (const log of maintenanceLogs) {
-      if (log.bikeId === bike.id) {
+      if (log.bikeId === bike.id && addedCount++ < 8) {
         newCheckedIds.push(log.id);
       }
     }
@@ -157,18 +199,14 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     }
   }
 
-  const submitMaintenance = async () => {
+  const createMaintenanceItems = async (bike: Bike) => {
     setErrorMessage('');
     const selectedItems = maintenanceLogs.filter(log => checkedIds.includes(log.id) && log.bikeId === bike.id);
 
-    console.log('submitMaintenance selected bike: ', bike.name);
-    console.log('submitMaintenance selected bike: ', bike.id);
-    const result = await controller.logMaintenance(session, selectedItems);
+    const result = await controller.createMaintenanceItems(session, selectedItems);
     console.log('submit maintenance result: ', result);
-    queryClient.removeQueries({ queryKey: ['history'] });
-
-    if (result == '') {
-      router.replace({ pathname: '/(home)/(maintenanceHistory)/history', params: { bikeId: bike.id }});
+    if (result && result.length > 0) {
+      setErrorMessage(result);
     }
   }
 
@@ -203,7 +241,6 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
         log.maintenanceItem.dueDistanceMeters = nextDueDistanceMeters;
         setDueValue(nextDueDistanceMeters);
         setDueString(newValue);
-        console.log('setNextDueMilage', nextDueDistanceMeters);
       } catch (error) {
         console.error('Error setting next due: ', error);
       }
@@ -212,7 +249,6 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     const setNextDate = async (newValue: Date) => {
       try {
         if (newValue) {
-          console.log('new date date: ', newValue.toLocaleDateString());
           setDueDate(newValue);
           log.nextDate = newValue;
           log.maintenanceItem.dueDate = newValue;
@@ -229,7 +265,6 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     }
 
     const setDoEvery = async (newValue: string) => {
-      console.log('setDoEvery', newValue);
       try {
         const prefs = await preferences;
         const numberValue = parseInt(newValue);
@@ -361,7 +396,13 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     if (checkedIds.length > 0) {
       setCheckedIds([]);
     } else {
-      selectAllFor(bike);
+      const newCheckedIds = [];
+      for (const log of maintenanceLogs) {
+        if (log.bikeId === bike.id) {
+          newCheckedIds.push(log.id);
+        }
+      }
+      setCheckedIds(newCheckedIds);
     }
   }
 
@@ -371,7 +412,6 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     }
     try {
       if (bikes) {
-        console.log('useEffect initialize bike: ', bikes.length);
         if (!isInitialized && bikes.length > 0) {
           createMaintenanceLogs();
           selectDefaultBike();
@@ -394,7 +434,7 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
         {bikes && bikes.length > 1 ? <BikeDropdown
           bikes={bikes}
           value={bikeIdString}
-          readonly={false}
+          readonly={true}
           onSelect={selectBike} /> : <Text>{bikeName}</Text>}
       </Card>
       
@@ -409,21 +449,14 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
         <Button
           style={{flex: 1}}
           mode="contained"
+          onPress={saveAndNext}>
+            {saveLabel}
+        </Button>
+        <Button
+          style={{flex: 1}}
+          mode="contained"
           onPress={goBack}>
-            Cancel
-        </Button>
-        <Button
-          style={{flex: 1}}
-          mode="contained"
-          onPress={() => {router.push('/(home)/(assistance)/instructions')}}>
-            Instructions
-        </Button>
-        <Button
-          style={{flex: 1}}
-          mode="contained"
-          disabled={checkedIds.length < 1}
-          onPress={submitMaintenance}>
-            Mark Done
+            Skip
         </Button>
         <HelperText visible={errorMessage.length > 0} type={"error"}>{errorMessage}</HelperText>
       </Surface>

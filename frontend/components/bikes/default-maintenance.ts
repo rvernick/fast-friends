@@ -20,6 +20,14 @@ export function defaultMaintenanceItems(bike: Bike): MaintenanceItem[] {
   result.push(createMaintenanceItem(Part.REAR_BRAKE_PADS, Action.REPLACE, oneThousandMileInMeters, 0));
   result.push(createMaintenanceItem(Part.FRONT_TIRE_SEALANT, Action.REPLACE, 0, 90));
   result.push(createMaintenanceItem(Part.REAR_TIRE_SEALANT, Action.REPLACE, 0, 90));
+  result.push(createMaintenanceItem(Part.REAR_DERAILLEUR_BATTERY, Action.REPLACE, fifteenHundredMilesInMeters, 0));
+  result.push(createMaintenanceItem(Part.FRONT_DERAILLEUR_BATTERY, Action.REPLACE, fifteenHundredMilesInMeters, 0));
+  result.push(createMaintenanceItem(Part.LEFT_SHIFTER_BATTERY, Action.REPLACE, fifteenHundredMilesInMeters, 0));
+  result.push(createMaintenanceItem(Part.RIGHT_SHIFTER_BATTERY, Action.REPLACE, fifteenHundredMilesInMeters, 0));
+  result.push(createMaintenanceItem(Part.REAR_BRAKE_CABLE, Action.REPLACE, 0, 365));
+  result.push(createMaintenanceItem(Part.FRONT_BRAKE_CABLE, Action.REPLACE, 0, 365));
+  result.push(createMaintenanceItem(Part.REAR_SHIFTER_CABLE, Action.REPLACE, 0, 365));
+  result.push(createMaintenanceItem(Part.FRONT_SHIFTER_CABLE, Action.REPLACE, 0, 365));
   return result;
 }
 

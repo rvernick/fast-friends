@@ -117,6 +117,53 @@ class MaintenanceItemController extends AppController {
       return e.message;
     }
   }
-}
 
+  async createMaintenanceItems(session: any, selectedItems: MaintenanceLog[]): Promise<string> {
+    var response = "";
+    try {
+      for (const item of selectedItems) {
+        if (await this.updateOrAddMaintenanceItem(
+          session,
+          session.email,
+          0,
+          item.bikeId,
+          item.maintenanceItem.part,
+          item.maintenanceItem.action,
+          item.maintenanceItem.dueDistanceMeters,
+          item.maintenanceItem.dueDate,
+          "", // brand,
+          "", // model,
+          "", // link,
+          item.maintenanceItem.defaultLongevity,
+          item.maintenanceItem.defaultLongevityDays,
+          true)) {
+            console.log('Created maintenance item'+ item.maintenanceItem.part + '-'+ item.maintenanceItem.action);
+        } else {
+          console.log('Failed creating maintenance item: '+ item.maintenanceItem.part + '-'+ item.maintenanceItem.action);
+          response += 'Failed to create maintenance item'+ item.maintenanceItem.part + '-'+ item.maintenanceItem.action + '\n';
+        }
+      }
+      return response;
+    } catch(e: any) {
+      console.log(e.message);
+      return e.message;
+    }
+  }
+}
+/**
+ * session: any,
+      username: string,
+      maintenanceItemId: number,
+      bikeId: number,
+      part: string,
+      action: string,
+      dueMiles: number | null,
+      dueDate: Date | null,
+      brand: string,
+      model: string,
+      link: string,
+      defaultLongevity: number,
+      defaultLongevityDays: number,
+      autoAdjustLongevity: boolean,
+ */
 export default MaintenanceItemController;

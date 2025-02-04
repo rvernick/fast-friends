@@ -35,7 +35,8 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
       // window.close();
       await sleep(5);
       appContext.invalidateUser(session);
-      router.replace({pathname: '/settings', params: {stravaid: stravaInfo?.athlete?.id}});
+      router.replace('/(home)/(maintenanceItems)/bulk-maintenance')
+      // router.replace({pathname: '/settings', params: {stravaid: stravaInfo?.athlete?.id}});
     } else {
       router.replace('/settings');
     }
