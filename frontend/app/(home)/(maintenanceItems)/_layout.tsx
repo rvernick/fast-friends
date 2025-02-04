@@ -13,6 +13,10 @@ export default function Layout() {
   
   return (
     <Stack>
+      <Stack.Screen name="bulk-maintenance" options={{
+        title: "Initial Maintenance Schedule",
+        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
+      }} />
       <Stack.Screen name="maintenance" options={{
           title: "Maintenance",
           headerShown: true,
