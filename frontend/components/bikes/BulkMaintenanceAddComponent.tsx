@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
-import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText, ActivityIndicator } from "react-native-paper";
+import { Button, Text, Surface, Checkbox, TextInput, Card, HelperText, ActivityIndicator, IconButton } from "react-native-paper";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, getUserPreferences, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
+import { displayStringToMeters, ensureString, isMobile, isMobileSize, metersToDisplayString, milesToMeters, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { Part } from "@/models/MaintenanceItem";
@@ -68,7 +68,7 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     unit: {width: "13%", justifyContent: "center", padding: 1},
     nextDue: {width: "0%", justifyContent: "center", padding: 1},
   });
-  const proportionStyle = isMobile()? smallProportionsStyle : largeProportionsStyle;
+  const proportionStyle = isMobileSize()? smallProportionsStyle : largeProportionsStyle;
 
   const { data: bikes } = useQuery({
     queryKey: ['bikes'],
@@ -93,7 +93,6 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
       }
     }
   }
-
 
   const goBack = () => {
     if (router.canGoBack()) {
@@ -277,8 +276,6 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
       syncNextDueString();
     }, [dueValue]);
 
-    
-
     return (
       <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
         <View style={proportionStyle.checkBox}>
@@ -305,24 +302,26 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
           <Text key={"due" + rowKey} onPress={toggleSelectedRow}>
             {unit}</Text>
         </View>
-        <View style={proportionStyle.nextDue}>
-          {log.nextDue ? (<TextInput
-            onChangeText={(newValue) => {setNextDueMilage(newValue)}}
-            value={ dueString }
-            onBlur={ensureSelected}
-            inputMode="numeric"
-            key={"nextDue" + rowKey}
-          />) : (
-            <DatePickerInput
-              locale="en"
-              validRange={{startDate: today()}}
-              disableStatusBarPadding={false}
-              value={dueDate ? dueDate : new Date(today().getTime() + 90 * 24 * 60 * 60 * 1000)}
-              onChange={(d) => d instanceof Date ? setNextDate(d) : null}
-              inputEnabled={dueDate != null}
-              inputMode="start"
-            />)}
-        </View>
+        { isMobileSize() ? null : (
+          <View style={proportionStyle.nextDue}>
+            {log.nextDue ? (<TextInput
+              onChangeText={(newValue) => {setNextDueMilage(newValue)}}
+              value={ dueString }
+              onBlur={ensureSelected}
+              inputMode="numeric"
+              key={"nextDue" + rowKey}
+            />) : (
+              <DatePickerInput
+                locale="en"
+                validRange={{startDate: today()}}
+                disableStatusBarPadding={false}
+                value={dueDate ? dueDate : new Date(today().getTime() + 90 * 24 * 60 * 60 * 1000)}
+                onChange={(d) => d instanceof Date ? setNextDate(d) : null}
+                inputEnabled={dueDate != null}
+                inputMode="start"
+              />)}
+          </View>
+        )}
       </View>
     )
   };
@@ -331,7 +330,7 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     return (
       <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
         <View style={{justifyContent: "center", width: "15%", padding: 10}}>
-          <Icon source="check" size={24} color="black" />
+          <IconButton icon="check" size={24} iconColor="black" onPress={toggleAll}/>
         </View>
         <View style={proportionStyle.part}>
           <Text>Part</Text>
@@ -345,15 +344,25 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
         <View style={proportionStyle.unit}>
           <Text> </Text>
         </View>
-        <View style={proportionStyle.nextDue}>
-          <Text>Next Due</Text>
-        </View>
+        { isMobileSize() ? null : (
+          <View style={proportionStyle.nextDue}>
+            <Text>Next Due</Text>
+          </View>
+        )}
       </View>
     );
   }
 
   const rowKeyFor = (log: MaintenanceLog): string => {
     return log.id.toString() + log.maintenanceItem.part + log.maintenanceItem.action;
+  }
+
+  const toggleAll = () => {
+    if (checkedIds.length > 0) {
+      setCheckedIds([]);
+    } else {
+      selectAllFor(bike);
+    }
   }
 
   useEffect(() => {
