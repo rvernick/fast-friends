@@ -39,7 +39,7 @@ export default function LoggingIn() {
       router.replace('/(home)/(settings)/getting-started');
       return;
     }
-    router.replace('/(home)/maintenance');
+    router.replace('/(home)/(maintenanceItems)/maintenance');
   };
 
   const attempRouteToDeepLink = async (): Promise<boolean> => {

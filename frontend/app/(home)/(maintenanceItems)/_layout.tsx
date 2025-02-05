@@ -12,17 +12,17 @@ export default function Layout() {
   }
   
   return (
-    <Stack>
-      <Stack.Screen name="bulk-maintenance" options={{
-        title: "Initial Maintenance Schedule",
-        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
-      }} />
+    <Stack initialRouteName="maintenance">
       <Stack.Screen name="maintenance" options={{
           title: "Maintenance",
           headerShown: true,
         }} />
       <Stack.Screen name="[maintenanceid]" options={{
         title: 'Maintenance Item',
+        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
+      }} />
+      <Stack.Screen name="bulk-maintenance" options={{
+        title: "Initial Maintenance Schedule",
         headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
       <Stack.Screen name="log-maintenance" options={{
