@@ -4,7 +4,7 @@ import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText, ActivityIndicator } from "react-native-paper";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
+import { displayStringToMeters, ensureString, isMobile, isMobileSize, metersToDisplayString, milesToMeters, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { Part } from "@/models/MaintenanceItem";
@@ -212,7 +212,12 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
 
     const syncNextDueString = async () => {
       setNextDueString(metersToDisplayString(nextDueValue ? nextDueValue : 0, await preferences));
-      setDueDistanceString(metersToDisplayString(log.maintenanceItem.dueDistanceMeters, await preferences));
+      if (log.maintenanceItem.dueDistanceMeters > 0) {
+        setDueDistanceString(metersToDisplayString(log.maintenanceItem.dueDistanceMeters, await preferences));
+      } else {
+        const dueDate = new Date(log.maintenanceItem.dueDate);
+        setDueDistanceString(dueDate? dueDate.toLocaleDateString() : '');
+      }
     }
     
     useEffect(() => {
@@ -326,12 +331,14 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
           onPress={goBack}>
             Cancel
         </Button>
-        <Button
-          style={{flex: 1}}
-          mode="contained"
-          onPress={() => {router.push('/(home)/(assistance)/instructions')}}>
-            Instructions
-        </Button>
+        {isMobileSize() ? null : (
+          <Button
+            style={{flex: 1}}
+            mode="contained"
+            onPress={() => {router.push('/(home)/(assistance)/instructions')}}>
+              Instructions
+          </Button>
+        )}
         <Button
           style={{flex: 1}}
           mode="contained"

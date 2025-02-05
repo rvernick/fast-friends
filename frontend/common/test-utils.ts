@@ -48,7 +48,7 @@ export const mockedHistory = [
     id: 10,
   //  bike: Bike;
     bikeName: "Forth",
-    bikeId: 11,
+    bikeId: mockedBikeId,
     distanceMeters: milesToMeters(1000),
     part: "Chain",
     name: "",
@@ -64,7 +64,7 @@ export const mockedHistory = [
     id: 40,
   //  bike: Bike;
     bikeName: "First",
-    bikeId: 11,
+    bikeId: mockedBikeId,
     distanceMeters: milesToMeters(4000),
     part: "Rear Tire",
     name: "",
@@ -80,7 +80,7 @@ export const mockedHistory = [
     id: 20,
   //  bike: Bike;
     bikeName: "Third",
-    bikeId: 11,
+    bikeId: mockedBikeId,
     distanceMeters: milesToMeters(2000),
     part: "Cassette",
     name: "",
@@ -96,7 +96,7 @@ export const mockedHistory = [
     id: 30,
   //  bike: Bike;
     bikeName: "Second",
-    bikeId: 11,
+    bikeId: mockedBikeId,
     distanceMeters: milesToMeters(3000),
     part: "Front Brake Pads",
     name: "",

@@ -32,10 +32,9 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
     const stravaInfo = await controller.updateStravaCode(session, appContext, code, verifycode);
     console.log('updated strava code: ' + JSON.stringify(stravaInfo));
     if (stravaInfo?.athlete?.id) {
-      // window.close();
       await sleep(5);
       appContext.invalidateUser(session);
-      router.replace({pathname: '/settings', params: {stravaid: stravaInfo?.athlete?.id}});
+      router.replace('/(home)/(maintenanceItems)/bulk-maintenance');
     } else {
       router.replace('/settings');
     }

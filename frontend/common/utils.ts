@@ -16,6 +16,14 @@ export const isValidPhone = (phone: string) => {
   return strippedPhone(phone).length == 10;
 };
 
+export const isMobileSize = (): boolean => {
+  return isMobile() || isSmallScreen();
+};
+
+const isSmallScreen = (): boolean => {
+  return window && window.innerWidth != null && window.innerWidth < 600;
+}
+
 export const isMobile = (): boolean => {
   return Platform.OS === 'android' || Platform.OS === 'ios';
 }

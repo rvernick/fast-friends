@@ -229,7 +229,7 @@ export class UserService {
     const newBike = new Bike();
     this.syncStravaBike(newBike, bike);
     newBike.user = user;
-    newBike.maintenanceItems = defaultMaintenanceItems(newBike);
+    // newBike.maintenanceItems = defaultMaintenanceItems(newBike);
 //    user.addBike(newBike);
 //    this.bikesRepository.save(newBike);
     // this.logger.log('info', 'Adding bike:'+ JSON.stringify(newBike));

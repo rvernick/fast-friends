@@ -108,15 +108,15 @@ export const GettingStartedComponent = () => {
             <List.Item title="Ride" description="You can disconnect from Strava at anytime"/>
           </List.Accordion>
           <List.Accordion
-            title="2) Edit Maintenance Schedule">
+            title="2) Create Maintenance Schedule">
             <List.Item title={<Button
                 mode="contained"
-                onPress={() => router.push('/(home)/(maintenanceItems)/maintenance')}
-                accessibilityLabel="Edit Maintenance Schedule"
-                accessibilityHint="Edit Maintenance Schedule">
-                  Edit Maintenance Schedule
+                onPress={() => router.push('/(home)/(maintenanceItems)/bulk-maintenance')}
+                accessibilityLabel="Create Maintenance Schedule"
+                accessibilityHint="Create Maintenance Schedule">
+                  Create Maintenance Schedule
               </Button>} />
-            <List.Item title="Click link" description="This will bring you to your bikes and maintenance schedule"/>
+            <List.Item title="Click link" description="This will bring you to a default list of maintenace items to choose from"/>
             <List.Item title="Add/Update Maintenance Items" description="A maintenance item can be an action of: Replace, Lubricate, Clean or Check"/>
             <List.Item title="Check Parts" description="A maintenance item can be on a part like: Chain, Front Tire, Rear Brake Pads, Bar Tape, etc."/>
             <List.Item title="Set intervals" description="A maintenance item can be scheduled by mileage or days between actions"/>
@@ -134,6 +134,19 @@ export const GettingStartedComponent = () => {
             <List.Item title="Check work done" description="Click the check box at the right of the screen for work done"/>
             <List.Item title="Update deadline" description="The left column indicates the when the the work will need to be done next"/>
             <List.Item title="Ride" description="Get back out there.  We'll alert you when your bike needs some TLC"/>
+          </List.Accordion>
+          <List.Accordion
+            title="4) Customize Maintenance Schedule">
+            <List.Item title={<Button
+                mode="contained"
+                onPress={() => router.push('/(home)/(maintenanceItems)/maintenance')}
+                accessibilityLabel="Maintenance Schedule"
+                accessibilityHint="Maintenance Schedule">
+                  Customize Maintenance Schedule
+              </Button>} />
+            <List.Item title="Click link" description="This will bring you to the maintenance schedule page"/>
+            <List.Item title="Check work done" description="Click the add button to create new maintenance items"/>
+            <List.Item title="Update deadline" description="Click a maintenance item to edit it"/>
           </List.Accordion>
         </List.Section>
       </ScrollView>

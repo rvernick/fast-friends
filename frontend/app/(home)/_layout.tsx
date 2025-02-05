@@ -1,10 +1,10 @@
-import { router, Tabs, useLocalSearchParams } from "expo-router";
+import { router, Tabs } from "expo-router";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text } from "react-native-paper"
 import { useSession } from "@/common/ctx";
 import { useState } from "react";
 import { tabBarIconSize } from "@/common/styles";
-import { isMobile } from "@/common/utils";
+import { isMobileSize } from "@/common/utils";
 
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
@@ -81,7 +81,7 @@ export default function TabLayout() {
         }}
       />
       {/* // If on mobile, hide the sign out tab for space savings */}
-      {isMobile() ? 
+      {isMobileSize() ? 
         <Tabs.Screen
             name="sign-out"
             options={{
