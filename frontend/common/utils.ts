@@ -17,8 +17,12 @@ export const isValidPhone = (phone: string) => {
 };
 
 export const isMobileSize = (): boolean => {
-  return isMobile() || window.innerWidth <= 600;
+  return isMobile() || isSmallScreen();
 };
+
+const isSmallScreen = (): boolean => {
+  return window && window.innerWidth != null && window.innerWidth < 600;
+}
 
 export const isMobile = (): boolean => {
   return Platform.OS === 'android' || Platform.OS === 'ios';

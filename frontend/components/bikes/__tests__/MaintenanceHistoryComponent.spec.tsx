@@ -4,7 +4,7 @@ import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import MaintenanceHistoryComponent from '../MaintenanceHistoryComponent';
 import '@testing-library/react-native/extend-expect';
-import { mockedBikes, mockedHistory } from '@/common/test-utils';
+import { mockedBikeId, mockedBikes, mockedHistory } from '@/common/test-utils';
 import { sleep } from '@/common/utils';
 
 afterEach(cleanup);
@@ -41,12 +41,22 @@ jest.mock('../../../common/data-utils', () => {
   };
 });
 
+jest.mock('../../../common/utils', () => {
+  const originalModule = jest.requireActual('../../../common/utils');
+  return {
+    __esModule: true,
+    ...originalModule,
+    isMobileSize: jest.fn(() => {return false}),
+    isMobile: jest.fn(() => {return false}),
+    foo: 'mocked foo',
+  };
+});
 describe('Maintenance History Component', () => {
   
   it('Basic render', async () => {
     const wrappedMI = jest.fn(() => 
         <ProviderWrapper>
-          <MaintenanceHistoryComponent/>
+          <MaintenanceHistoryComponent bikeid={mockedBikeId}/>
         </ProviderWrapper>);
     renderRouter(
       {
@@ -80,7 +90,7 @@ describe('Maintenance History Component', () => {
 
     const wrappedMI = jest.fn(() => 
         <ProviderWrapper>
-          <MaintenanceHistoryComponent/>
+          <MaintenanceHistoryComponent bikeid={mockedBikeId}/>
         </ProviderWrapper>);
     const rendered = renderRouter(
       {

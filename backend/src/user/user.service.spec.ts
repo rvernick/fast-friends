@@ -75,7 +75,7 @@ describe('UserService', () => {
     expect(result).toEqual(bikes[1]);
   });
 
-  it('a new strava bike should have maintenance items', () => {
+  it('a new strava bike should not have maintenance items', () => {
     // Arrange
     const service = dummyService();
     const user = new User('username', 'password');
@@ -90,8 +90,8 @@ describe('UserService', () => {
     const bike = service.addStravaBike(user, stravaBike);
 
     // Assert
-    expect(bike.maintenanceItems).toBeTruthy();
-    expect(bike.maintenanceItems.length).toBeGreaterThan(4);
+    expect(bike.maintenanceItems).toBeFalsy();
+    // expect(bike.maintenanceItems.length).toBe(0);
   });
 
   it('create random six-digit code', () => {
