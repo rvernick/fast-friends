@@ -6,7 +6,7 @@ import { Text, Surface, DataTable, ActivityIndicator, Button } from 'react-nativ
 import { useSession } from '@/common/ctx';
 import { Dimensions, ScrollView } from 'react-native';
 import { createStyles, defaultWebStyles } from '@/common/styles';
-import { ensureString, isMobile, metersToDisplayString } from '@/common/utils';
+import { ensureString, isMobile, isMobileSize, metersToDisplayString } from '@/common/utils';
 import { BikeDropdown } from '../common/BikeDropdown';
 import MaintenanceHistoryController from './MaintenanceHistoryController';
 import { MaintenanceHistoryItem } from '@/models/MaintenanceHistory';
@@ -26,6 +26,7 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
 
   var defaultBikeId = '_All';
   const [bikeId, setBikeId ] = useState(defaultBikeId);
+  const [smallScreen, setSmallScreen ] = useState(false);
   const [sortColumn, setSortColumn] = useState('distance');
   const [sortDirection, setSortDirection] = useState('descending');
   const [initialized, setInitialized ] = useState(false);
@@ -187,6 +188,7 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
 
   useEffect(() => {
     setTitle(bikeId);
+    setSmallScreen(isMobileSize());
     initialize();
   }, [bikeId, history]);
 
@@ -211,16 +213,17 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
           value={bikeId}
           readonly={false}
           onSelect={handleBikePress}
-          useAll={true}
+          useAll={!smallScreen}
         />
         <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
           <DataTable style={useStyle.containerBody} testID='historyTable'>
             <DataTable.Header>
-              <DataTable.Title
+              {smallScreen ? null : (<DataTable.Title
                 numeric={false}
                 sortDirection={sortBy('bike')}
                 onPress={() => handleSort('bike')}>
                   Bike</DataTable.Title>
+              )}
               <DataTable.Title
                 numeric={false}
                 sortDirection={sortBy('part')}
@@ -244,7 +247,9 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
                     onPress={() => editHistoryItem(historyItem)}
                     key={'history' + historyItem.id}
                     testID={"row: " + index}>
-                  <DataTable.Cell testID={"bikeCell: " + index}>{historyItem.bikeName}</DataTable.Cell>
+                  {smallScreen ? null : (
+                    <DataTable.Cell testID={"bikeCell: " + index}>{historyItem.bikeName}</DataTable.Cell>
+                  )}
                   <DataTable.Cell testID={"partCell: " + index}>{historyItem.part}</DataTable.Cell>
                   <DataTable.Cell testID={"actionCell: " + index}>{historyItem.action}</DataTable.Cell>
                   <DataTable.Cell testID={"distanceCell: " + index} numeric>{distanceStrings.get(historyItem.id.toFixed(0))}</DataTable.Cell>

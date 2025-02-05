@@ -94,7 +94,11 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
       if (bikeById) {
         console.log('Selected bike id: ', id);
         setBike(bikeById);
-        setBikeName(bikeById.name + ": " + metersToDisplayString(bikeById.odometerMeters, await preferences));
+        if (isMobileSize()) {
+          setBikeName("Maintenance Items: " + bikeById.name);
+        } else {
+          setBikeName("Maintenance Items: " + bikeById.name + ": " + metersToDisplayString(bikeById.odometerMeters, await preferences));
+        }
         setBikeIdString(idString);
         selectTopEight(bikeById);
         if (isLastBike) {
@@ -116,12 +120,14 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     for (const bike of bikes) {
       if (bikeMatched) {
         selectBike(ensureString(bike.id));
-        break;
+        return;
       }
       if (bike.id === parseInt(bikeIdString)) {
         bikeMatched = true;
       }
     }
+    console.log('No more bikes to go to, returning to first');
+    selectBike(ensureString(bikes[0].id));
   }
 
   const saveAndNext = async () => {
@@ -131,16 +137,12 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
       goToNextBike();
     } else {
       queryClient.removeQueries({ queryKey: ['bikes'] });
-      goBack();
+      skip();
     }
   }
 
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/(home)/maintenance');
-    }
+  const skip = () => {
+    router.replace('/(home)/maintenance');
   }
 
   const selectTopEight = (bike: Bike) => {
@@ -294,7 +296,6 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
       setDueString(metersToDisplayString(dueValue ? dueValue : 0, prefs));
       if (byMileage()) {
         const longevityString = metersToDisplayString(log.maintenanceItem.defaultLongevity, prefs);
-        console.log('syncNextDueString by mileage: ', longevityString);
         setDoEveryString(longevityString);
         setUnit(prefs.units);
       } else {
@@ -455,7 +456,7 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
         <Button
           style={{flex: 1}}
           mode="contained"
-          onPress={goBack}>
+          onPress={skip}>
             Skip
         </Button>
         <HelperText visible={errorMessage.length > 0} type={"error"}>{errorMessage}</HelperText>
