@@ -32,6 +32,10 @@ export function defaultMaintenanceItems(bike: Bike): MaintenanceItem[] {
 }
 
 const createMaintenanceItem = (bike: Bike, part: Part, action: Action, defaultLongevity: number, days: number): MaintenanceItem => {
+  const existingItem = bike.maintenanceItems.find((item) => item.part === part && item.action === action);
+  if (existingItem) {
+    return existingItem;
+  }
   return {
     id: 0,
     part,

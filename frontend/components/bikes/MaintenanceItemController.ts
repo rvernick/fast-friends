@@ -125,7 +125,7 @@ class MaintenanceItemController extends AppController {
         if (await this.updateOrAddMaintenanceItem(
           session,
           session.email,
-          0,
+          item.maintenanceItem.id,
           item.bikeId,
           item.maintenanceItem.part,
           item.maintenanceItem.action,
