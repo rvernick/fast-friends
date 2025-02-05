@@ -9,7 +9,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { Part } from "@/models/MaintenanceItem";
 import { MaintenanceLog } from "@/models/MaintenanceLog";
-import { Dimensions, ScrollView, View, StyleSheet } from "react-native";
+import { Dimensions, ScrollView, View } from "react-native";
 import { createStyles, defaultWebStyles } from "@/common/styles";
 import { BikeDropdown } from "../common/BikeDropdown";
 import { DatePickerInput } from "react-native-paper-dates";
