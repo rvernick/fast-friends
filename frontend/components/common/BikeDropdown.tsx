@@ -44,7 +44,7 @@ export const BikeDropdown: React.FC<BikeDropdownProps> = ({ bikes, value, readon
 
     useEffect(() => {
       syncOnRefresh();
-    }, [bikes]);
+    }, [bikes, useAll]);
     
     return (
       <Dropdown
