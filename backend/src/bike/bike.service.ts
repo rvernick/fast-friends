@@ -289,7 +289,11 @@ export class BikeService {
         maintenanceInfo.action = Action.REPLACE;
       }
       if (maintenanceInfo.duemiles && maintenanceInfo.duemiles > 0) {
-        maintenanceItem.dueDistanceMeters = Math.round(maintenanceInfo.duemiles);
+        if (this.shouldPushDueDistanceOut(maintenanceItem, maintenanceInfo)) {  // TODO: update when bug fixed
+          maintenanceItem.dueDistanceMeters = maintenanceItem.bike.odometerMeters + maintenanceInfo.defaultLongevity;
+        } else {
+          maintenanceItem.dueDistanceMeters = Math.round(maintenanceInfo.duemiles);
+        }
       } else {
         maintenanceItem.dueDistanceMeters = null;
       }
@@ -314,6 +318,14 @@ export class BikeService {
       console.error('Error updating or adding bike: ', error);
       return null;
     }
+  }
+
+  shouldPushDueDistanceOut(maintenanceItem: MaintenanceItem, maintenanceInfo: UpdateMaintenanceItemDto): boolean {
+    if (maintenanceItem.id > 0) return false;  // only on new maintenance items
+    const bike = maintenanceItem.bike;
+    if (bike.odometerMeters == 0) return false;  // no odometer data yet, so don't push due distance out
+    if (bike.odometerMeters > maintenanceInfo.duemiles) return true;  // definitely push due distance out if overdue already
+    return maintenanceInfo.duemiles == maintenanceInfo.defaultLongevity; // Wasn't really edited
   }
 
   async updateOrAddMaintenanceHistoryItem(maintenanceInfo: UpdateMaintenanceHistoryItemDto): Promise<MaintenanceHistory> {
