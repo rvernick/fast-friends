@@ -20,6 +20,7 @@ import { GlobalStateProvider } from '@/common/GlobalContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from 'react-native-error-boundary';
 import { NotificationProvider } from '@/common/NotificationContext';
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 
 
 const customDarkTheme = { ...MD3DarkTheme, colors: Colors.dark };
@@ -55,9 +56,11 @@ export default function RootLayout() {
           <NotificationProvider>
             <GlobalStateProvider>
               <ThemeProvider value={colorScheme}>
-                <PaperProvider theme={colorScheme}> 
-                  <Slot />
-                </PaperProvider>
+                <GluestackUIProvider>
+                  <PaperProvider theme={colorScheme}> 
+                    <Slot />
+                  </PaperProvider>
+                </GluestackUIProvider>
               </ThemeProvider>
             </GlobalStateProvider>
           </NotificationProvider>
