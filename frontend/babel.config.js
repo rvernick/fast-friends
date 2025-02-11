@@ -3,13 +3,23 @@ module.exports = function(api) {
   return {
     presets: [
       ["babel-preset-expo", { jsxImportSource: "nativewind" }],
-      "nativewind/babel",
       '@babel/preset-typescript',
+      "nativewind/babel"
     ],
+
     env: { 
       // production: {
       //   plugins: ['react-native-paper/babel'],  // This seems to break the production build for DropdownPicker.
       // },
     },
+
+    plugins: [["module-resolver", {
+      root: ["./"],
+
+      alias: {
+        "@": "./",
+        "tailwind.config": "./tailwind.config.js"
+      }
+    }]]
   };
 };
