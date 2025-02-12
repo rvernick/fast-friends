@@ -1,26 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { GestureResponderEvent, Keyboard, NativeSyntheticEvent, TextInputSubmitEditingEventData } from "react-native";
+import { Keyboard } from "react-native";
 import { login, remind, isMobile } from '@/common/utils';
 import { baseUrl } from "../../common/http-utils";
 import { router } from "expo-router";
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useSession } from "@/common/ctx";
 import { useQueryClient } from "@tanstack/react-query";
-import { BaseLayout } from "@/layouts/base-layout";
+import { BaseLayout } from "@/components/layouts/base-layout";
 import { VStack } from "@/components/ui/vstack";
 import {
-  ArrowLeftIcon,
   CheckIcon,
   EyeIcon,
   EyeOffIcon,
-  Icon,
 } from "@/components/ui/icon";
-import { Pressable } from "@/components/ui/pressable";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { FormControl, FormControlError, FormControlErrorIcon, FormControlErrorText, FormControlLabel, FormControlLabelText } from "@/components/ui/form-control";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { HStack } from "@/components/ui/hstack";
 import { Checkbox, CheckboxIcon, CheckboxIndicator, CheckboxLabel } from "@/components/ui/checkbox";
@@ -28,6 +26,8 @@ import { Link, LinkText } from "@/components/ui/link";
 import { Button, ButtonText } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react-native";
 import { useToast } from "@/components/ui/toast";
+
+import "@/constants/global.css";
 
 export const LoginComponent = () => {
   const session = useSession();
@@ -41,42 +41,19 @@ export const LoginComponent = () => {
     pword = 'h@ppyHappy';
   }
 
-  const [email, setEnteredEmail] = useState(user);
-  const [password, setEnteredPassword] = useState(pword);
-  const [loginErrorMessage, setLoginErrorMessage] = useState('');
+  const [devFastLogin, setDevFastLogin] = useState(true);
   const [useFaceRecognition, setUseFaceRecognition] = useState(isMobile());
   const [canUseFaceId, setCanUseFaceId] = useState(false);
   const [passwordHidden, setPasswordHidden] = useState(true);
   const loginSchema = z.object({
     email: z.string().min(1, "Email is required").email(),
     password: z.string().min(1, "Password is required"),
-    rememberme: z.boolean().optional(),
   });
 
   type LoginSchemaType = z.infer<typeof loginSchema>;
 
   const onSubmit = (data: LoginSchemaType) => {
-    // const user = USERS.find((element) => element.email === data.email);
-    // if (user) {
-    //   if (user.password !== data.password)
-    //     setValidated({ emailValid: true, passwordValid: false });
-    //   else {
-    //     setValidated({ emailValid: true, passwordValid: true });
-    //     toast.show({
-    //       placement: "bottom right",
-    //       render: ({ id }) => {
-    //         return (
-    //           <Toast nativeID={id} variant="accent" action="success">
-    //             <ToastTitle>Logged in successfully!</ToastTitle>
-    //           </Toast>
-    //         );
-    //       },
-    //     });
-    //     reset();
-    //   }
-    // } else {
-    //   setValidated({ emailValid: false, passwordValid: true });
-    // }
+    attemptLoginUsing(data.email, data.password);
   };
 
   const handleState = () => {
@@ -84,6 +61,7 @@ export const LoginComponent = () => {
       return !showState;
     });
   };
+
   const handleKeyPress = () => {
     Keyboard.dismiss();
     handleSubmit(onSubmit)();
@@ -103,33 +81,9 @@ export const LoginComponent = () => {
       passwordValid: true,
     });
 
-  const updateEmail = function(newText: string) {
-    setLoginErrorMessage('');
-    setEnteredEmail(newText.toLocaleLowerCase());
-  }
-
-  const updatePassword = function(newText: string) {
-    setLoginErrorMessage('');
-    setEnteredPassword(newText);
-  }
-
-  const loginButton = function(e: GestureResponderEvent) {
-    e.preventDefault();
-    attemptLogin();
-  };
-
-  const loginSubmit = function(e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) {
-      e.preventDefault();
-      attemptLogin();
-    };
-
   const invalidateLoginConfirmation = () => {
     console.log('Invalidate login confirmation');
     queryClient.removeQueries({queryKey: ['loginConfirmation']});
-  }
-
-  const attemptLogin = function() {
-    attemptLoginUsing(email, password);
   }
 
   const attemptLoginUsing = (username: string, pass: string) => {
@@ -139,8 +93,8 @@ export const LoginComponent = () => {
       .then(msg => {
         console.log('loginAttempt: ' + msg);
         if (msg) {
-          setLoginErrorMessage(msg);
           turnOffFaceRecognition();
+          setValidated({ emailValid: true, passwordValid: false });
         } else {
           console.log('attemptLogin successful');
           router.replace('/logging-in');
@@ -148,7 +102,7 @@ export const LoginComponent = () => {
       })
       .catch(error => {
         console.log('Failed to log in ' + error.message);
-        setLoginErrorMessage(error.message);
+        setValidated({ emailValid: true, passwordValid: false });
         turnOffFaceRecognition();
       });
   };
@@ -205,10 +159,21 @@ export const LoginComponent = () => {
       } else {
         console.log('Face ID login failed');
         turnOffFaceRecognition();
-        setLoginErrorMessage('Face ID login failed');
+        setValidated({ emailValid: true, passwordValid: false });
       }
     }
   }
+
+  useEffect(() => {
+    if (devFastLogin) {
+      console.log('Dev fast login enabled');
+      setDevFastLogin(false);
+      if (baseUrl().includes('localhost:')) {
+        console.log('Dev fast login: using local user');
+        loginSchema.parseAsync({ email: 't5@t.com', password: 'h@ppyHappy' });
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (useFaceRecognition) {
@@ -233,23 +198,11 @@ export const LoginComponent = () => {
     <BaseLayout>
       <VStack className="max-w-[440px] w-full" space="md">
         <VStack className="md:items-center" space="md">
-          <Pressable
-            onPress={() => {
-              router.back();
-            }}
-          >
-            <Text>Back</Text>
-            {/* <Icon
-              as={ArrowLeftIcon}
-              className="md:hidden text-background-800"
-              size="xs"
-            /> */}
-          </Pressable>
           <VStack>
             <Heading className="md:text-center" size="3xl">
               Log in
             </Heading>
-            <Text>Login to start using gluestack</Text>
+            <Text>Login to start using Pedal Assistant</Text>
           </VStack>
         </VStack>
       <VStack className="w-full">
@@ -262,7 +215,7 @@ export const LoginComponent = () => {
               <FormControlLabelText>Email</FormControlLabelText>
             </FormControlLabel>
             <Controller
-              defaultValue=""
+              defaultValue={user}
               name="email"
               control={control}
               rules={{
@@ -305,7 +258,7 @@ export const LoginComponent = () => {
               <FormControlLabelText>Password</FormControlLabelText>
             </FormControlLabel>
             <Controller
-              defaultValue=""
+              defaultValue={pword}
               name="password"
               control={control}
               rules={{
@@ -344,26 +297,7 @@ export const LoginComponent = () => {
             </FormControlError>
           </FormControl>
           <HStack className="w-full justify-between ">
-            <Controller
-              name="rememberme"
-              defaultValue={false}
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <Checkbox
-                  size="sm"
-                  value="Remember me"
-                  isChecked={value}
-                  onChange={onChange}
-                  aria-label="Remember me"
-                >
-                  <CheckboxIndicator>
-                    <CheckboxIcon as={CheckIcon} />
-                  </CheckboxIndicator>
-                  <CheckboxLabel>Remember me</CheckboxLabel>
-                </Checkbox>
-              )}
-            />
-            <Link href="/auth/forgot-password">
+            <Link href="/(sign-in-sign-up)/password-reset">
               <LinkText className="font-medium text-sm text-primary-700 group-hover/link:text-primary-600">
                 Forgot Password?
               </LinkText>
@@ -377,7 +311,7 @@ export const LoginComponent = () => {
         </VStack>
         <HStack className="self-center" space="sm">
           <Text size="md">Don't have an account?</Text>
-          <Link href="/auth/signup">
+          <Link href="/(sign-in-sign-up)/sign-up">
             <LinkText
               className="font-medium text-primary-700 group-hover/link:text-primary-600  group-hover/pressed:text-primary-700"
               size="md"
@@ -389,81 +323,5 @@ export const LoginComponent = () => {
       </VStack>
     </VStack>
     </BaseLayout>
-
   );
 }
-
-
-function zodResolver(loginSchema: z.ZodObject<{ email: z.ZodString; password: z.ZodString; rememberme: z.ZodOptional<z.ZodBoolean>; }, "strip", z.ZodTypeAny, { email: string; password: string; rememberme?: boolean | undefined; }, { email: string; password: string; rememberme?: boolean | undefined; }>): import("react-hook-form").Resolver<{ email: string; password: string; rememberme?: boolean | undefined; }, any> | undefined {
-  console.log('resolver called');
-}
-/** 
-const PaperLoginForm = () => {
-  return (
-    <Surface style={useStyle.container}>
-      <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
-
-      <ActivityIndicator animating={useFaceRecognition} testID="activity" size="large"/>
-      <Card >
-        <Card.Content>
-            <TextInput
-                label="Email"
-                keyboardType="email-address"
-                inputMode="email"
-                textContentType="emailAddress"
-                onChangeText={updateEmail}
-                value={email}
-                autoComplete="email"
-                autoCapitalize="none"
-                testID="emailInput"
-                accessibilityLabel="email input"
-                accessibilityHint="The email address for the account being logged in"/>
-            <TextInput label="Password"
-                secureTextEntry={passwordHidden}
-                inputMode="text"
-                textContentType="password"
-                autoCapitalize="none"
-                onChangeText={updatePassword}
-                onSubmitEditing={loginSubmit}
-                value={password}
-                right={<TextInput.Icon icon="eye" onPress={() => setPasswordHidden(!passwordHidden)}/>}
-                testID="passwordInput"
-                accessibilityLabel="password input"
-                accessibilityHint="The password for the account being logged in"/>
-            <HelperText 
-                type="error"
-                visible={loginErrorMessage.length > 0}
-                testID="loginError">
-              {loginErrorMessage}
-            </HelperText>
-            <Button
-              mode="contained"
-              onPress={loginButton}
-              testID="loginButton"
-              accessibilityLabel="confirm button"
-              accessibilityHint="Will attempt to login based on the user and password entered">
-              Confirm
-            </Button>
-            <Button
-              onPress={() => router.push('/(sign-in)/password-reset')}
-              accessibilityLabel="forgot password button"
-              accessibilityHint="Go to the screen to request a password reset">
-              Forgot email/password
-            </Button>
-            <Button
-              onPress={() => router.replace('/(sign-in-sign-up)/sign-up')}
-              accessibilityLabel="Sign Up button"
-              accessibilityHint="Go to the create account screen">
-              Sign Up
-            </Button>
-            {canUseFaceId ? (
-              <Button onPress={() => setUseFaceRecognition(true)}>
-                [ Use Face ID ]
-              </Button>
-            ) : null}
-        </Card.Content>
-      </Card>  
-    </Surface>
-  );
-}
-*/

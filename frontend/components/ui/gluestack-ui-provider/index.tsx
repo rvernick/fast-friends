@@ -18,7 +18,7 @@ const getColorSchemeName = (
 };
 
 export function GluestackUIProvider({
-  mode = 'light',
+  mode = 'system',
   ...props
 }: {
   mode?: 'light' | 'dark' | 'system';
