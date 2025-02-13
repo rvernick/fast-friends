@@ -306,7 +306,7 @@ export const LoginComponent = () => {
             </FormControlError>
           </FormControl>
           <HStack className="w-full justify-between ">
-            <Link href="/(sign-in-sign-up)/password-reset">
+            <Link onPress={() => router.push("/(sign-in-sign-up)/password-reset")}>
               <LinkText className="font-medium text-sm text-primary-700 group-hover/link:text-primary-600">
                 Forgot Password?
               </LinkText>
@@ -320,7 +320,7 @@ export const LoginComponent = () => {
         </VStack>
         <HStack className="self-center" space="sm">
           <Text size="md">Don't have an account?</Text>
-          <Link href="/(sign-in-sign-up)/sign-up">
+          <Link onPress={() => router.replace("/(sign-in-sign-up)/sign-up")}>
             <LinkText
               className="font-medium text-primary-700 group-hover/link:text-primary-600  group-hover/pressed:text-primary-700"
               size="md"

@@ -1,10 +1,17 @@
 import React, { useContext, useState } from "react";
-import { invalidPasswordMessage, isMobile, isValidEmail, isValidPassword, login } from '../../common/utils';
-import { Text, Button, TextInput, HelperText, Card, Surface } from "react-native-paper";
+import { invalidPasswordMessage, isMobile, isValidEmail, isValidPassword } from '../../common/utils';
 import { router } from "expo-router";
 import CreateAccountController from "./CreateAccountController";
 import { Dimensions } from "react-native";
 import { createStyles, defaultWebStyles } from "@/common/styles";
+import { BaseLayout } from "../layouts/base-layout";
+import { VStack } from "../ui/vstack";
+import { Text } from "../ui/text";
+import { Heading } from "../ui/heading";
+import { Input, InputField } from "../ui/input";
+import { Button, ButtonText } from "../ui/button";
+import { Alert, AlertIcon, AlertText } from "../ui/alert";
+import { InfoIcon } from "../ui/icon";
 
 interface CreateAccountComponentProps {
   controller: CreateAccountController;
@@ -80,83 +87,121 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
     }
   };
 
-  
   return (
-    <Surface style={useStyle.container}>
-      <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
-      <Text style={{textAlign: "center"}}>Welcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
-      <Text style={{textAlign: "center"}}>You think about your rides and who you want to ride with next.</Text>
-      <Text style={{textAlign: "center"}}>We'll think about your bike needs so you don't have to</Text>
-      <Text> </Text>
-      <Card >
-        <Card.Title title="New Account"></Card.Title>
-        <Card.Content>
-          <TextInput
-            label="Email"
-            value={email}
-            inputMode="email"
-            onChangeText={updateEmail}
-            mode="outlined"
-            autoCapitalize="none"
-            autoCorrect={false}
-            textContentType="emailAddress"
-            keyboardType="email-address"
-            onBlur={verifyEmail}
-            testID="emailInput"
-            accessibilityLabel="email"
-            accessibilityHint="The email address of the user being created"
-          />
-          <HelperText type="error"
-              disabled={emailErrorMessage.length == 0}
-              testID="emailErrorHelperText"
-              visible={emailErrorMessage.length > 0}>
-            {emailErrorMessage}
-          </HelperText>
-          <TextInput
-            label="Password"
-            value={password}
-            onChangeText={updatePassword}
-            mode="outlined"
-            inputMode="text"
-            textContentType="password"
-            secureTextEntry={true}
-            autoCapitalize="none"
-            autoCorrect={false}
-            onBlur={verifyPassword}
-            testID="passwordInput"
-            accessibilityLabel="password"
-            accessibilityHint="A password of at least 8 characters with a mix of special, upper and lower case'"
-          />
-          <TextInput
-            label="Confirm Password"
-            value={passwordConfirm}
-            mode="outlined"
-            onChangeText={updatePasswordConfirm}
-            secureTextEntry={true}
-            autoCapitalize="none"
-            autoCorrect={false}
-            testID="passwordConfirmInput"
-            accessibilityLabel="password confirm"
-            accessibilityHint="Re-enter the password to confirm it"
-          />
-          <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
-            {passwordErrorMessage}
-          </HelperText>
-          <Button
-            mode="contained"
-            onPress={apply}
-            testID="submitButton"
-            accessibilityLabel="Sign Up Button"
-            accessibilityHint="The button to submit the info to create the new account">
-            Sign Up
-          </Button>
-          <Text> </Text>
-      <Text style={{textAlign: "center"}} onPress={() => router.replace('/(sign-in-sign-up)/sign-in')} >
-        Already have an account? Sign In
-      </Text>
-        </Card.Content>
-      </Card>
+    <BaseLayout>
+      <VStack className="max-w-[440px] w-full" space="md">
+        <VStack className="md:items-center" space="md">
+          <VStack>
+            <Heading className="text-center" size="3xl">
+              New Account
+            </Heading>
+            <Text className="text-center">Pedal Assistant, the Strava powered maintenance tracker</Text>
+            <Text className="text-center">You think about your rides</Text>
+            <Text className="text-center">We'll think about your bike needs so you don't have to</Text>
+            <Text> </Text>
 
-    </Surface>
-    );
+          </VStack>
+        </VStack>
+        <VStack className="w-full">
+          <VStack space="md" className="w-full"></VStack>
+            <Text>Email</Text>
+            <Input
+              variant="outline"
+              size="md"
+              isDisabled={false}
+              isInvalid={false}
+              isReadOnly={false}
+            >
+              <InputField 
+                autoComplete="email"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={updateEmail}
+                onBlur={verifyEmail}
+                placeholder="Enter email here..." 
+                testID="emailInput"
+                inputMode="email"
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="emailAddress"
+                accessibilityLabel="email"
+                accessibilityHint="The email address of the user being created"/>
+            </Input>
+            {emailErrorMessage.length > 0 ? (
+              <Alert action="error" variant="outline">
+                <AlertIcon as={InfoIcon} />
+                <AlertText>{emailErrorMessage}</AlertText>
+              </Alert>)
+             : <Text> </Text>}
+             
+             <Text>Password</Text>
+             <Input
+              variant="outline"
+              size="md"
+              isDisabled={false}
+              isInvalid={false}
+              isReadOnly={false}
+            >
+              <InputField 
+                  value={password}
+                  onChangeText={updatePassword}
+                  inputMode="text"
+                  textContentType="password"
+                  secureTextEntry={true}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onBlur={verifyPassword}
+                  testID="passwordInput"
+                  accessibilityLabel="password"
+                  accessibilityHint="A password of at least 8 characters with a mix of special, upper and lower case'"
+                  autoComplete="password"
+                  placeholder="Enter password here..."/>
+              </Input>
+            {passwordErrorMessage.length > 0 ? (
+              <Alert action="error" variant="outline">
+                <AlertIcon as={InfoIcon} />
+                <AlertText>{passwordErrorMessage}</AlertText>
+              </Alert>)
+            : <Text> </Text>}
+            <Text>Confirm Password</Text>
+             <Input
+              variant="outline"
+              size="md"
+              isDisabled={false}
+              isInvalid={false}
+              isReadOnly={false}
+            >
+              <InputField
+                value={passwordConfirm}
+                onChangeText={updatePasswordConfirm}
+                inputMode="text"
+                textContentType="password"
+                secureTextEntry={true}
+                autoCapitalize="none"
+                autoCorrect={false}
+                testID="passwordConfirmInput"
+                accessibilityLabel="password confirm"
+                accessibilityHint="Re-enter the password to confirm it"
+                autoComplete="email"
+                placeholder="Confirm password..."/>
+            </Input>
+            {passwordConfirmErrorMessage.length > 0 ? (
+              <Alert action="error" variant="outline">
+                <AlertIcon as={InfoIcon} />
+                <AlertText>{passwordConfirmErrorMessage}</AlertText>
+              </Alert>)
+             : <Text> </Text>}
+            <Button size="md" variant="solid"
+                action="primary" 
+                onPress={apply}
+                // disabled={!(isValidEmail(email) || email === DEVELOPER)}
+                testID="submitButton"
+                accessibilityLabel="Sign Up Button"
+                accessibilityHint="The button to submit the info to create the new account">
+              <ButtonText>Sign Up</ButtonText>
+            </Button>
+        </VStack>
+      </VStack>
+    </BaseLayout>
+  );
 };

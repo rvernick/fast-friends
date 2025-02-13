@@ -70,30 +70,4 @@ export const PasswordResetComponent = () => {
       </VStack>
     </BaseLayout>
   )
-  // return (
-  //   <Surface>
-  //     <Card>
-  //       <Card.Title title="Send Password Reset"></Card.Title>
-  //       <Card.Content>
-  //         <TextInput
-  //           autoComplete="email"
-  //           keyboardType="email-address"
-  //           value={email}
-  //           onChangeText={updateEmail} 
-  //           placeholder="Email"
-  //           accessibilityLabel="Email Address"
-  //           accessibilityHint="Email address for account which needs a password reset" />
-  //         <Button 
-  //           disabled={!(isValidEmail(email) || email === DEVELOPER)}
-  //           mode={isValidEmail(email) ? "contained" : "outlined"}
-  //           onPress={resetPassword}
-  //           accessibilityLabel="Send Password Reset"
-  //           accessibilityHint="An email with reset information will be sent on press">
-  //           Reset Password
-  //         </Button>
-  //     </Card.Content>
-  //     </Card>
-  //   </Surface>
-  
-  // );
 };
