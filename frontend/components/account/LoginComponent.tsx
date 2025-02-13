@@ -21,13 +21,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { HStack } from "@/components/ui/hstack";
-import { Checkbox, CheckboxIcon, CheckboxIndicator, CheckboxLabel } from "@/components/ui/checkbox";
 import { Link, LinkText } from "@/components/ui/link";
 import { Button, ButtonText } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react-native";
 import { useToast } from "@/components/ui/toast";
-
-import "@/constants/global.css";
 
 export const LoginComponent = () => {
   const session = useSession();
@@ -237,6 +234,14 @@ export const LoginComponent = () => {
                     onBlur={onBlur}
                     onSubmitEditing={handleKeyPress}
                     returnKeyType="done"
+                    keyboardType="email-address"
+                    inputMode="email"
+                    textContentType="emailAddress"
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    testID="emailInput"
+                    accessibilityLabel="email input"
+                    accessibilityHint="The email address for the account being logged in"
                   />
                 </Input>
               )}
@@ -281,6 +286,10 @@ export const LoginComponent = () => {
                     onBlur={onBlur}
                     onSubmitEditing={handleKeyPress}
                     returnKeyType="done"
+                    inputMode="text"
+                    testID="passwordInput"
+                    accessibilityLabel="password input"
+                    accessibilityHint="The password for the account being logged in"
                   />
                   <InputSlot onPress={handleState} className="pr-3">
                     <InputIcon as={passwordHidden ? EyeOffIcon : EyeIcon} />

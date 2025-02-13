@@ -22,6 +22,8 @@ import ErrorBoundary from 'react-native-error-boundary';
 import { NotificationProvider } from '@/common/NotificationContext';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 
+import "@/constants/global.css";
+
 const customDarkTheme = { ...MD3DarkTheme, colors: Colors.dark };
 const customLightTheme = { ...MD3LightTheme, colors: Colors.light };
 
