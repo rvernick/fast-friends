@@ -12,6 +12,7 @@ import { Input, InputField } from "../ui/input";
 import { Button, ButtonText } from "../ui/button";
 import { Alert, AlertIcon, AlertText } from "../ui/alert";
 import { InfoIcon } from "../ui/icon";
+import { Link, LinkText } from "../ui/link";
 
 interface CreateAccountComponentProps {
   controller: CreateAccountController;
@@ -201,6 +202,11 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
               <ButtonText>Sign Up</ButtonText>
             </Button>
         </VStack>
+        <Link onPress={() => router.push("/(sign-in-sign-up)/(sign-in)/sign-in")}>
+          <LinkText className="font-medium text-sm text-primary-700 group-hover/link:text-primary-600">
+            I have an account
+          </LinkText>
+      </Link>
       </VStack>
     </BaseLayout>
   );

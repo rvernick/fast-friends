@@ -23,6 +23,10 @@ export default function Layout() {
         title: 'Password Reset',
         headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
+      <Stack.Screen name="new-password-on-reset" options={{
+        title: 'Password Reset',
+        headerShown: false,
+      }} />
     </Stack>
   );
 }
