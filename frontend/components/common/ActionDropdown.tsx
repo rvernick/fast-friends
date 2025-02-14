@@ -3,6 +3,7 @@ import { Select, SelectBackdrop, SelectContent, SelectDragIndicator, SelectDragI
 import { ChevronDownIcon } from "../ui/icon";
 import { Box } from "../ui/box";
 import { Text } from "../ui/text";
+import { Dropdown } from "./Dropdown";
 
 const defaultOptions = Object.entries(Action).map(([key, val]) => val);
 
@@ -26,37 +27,15 @@ export const ActionDropdown: React.FC<ActionDropdownProps> = ({
   
   const options = Object.entries(actions).map(([key, val]) => ({ label: val, value: val }));
 
-  const handleSelect = (value: string | undefined) => {
-    if (value) {
-      console.log('PartDropdown onSelect: ', value);
-      onSelect(value);
-    }
-  }
   return (
-    <Box>
-      <Text className="text-xs">{label}</Text>
-      <Select 
-        isDisabled={readonly}
-        isRequired={true}
-        testID={testID}
-        initialLabel="Choose an action..."
-        onValueChange={handleSelect}>
-        <SelectTrigger>
-          <SelectInput value={value} />
-          <SelectIcon as={ChevronDownIcon} />
-        </SelectTrigger>
-        <SelectPortal>
-          <SelectBackdrop />
-          <SelectContent>
-            <SelectDragIndicatorWrapper>
-              <SelectDragIndicator />
-            </SelectDragIndicatorWrapper>
-            {options.map(option => (
-              <SelectItem key={option.value} label={option.label} value={option.value} />
-            ))}
-          </SelectContent>
-        </SelectPortal>
-      </Select>
-    </Box>
+    <Dropdown
+      value={value}
+      label={label}
+      disabled={readonly}
+      onSelect={onSelect}
+      options={options}
+      testID={testID}
+      initialLabel="Choose an action..."
+    />
   );
-}
+};
