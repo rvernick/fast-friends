@@ -3,13 +3,23 @@ import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
-import { Button, Checkbox, HelperText, TextInput, ActivityIndicator, Card, Surface, Text, Tooltip } from "react-native-paper";
-import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, fetchUser, isMobile, metersToDisplayString } from "@/common/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dimensions, Linking } from "react-native";
 import { createStyles, defaultWebStyles } from "@/common/styles";
+import { BaseLayout } from "../layouts/base-layout";
+import { VStack } from "../ui/vstack";
+import { Heading } from "../ui/heading";
+import { Text } from "../ui/text";
+import { Input, InputField } from "../ui/input";
+import { Alert, AlertIcon, AlertText } from "../ui/alert";
+import { Button, ButtonText } from "../ui/button";
+import { Link, LinkText } from "../ui/link";
+import { CheckIcon, InfoIcon } from "../ui/icon";
+import { Dropdown } from "../common/Dropdown";
+import { Checkbox, CheckboxIcon, CheckboxIndicator, CheckboxLabel } from "../ui/checkbox";
+import { HStack } from "../ui/hstack";
 
 const groupsetBrands = [
   'Shimano',
@@ -200,67 +210,139 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const typeOptions = types.map(type => ({ label: type, value: type }));
 
   return (
-    <Surface style={useStyle.containerScreen}>
-      <Card>
-        {!isInitialized ? <ActivityIndicator animating={!isInitialized} size="large"/> : null }
-        <TextInput label="Name" readOnly={readOnly}
-          value={bikeName}
-          onChangeText={updateName}
-          disabled={readOnly}
-          placeholder="Name"
-          testID="nameInput"
-          accessibilityLabel="Bike Name"
-          accessibilityHint="Name of the bike" />
-        <HelperText type="error" >{errorMessage}</HelperText>
-        <TextInput label={milageLabel}
-          disabled={readOnly || connectedToStrava()}
-          value={milage}
-          onChangeText={(value) => setMileage(value ? value : '')}
-          inputMode="numeric"
-          testID="mileageField"
-          accessibilityLabel="Milage"
-          accessibilityHint="Mileage of the bike"/>
+    <BaseLayout>
+      <VStack className="max-w-[440px] w-full" space="md">
+        <VStack className="w-full">
+          <VStack space="md" className="w-full"></VStack>
+            <Text>Name</Text>
+            <Input
+              variant="outline"
+              size="md"
+              isDisabled={false}
+              isInvalid={false}
+              isReadOnly={readOnly}
+            >
+              <InputField 
+                autoComplete="off"
+                value={bikeName}
+                readOnly={readOnly}
+                onChangeText={updateName}
+                placeholder="Enter bike name here..." 
+                testID="nameInput"
+                autoCapitalize="words"
+                autoCorrect={false}
+                textContentType="name"
+                accessibilityLabel="Name"
+                accessibilityHint="The name of the bike being edited"/>
+            </Input>
+            {errorMessage.length > 0 ? (
+              <Alert action="error" variant="outline">
+                <AlertIcon as={InfoIcon} />
+                <AlertText>{errorMessage}</AlertText>
+              </Alert>)
+             : <Text> </Text>}
+             <Text>{milageLabel}</Text>
+             <Input
+              variant="outline"
+              size="md"
+              isDisabled={false}
+              isInvalid={false}
+              isReadOnly={readOnly}
+            >
+              <InputField 
+                  value={milage}
+                  onChangeText={(value) => setMileage(value ? value : '')}
+                  readOnly={readOnly || connectedToStrava()}
+                  inputMode="numeric"
+                  testID="mileageField"
+                  accessibilityLabel="Milage"
+                  accessibilityHint="Mileage of the bike"/>
+              </Input>
         <Dropdown
-          mode="outlined"
           disabled={readOnly}
           label="Groupset"
-          placeholder="SRAM"
+          initialLabel="Choose a groupset"
           options={groupsetOptions}
           value={groupsetBrand}
+          testID="groupsetDropdown"
           onSelect={(value) => setGroupsetBrand(value ? value : '')}
         />
         <Dropdown
-          mode="outlined"
           disabled={readOnly}
           label="Type"
-          placeholder="Road"
           options={typeOptions}
           value={type}
+          testID="typeDropdown"
           onSelect={(value) => setType(value ? value : '')}
         />
         <Dropdown
-          mode="outlined"
           disabled={readOnly}
           label="Speeds"
-          placeholder="11"
           options={speedOptions}
           value={speed}
+          testID="speedsDropdown"
           onSelect={(value) => setSpeeds(value ? value : '')}
         />
-        <Checkbox.Item label="Electric"
-          disabled={readOnly}
-          status={isElectronic ? "checked" : "unchecked"} 
-          onPress={values => setIsElectronic(!isElectronic)}
-          accessibilityLabel="Has Electric Assist"/>
-        <Tooltip title={"Retired: No longer in use.  Suspend maintenance tracking"}>
-          <Checkbox.Item label="Retired"
-            disabled={readOnly}
-            status={isRetired ? "checked" : "unchecked"} 
-            onPress={values => setIsRetired(!isRetired)}
-            accessibilityLabel="Bike is Retired"/>
-        </Tooltip>
-      </Card>
-      
+        <Checkbox size="md"
+            value="Is Electronic"
+            isDisabled={readOnly}
+            isChecked={isElectronic} 
+            onChange={(newVal) => setIsElectronic(newVal)}
+            accessibilityLabel="Has Electric Assist"> 
+          <CheckboxIndicator>
+            <CheckboxIcon as={CheckIcon} />
+          </CheckboxIndicator>
+          <CheckboxLabel>Electric</CheckboxLabel>
+        </Checkbox>
+        <Checkbox size="md"
+            value="Is Retired"
+            isDisabled={readOnly}
+            isChecked={isRetired} 
+            onChange={(newVal) => setIsRetired(newVal)}
+            accessibilityLabel="Is Retired"> 
+          <CheckboxIndicator>
+            <CheckboxIcon as={CheckIcon} />
+          </CheckboxIndicator>
+          <CheckboxLabel>Retired</CheckboxLabel>
+        </Checkbox>
+      </VStack>
+      <HStack>
+        <Button 
+          action="primary"
+          onPress={ editOrDone }
+          style={{flex: 1}} 
+          accessibilityLabel="Finished editing"
+          accessibilityHint="Will save any changes and go back">
+          <ButtonText>{ readOnly? 'Edit' : 'Done' }</ButtonText>
+        </Button>
+        { (readOnly || isNew) ? null : <Button style={{flex: 1}} onPress={ cancel }>
+          <ButtonText>Cancel</ButtonText> 
+          </Button>}
+        { (readOnly || isNew) ? null : <Button style={{flex: 1}} onPress={ deleteBike }> 
+          <ButtonText>Delete</ButtonText>
+          </Button>}
+        { (readOnly && !isNew) ? <Button style={{flex: 1}} onPress={ maintenanceHistory }>
+          <ButtonText>History</ButtonText>
+          </Button> : null }
+        {(connectedToStrava() && readOnly &&!isNew ) ?
+          <Button
+            style={{flex: 1}}
+            onPress={ viewOnStrava }
+            accessibilityLabel="View on Strava"
+            accessibilityHint="Open up the bike details on Strava">
+              <ButtonText>On Strava</ButtonText>
+          </Button> : null}
+      </HStack>
+      </VStack>
+    </BaseLayout>
+  );
+};
+
+
+/**
+  return (
+    <Surface style={useStyle.containerScreen}>
+      <Card>      
       <Surface style={useStyle.bottomButtons}>
         <Button mode="contained"
           onPress={ editOrDone }
@@ -286,5 +368,6 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     </Surface>
   )
 };
+*/
 
 export default BikeComponent;
