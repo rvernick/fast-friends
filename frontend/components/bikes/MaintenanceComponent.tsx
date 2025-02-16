@@ -2,16 +2,43 @@ import React, { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
 import { useNavigation, useRouter } from 'expo-router';
-import { Button, Card, List, Text, useTheme, Surface } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
 import { useSession } from '@/common/ctx';
 import { MaintenanceItem } from '@/models/MaintenanceItem';
 import MaintenanceListController from './MaintenanceListController';
-import { Dropdown } from 'react-native-paper-dropdown';
-import { Dimensions, ScrollView, View } from 'react-native';
-import { createStyles, defaultWebStyles } from '@/common/styles';
-import { distanceUnitDisplayString, isMobile, metersToDisplayString, today } from '@/common/utils';
+import { distanceUnitDisplayString, ensureString, isMobile, metersToDisplayString, today } from '@/common/utils';
 import { useIsFocused } from '@react-navigation/native';
+import { HStack } from "@/components/ui/hstack";
+import { VStack } from "@/components/ui/vstack";
+import { Dropdown } from '../common/Dropdown';
+import { SafeAreaView } from "@/components/ui/safe-area-view";
+import { ScrollView } from "@/components/ui/scroll-view";
+import { Button, ButtonText } from '../ui/button';
+import { Text } from '../ui/text';
+
+import {
+  Link2Icon,
+  BikeIcon,
+  LoaderPinwheelIcon,
+  CogIcon,
+  WrenchIcon,
+  CableIcon,
+  OctagonMinusIcon,
+  BatteryChargingIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  CircleDotDashedIcon,
+  CircleSlash2Icon,
+  SprayCanIcon,
+} from "lucide-react-native"
+import { Pressable } from '../ui/pressable';
+
+interface BikeMaintenanceListItem {
+  bike: Bike;
+  maintenanceItem: MaintenanceItem | null;
+  expanded: boolean;
+  key: string;
+}
 
 type MaintenanceItemProps = {
   maintenanceItem: MaintenanceItem;
@@ -30,10 +57,9 @@ const MaintenanceComponent = () => {
   const preferences = controller.getUserPreferences(session);
 
   const [sortOption, setSortOption] = useState('Due');
-  const [expandedBike, setExpandedBike] = useState(0);
-
-  const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
+  const [expandedBike, setExpandedBike] = useState<number>(0);
+  const [listItems, setListItems ] = useState<BikeMaintenanceListItem[]>([]);
+  const [bikeItemsMap, setBikeItemsMap ] = useState<Map<number, BikeMaintenanceListItem>>(new Map());
 
   const { data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
@@ -44,36 +70,65 @@ const MaintenanceComponent = () => {
     refetchOnMount: 'always',
   })
 
-  const addMaintenanceItem = () => {
-    queryClient.removeQueries({ queryKey: ['maintenanceItems'] });
-    router.push( { pathname: '/(home)/(maintenanceItems)', params: { id: '0', bikeid: expandedBike.toString() } });
+  const defaultBikeId = (): number => {
+    if (expandedBike == 0) {
+      return firstExpandedBike();
+    }
+    return expandedBike;
   }
 
-  const editMaintenanceItem = (id: number, bikeId: number) => {
-    const idString = id.toString();
-    const bikeIdString = bikeId.toString();
-    console.log('editMaintenanceItem called: ' + idString +' bikeId: '+ bikeIdString);
-    router.push( { pathname: '/(home)/(maintenanceItems)', params: { id: idString, bikeid: bikeIdString } });
+  const firstExpandedBike = (): number => {
+    for (let [bikeId, bikeItem] of bikeItemsMap.entries()) {
+      if (bikeItem.expanded) {
+        return bikeId;
+      }
+    }
+    return 0;
+  }
+
+  const addMaintenanceItem = () => {
+    queryClient.removeQueries({ queryKey: ['maintenanceItems'] });
+    router.push( { pathname: '/(home)/(maintenanceItems)', params: { id: '0', bikeid: ensureString(defaultBikeId()) } });
   }
 
   const logMaintenance = () => {
-    router.push({ pathname: '/(home)/(maintenanceItems)/log-maintenance', params: { bikeid: expandedBike } });
+    router.push({ pathname: '/(home)/(maintenanceItems)/log-maintenance', params: { bikeid: ensureString(defaultBikeId()) } });
   }
 
-  type MaintenanceListItemProps = {
-    maintenanceItem: MaintenanceItem;
-    bikeId: number;
-  }
+  const sortOptions = ["A-Z", "Due"].map(option => ({ label: option, value: option}));
 
-  const MaintenanceListItem: React.FC<MaintenanceListItemProps> = ({ maintenanceItem, bikeId }) => {
-    const [description, setDescription ] = useState('');
-
-    var keyVal = maintenanceItem.part + maintenanceItem.action;
-    if (maintenanceItem.dueDistanceMeters && maintenanceItem.dueDistanceMeters > 0) {
-      keyVal += 'at:'+ maintenanceItem.dueDistanceMeters;
-    } else if (maintenanceItem.dueDate) {
-      keyVal += 'by:'+ new Date(maintenanceItem.dueDate).toLocaleDateString('en-US');
+  const sortItems = (items: MaintenanceItem[]): MaintenanceItem[] => {
+    if (sortOption === 'A-Z') {
+      return items.sort((a, b) => a.part.localeCompare(b.part));
     }
+    // sort option Due by default
+    return items.sort((a, b) => dueDistanceVal(a) - dueDistanceVal(b));
+  }
+
+  const dueDistanceVal = (item: MaintenanceItem): number => {
+    // assume 70k per week (10k/day) for due date calculation
+    var daysDiffAsMeters = Infinity;
+    if (item.dueDate) {
+      const diff = new Date(item.dueDate).getTime() - today().getTime();
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      daysDiffAsMeters = item.bikeDistance + 10000 * days;
+    }
+    // return smaller of deadlines
+    if (item.dueDistanceMeters && item.dueDistanceMeters > 0) {
+      if (item.dueDistanceMeters < daysDiffAsMeters) {
+        return item.dueDistanceMeters;
+      }
+    }
+    return daysDiffAsMeters;
+  }
+
+
+  type MaintenanceItemCompProps = {
+    item: BikeMaintenanceListItem;
+    maintenanceItem: MaintenanceItem;
+  };
+  const MaintenanceItemComp: React.FC<MaintenanceItemCompProps> = ({ item, maintenanceItem }) => {
+    const [description, setDescription ] = useState('');
 
     const syncDescription = async () => {
       var desc = maintenanceItem.action;
@@ -106,133 +161,86 @@ const MaintenanceComponent = () => {
       setDescription(desc);
     }
 
+    const editMaintenanceItem = () => {
+      const bikeId = item.bike.id;
+      const id = item.maintenanceItem ? item.maintenanceItem.id : 0;
+      console.log('editMaintenanceItem called: ' + id +' bikeId: '+ bikeId);
+      router.push( { pathname: '/(home)/(maintenanceItems)', params: { id: ensureString(id), bikeid: ensureString(bikeId) } });
+    }
+
     useEffect(() => {
       syncDescription();
     }, []);
 
     return (
-      <List.Item
-        key={keyVal}
-        title={maintenanceItem.part}
-        id={'MLI' + keyVal}
-        description={description}
-        onPress={() => editMaintenanceItem(maintenanceItem.id, bikeId)}
-        left={props => <BikePartIcon maintenanceItem={maintenanceItem}/>}
-      />
-    );
+      <HStack key={"maintenanceItem-" + maintenanceItem.id}>
+        <Pressable onPress={editMaintenanceItem}>
+          <BikePartIcon maintenanceItem={maintenanceItem}/>
+        </Pressable>
+        <Pressable onPress={editMaintenanceItem}>
+          <VStack>
+            <Text>{maintenanceItem.part}</Text>
+            <Text>{description}</Text>
+          </VStack>
+        </Pressable>
+      </HStack>
+    )
   }
 
-  type BikeAccordainProps = {
+  type BikeCompProps = {
+    item: BikeMaintenanceListItem;
     bike: Bike;
-    isOpen?: boolean;
-    sortBy: string;
   };
-
-  const sortOptions = ["A-Z", "Due"].map(option => ({ label: option, value: option}));
-
-  const sortItems = (items: MaintenanceItem[]): MaintenanceItem[] => {
-    if (sortOption === 'A-Z') {
-      return items.sort((a, b) => a.part.localeCompare(b.part));
-    }
-    // sort option Due by default
-    return items.sort((a, b) => dueDistanceVal(a) - dueDistanceVal(b));
-  }
-
-  const dueDistanceVal = (item: MaintenanceItem): number => {
-    // assume 70k per week (10k/day) for due date calculation
-    var daysDiffAsMeters = Infinity;
-    if (item.dueDate) {
-      const diff = new Date(item.dueDate).getTime() - today().getTime();
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      daysDiffAsMeters = item.bikeDistance + 10000 * days;
-    }
-    // return smaller of deadlines
-    if (item.dueDistanceMeters && item.dueDistanceMeters > 0) {
-      if (item.dueDistanceMeters < daysDiffAsMeters) {
-        return item.dueDistanceMeters;
-      }
-    }
-    return daysDiffAsMeters;
-  }
-
-  const handleBikePress = (bikeId: number) => {
-    if (!data || data.length == 0) return;
-    if (data?.length == 1) {
-      setExpandedBike(data[0].id);
-      return;
-    }
-    if (expandedBike != bikeId) {
-      setExpandedBike(bikeId);
-      return;
-    }
-    if (expandedBike === bikeId) {
-      setExpandedBike(0);
-      return;
-    }
-  };
-
-  const BikeAccordian: React.FC<BikeAccordainProps> = ({ bike}) => {
+  const BikeComp: React.FC<BikeCompProps> = ({ item, bike }) => {
     const [description, setDescription ] = useState('');
 
-    if (!bike.maintenanceItems || bike.maintenanceItems.length ==0) return null;
-    const sortedItems = sortItems(bike.maintenanceItems);
+    const toggleExpanded = () => {
+      item.expanded =!item.expanded;
+      if (item.expanded) {
+        setExpandedBike(bike.id);
+      } else {
+        setExpandedBike(0);
+      }
+      resetList();
+    }
 
     const syncDescription = async () => {
       const pref = await preferences;
       const val = metersToDisplayString(bike.odometerMeters, pref) + ' ' + pref.units;
       setDescription(val);
     }
-
-    const keyFor = (maintenanceItem: MaintenanceItem): string => {
-      var result = maintenanceItem.part + maintenanceItem.action;
-      if (maintenanceItem.dueDistanceMeters && maintenanceItem.dueDistanceMeters > 0) {
-        result += 'at:'+ maintenanceItem.dueDistanceMeters;
-      } else if (maintenanceItem.dueDate) {
-        result += 'by:'+ new Date(maintenanceItem.dueDate).toLocaleDateString('en-US');
-      }
-      return result;
-    }
-
     useEffect(() => {
       syncDescription();
     }, []);
 
-    const keyVal = "bikeAccordian" + bikeId(bike)
     return (
-      <List.Accordion
-          expanded={expandedBike === bike.id}
-          title={bike.name}
-          description={description}
-          onPress={() => handleBikePress(bike.id)}
-          key={'bike exa' + keyVal}
-          id={'bike exa' + keyVal}>
-        {sortedItems.map(maintenanceItem => (
-          <MaintenanceListItem
-            key={keyFor(maintenanceItem)}
-            maintenanceItem={maintenanceItem}
-            bikeId={bike.id}/>
-        ))}
-      </List.Accordion>
-    );
-  };
+      <HStack key={"bike-" + bike.id}>
+        <BikeIcon/>
+        <Pressable className="h-full w-full" onPress={toggleExpanded} >
+          <VStack>
+            <Text >{bike.name}</Text>
+            <Text>{description}</Text>
+          </VStack>
+          <Pressable className="absolute top-0 right-0" onPress={toggleExpanded} >
+            {item.expanded ? 
+              <ChevronUpIcon/> 
+              : <ChevronDownIcon/>}
+          </Pressable>
+        </Pressable>
+      </HStack>
+    )
+  }
   
-  type BikeListProps = {
-    bikes: Bike[];
-    sortBy: string;
+  type BikeOrMaintenanceItemProps = {
+    item: BikeMaintenanceListItem;
   };
-
-  const BikeListComponent: React.FC<BikeListProps> = ({ bikes, sortBy}) => {
-    return (
-      <List.Section>
-        {getSortedBikes(bikes, sortBy).map(bike => (
-          <BikeAccordian
-            bike={bike}
-            key={bike.id}
-            sortBy={sortBy}
-            isOpen={true}/>
-        ))}
-      </List.Section>
-    );
+  const BikeOrMaintenanceItem: React.FC<BikeOrMaintenanceItemProps> = ({ item }) => {
+    if (item.maintenanceItem) {
+      return <MaintenanceItemComp maintenanceItem={item.maintenanceItem} item={item} />;     
+    }
+    if (item.bike) {
+      return <BikeComp item={item} bike={item.bike}/>;
+    }
   }
 
   /**
@@ -253,51 +261,75 @@ const MaintenanceComponent = () => {
    * @returns 
    */
   const BikePartIcon: React.FC<MaintenanceItemProps> = ({ maintenanceItem }) => {
-    const theme = useTheme();
     const part = maintenanceItem.part;
     if (part === "Chain") {
       return (
-        <List.Icon
-          icon="link"
-          color={theme.colors.primary}
-        />
+        <Link2Icon/>
       );
+    }
+    if (part === "Front Shifter Cable" || part === "Rear Shifter Cable") {
+      return <CableIcon/>
     }
     if (part === "Cassette") {
-      return (
-        <List.Icon
-          icon="cog"
-          color={theme.colors.primary}
-        />
-      );
+      return (<CogIcon/>);
     }
     if (part === "Front Tire" || part === "Rear Tire") {
-      return (
-        <List.Icon
-          icon="atom-variant"
-          color={theme.colors.primary}
-        />
-      );
+      return (<CircleDotDashedIcon/>);
     }
     if (part === "Front Brake Pads" || part === "Rear Brake Pads") {
-      return (
-        <List.Icon
-          icon="lungs"
-          color={theme.colors.primary}
-        />
-      );
+      return (<OctagonMinusIcon/>);
+    }
+    if (part.match("Battery")) {
+      return (<BatteryChargingIcon/>);
+    }
+    if (part.match("Crankset")) {
+      return (<CircleSlash2Icon/>);
+    }
+    if (part.match("Seal")) {
+      return <SprayCanIcon/>;
     }
     return (
-      <List.Icon
-        icon="bike"
-        color={theme.colors.primary}
-      />
+      <BikeIcon/>
     );
   };
 
   const updateSorting = (newSortValue: string | undefined) => {
     const newSort = newSortValue ? newSortValue : 'A-Z';
     setSortOption(newSort);
+    resetListItems(data, newSort);
+  }
+
+  const resetList = async () => {
+    resetListItems(data, sortOption);
+  }
+
+  const resetListItems = (bikes: Bike[] | null, sortOption: string) => {
+    if (!bikes) return;
+    setListItems(getSortedItems(bikes, sortOption));
+  }
+
+  const getItemForBike = (bike: Bike): BikeMaintenanceListItem => {
+    if (bikeItemsMap.has(bike.id)) {
+      return bikeItemsMap.get(bike.id)!;
+    }
+    const newBikeItem: BikeMaintenanceListItem = { bike: bike, maintenanceItem: null, expanded: true, key: "bikeItem-" + bike.id};
+    bikeItemsMap.set(bike.id, newBikeItem);
+    return newBikeItem;
+  }
+
+  const getSortedItems = (bikes: Bike[], sortBy: string): BikeMaintenanceListItem[] => {
+    var sortedItems: BikeMaintenanceListItem[] = [];
+    const sortedBikes = getSortedBikes(bikes, sortBy);
+    for (const bike of sortedBikes) {
+      const bikeItem = getItemForBike(bike);
+      sortedItems.push(bikeItem);
+      if (bikeItem.expanded) {
+        for (const maintenanceItem of sortItems(bike.maintenanceItems)) {
+          sortedItems.push({ bike: bike, maintenanceItem: maintenanceItem, expanded: false, key: "maintenanceItem-" + maintenanceItem.id });
+        }
+      }
+    }
+    return sortedItems;
   }
 
   const refresh = async () => {
@@ -310,23 +342,26 @@ const MaintenanceComponent = () => {
 
   useEffect(() => {
     navigation.setOptions({ title: 'Maintenance' });
-    if (expandedBike === 0 && data && data.length > 0) {
-      const bikeList = getSortedBikes(data, sortOption);
-      handleBikePress(bikeList[0].id);
-    }
+    resetListItems(data, sortOption);
   }, [data, isFocused]);
 
   if (!data || !isFocused || isFetching || data.length === 0) {
     return (
-      <Surface style={useStyle.containerScreen}>
+      <SafeAreaView className="w-full h-full">
+      <VStack className="w-full h-full">
         <Text>
           No bikes found. Add a bike or sync with Strava.
         </Text>
-        <Button
-          style={{marginTop: 16}}
-          mode="contained"
-          onPress={refresh}> Refresh </Button>
-      </Surface>
+        <Button 
+            action="primary"
+            onPress={ refresh }
+            style={{flex: 1}} 
+            accessibilityLabel="Refresh list"
+            accessibilityHint="Will check for new list items">
+            <ButtonText>Refresh</ButtonText>
+        </Button>
+      </VStack>
+    </SafeAreaView>
     )
   } else if (error) {
     return (
@@ -334,39 +369,50 @@ const MaintenanceComponent = () => {
         An error occured!
       </Text>
     )
-  } else {
-    return (
-      <Surface style={useStyle.containerScreen}>
-        <Card style={useStyle.input} >
-          <Card.Title title="Sort By:" right={() =>
-            <Dropdown 
-              mode="outlined"
+  }
+  return (
+    <SafeAreaView className="w-full h-full">
+      <VStack className="w-full h-full">
+        <HStack className="w-full flex justify-between">
+          <Text>Sort by:</Text>
+            <Dropdown
+              label='Sort By:'
               value={sortOption}
               options={sortOptions}
-              onSelect={updateSorting}
-              />      
-          }/>
-        </Card>
-        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
-          <BikeListComponent bikes={data} sortBy={sortOption}/>
+              onSelect={updateSorting}/>
+          
+        </HStack>
+        <ScrollView
+          className="w-full h-full"
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+        <VStack className="w-full h-full">
+          {listItems.map(bmListItem => (
+            <BikeOrMaintenanceItem key={bmListItem.key} item={bmListItem}/>
+          ))}
+        </VStack>
         </ScrollView>
-        <Surface style={useStyle.bottomButtons}>
-          <Button
-            style={{flex: 1}}
-            mode="contained"
-            onPress={addMaintenanceItem}>
-              Add Maintenance Item
-          </Button>
-          <Button
-            style={{flex: 1}}
-            mode="contained"
-            onPress={logMaintenance}>
-              Log Maintenance
-          </Button>
-        </Surface>
-      </Surface>
-    );
-  }
+        <HStack className="w-full flex bg-background-0 flex-grow justify-center">
+          <Button 
+            action="primary"
+            onPress={ addMaintenanceItem }
+            style={{flex: 1}} 
+            accessibilityLabel="Add Maintenance Item"
+            accessibilityHint="Opens page for adding a maintenance item">
+            <ButtonText>Add Maintenance Item</ButtonText>
+        </Button>
+        <Button 
+            action="primary"
+            onPress={ logMaintenance }
+            style={{flex: 1}} 
+            accessibilityLabel="Log Maintenance"
+            accessibilityHint="Opens page for logging maintenance">
+            <ButtonText>Log Maintenance</ButtonText>
+        </Button>
+        </HStack>
+        </VStack>
+    </SafeAreaView>
+  )
 };
 
 export const bikeId = (bike: Bike): string => {
