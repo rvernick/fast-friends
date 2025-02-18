@@ -62,7 +62,6 @@ const BikeListComponent = () => {
               <Pressable onPress={() => editBike(bike.id)} >
                 <VStack>
                   <Text >{bike.name}</Text>
-                {/* <Text>{bike.description}</Text> */}
                 </VStack>
               </Pressable>
               <Pressable className="absolute top-0 right-0" onPress={() => editBike(bike.id)} >
@@ -133,24 +132,24 @@ interface BikeIconProps {
 }
 
 const BikeTypeIcon: React.FC<BikeIconProps> = ({ bikeType }) => {
-    const theme = useTheme();
-    
-    if (bikeType === "Road") {
-      return <FlipHorizontalIcon size={24} color={theme.colors.primary} />
-    }
-    if (bikeType === "Gravel") {
-      return <ComponentIcon size={24} color={theme.colors.primary} />
-    }
-    if (bikeType === "Mountain") {
-      return <MountainSnowIcon size={24} color={theme.colors.primary} />
-    }
-    if (bikeType === "Cargo") {
-      return <ShoppingBasketIcon size={24} color={theme.colors.primary} />
-    }
-    if (bikeType === "Cruiser") {
-      return <ShoppingBasketIcon size={24} color={theme.colors.primary} />
-    }
-    return <BikeIcon size={24} color={theme.colors.primary} />
-  };
+  const theme = useTheme();
+  
+  if (bikeType === "Road") {
+    return <FlipHorizontalIcon size={24} color={theme.colors.primary} />
+  }
+  if (bikeType === "Gravel") {
+    return <ComponentIcon size={24} color={theme.colors.primary} />
+  }
+  if (bikeType === "Mountain") {
+    return <MountainSnowIcon size={24} color={theme.colors.primary} />
+  }
+  if (bikeType === "Cargo") {
+    return <ShoppingBasketIcon size={24} color={theme.colors.primary} />
+  }
+  if (bikeType === "Cruiser") {
+    return <ShoppingBasketIcon size={24} color={theme.colors.primary} />
+  }
+  return <BikeIcon size={24} color={theme.colors.primary} />
+};
 
 export default BikeListComponent;

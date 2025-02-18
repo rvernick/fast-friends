@@ -750,7 +750,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             accessibilityHint="Save any changes and go back">
             <ButtonText>{readOnly ? "Edit" : "Done"}</ButtonText>
         </Button>
-        { (!readOnly || isNew) ? null : (
+        {/* { (!readOnly || isNew) ? null : (
           <Button 
             action="primary"
             onPress={ () => router.replace({pathname: '/(home)/(assistance)/instructions',  params: {part: part, action: action}}) }
@@ -759,7 +759,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             accessibilityHint="Save any changes and go back">
             <ButtonText>Instructions</ButtonText>
           </Button>
-        )}
+        )} */}
         { (readOnly || isNew) ? null : (
           <Button
             onPress={ cancel }
