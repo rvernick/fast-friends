@@ -57,7 +57,7 @@ export default function RootLayout() {
           <NotificationProvider>
             <GlobalStateProvider>
               <ThemeProvider value={colorScheme}>
-                <GluestackUIProvider>
+                <GluestackUIProvider mode={systemColorScheme === 'dark' ? 'dark' : 'light'}>
                   <PaperProvider theme={colorScheme}> 
                     <Slot />
                   </PaperProvider>

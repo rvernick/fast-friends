@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
-import { Button, TextInput, ActivityIndicator, Surface, Tooltip, HelperText } from "react-native-paper";
-import { Dropdown } from "react-native-paper-dropdown";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -15,6 +13,14 @@ import { ActionDropdown } from "../common/ActionDropdown";
 import { Dimensions, Keyboard, ScrollView, View } from "react-native";
 import { createStyles, defaultWebStyles } from "@/common/styles";
 import { DatePickerInput } from 'react-native-paper-dates';
+import { BaseLayout } from "../layouts/base-layout";
+import { Text } from "../ui/text";
+import { Input, InputField } from "../ui/input";
+import { Dropdown } from "../common/Dropdown";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { VStack } from "../ui/vstack";
+import { HStack } from "../ui/hstack";
+import { Button, ButtonText } from "../ui/button";
 
 const threeThousandMilesInMeters = milesToMeters(3000);
 
@@ -53,6 +59,7 @@ type MaintenanceItemProps = {
 };
 
 const ninetyDays = 90 * 24 * 60 * 60 * 1000;
+const fiveYears = 5 * 365 * 24 * 60 * 60 * 1000;
 
 const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid, bikeid}) => {
   const session = useSession();
@@ -77,6 +84,8 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const [action, setAction] = useState(Action.REPLACE.toString());
   const [dueMiles, setDueMiles] = useState('1500');
   const [dueDate, setDueDate] = useState(new Date(today().getTime() + ninetyDays));
+  const [dueDateString, setDueDateString] = useState(new Date(today().getTime() + ninetyDays).toLocaleDateString());
+  const [dueDateErrorMessage, setDueDateErrorMessage] = useState('');
   const [dueDistanceLabel, setDueDistanceLabel] = useState('Due Distance (miles)');
   const [defaultLongevityLabel, setDefaultLongevityLabel] = useState('Default Longevity (miles)');
   const [brand, setBrand] = useState('Shimano');
@@ -315,6 +324,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         if (item != null) {
           resetMaintenanceItem(item);
           setIsInitialized(true);
+          setDueDateErrorMessage('');
         }
       });
     } catch (error) {
@@ -376,7 +386,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
     setErrorMessage('');
   }
 
-  const dueDateChange = (date: Date | undefined) => {
+  const dueDateChange = (e: any, date: Date | undefined) => {
     date instanceof Date ? setDueDate(date) : null;
     setErrorMessage('');
   }
@@ -437,6 +447,51 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
     }
   }
 
+  const validateDueDateString = () => {
+    if (validateDateString(dueDateString)) {
+      setDueDate(new Date(Date.parse(dueDateString)));
+    }
+  }
+
+  const validateDateString = (dateString: string): boolean => {
+    try {
+      console.log('Validating due date string: ', dateString); 
+      const parsedDate = Date.parse(dateString);
+      if (!isNaN(parsedDate)) {
+        const newDueDate = new Date(parsedDate);
+        // setDueDate(newDueDate);
+        // setDueDateString(newDueDate.toLocaleDateString());
+        console.log('Parsed due date: ', newDueDate);
+        if (newDueDate.getTime() < new Date().getTime()) {
+          console.log('Invalid date.  Date should be in the future');
+          setDueDateErrorMessage('Invalid date.  Date should be in the future');
+          return false;
+        }
+        if (newDueDate.getTime() > (new Date().getTime() + fiveYears)) {
+          console.log('Invalid date.  Date should be within 5 years');
+          setDueDateErrorMessage('Invalid date.  Date should be within 5 years');
+          return false;
+        }
+        setDueDateErrorMessage('');
+        return true;
+      }
+      setDueDateErrorMessage('Invalid date.  Expected MM/DD/YYYY');
+      return false;
+    } catch (error) {
+      console.error('Invalid due date string: ', dateString);
+      return false;
+    }
+  }
+
+  const dueDateStringChange = (dateString: string) => {
+    setDueDateString(dateString);
+    setDueDateErrorMessage('');
+    console.log('dueDateStringChange: ', dateString); 
+    if (dateString.length >= 10) {
+      validateDateString(dateString);
+    }
+  }
+
   useEffect(() => {
     navigation.setOptions({ title: 'Due: ' + ensureString(part) +' : '+ bikeName });
   }), [part, bikeName];
@@ -461,157 +516,275 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
     updateScrollStyle()
   }, [keyboardStatus]);
   
+  useEffect(() => {
+    if (dueDate) {
+      setDueDateString(dueDate.toLocaleDateString());
+    }
+  }, [dueDate]);
+  
   return (
-    <Surface style={scrollStyle.containerScreen}>
-      {!isInitialized ? <ActivityIndicator animating={!isInitialized}  size="large"/> : null }
-        <ScrollView contentContainerStyle={{flexGrow:1}} style={scrollStyle.containerBody}>
-          <BikeDropdown
-            bikes={bikes}
-            value={bikeIdString}
-            readonly={readOnly || !isNew}
-            onSelect={selectBike} />
-          <PartDropdown
-            value={part}
-            readonly={readOnly || !isNew}
-            onSelect={partSelected}
-            />
-          <ActionDropdown
-            value={action}
-            readonly={readOnly || !isNew}
-            actions={availabileActions}
-            onSelect={actionSelected}
-            />
-            {readOnly? null : <Dropdown
-              mode="outlined"
-              options={deadlineOptions}
-              label="Track by"
-              placeholder={ensureString(deadline)}
-              value={deadline}
-              onSelect={deadlineSelected}
-              testID="deadlineDropdown"  />}
-          {readOnly && deadline == "Date"? null : (
-            <TextInput 
-              label={dueDistanceLabel}
-              value={dueMiles.toString()}
-              disabled={readOnly || deadline == "Date"}
-              onChangeText={dueMilesChange}
-              inputMode="numeric"
-              testID="dueMilesInput"
-              accessibilityLabel="Due Milage"
-              accessibilityHint="Milage when this maintenance should be performed"
-            />)
-          }
-          {readOnly && deadline == "Distance"? null : (
-            <View style={{flexDirection: 'row', justifyContent: 'flex-start', flexWrap: 'nowrap'}}>
-              <DatePickerInput
-                locale="en"
-                validRange={{startDate: today()}}
-                disableStatusBarPadding={false}
-                label="Deadline"
-                value={dueDate}
-                onChange={dueDateChange}
-                inputEnabled={!readOnly && deadline != "Distance"}
-                inputMode="start"
-              />
-            </View>)
-          }
-          {readOnly && deadline == "Date"? null : (
-            <TextInput 
-              label={defaultLongevityLabel}
-              value={defaultLongevity}
-              disabled={readOnly || deadline == "Date"}
-              onChangeText={defaultLongevityChange}
-              inputMode="numeric"
-              testID="defaultLongevityInput"
-              accessibilityLabel="Default Longevity"
-              accessibilityHint="Typical milage when this maintenance should be performed"
-            />)
-          }
-          {readOnly && deadline == "Distance"? null : (
-            <TextInput 
-              label="Days between maintenance"
-              value={defaultLongevityDays}
-              disabled={readOnly || deadline == "Distance"}
-              onChangeText={defaultLongevityDaysChange}
-              inputMode="numeric"
-              testID="defaultLongevityDaysInput"
-              accessibilityLabel="Default Longevity Days"
-              accessibilityHint="Typical number of days between when this maintenance should be performed"
-            />)
-          }
-        {/* <Tooltip title="Auto Adjust: Use historical maintenance pattern to update longevity">
-          <BooleanDropdown
-              label={"Auto Adjust Longevity"}
-              value={autoAdjustLongevity}
-              readonly={readOnly}
-              onSelect={(value: boolean) => setAutoAdjustLongevity(value)}
-            />
-        </Tooltip> */}
-          <TextInput
-            label={"Brand"}
-            value={brand}
-            disabled={readOnly}
-            onChangeText={(text) => setBrand(text)}
-            accessibilityLabel="Brand"
-            accessibilityHint="Brand of part used"/>
-          <TextInput
-            label={"Model"}
+    <BaseLayout>
+    <VStack className="w-full">
+      <BikeDropdown
+        bikes={bikes}
+        value={bikeIdString}
+        readonly={readOnly || !isNew}
+        onSelect={selectBike} />
+      <PartDropdown
+        value={part}
+        readonly={readOnly || !isNew}
+        onSelect={partSelected}
+        />
+      <ActionDropdown
+        value={action}
+        readonly={readOnly || !isNew}
+        actions={availabileActions}
+        onSelect={actionSelected}
+        />
+      {readOnly ? null : <Dropdown
+        options={deadlineOptions}
+        label="Track by"
+        value={deadline}
+        onSelect={deadlineSelected}
+        testID="deadlineDropdown"  />}
+      {readOnly && deadline == "Date"? null : (
+        <Text>{dueDistanceLabel}</Text>
+      )}
+      {readOnly && deadline == "Date"? null : (
+        <Input
+          variant="outline"
+          size="md"
+          isDisabled={readOnly || deadline == "Date"}
+          isInvalid={false}
+          isReadOnly={readOnly || deadline == "Date"}
+        >
+          <InputField 
+            autoComplete="off"
+            value={dueMiles.toString()}
+            readOnly={readOnly}
+            onChangeText={dueMilesChange}
+            placeholder={"Mileage to " + action + " next here..."}
+            testID="dueMilesInput"
+            inputMode="numeric"
+            accessibilityLabel="Due Milage"
+            accessibilityHint="Milage when this maintenance should be performed next"/>
+        </Input>
+      )}
+      {readOnly && deadline == "Distance"? null : (
+        <Text>Deadline</Text>
+      )}
+      {readOnly && deadline == "Distance"? null : (
+        <Input
+          variant="outline"
+          size="md"
+          isDisabled={readOnly || deadline == "Distance"}
+          isInvalid={false}
+          isReadOnly={readOnly || deadline == "Distance"}
+        >
+          <InputField 
+            autoComplete="off"
+            value={dueDateString}
+            readOnly={readOnly}
+            onChangeText={dueDateStringChange}
+            onBlur={validateDueDateString}
+            placeholder={"Input due date for " + action + " here..."}
+            testID="dueDateInput"
+            inputMode="text"
+            accessibilityLabel="Due Date"
+            accessibilityHint="Date when this maintenance should be performed next"/>
+        </Input>
+      )}
+      {readOnly && deadline == "Distance"? null : (
+        <Text className="text-sm text-error-900">{dueDateErrorMessage}</Text>
+      )}
+      {/* {readOnly && deadline == "Distance"? null : (
+        <Text>Deadline</Text>
+      )} */}
+      {/* {readOnly && deadline == "Distance"? null : (
+        isMobile() ? (
+        <DateTimePicker
+          locale="en"
+          mode="date"
+          minimumDate={today()}
+          // validRange={{startDate: today()}}
+          // disableStatusBarPadding={false}
+          value={dueDate}
+          onChange={dueDateChange}
+          disabled={readOnly || deadline == "Distance"}
+        />) : (
+          <Input
+          variant="outline"
+          size="md"
+          isDisabled={readOnly || deadline == "Distance"}
+          isInvalid={false}
+          isReadOnly={readOnly || deadline == "Distance"}
+        >
+          <InputField 
+            autoComplete="off"
+            value={dueDateString}
+            readOnly={readOnly}
+            onChangeText={dueDateStringChange}
+            placeholder={"Mileage to " + action + " next here..."}
+            testID="dueMilesInput"
+            inputMode="numeric"
+            accessibilityLabel="Due Milage"
+            accessibilityHint="Milage when this maintenance should be performed"/>
+        </Input>
+        )
+      )} */}
+      {readOnly && deadline == "Date"? null : (
+        <Text>{defaultLongevityLabel}</Text>
+      )} 
+      {readOnly && deadline == "Date"? null : (
+        <Input
+          variant="outline"
+          size="md"
+          isDisabled={readOnly || deadline == "Date"}
+          isInvalid={false}
+          isReadOnly={readOnly || deadline == "Date"}
+        >
+          <InputField 
+            autoComplete="off"
+            value={defaultLongevity}
+            readOnly={readOnly}
+            onChangeText={defaultLongevityChange}
+            placeholder={"Mileage to " + action + " next here..."}
+            inputMode="numeric"
+            testID="defaultLongevityInput"
+            accessibilityLabel="Default Longevity"
+            accessibilityHint="Typical milage when this maintenance should be performed"/>
+        </Input>
+      )}
+      {readOnly && deadline == "Distance"? null : (
+        <Text>Days between maintenance</Text>
+      )}
+      {readOnly && deadline == "Distance"? null : (
+        <Input
+          variant="outline"
+          size="md"
+          isDisabled={readOnly || deadline == "Distance"}
+          isInvalid={false}
+          isReadOnly={readOnly || deadline == "Distance"}
+        >
+          <InputField 
+            autoComplete="off"
+            value={defaultLongevityDays}
+            readOnly={readOnly}
+            onChangeText={defaultLongevityDaysChange}
+            placeholder={"Days between " + action + "s here..."}
+            inputMode="numeric"
+            testID="defaultLongevityDaysInput"
+            accessibilityLabel="Default Longevity Days"
+            accessibilityHint="Typical number of days between when this maintenance should be performed"/>
+        </Input>)
+      }
+      <Text>Brand</Text>
+      <Input
+        variant="outline"
+        size="md"
+        isDisabled={readOnly}
+        isInvalid={false}
+        isReadOnly={readOnly}
+      >
+        <InputField 
+          autoComplete="off"
+          value={brand}
+          readOnly={readOnly}
+          onChangeText={setBrand}
+          placeholder={"Brand of component here..."}
+          testID="brandInput"
+          inputMode="text"
+          accessibilityLabel="Brand"
+          accessibilityHint="Brand of part used"/>
+      </Input>
+      <Text>Model</Text>
+      <Input
+          variant="outline"
+          size="md"
+          isDisabled={readOnly}
+          isInvalid={false}
+          isReadOnly={readOnly}
+        >
+          <InputField 
+            autoComplete="off"
             value={model}
-            disabled={readOnly}
-            onChangeText={(text) => setModel(text)}
+            readOnly={readOnly}
+            onChangeText={setModel}
+            placeholder={"Model of component here..."}
+            testID="modelInput"
+            inputMode="text"
             accessibilityLabel="Model"
             accessibilityHint="Model of part used"/>
-          <TextInput
-            label={"Link"}
+        </Input>
+      <Text>Link</Text>
+      <Input
+          variant="outline"
+          size="md"
+          isDisabled={readOnly}
+          isInvalid={false}
+          isReadOnly={readOnly}
+        >
+          <InputField 
+            autoComplete="off"
             value={link}
-            disabled={readOnly}
-            onChangeText={(text) => setLink(text)}
+            readOnly={readOnly}
+            onChangeText={setLink}
+            placeholder={"URL of component here..."}
+            testID="linkInput"
+            inputMode="text"
             accessibilityLabel="Link"
             accessibilityHint="URL of part used"/>
-          <HelperText type="error"
-            disabled={errorMessage.length == 0}
-            testID="emailErrorHelperText"
-            visible={errorMessage.length > 0}>
-            {errorMessage}
-          </HelperText>
-          </ScrollView>
-        <Surface style={scrollStyle.bottomButtons}>
-          <Button
-            mode="contained"
-            style={{flex: 1}}
+      </Input>
+      <HStack className="w-full flex bg-background-0 flex-grow justify-center">
+          <Button 
+            action="primary"
             onPress={ editOrDone }
-            disabled={!readOnly && (part == null || bikeIdString == '0') }
+            style={{flex: 1}} 
             accessibilityLabel="Finished"
             accessibilityHint="Save any changes and go back">
-            { readOnly? 'Edit' : 'Done' }
-          </Button>
-          { (!readOnly || isNew) ? null : <Button 
-            mode="outlined"
-            style={{flex: 1}}
+            <ButtonText>{readOnly ? "Edit" : "Done"}</ButtonText>
+        </Button>
+        { (!readOnly || isNew) ? null : (
+          <Button 
+            action="primary"
             onPress={ () => router.replace({pathname: '/(home)/(assistance)/instructions',  params: {part: part, action: action}}) }
-            >Instructions</Button>}
-          { (readOnly || isNew) ? null : <Button 
-            mode="contained" onPress={ cancel }
-            style={{flex: 1}}
+            style={{flex: 1}} 
+            accessibilityLabel="Finished"
+            accessibilityHint="Save any changes and go back">
+            <ButtonText>Instructions</ButtonText>
+          </Button>
+        )}
+        { (readOnly || isNew) ? null : (
+          <Button
+            onPress={ cancel }
+            style={{flex: 1}} 
             accessibilityLabel="Cancel"
             accessibilityHint="Go back without saving changes">
-          Cancel </Button>}
-          { (readOnly || isNew || deleteLabel === 'History') ? null : <Button
-            mode="contained"
-            style={{flex: 1}}
+            <ButtonText>Cancel</ButtonText>
+          </Button>
+        )}
+        { (readOnly || isNew || deleteLabel === 'History') ? null : (
+          <Button
             onPress={ deleteMaintenanceItem }
+            style={{flex: 1}} 
             accessibilityLabel="Delete"
-            accessibilityHint="Delete maintenance item"> {deleteLabel} </Button>}
-          { (readOnly || isNew || deleteLabel === 'History') ? <Button
-            mode="contained"
-            style={{flex: 1}}
+            accessibilityHint="Go back without saving changes">
+            <ButtonText>{deleteLabel}</ButtonText>
+          </Button>
+        )}
+        { (readOnly || isNew || deleteLabel === 'History') ? (
+          <Button
             onPress={ goToHistory }
+            style={{flex: 1}} 
             accessibilityLabel="History"
-            accessibilityHint="Maintenance History">History</Button> : null}
-      </Surface>
-    </Surface>
+            accessibilityHint="Maintenance History">
+              <ButtonText>History</ButtonText>
+          </Button>)
+        : null}
+        </HStack>
+      </VStack>
+    </BaseLayout>
   )
 };
-
 
 export default MaintenanceItemComponent;
