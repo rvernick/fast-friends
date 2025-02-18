@@ -341,8 +341,13 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
 
   const updateLabels = async () => {
     const pref = await preferences;
-    setDueDistanceLabel('Due Distance (' + pref.units + ')');
-    setDefaultLongevityLabel(pref.units + ' between maintenance');
+    const units = pref.units;
+    setDueDistanceLabel('Due Distance (' + units + ')');
+    if (units === 'km') {
+      setDefaultLongevityLabel('KM between maintenance');
+    } else {
+      setDefaultLongevityLabel('Miles between maintenance');
+    }
     setErrorMessage('');
   }
 
@@ -547,10 +552,10 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         value={deadline}
         onSelect={deadlineSelected}
         testID="deadlineDropdown"  />}
-      {readOnly && deadline == "Date"? null : (
+      {deadline == "Date"? null : (
         <Text>{dueDistanceLabel}</Text>
       )}
-      {readOnly && deadline == "Date"? null : (
+      {deadline == "Date"? null : (
         <Input
           variant="outline"
           size="md"
@@ -570,10 +575,33 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             accessibilityHint="Milage when this maintenance should be performed next"/>
         </Input>
       )}
-      {readOnly && deadline == "Distance"? null : (
+      {deadline == "Date"? null : (
+        <Text>{defaultLongevityLabel}</Text>
+      )} 
+      {deadline == "Date"? null : (
+        <Input
+          variant="outline"
+          size="md"
+          isDisabled={readOnly || deadline == "Date"}
+          isInvalid={false}
+          isReadOnly={readOnly || deadline == "Date"}
+        >
+          <InputField 
+            autoComplete="off"
+            value={defaultLongevity}
+            readOnly={readOnly}
+            onChangeText={defaultLongevityChange}
+            placeholder={"Mileage to " + action + " next here..."}
+            inputMode="numeric"
+            testID="defaultLongevityInput"
+            accessibilityLabel="Default Longevity"
+            accessibilityHint="Typical milage when this maintenance should be performed"/>
+        </Input>
+      )}
+      {deadline == "Distance"? null : (
         <Text>Deadline</Text>
       )}
-      {readOnly && deadline == "Distance"? null : (
+      {deadline == "Distance"? null : (
         <Input
           variant="outline"
           size="md"
@@ -594,7 +622,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             accessibilityHint="Date when this maintenance should be performed next"/>
         </Input>
       )}
-      {readOnly && deadline == "Distance"? null : (
+      {deadline == "Distance"? null : (
         <Text className="text-sm text-error-900">{dueDateErrorMessage}</Text>
       )}
       {/* {readOnly && deadline == "Distance"? null : (
@@ -632,33 +660,11 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         </Input>
         )
       )} */}
-      {readOnly && deadline == "Date"? null : (
-        <Text>{defaultLongevityLabel}</Text>
-      )} 
-      {readOnly && deadline == "Date"? null : (
-        <Input
-          variant="outline"
-          size="md"
-          isDisabled={readOnly || deadline == "Date"}
-          isInvalid={false}
-          isReadOnly={readOnly || deadline == "Date"}
-        >
-          <InputField 
-            autoComplete="off"
-            value={defaultLongevity}
-            readOnly={readOnly}
-            onChangeText={defaultLongevityChange}
-            placeholder={"Mileage to " + action + " next here..."}
-            inputMode="numeric"
-            testID="defaultLongevityInput"
-            accessibilityLabel="Default Longevity"
-            accessibilityHint="Typical milage when this maintenance should be performed"/>
-        </Input>
-      )}
-      {readOnly && deadline == "Distance"? null : (
+
+      {deadline == "Distance"? null : (
         <Text>Days between maintenance</Text>
       )}
-      {readOnly && deadline == "Distance"? null : (
+      {deadline == "Distance"? null : (
         <Input
           variant="outline"
           size="md"
