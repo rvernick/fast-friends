@@ -3,13 +3,18 @@ import { useQuery, useQueryClient } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
 import BikeListController from './BikeListController';
 import { useRouter } from 'expo-router';
-import { Button, List, Text, Surface, useTheme } from 'react-native-paper';
 import { Bike } from '../../models/Bike';
 import { useSession } from '@/common/ctx';
-import { Dimensions, ScrollView } from 'react-native';
-import { isMobile } from '@/common/utils';
-import { createStyles, defaultWebStyles } from '@/common/styles';
 import { useIsFocused } from '@react-navigation/native';
+import { SafeAreaView } from '../ui/safe-area-view';
+import { VStack } from '../ui/vstack';
+import { HStack } from '../ui/hstack';
+import { ScrollView } from '../ui/scroll-view';
+import { BikeIcon, ZapIcon, FlipHorizontalIcon, MountainSnowIcon, ComponentIcon, ShoppingBasketIcon } from 'lucide-react-native';
+import { Pressable } from '../ui/pressable';
+import { Text } from '../ui/text';
+import { Button, ButtonText } from '../ui/button';
+import { useTheme } from 'react-native-paper';
 
 type BikeListProps = {
   bikes: Bike[] | undefined;
@@ -27,9 +32,6 @@ const BikeListComponent = () => {
   const isFocused = useIsFocused();
   const controller = new BikeListController(appContext);
   const [isUpdating, setIsUpdating] = useState(true);
-
-  const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const { data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
@@ -50,25 +52,27 @@ const BikeListComponent = () => {
     router.push({ pathname: '/(home)/(bikes)/[bikeid]', params: { bikeid: idString } });
   }
 
-  const BikeList: React.FC<BikeListProps> = ({ bikes, isUpdating }) => {
+  const BikeList: React.FC<BikeListProps> = ({ bikes, isUpdating, isInFocus }) => {
     return (
-      <List.Section>
+      <VStack className="w-full h-full">
         {bikes && bikes.length > 0? (
           bikes?.map(bike => (
-            <List.Item
-              style={{flex: 1}}
-              key={bike.id + bike.name + bike.type}
-              title={bike.name}
-              description={bike.type}
-              onPress={() => editBike(bike.id)}
-              right={props => <BikeTypeIcon bikeType={bike.type}/>}
-              left={props => <EBikeIcon isElectric={bike.isElectronic} />}
-              accessibilityLabel={"List item for bike: " + bike.name}
-              accessibilityHint={"Click for details on bike: " + bike.name}/>
+            <HStack>
+              {bike.isElectronic ? <ZapIcon/> : <BikeIcon/> }
+              <Pressable onPress={() => editBike(bike.id)} >
+                <VStack>
+                  <Text >{bike.name}</Text>
+                {/* <Text>{bike.description}</Text> */}
+                </VStack>
+              </Pressable>
+              <Pressable className="absolute top-0 right-0" onPress={() => editBike(bike.id)} >
+                <BikeTypeIcon bikeType={bike.type}/>
+              </Pressable>
+            </HStack>
         ))) : (
           <Text> No Bikes Found</Text>
         )}
-      </List.Section>
+      </VStack>
     );
   };
 
@@ -87,39 +91,42 @@ const BikeListComponent = () => {
     )
   }
 
-  return (
-    <Surface style={useStyle.containerScreen}>
-      <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
-        <BikeList bikes={data ? data : []} isUpdating={isUpdating} isInFocus={isFocused}/>
-      </ScrollView>
-      <Surface style={useStyle.bottomButtons}>
-        <Button style={{flex: 1}} mode="contained" onPress={addBike}> Add Bike</Button>
-      </Surface>
-    </Surface>
-  );
-};
-
-
-interface EBikeIconProps {
-  isElectric: boolean;
-}
-
-const EBikeIcon: React.FC<EBikeIconProps> = ({ isElectric }) => {
-  const theme = useTheme();
-  if (isElectric) {
+  if (isFetching) {
     return (
-      <List.Icon
-        icon="lightning-bolt"
-        color={theme.colors.primary}
-      />
-    );
-  }
-  return (
-    <List.Icon
-      icon="bicycle"
-      color={theme.colors.primary}
-    />);
-}
+      <Text>
+        Fetching bikes...
+      </Text>
+    )
+  } else if (data && data.length > 0) {
+    return (
+      <SafeAreaView className="w-full h-full">
+        <VStack className="w-full h-full">
+          <ScrollView
+            className="w-full h-full"
+            contentContainerStyle={{ flexGrow: 1 }}
+          >     
+          <BikeList bikes={data} isUpdating={isFetching} isInFocus={isFocused}/>
+          </ScrollView>
+          <HStack className="w-full flex bg-background-0 flex-grow justify-center">
+            <Button 
+              action="primary"
+              onPress={ addBike }
+              style={{flex: 1}} 
+              testID='addBikeButton'
+              accessibilityLabel="Create new bike"
+              accessibilityHint="Opens page for adding a bike">
+              <ButtonText>Add Maintenance Item</ButtonText>
+            </Button>
+          </HStack>
+        </VStack>
+      </SafeAreaView>
+    )
+  } else {
+    return (
+      <Text> Loading... </Text>
+    )
+  };
+};
 
 interface BikeIconProps {
   bikeType: string;
@@ -129,51 +136,21 @@ const BikeTypeIcon: React.FC<BikeIconProps> = ({ bikeType }) => {
     const theme = useTheme();
     
     if (bikeType === "Road") {
-      return (
-        <List.Icon
-          icon="road"
-          color={theme.colors.primary}
-        />
-      );
+      return <FlipHorizontalIcon size={24} color={theme.colors.primary} />
     }
     if (bikeType === "Gravel") {
-      return (
-        <List.Icon
-          icon="grain"
-          color={theme.colors.primary}
-        />
-      );
+      return <ComponentIcon size={24} color={theme.colors.primary} />
     }
     if (bikeType === "Mountain") {
-      return (
-        <List.Icon
-          icon="terrain"
-          color={theme.colors.primary}
-        />
-      );
+      return <MountainSnowIcon size={24} color={theme.colors.primary} />
     }
     if (bikeType === "Cargo") {
-      return (
-        <List.Icon
-          icon="bicycle-cargo"
-          color={theme.colors.primary}
-        />
-      );
+      return <ShoppingBasketIcon size={24} color={theme.colors.primary} />
     }
     if (bikeType === "Cruiser") {
-      return (
-        <List.Icon
-          icon="bicycle-basket"
-          color={theme.colors.primary}
-        />
-      );
+      return <ShoppingBasketIcon size={24} color={theme.colors.primary} />
     }
-    return (
-      <List.Icon
-        icon="bike"
-        color={theme.colors.primary}
-      />
-    );
+    return <BikeIcon size={24} color={theme.colors.primary} />
   };
 
 export default BikeListComponent;
