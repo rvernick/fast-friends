@@ -32,6 +32,7 @@ import {
   SprayCanIcon,
 } from "lucide-react-native"
 import { Pressable } from '../ui/pressable';
+import { Spinner } from '../ui/spinner';
 
 interface BikeMaintenanceListItem {
   bike: Bike;
@@ -215,7 +216,9 @@ const MaintenanceComponent = () => {
 
     return (
       <HStack key={"bike-" + bike.id}>
-        <BikeIcon/>
+        <Pressable onPress={toggleExpanded} >
+          <BikeIcon/>
+        </Pressable>
         <Pressable className="h-full w-full" onPress={toggleExpanded} >
           <VStack>
             <Text >{bike.name}</Text>
@@ -345,23 +348,30 @@ const MaintenanceComponent = () => {
     resetListItems(data, sortOption);
   }, [data, isFocused]);
 
-  if (!data || !isFocused || isFetching || data.length === 0) {
+  if (isFetching) {
     return (
       <SafeAreaView className="w-full h-full">
-      <VStack className="w-full h-full">
-        <Text>
-          No bikes found. Add a bike or sync with Strava.
-        </Text>
-        <Button 
-            action="primary"
-            onPress={ refresh }
-            style={{flex: 1}} 
-            accessibilityLabel="Refresh list"
-            accessibilityHint="Will check for new list items">
-            <ButtonText>Refresh</ButtonText>
-        </Button>
-      </VStack>
-    </SafeAreaView>
+        <Spinner/>
+      </SafeAreaView>
+    )
+  }
+  if (!data || data.length === 0) {
+    return (
+      <SafeAreaView className="w-full h-full">
+        <VStack className="w-full h-full">
+          <Text>
+            No bikes found. Add a bike or sync with Strava.
+          </Text>
+          <Button 
+              action="primary"
+              onPress={ refresh }
+              style={{flex: 1}} 
+              accessibilityLabel="Refresh list"
+              accessibilityHint="Will check for new list items">
+              <ButtonText>Refresh</ButtonText>
+          </Button>
+        </VStack>
+      </SafeAreaView>
     )
   } else if (error) {
     return (
@@ -379,13 +389,11 @@ const MaintenanceComponent = () => {
               label='Sort By:'
               value={sortOption}
               options={sortOptions}
-              onSelect={updateSorting}/>
-          
+              onSelect={updateSorting}/>  
         </HStack>
         <ScrollView
           className="w-full h-full"
-          contentContainerStyle={{ flexGrow: 1 }}
-        >
+          contentContainerStyle={{ flexGrow: 1 }}>
         <VStack className="w-full h-full">
           {listItems.map(bmListItem => (
             <BikeOrMaintenanceItem key={bmListItem.key} item={bmListItem}/>
@@ -400,17 +408,17 @@ const MaintenanceComponent = () => {
             accessibilityLabel="Add Maintenance Item"
             accessibilityHint="Opens page for adding a maintenance item">
             <ButtonText>Add Maintenance Item</ButtonText>
-        </Button>
-        <Button 
-            action="primary"
-            onPress={ logMaintenance }
-            style={{flex: 1}} 
-            accessibilityLabel="Log Maintenance"
-            accessibilityHint="Opens page for logging maintenance">
-            <ButtonText>Log Maintenance</ButtonText>
-        </Button>
+          </Button>
+          <Button 
+              action="primary"
+              onPress={ logMaintenance }
+              style={{flex: 1}} 
+              accessibilityLabel="Log Maintenance"
+              accessibilityHint="Opens page for logging maintenance">
+              <ButtonText>Log Maintenance</ButtonText>
+          </Button>
         </HStack>
-        </VStack>
+      </VStack>
     </SafeAreaView>
   )
 };
