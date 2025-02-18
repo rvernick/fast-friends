@@ -7,6 +7,7 @@ import { Colors } from "../constants/Colors";
 import { useColorScheme } from 'react-native';
 import { ReactNode } from "react";
 import ErrorBoundary from 'react-native-error-boundary';
+import { GluestackUIProvider } from "./ui/gluestack-ui-provider";
 
 interface ProviderWrapperProps {
   children: ReactNode;
@@ -32,13 +33,15 @@ export const ProviderWrapper = ({ children }: ProviderWrapperProps) => {
   return (
     <ErrorBoundary onError={onError}>
       <PaperProvider theme={colorScheme}>
-        <QueryClientProvider client={queryClient}>
-          <SessionProvider>
-            <GlobalStateProvider>
-              {children}
-            </GlobalStateProvider>
-          </SessionProvider>
-        </QueryClientProvider>
+        <GluestackUIProvider>
+          <QueryClientProvider client={queryClient}>
+            <SessionProvider>
+              <GlobalStateProvider>
+                {children}
+              </GlobalStateProvider>
+            </SessionProvider>
+          </QueryClientProvider>
+        </GluestackUIProvider>
       </PaperProvider>
     </ErrorBoundary>
   );

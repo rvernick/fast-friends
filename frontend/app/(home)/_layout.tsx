@@ -53,6 +53,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="(assistance)"
         options={{
+          href: null,  // TODO: convert the help to gluestack and reenable
           title: "Assistance",
           headerShown: false,
           tabBarIcon: ({ color }) => (

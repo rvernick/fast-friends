@@ -7,6 +7,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "tailwind.config": [
+        "./tailwind.config.js"
       ]
     }
   },
@@ -17,6 +20,7 @@
     "expo-env.d.ts",
     "plugins/withInfoPlist.js",
     "config/jestSetupFile.js",
-    "config/jestDebugSetupFile.js"
+    "config/jestDebugSetupFile.js",
+    "nativewind-env.d.ts"
   ]
 }

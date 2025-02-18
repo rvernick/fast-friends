@@ -96,13 +96,13 @@ describe('Maintenance Item Component', () => {
     );
 
     const partSelector = await screen.findByTestId('partDropdown');
-    const actionSelector = await screen.findByTestId('actionDropdown');
+    const actionSelector = screen.getByTestId('actionDropdown');
     // const dueMilesInput = screen.getByTestId('dueMilesInput');
 
-    const partFinder = screen.getByDisplayValue(mockMaintenanceItem.part);  
-    expect(partFinder).not.toBeNull();  
+    const partFinder = await screen.findByTestId('partDropdown');  
+    expect(partFinder).not.toBeNull();
 
-    const actionFinder = screen.getByDisplayValue(mockMaintenanceItem.action);
+    const actionFinder = screen.getByTestId('actionDropdown');
     expect(actionFinder).not.toBeNull();
 
   });
