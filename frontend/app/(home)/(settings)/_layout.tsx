@@ -1,7 +1,16 @@
 import { Stack, router } from 'expo-router';
-import { Button } from 'react-native-paper';
+import { Button, ButtonIcon } from "@/components/ui/button";
+import { ArrowLeftIcon } from "@/components/ui/icon";
 
 export default function Layout() {
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      console.log("Cannot go back from current screen");
+      router.replace('/(home)/(settings)/settings');
+    }
+  }
   return (
     <Stack >
       <Stack.Screen name="settings" options={{
@@ -10,12 +19,10 @@ export default function Layout() {
         }} />
       <Stack.Screen name="change-password" options={{
         title: 'Change Password',
-        headerLeft: () => <Button onPress={() => router.back()} icon="arrow-left">{""}</Button>,
       }} />
       <Stack.Screen name="getting-started" options={{
           title: "Getting Started",
           headerShown: true,
-          headerLeft: () => <Button onPress={() => router.replace('/(home)/(settings)/settings')} icon="arrow-left">{""}</Button>,
         }} />
       {/* <Stack.Screen name="load-user" options={{}} /> */}
     </Stack>

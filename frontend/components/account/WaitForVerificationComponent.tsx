@@ -1,13 +1,19 @@
 import { useSession } from '@/common/ctx';
-import { Button, Card, HelperText, Surface, Text, TextInput } from 'react-native-paper';
 import { useEffect, useState } from 'react';
-import { ensureString, fetchUser, isMobile, sleep } from '@/common/utils';
-import { Dimensions } from 'react-native';
-import { createStyles, defaultWebStyles } from '@/common/styles';
+import { ensureString, fetchUser } from '@/common/utils';
 import { post } from '@/common/http-utils';
-import { router, useNavigation } from 'expo-router';
+import { router } from 'expo-router';
 import { useGlobalContext } from '@/common/GlobalContext';
 import WaitForVerificationController from './WaitForVerificationController';
+import { BaseLayout } from '../layouts/base-layout';
+import { VStack } from '../ui/vstack';
+import { Link, LinkText } from '../ui/link';
+import { Button, ButtonText } from '../ui/button';
+import { Alert, AlertIcon, AlertText } from '../ui/alert';
+import { Input, InputField } from '../ui/input';
+import { InfoIcon } from '../ui/icon';
+import { Heading } from '../ui/heading';
+import { Text } from '../ui/text';
 
 const tenMinutesInSeconds = 10 * 60;
 
@@ -20,9 +26,6 @@ export const WaitForVerificationComponent = () => {
   const [firstAttempt, setFirstAttempt] = useState(true);
   const [startedVerification, setStartedVerification] = useState(false);
   
-  const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
-
   const startEmailVerification = async () => {
     try {
       const body = {
@@ -79,36 +82,68 @@ export const WaitForVerificationComponent = () => {
     }
   }, []);
 
-  return (
-    <Surface style={useStyle.container}>
-      <Card mode="contained" style={useStyle.containerCentered} >
-        <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
-        <Text style={{textAlign: "center"}}>Welcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
-        <Text style={{textAlign: "center"}}>We'll think about your bike needs so you don't have to</Text>
-        <Text style={{textAlign: "center"}}>If you have any difficulty, contact us: support@pedal-assistant.com</Text>
-        <Text> </Text>
-        <Text style={{textAlign: "center"}}>Check your email for a verification code.  Enter the code.</Text>
-        <Text> </Text>
-        <Card style={{height: 150, margin: 12, borderWidth: 1, padding: 10,}}>
-        <TextInput
-          label="Verification Code"
-          value={code}
-          multiline={false}
-          onChangeText={updateCode}
-          mode="outlined"
-          keyboardType="number-pad"
-          autoCapitalize="none"
-          autoCorrect={false}
-          testID="verificationCodeInput"
-          accessibilityLabel="Verification Code Input"
-          accessibilityHint="Enter the verification code you received in your email"
-          />
-          <HelperText type={'error'} visible={showError}>Incorrect Verification Code</HelperText>
-        <Button onPress={submitCode} mode="contained"> Submit </Button>
-        </Card>
-        <Text> </Text>
-        <Button onPress={startEmailVerification}> Resend Verification Code </Button>
-      </Card>
-    </Surface>
+    return (
+    <BaseLayout>
+      <VStack className="max-w-[440px] w-full" space="md">
+        <VStack className="md:items-center" space="md">
+          <VStack>
+            <Heading className="text-center" size="3xl">
+              Verify Email
+            </Heading>
+            <Text className="text-center">Pedal Assistant, the Strava powered maintenance tracker</Text>
+            <Text className="text-center">You think about your rides</Text>
+            <Text className="text-center">We'll think about your bike needs so you don't have to</Text>
+            <Text> </Text>
+            <Text className="text-center">Check your email for a verification code.  Enter the code. </Text>
+            <Text> </Text>
+          </VStack>
+        </VStack>
+        <VStack className="w-full">
+          <VStack space="md" className="w-full"></VStack>
+            <Text>Verification Code</Text>
+            <Input
+              variant="outline"
+              size="md"
+              isDisabled={false}
+              isInvalid={false}
+              isReadOnly={false}
+            >
+              <InputField 
+                value={code}
+                multiline={false}
+                onChangeText={updateCode}
+                keyboardType="number-pad"
+                autoCapitalize="none"
+                autoCorrect={false}
+                testID="verificationCodeInput"
+                accessibilityLabel="Verification Code Input"
+                accessibilityHint="Enter the verification code you received in your email"
+                placeholder="Enter verification code..." />
+            </Input>
+            {showError ? (
+              <Alert action="error" variant="outline">
+                <AlertIcon as={InfoIcon} />
+                <AlertText>Incorrect Verification Code</AlertText>
+              </Alert>)
+             : <Text> </Text>}
+            <Button className="bottom-button" size="md" variant="solid"
+                action="primary" 
+                onPress={submitCode}
+                testID="submitButton"
+                accessibilityLabel="Submit Button"
+                accessibilityHint="The button to submit the info to verify email">
+              <ButtonText>Submit</ButtonText>
+            </Button>
+            <Button className="bottom-button" size="md" variant="solid"
+                action="secondary" 
+                onPress={startEmailVerification}
+                testID="resendButton"
+                accessibilityLabel="Resend Code Button"
+                accessibilityHint="The button to request a new verification code">
+              <ButtonText>Resend Verification Code</ButtonText>
+            </Button>
+        </VStack>
+      </VStack>
+    </BaseLayout>
   );
-}
+};

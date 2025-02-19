@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { invalidPasswordMessage, isValidPassword } from '../../common/utils';
-import { Button, TextInput, HelperText, Text, Surface } from "react-native-paper";
 import { router, useLocalSearchParams } from "expo-router";
 import { post } from "@/common/http-utils";
-
+import { BaseLayout } from "../layouts/base-layout";
+import { VStack } from "../ui/vstack";
+import { Heading } from "../ui/heading";
+import { Input, InputField } from "../ui/input";
+import { Alert, AlertIcon, AlertText } from "../ui/alert";
+import { Button, ButtonText } from "../ui/button";
+import { Text } from "../ui/text";
+import { InfoIcon } from "../ui/icon";
 
 interface NewPasswordOnResetProps {
   token: string;
@@ -73,44 +79,88 @@ export const NewPasswordOnResetComponent: React.FC<NewPasswordOnResetProps> = ()
   }
 
   return (
-    <Surface>
-      <Text> {token} </Text>
-      <TextInput
-        label="Password"
-        value={password}
-        onChangeText={updatePassword}
-        mode="outlined"
-        secureTextEntry={true}
-        autoCapitalize="none"
-        autoCorrect={false}
-        testID="passwordInput"
-        accessibilityLabel="Password Input"
-        accessibilityHint="New password for account"
-      />
-      <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
-        {passwordErrorMessage}
-      </HelperText>
-      <TextInput
-        label="Confirm Password"
-        value={passwordConfirm}
-        mode="outlined"
-        onChangeText={updatePasswordConfirm}
-        secureTextEntry={true}
-        autoCapitalize="none"
-        autoCorrect={false}
-        accessibilityLabel="Password Confirmation Input"
-        accessibilityHint="Re-enter new password to confirm"
-      />
-      <HelperText type="error" visible={passwordConfirmErrorMessage.length > 0} style={{ marginTop: 10 }}>
-        {passwordConfirmErrorMessage}
-      </HelperText>
-      <Button
-        mode="contained" 
-        onPress={callResetPassword}
-        accessibilityLabel="Submit New Password"
-        accessibilityHint="Validates and updates passord for the account">
-        Set Password
-      </Button>
-    </Surface>
-    );
-};
+    <BaseLayout>
+      <VStack className="max-w-[440px] w-full" space="md">
+        <VStack className="md:items-center" space="md">
+          <VStack>
+            <Heading className="text-center" size="3xl">
+              Create New Password
+            </Heading>
+            <Text> </Text>
+
+          </VStack>
+        </VStack>
+        <VStack className="w-full">
+          <Text>Password</Text>
+          <Input
+            variant="outline"
+            size="md"
+            isDisabled={false}
+            isInvalid={false}
+            isReadOnly={false}
+          >
+            <InputField
+              value={password}
+              onChangeText={updatePassword}
+              secureTextEntry={true}
+              autoCapitalize="none"
+              autoCorrect={false}
+              testID="passwordInput"
+              accessibilityLabel="Password Input"
+              accessibilityHint="New password for account"
+              autoComplete="password"
+              onBlur={verifyPassword}
+              placeholder="Enter password here..." 
+              textContentType="password"/>
+          </Input>
+          {passwordErrorMessage.length > 0 ? (
+            <Alert action="error" variant="outline">
+              <AlertIcon as={InfoIcon} />
+              <AlertText>{passwordErrorMessage}</AlertText>
+            </Alert>)
+            : <Text> </Text>}
+            
+          <Text>Confirm Password</Text>
+          <Input
+            variant="outline"
+            size="md"
+            isDisabled={false}
+            isInvalid={false}
+            isReadOnly={false}
+          >
+            <InputField 
+              value={passwordConfirm}
+              onChangeText={updatePasswordConfirm}
+              secureTextEntry={true}
+              autoCapitalize="none"
+              autoCorrect={false}
+              accessibilityLabel="Password Confirmation Input"
+              accessibilityHint="Re-enter new password to confirm"
+              inputMode="text"
+              textContentType="password"
+              onBlur={verifyPassword}
+              autoComplete="password"
+              placeholder="Confirm password..."
+              testID="passwordConfirmInput"/>
+          </Input>
+          {passwordConfirmErrorMessage.length > 0 ? (
+            <Alert action="error" variant="outline">
+              <AlertIcon as={InfoIcon} />
+              <AlertText>{passwordConfirmErrorMessage}</AlertText>
+            </Alert>)
+            : <Text> </Text>}
+          <Button size="md" variant="solid"
+            onPress={callResetPassword}
+            accessibilityLabel="Submit New Password"
+            accessibilityHint="Validates and updates passord for the account"
+              action="primary" 
+              // disabled={!(isValidEmail(email) || email === DEVELOPER)}
+              testID="submitButton"
+          >
+            <ButtonText>Set Password</ButtonText>
+          </Button>
+        </VStack>
+      </VStack>
+    </BaseLayout>
+  );
+}

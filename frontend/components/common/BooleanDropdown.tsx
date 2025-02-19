@@ -1,24 +1,26 @@
-import { Dropdown } from "react-native-paper-dropdown";
+import { Dropdown } from "./Dropdown";
 
 type BooleanDropdownProps = {
   label: string;
   value: boolean;
   readonly: boolean;
   onSelect: (value: boolean) => void;
+  testID?: string;
 };
 
-export const BooleanDropdown: React.FC<BooleanDropdownProps> = ({ label, value, readonly, onSelect }) => {
+export const BooleanDropdown: React.FC<BooleanDropdownProps> = ({ label, value, readonly, onSelect, testID="boolean" }) => {
   const yesno = ['Yes', 'No'];
-    const options = yesno?.map(val => ({ label: val, value: val }));
-    return (
-      <Dropdown
-        mode="outlined"
-        disabled={readonly}
-        label={label}
-        placeholder={'Yes'}
-        options={options}
-        value={value ? 'Yes' : 'No' }
-        onSelect={(value) => onSelect(value === 'Yes')}
-      />
-    )
-  }
+  const options = yesno?.map(val => ({ label: val, value: val }));
+
+  return (
+    <Dropdown
+      value={value ? 'Yes' : 'No'}
+      label={label}
+      disabled={readonly}
+      onSelect={(value) => onSelect(value == 'Yes')}
+      options={options}
+      testID={testID}
+      initialLabel="Yes/No..."
+    />
+  );
+}

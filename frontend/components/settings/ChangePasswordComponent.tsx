@@ -1,9 +1,17 @@
 import React, { useState } from "react";
 import ChangePasswordController from "./ChangePasswordController";
 import { useGlobalContext } from "@/common/GlobalContext";
-import { Button, Card, HelperText, TextInput, Surface } from "react-native-paper";
 import { router } from "expo-router";
 import { useSession } from "@/common/ctx";
+import { Text } from "../ui/text";
+import { BaseLayout } from "../layouts/base-layout";
+import { VStack } from "../ui/vstack";
+import { Heading } from "../ui/heading";
+import { Input, InputField } from "../ui/input";
+import { Alert, AlertIcon, AlertText } from "../ui/alert";
+import { Button, ButtonText } from "../ui/button";
+import { HStack } from "../ui/hstack";
+import { InfoIcon } from "../ui/icon";
 
 export const ChangePasswordComponent = () => {
   const session = useSession();
@@ -78,69 +86,103 @@ export const ChangePasswordComponent = () => {
   };
 
   return (
-    <Surface>
-      <Card>
-        <Card.Content>      
-          <TextInput
-            label="Current Password"
-            value={oldPassword}
-            onChangeText={updateOldPassword}
-            mode="outlined"
-            secureTextEntry={true}
-            autoCapitalize="none"
-            autoCorrect={false}
-            accessibilityLabel="Current Password"
-            accessibilityHint="Enter your current password"
-          />
-          <TextInput
-            label="Password"
-            value={password}
-            onChangeText={updatePassword}
-            mode="outlined"
-            secureTextEntry={true}
-            autoCapitalize="none"
-            autoCorrect={false}
-            testID="passwordInput"
-            accessibilityLabel="New Password"
-            accessibilityHint="Enter your new password"
-          />
-          <TextInput
-            label="Confirm Password"
-            value={passwordConfirm}
-            mode="outlined"
-            onChangeText={updatePasswordConfirm}
-            secureTextEntry={true}
-            autoCapitalize="none"
-            autoCorrect={false}
-            testID="passwordConfirmInput"
-            accessibilityLabel="Confirm Password"
-            accessibilityHint="Re-enter your new password"
-          />
-          <HelperText type="error" visible={passwordErrorMessage.length > 0} style={{ marginTop: 10 }}>
-            {passwordErrorMessage}
-          </HelperText>
-          <HelperText type="error" visible={passwordConfirmErrorMessage.length > 0} style={{ marginTop: 10 }}>
-            {passwordConfirmErrorMessage}
-          </HelperText>
+    <BaseLayout>
+      <VStack className="max-w-[440px] w-full" space="md">
+        <VStack className="w-full">
+          <Text>Current Password</Text>
+          <Input
+            variant="outline"
+            size="md"
+            isDisabled={false}
+            isInvalid={false}
+            isReadOnly={false}
+          >
+            <InputField 
+              value={oldPassword}
+              onChangeText={updateOldPassword}
+              secureTextEntry={true}
+              autoCapitalize="none"
+              autoCorrect={false}
+              accessibilityLabel="Current Password"
+              accessibilityHint="Enter your current password"
+              placeholder="Enter current password here..." 
+              testID="currentPasswordInput"/>
+          </Input>
+
+          <Text>New Password</Text>
+          <Input
+            variant="outline"
+            size="md"
+            isDisabled={false}
+            isInvalid={false}
+            isReadOnly={false}
+          >
+            <InputField 
+              value={password}
+              onChangeText={updatePassword}
+              secureTextEntry={true}
+              autoCapitalize="none"
+              autoCorrect={false}
+              accessibilityLabel="Current Password"
+              accessibilityHint="Enter your new password"
+              placeholder="Enter new password here..." 
+              testID="newPasswordInput"/>
+          </Input>
+          <Text>Confirm Password</Text>
+          <Input
+            variant="outline"
+            size="md"
+            isDisabled={false}
+            isInvalid={false}
+            isReadOnly={false}
+          >
+            <InputField 
+              value={passwordConfirm}
+              onChangeText={updatePasswordConfirm}
+              secureTextEntry={true}
+              autoCapitalize="none"
+              autoCorrect={false}
+              testID="passwordConfirmInput"
+              accessibilityLabel="Confirm Password"
+              accessibilityHint="Re-enter your new password"
+              placeholder="Re-enter new password here..."/>
+          </Input>
+          {passwordErrorMessage.length > 0 ? (
+            <Alert action="error" variant="outline">
+              <AlertIcon as={InfoIcon} />
+              <AlertText>{passwordErrorMessage}</AlertText>
+            </Alert>)
+            : <Text> </Text>}
+          {passwordConfirmErrorMessage.length > 0 ? (
+            <Alert action="error" variant="outline">
+              <AlertIcon as={InfoIcon} />
+              <AlertText>{passwordConfirmErrorMessage}</AlertText>
+            </Alert>)
+            : <Text> </Text>}
+        </VStack>
+        <HStack>
           <Button 
-            mode="contained" onPress={changePassword}
+            className="bottom-button"
+            action="primary"
             disabled={passwordConfirmErrorMessage.length > 0 || passwordConfirmErrorMessage.length > 0}
+            onPress={ changePassword }
+            style={{flex: 1}} 
             accessibilityLabel="Submit Password Change"
             accessibilityHint="Submits the new password for verification and changing">
-            Update Password
+            <ButtonText>Update Password</ButtonText>
           </Button>
-          <HelperText type="error" visible={false}>
-            {backLabel}
-          </HelperText>
-          <Button
-            mode="contained"
-            onPress={backToSettings}
+          <Button 
+            className="bottom-button"
+            action="primary"
+            onPress={ backToSettings }
+            style={{flex: 1}} 
             accessibilityLabel="Cancel Password Change"
             accessibilityHint="Cancel password change">
-            {backLabel}
+            <ButtonText>{backLabel}</ButtonText>
           </Button>
-        </Card.Content>
-      </Card>
-    </Surface>
-  ); 
-};
+        </HStack>
+      </VStack>
+    </BaseLayout>
+  );
+}
+

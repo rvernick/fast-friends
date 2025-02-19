@@ -1,10 +1,16 @@
 import { router, Tabs } from "expo-router";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Text } from "react-native-paper"
 import { useSession } from "@/common/ctx";
-import { useState } from "react";
+import React, { useState } from "react";
 import { tabBarIconSize } from "@/common/styles";
 import { isMobileSize } from "@/common/utils";
+import { Text } from "@/components/ui/text";
+import {
+  WrenchIcon,
+  SettingsIcon,
+  BikeIcon,
+  BriefcaseMedicalIcon,
+  LogOutIcon,
+} from "lucide-react-native"
 
 
 // TODO: try material UI for the tabs: https://callstack.github.io/react-native-paper/docs/guides/bottom-navigation
@@ -35,7 +41,7 @@ export default function TabLayout() {
           title: "Maintenance",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons size={tabBarIconSize} name="wrench" color={color} />
+            <WrenchIcon size={tabBarIconSize} color={color} />
           ),
         }}
       />
@@ -46,17 +52,7 @@ export default function TabLayout() {
           title: "History",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="(assistance)"
-        options={{
-          title: "Assistance",
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons size={tabBarIconSize} name="notebook-check" color={color} />
+            <BikeIcon size={tabBarIconSize} color={color} />
           ),
         }}
       />
@@ -66,7 +62,17 @@ export default function TabLayout() {
           title: "Bikes",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons size={tabBarIconSize} name="bike-fast" color={color} />
+            <BikeIcon size={tabBarIconSize} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="(assistance)"
+        options={{
+          title: "Assistance",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <BriefcaseMedicalIcon size={tabBarIconSize} color={color} />
           ),
         }}
       />
@@ -76,7 +82,7 @@ export default function TabLayout() {
           title: "Settings",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons size={tabBarIconSize} name="account-settings" color={color} />
+            <SettingsIcon size={tabBarIconSize} color={color} />
           ),
         }}
       />
@@ -89,7 +95,7 @@ export default function TabLayout() {
               title: "Sign Out",
               headerShown: false,
               tabBarIcon: ({ color }) => (
-                <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
+                <LogOutIcon size={tabBarIconSize} color={color} />
               ),
             }}
           />
@@ -100,7 +106,7 @@ export default function TabLayout() {
             title: "Sign Out",
             headerShown: false,
             tabBarIcon: ({ color }) => (
-              <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
+              <LogOutIcon size={tabBarIconSize} color={color} />
             ),
           }}
         />

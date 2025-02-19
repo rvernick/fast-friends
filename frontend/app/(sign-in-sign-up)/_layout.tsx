@@ -1,6 +1,12 @@
 import { Tabs } from "expo-router";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { tabBarIconSize } from "@/common/styles";
+import {
+  LogInIcon,
+  UserPlusIcon,
+  MailCheckIcon,
+  BriefcaseMedicalIcon,
+  FileKeyIcon,
+} from "lucide-react-native"
 
 export default function SignInSignUp() {
 
@@ -12,7 +18,7 @@ export default function SignInSignUp() {
           title: "Sign In",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons size={tabBarIconSize} name="login" color={color} />
+            <LogInIcon size={tabBarIconSize} color={color} />
           ),
         }}
       />
@@ -22,7 +28,7 @@ export default function SignInSignUp() {
           title: "Sign Up",
           headerShown: true,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons size={tabBarIconSize} name="account-plus" color={color} />
+            <UserPlusIcon size={tabBarIconSize} color={color} />
           ),
         }}
       />
@@ -32,7 +38,7 @@ export default function SignInSignUp() {
           title: "Support",
           headerShown: true,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons size={tabBarIconSize} name="account-plus" color={color} />
+            <BriefcaseMedicalIcon size={tabBarIconSize} color={color} />
           ),
         }}
       />
@@ -42,7 +48,7 @@ export default function SignInSignUp() {
           title: "Privacy",
           headerShown: true,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons size={tabBarIconSize} name="account-plus" color={color} />
+            <FileKeyIcon size={tabBarIconSize} color={color} />
           ),
         }}
       />
@@ -53,7 +59,7 @@ export default function SignInSignUp() {
           title: "Waiting",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons size={tabBarIconSize} name="logout" color={color} />
+            <MailCheckIcon size={tabBarIconSize} color={color}/>
           ),
         }}
       />

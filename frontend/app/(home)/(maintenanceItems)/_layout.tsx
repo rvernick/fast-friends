@@ -1,5 +1,4 @@
 import { router, Stack } from "expo-router";
-import { Button } from "react-native-paper";
 
 export default function Layout() {
   const goBack = () => {
@@ -19,15 +18,14 @@ export default function Layout() {
         }} />
       <Stack.Screen name="[maintenanceid]" options={{
         title: 'Maintenance Item',
-        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
       <Stack.Screen name="bulk-maintenance" options={{
         title: "Initial Maintenance Schedule",
-        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
+        
       }} />
       <Stack.Screen name="log-maintenance" options={{
         title: 'Log Maintenance',
-        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
+        
       }} />
     </Stack>
   );

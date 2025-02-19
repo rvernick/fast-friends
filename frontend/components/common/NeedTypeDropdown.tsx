@@ -1,6 +1,5 @@
-import { ensureString } from "@/common/utils";
 import { NeedType } from "@/models/HelpRequest";
-import { Dropdown } from "react-native-paper-dropdown";
+import { Dropdown } from "./Dropdown";
 
 const options = Object.entries(NeedType).map(([key, val]) => ({ label: val, value: val }));
 
@@ -8,9 +7,16 @@ type NeedTypeDropdownProps = {
   value: string;
   readonly?: boolean;
   onSelect: (value: string) => void;
+  testID?: string;
+  label?: string;
 };
 
-export const NeedTypeDropdown: React.FC<NeedTypeDropdownProps> = ({ value, readonly = false, onSelect }) => {
+export const NeedTypeDropdown: React.FC<NeedTypeDropdownProps> = ({
+    value,
+    readonly = false,
+    onSelect,
+    testID="needTypeDropdown",
+    label="Need Type" }) => {
       
   const handleSelect = (value: string | undefined) => {
     if (value) {
@@ -18,17 +24,16 @@ export const NeedTypeDropdown: React.FC<NeedTypeDropdownProps> = ({ value, reado
       onSelect(value);
     }
   }
-
+  
   return (
     <Dropdown
-      mode="outlined"
-      disabled={readonly}
-      label="Need Type"
-      placeholder={ensureString(value)}
-      options={options}
       value={value}
+      label={label}
+      disabled={readonly}
       onSelect={handleSelect}
-      testID="NeedTypeDropdown"
+      options={options}
+      testID={testID}
+      initialLabel="Choose a Type..."
     />
   );
 }
