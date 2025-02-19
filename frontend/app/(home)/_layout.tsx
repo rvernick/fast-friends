@@ -57,22 +57,22 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="(assistance)"
-        options={{
-          title: "Assistance",
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <BriefcaseMedicalIcon size={tabBarIconSize} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="(bikes)"
         options={{
           title: "Bikes",
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <BikeIcon size={tabBarIconSize} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="(assistance)"
+        options={{
+          title: "Assistance",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <BriefcaseMedicalIcon size={tabBarIconSize} color={color} />
           ),
         }}
       />

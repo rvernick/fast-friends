@@ -17,16 +17,10 @@ export default function Layout() {
     <Stack >
       <Stack.Screen name="sign-in" options={{
           title: "Sign In",
-          // headerTitleAlign: "center",
           headerShown: false,
         }} />
       <Stack.Screen name="password-reset" options={{
         title: 'Password Reset',
-        headerLeft: () => (
-          <Button onPress={goBack}>
-            <ButtonIcon><ArrowLeftIcon/></ButtonIcon>
-          </Button>
-        ) 
       }} />
       <Stack.Screen name="new-password-on-reset" options={{
         title: 'Password Reset',

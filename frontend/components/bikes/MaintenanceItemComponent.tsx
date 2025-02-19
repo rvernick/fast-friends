@@ -753,8 +753,9 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             accessibilityHint="Save any changes and go back">
             <ButtonText>{readOnly ? "Edit" : "Done"}</ButtonText>
         </Button>
-        {/* { (!readOnly || isNew) ? null : (
-          <Button 
+        { (!readOnly || isNew) ? null : (
+          <Button
+            className="bottom-button"
             action="primary"
             onPress={ () => router.replace({pathname: '/(home)/(assistance)/instructions',  params: {part: part, action: action}}) }
             style={{flex: 1}} 
@@ -762,7 +763,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             accessibilityHint="Save any changes and go back">
             <ButtonText>Instructions</ButtonText>
           </Button>
-        )} */}
+        )}
         { (readOnly || isNew) ? null : (
           <Button
             className="bottom-button"
