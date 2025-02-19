@@ -15,6 +15,7 @@ import { Pressable } from '../ui/pressable';
 import { Text } from '../ui/text';
 import { Button, ButtonText } from '../ui/button';
 import { useTheme } from 'react-native-paper';
+import { metersToDisplayString } from '@/common/utils';
 
 type BikeListProps = {
   bikes: Bike[] | undefined;
@@ -32,6 +33,7 @@ const BikeListComponent = () => {
   const isFocused = useIsFocused();
   const controller = new BikeListController(appContext);
   const [isUpdating, setIsUpdating] = useState(true);
+  const preferences = controller.getUserPreferences(session);
 
   const { data, error, isFetching } = useQuery({
     queryKey: ['bikes'],
@@ -52,28 +54,58 @@ const BikeListComponent = () => {
     router.push({ pathname: '/(home)/(bikes)/[bikeid]', params: { bikeid: idString } });
   }
 
+
   const BikeList: React.FC<BikeListProps> = ({ bikes, isUpdating, isInFocus }) => {
+    const milageFor = async (bike: Bike): Promise<string> => {
+      const prefs = await preferences;
+      return metersToDisplayString(bike.odometerMeters, prefs) + ' ' + prefs.units;
+    }
+
     return (
       <VStack className="w-full h-full">
         {bikes && bikes.length > 0? (
           bikes?.map(bike => (
-            <Pressable onPress={() => editBike(bike.id)} >
-            <HStack className='row-primary' key={'bike: ' + bike.id + '-' + bike.odometerMeters} >
-                {bike.isElectronic ? <ZapIcon size="48"/> : <BikeIcon size="48"/> }
-                <VStack>
-                  <Text >{bike.name}</Text>
-                </VStack>
-              <Pressable className="absolute top-0 right-0" onPress={() => editBike(bike.id)} >
-                <BikeTypeIcon bikeType={bike.type}/>
-              </Pressable>
-            </HStack>
-            </Pressable>
+            <BikeRow key={'bike: ' + bike.id + '-' + bike.odometerMeters} bike={bike} />
         ))) : (
           <Text> No Bikes Found</Text>
         )}
       </VStack>
     );
   };
+
+
+type BikeRowProps = {
+  bike: Bike;
+};
+
+  const BikeRow: React.FC<BikeRowProps> = ({ bike }) => {
+    const [mileageField, setMileageField] = useState('');
+
+    const syncMileage = async (bike: Bike) => {
+      const prefs = await preferences;
+      setMileageField(metersToDisplayString(bike.odometerMeters, prefs) + ' ' + prefs.units);
+    }
+
+    useEffect(() => {
+      syncMileage(bike);
+    }, [bike]);
+
+    return (
+      <Pressable onPress={() => editBike(bike.id)} >
+        <HStack className='row-primary' key={'bike: ' + bike.id + '-' + bike.odometerMeters} >
+            {bike.isElectronic ? <ZapIcon size="48"/> : <BikeIcon size="48"/> }
+            <VStack>
+              <Text className="text-lg">{bike.name}</Text>
+              <Text>{bike.type + ' - ' + mileageField}</Text>
+            </VStack>
+          <Pressable className="absolute top-0 right-0" onPress={() => editBike(bike.id)} >
+            <BikeTypeIcon bikeType={bike.type}/>
+          </Pressable>
+        </HStack>
+      </Pressable>
+    );
+  };
+
 
   useEffect(() => {
     if (isUpdating && !isFetching) {
