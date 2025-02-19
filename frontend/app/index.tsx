@@ -1,9 +1,15 @@
 import { createStyles, defaultWebStyles } from "@/common/styles";
 import { isMobile } from "@/common/utils";
+import { BaseLayout } from "@/components/layouts/base-layout";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import { Heading } from "@/components/ui/heading";
+import { VStack } from "@/components/ui/vstack";
 import { router } from "expo-router";
 import { Dimensions } from "react-native";
 import { Image } from "react-native";
-import { Button, Text, Surface, Card, IconButton } from "react-native-paper";
+import { Text } from "@/components/ui/text";
+import { Icon } from "@/components/ui/icon";
+import { Pressable } from "@/components/ui/pressable";
 
 export default function Index() {
   const dimensions = Dimensions.get('window');
@@ -12,49 +18,42 @@ export default function Index() {
   const signIn = () => { router.replace("/(sign-in-sign-up)/(sign-in)/sign-in") };
   const appStoreURL = "https://apps.apple.com/us/app/pedal-assistant/id6680175112?itscg=30200&itsct=apps_box_badge&mttnsubad=6680175112";
 
-  return (
-    <Surface style={useStyle.container}>
+    return (
+      <BaseLayout>
+      <Icon></Icon>
       <Image
         source={{
           uri: 'https://apps.apple.com/us/app/pedal-assistant/id6680175112?itscg=30200&itsct=apps_box_badge&mttnsubad=6680175112',
         }}
         />
-      <Card mode="contained" style={useStyle.containerCentered} >
-        <Text style={{textAlign: "center"}} variant="displayLarge">Pedal Assistant</Text>
-        <Text style={{textAlign: "center"}} variant="titleLarge">Welcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
-        <Text style={{textAlign: "center"}} variant="titleLarge">You think about your rides and who you want to ride with next.</Text>
-        <Text style={{textAlign: "center"}} variant="titleLarge">We'll think about your bike needs so you don't have to</Text>
-        <Text> </Text>
-        <Text> </Text>
-        <Button icon="bike-fast" mode="contained" onPress={signIn}>
-          Get Started
+      <VStack className="max-w-[440px] w-full" space="md">
+        <VStack className="md:items-center" space="md">
+          <VStack>
+            <Heading className="text-center" size="3xl">
+             Pedal Assistant
+            </Heading>
+            <Text className="text-center">Pedal Assistant, the Strava powered maintenance tracker</Text>
+            <Text className="text-center">You think about your rides</Text>
+            <Text className="text-center">We'll think about your bike needs so you don't have to</Text>
+            <Text> </Text>
+          </VStack>
+        </VStack>
+        <Button className="bottom-button" onPress={signIn}>
+          <ButtonText>Get Started</ButtonText>
         </Button>
-      </Card>
-      <Card style={useStyle.bottomButton} mode="contained">
-        <IconButton
-          disabled={true}
-          onPress={() => console.log("Powered by Strava")}
-          style={{ left: 1, width: 196, height: 82 }}
-          icon={() => <Image
-                  source={require("../assets/images/api_logo_pwrd_by_strava_stack_light.png")}
-                  />}
-          mode="contained"
-        />
-        { isMobile() ? null : (
-          <IconButton
-            onPress={() => window.open(appStoreURL)}
-            style={{ left: 1, width: 246, height: 82 }}
-            icon={() =>
-              <Image
-                source={{
-                  uri: 'https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1728691200',
-                }}
-                style={{ width: 246, height: 82}}
-                />}
-                mode="contained"
-          />
-      )}
-      </Card>
-    </Surface>
-  );
-}
+        <VStack>   
+          <Image source={require("../assets/images/api_logo_pwrd_by_strava_stack_light.png")}/>
+          { isMobile() ? null : (<Pressable style={{ width: 246, height: 82}} onPress={() => window.open(appStoreURL)}>
+            <Image className="absolute top-0 right-0"
+              source={{
+                  uri: 'https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1728691200',              }}
+              style={{ width: 246, height: 82}}
+              />
+          </Pressable>
+          )}
+        </VStack>
+      </VStack>
+    </BaseLayout>
+    );
+  }
+
