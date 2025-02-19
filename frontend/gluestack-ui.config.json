@@ -1,7 +1,7 @@
 {
   "tailwind": {
     "config": "tailwind.config.js",
-    "css": "common/global.css"
+    "css": "./constants/global.css"
   },
   "app": {
     "entry": "app/_layout.tsx",

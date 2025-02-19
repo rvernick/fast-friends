@@ -32,8 +32,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
     }
   }
   return (
-    <Box>
-      <Text className="text-md">{label}</Text>
+    <Box className="gap-5">
       <Select 
         isDisabled={disabled}
         isRequired={true}

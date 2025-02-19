@@ -1,5 +1,6 @@
+import { Button, ButtonIcon } from "@/components/ui/button";
+import { ArrowLeftIcon } from "@/components/ui/icon";
 import { Stack, router } from "expo-router";
-import { Button } from "react-native-paper";
 
 export default function Layout() {
 
@@ -21,7 +22,11 @@ export default function Layout() {
         }} />
       <Stack.Screen name="password-reset" options={{
         title: 'Password Reset',
-        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
+        headerLeft: () => (
+          <Button onPress={goBack}>
+            <ButtonIcon><ArrowLeftIcon/></ButtonIcon>
+          </Button>
+        ) 
       }} />
       <Stack.Screen name="new-password-on-reset" options={{
         title: 'Password Reset',

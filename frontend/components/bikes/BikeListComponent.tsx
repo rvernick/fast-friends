@@ -57,17 +57,17 @@ const BikeListComponent = () => {
       <VStack className="w-full h-full">
         {bikes && bikes.length > 0? (
           bikes?.map(bike => (
-            <HStack>
-              {bike.isElectronic ? <ZapIcon/> : <BikeIcon/> }
-              <Pressable onPress={() => editBike(bike.id)} >
+            <Pressable onPress={() => editBike(bike.id)} >
+            <HStack className='row-primary' key={'bike: ' + bike.id + '-' + bike.odometerMeters} >
+                {bike.isElectronic ? <ZapIcon size="48"/> : <BikeIcon size="48"/> }
                 <VStack>
                   <Text >{bike.name}</Text>
                 </VStack>
-              </Pressable>
               <Pressable className="absolute top-0 right-0" onPress={() => editBike(bike.id)} >
                 <BikeTypeIcon bikeType={bike.type}/>
               </Pressable>
             </HStack>
+            </Pressable>
         ))) : (
           <Text> No Bikes Found</Text>
         )}
@@ -108,13 +108,14 @@ const BikeListComponent = () => {
           </ScrollView>
           <HStack className="w-full flex bg-background-0 flex-grow justify-center">
             <Button 
+              className="bottom-button"
               action="primary"
               onPress={ addBike }
               style={{flex: 1}} 
               testID='addBikeButton'
               accessibilityLabel="Create new bike"
               accessibilityHint="Opens page for adding a bike">
-              <ButtonText>Add Maintenance Item</ButtonText>
+              <ButtonText>Add Bike</ButtonText>
             </Button>
           </HStack>
         </VStack>
@@ -133,23 +134,24 @@ interface BikeIconProps {
 
 const BikeTypeIcon: React.FC<BikeIconProps> = ({ bikeType }) => {
   const theme = useTheme();
-  
+  const iconSize = "36";
+
   if (bikeType === "Road") {
-    return <FlipHorizontalIcon size={24} color={theme.colors.primary} />
+    return <FlipHorizontalIcon size={iconSize}/>
   }
   if (bikeType === "Gravel") {
-    return <ComponentIcon size={24} color={theme.colors.primary} />
+    return <ComponentIcon size={iconSize}/>
   }
   if (bikeType === "Mountain") {
-    return <MountainSnowIcon size={24} color={theme.colors.primary} />
+    return <MountainSnowIcon size={iconSize}/>
   }
   if (bikeType === "Cargo") {
-    return <ShoppingBasketIcon size={24} color={theme.colors.primary} />
+    return <ShoppingBasketIcon size={iconSize}/>
   }
   if (bikeType === "Cruiser") {
-    return <ShoppingBasketIcon size={24} color={theme.colors.primary} />
+    return <ShoppingBasketIcon size={iconSize} />
   }
-  return <BikeIcon size={24} color={theme.colors.primary} />
+  return <BikeIcon size={iconSize}/>
 };
 
 export default BikeListComponent;

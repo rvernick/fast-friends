@@ -307,8 +307,8 @@ const InstructionComponent: React.FC<InstructionProps> = ({part, action}) => {
                 readOnly={helpRequestId > 0}
               />
               {helpRequestId == 0 ? 
-                <Button onPress={handleAskQuestion}> Ask </Button> : 
-                <Button onPress={goToHelpRequestDetails}> Details </Button>  }
+                <Button className="bottom-button" onPress={handleAskQuestion}> Ask </Button> : 
+                <Button className="bottom-button" onPress={goToHelpRequestDetails}> Details </Button>  }
             </Card>
             {references.length > 0 ? <Text variant="titleMedium">References:</Text> : null}
             <List.Section>

@@ -126,7 +126,7 @@ export const WaitForVerificationComponent = () => {
                 <AlertText>Incorrect Verification Code</AlertText>
               </Alert>)
              : <Text> </Text>}
-            <Button size="md" variant="solid"
+            <Button className="bottom-button" size="md" variant="solid"
                 action="primary" 
                 onPress={submitCode}
                 testID="submitButton"
@@ -134,7 +134,7 @@ export const WaitForVerificationComponent = () => {
                 accessibilityHint="The button to submit the info to verify email">
               <ButtonText>Submit</ButtonText>
             </Button>
-            <Button size="md" variant="solid"
+            <Button className="bottom-button" size="md" variant="solid"
                 action="secondary" 
                 onPress={startEmailVerification}
                 testID="resendButton"
@@ -147,38 +147,3 @@ export const WaitForVerificationComponent = () => {
     </BaseLayout>
   );
 };
-/**
-  return (
-    <Surface style={useStyle.container}>
-      <Card mode="contained" style={useStyle.containerCentered} >
-        <Text style={{textAlign: "center"}} variant="headlineMedium">Pedal Assistant</Text>
-        <Text style={{textAlign: "center"}}>Welcome to Pedal Assistant, the on-line platform to assist you with bike maintenance</Text>
-        <Text style={{textAlign: "center"}}>We'll think about your bike needs so you don't have to</Text>
-        <Text style={{textAlign: "center"}}>If you have any difficulty, contact us: support@pedal-assistant.com</Text>
-        <Text> </Text>
-        <Text style={{textAlign: "center"}}>Check your email for a verification code.  Enter the code.</Text>
-        <Text> </Text>
-        <Card style={{height: 150, margin: 12, borderWidth: 1, padding: 10,}}>
-        <TextInput
-          label="Verification Code"
-          value={code}
-          multiline={false}
-          onChangeText={updateCode}
-          mode="outlined"
-          keyboardType="number-pad"
-          autoCapitalize="none"
-          autoCorrect={false}
-          testID="verificationCodeInput"
-          accessibilityLabel="Verification Code Input"
-          accessibilityHint="Enter the verification code you received in your email"
-          />
-          <HelperText type={'error'} visible={showError}>Incorrect Verification Code</HelperText>
-        <Button onPress={submitCode} mode="contained"> Submit </Button>
-        </Card>
-        <Text> </Text>
-        <Button onPress={startEmailVerification}> Resend Verification Code </Button>
-      </Card>
-    </Surface>
-  );
-}
-*/

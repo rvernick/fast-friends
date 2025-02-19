@@ -174,17 +174,15 @@ const MaintenanceComponent = () => {
     }, []);
 
     return (
-      <HStack key={"maintenanceItem-" + maintenanceItem.id}>
-        <Pressable onPress={editMaintenanceItem}>
+      <Pressable className="w-full" onPress={editMaintenanceItem}>
+        <HStack key={"maintenanceItem-" + maintenanceItem.id}>
           <BikePartIcon maintenanceItem={maintenanceItem}/>
-        </Pressable>
-        <Pressable onPress={editMaintenanceItem}>
           <VStack>
             <Text>{maintenanceItem.part}</Text>
             <Text>{description}</Text>
           </VStack>
-        </Pressable>
-      </HStack>
+        </HStack>
+      </Pressable>
     )
   }
 
@@ -215,22 +213,20 @@ const MaintenanceComponent = () => {
     }, []);
 
     return (
-      <HStack key={"bike-" + bike.id}>
-        <Pressable onPress={toggleExpanded} >
-          <BikeIcon/>
-        </Pressable>
-        <Pressable className="h-full w-full" onPress={toggleExpanded} >
+      <Pressable className="row-primary w-full" onPress={toggleExpanded} >
+        <HStack className="w-full" key={"bike-" + bike.id}>
+          <BikeIcon size="48"/>
           <VStack>
             <Text >{bike.name}</Text>
             <Text>{description}</Text>
           </VStack>
           <Pressable className="absolute top-0 right-0" onPress={toggleExpanded} >
             {item.expanded ? 
-              <ChevronUpIcon/> 
-              : <ChevronDownIcon/>}
+              <ChevronUpIcon className="absolute top-0 right-0" size="48"/> 
+              : <ChevronDownIcon size="48"/>}
           </Pressable>
-        </Pressable>
-      </HStack>
+        </HStack>
+      </Pressable>
     )
   }
   
@@ -267,32 +263,32 @@ const MaintenanceComponent = () => {
     const part = maintenanceItem.part;
     if (part === "Chain") {
       return (
-        <Link2Icon/>
+        <Link2Icon size="24"/>
       );
     }
     if (part === "Front Shifter Cable" || part === "Rear Shifter Cable") {
-      return <CableIcon/>
+      return <CableIcon size="24"/>
     }
     if (part === "Cassette") {
-      return (<CogIcon/>);
+      return (<CogIcon size="24"/>);
     }
     if (part === "Front Tire" || part === "Rear Tire") {
-      return (<CircleDotDashedIcon/>);
+      return (<CircleDotDashedIcon size="24"/>);
     }
     if (part === "Front Brake Pads" || part === "Rear Brake Pads") {
-      return (<OctagonMinusIcon/>);
+      return (<OctagonMinusIcon size="24"/>);
     }
     if (part.match("Battery")) {
-      return (<BatteryChargingIcon/>);
+      return (<BatteryChargingIcon size="24"/>);
     }
     if (part.match("Crankset")) {
-      return (<CircleSlash2Icon/>);
+      return (<CircleSlash2Icon size="24"/>);
     }
     if (part.match("Seal")) {
-      return <SprayCanIcon/>;
+      return <SprayCanIcon size="24"/>;
     }
     return (
-      <BikeIcon/>
+      <BikeIcon size="24"/>
     );
   };
 
@@ -363,12 +359,13 @@ const MaintenanceComponent = () => {
             No bikes found. Add a bike or sync with Strava.
           </Text>
           <Button 
-              action="primary"
-              onPress={ refresh }
-              style={{flex: 1}} 
-              accessibilityLabel="Refresh list"
-              accessibilityHint="Will check for new list items">
-              <ButtonText>Refresh</ButtonText>
+            className="bottom-button"
+            action="primary"
+            onPress={ refresh }
+            style={{flex: 1}} 
+            accessibilityLabel="Refresh list"
+            accessibilityHint="Will check for new list items">
+            <ButtonText>Refresh</ButtonText>
           </Button>
         </VStack>
       </SafeAreaView>
@@ -382,9 +379,9 @@ const MaintenanceComponent = () => {
   }
   return (
     <SafeAreaView className="w-full h-full">
-      <VStack className="w-full h-full">
+      <VStack className="w-full h-full gap-2">
         <HStack className="w-full flex justify-between">
-          <Text>Sort by:</Text>
+          <Text className="center-y">Sort by:</Text>
             <Dropdown
               label='Sort By:'
               value={sortOption}
@@ -400,19 +397,20 @@ const MaintenanceComponent = () => {
           ))}
         </VStack>
         </ScrollView>
-        <HStack className="w-full flex bg-background-0 flex-grow justify-center">
+        <HStack className="w-full flex justify-center">
           <Button 
+            className="bottom-button"
             action="primary"
             onPress={ addMaintenanceItem }
-            style={{flex: 1}} 
+            style={{flex: 1}}
             accessibilityLabel="Add Maintenance Item"
             accessibilityHint="Opens page for adding a maintenance item">
             <ButtonText>Add Maintenance Item</ButtonText>
           </Button>
           <Button 
-              action="primary"
+              className="bottom-button"
               onPress={ logMaintenance }
-              style={{flex: 1}} 
+              style={{flex: 1}}
               accessibilityLabel="Log Maintenance"
               accessibilityHint="Opens page for logging maintenance">
               <ButtonText>Log Maintenance</ButtonText>

@@ -1,5 +1,4 @@
 import { router, Stack } from "expo-router";
-import { Button } from "react-native-paper";
 
 export default function Layout() {
   const goBack = () => {
@@ -15,12 +14,10 @@ export default function Layout() {
     <Stack>
       <Stack.Screen name="history" options={{
           title: "History",
-          headerShown: true,
-          // headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
+          headerShown: true,       
         }} />
       <Stack.Screen name="[maintenancehistoryid]" options={{
         title: 'Maintenance History',
-        headerLeft: () => <Button onPress={goBack} icon="arrow-left">{""}</Button>,
       }} />
     </Stack>
   );

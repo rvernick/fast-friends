@@ -318,7 +318,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             <Text>{(stravaId.length > 0) ? ('Strava id: ' + stravaId) : ''}</Text>
           </Pressable>
           {readOnly || isDirty || stravaId.length == 0 ? null : (
-            <Button onPress={() => setConfirmUnlink(true) } disabled={stravaId.length == 0}>
+            <Button className="bottom-button" onPress={() => setConfirmUnlink(true) } disabled={stravaId.length == 0}>
               <ButtonText>Unlink</ButtonText>
             </Button>)}
           <UnlinkWarningComponent />
@@ -413,6 +413,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           ) 
             : (<Button
               style={{flex: 1}}
+              isDisabled={!isDirty}
               onPress={updateAccount}
               accessibilityLabel="Update Account"
               accessibilityHint="Update the user account">

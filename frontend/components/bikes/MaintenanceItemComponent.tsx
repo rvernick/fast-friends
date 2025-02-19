@@ -10,9 +10,8 @@ import { Action, MaintenanceItem, Part } from "@/models/MaintenanceItem";
 import { BikeDropdown } from "../common/BikeDropdown";
 import { PartDropdown } from "../common/PartDropdown";
 import { ActionDropdown } from "../common/ActionDropdown";
-import { Dimensions, Keyboard, ScrollView, View } from "react-native";
+import { Dimensions, Keyboard } from "react-native";
 import { createStyles, defaultWebStyles } from "@/common/styles";
-import { DatePickerInput } from 'react-native-paper-dates';
 import { BaseLayout } from "../layouts/base-layout";
 import { Text } from "../ui/text";
 import { Input, InputField } from "../ui/input";
@@ -530,16 +529,19 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   return (
     <BaseLayout>
     <VStack className="w-full">
+      <Text>Bike</Text>
       <BikeDropdown
         bikes={bikes}
         value={bikeIdString}
         readonly={readOnly || !isNew}
         onSelect={selectBike} />
+      <Text>Part</Text>
       <PartDropdown
         value={part}
         readonly={readOnly || !isNew}
         onSelect={partSelected}
         />
+      <Text>Action</Text>
       <ActionDropdown
         value={action}
         readonly={readOnly || !isNew}
@@ -743,6 +745,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       </Input>
       <HStack className="w-full flex bg-background-0 flex-grow justify-center">
           <Button 
+            className="bottom-button"
             action="primary"
             onPress={ editOrDone }
             style={{flex: 1}} 
@@ -762,6 +765,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         )} */}
         { (readOnly || isNew) ? null : (
           <Button
+            className="bottom-button"
             onPress={ cancel }
             style={{flex: 1}} 
             accessibilityLabel="Cancel"
@@ -771,6 +775,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         )}
         { (readOnly || isNew || deleteLabel === 'History') ? null : (
           <Button
+            className="bottom-button"
             onPress={ deleteMaintenanceItem }
             style={{flex: 1}} 
             accessibilityLabel="Delete"
@@ -780,6 +785,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         )}
         { (readOnly || isNew || deleteLabel === 'History') ? (
           <Button
+            className="bottom-button"
             onPress={ goToHistory }
             style={{flex: 1}} 
             accessibilityLabel="History"

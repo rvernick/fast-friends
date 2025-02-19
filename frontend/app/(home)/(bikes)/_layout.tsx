@@ -1,5 +1,4 @@
-import { Stack, Tabs, router } from "expo-router";
-import { Button } from "react-native-paper";
+import { Stack } from "expo-router";
 
 export default function Layout() {
 
@@ -12,7 +11,7 @@ export default function Layout() {
       <Stack.Screen name="[bikeid]" options={{
         title: 'Bike',
         headerShown: true,
-        headerLeft: () => <Button onPress={() => router.push('/(home)/(bikes)')} icon="arrow-left">{""}</Button>,
+        
       }} />
     </Stack>    
   );

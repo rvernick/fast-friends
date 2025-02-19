@@ -304,6 +304,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
         </VStack>
         <HStack>
           <Button 
+            className="bottom-button"
             action="primary"
             onPress={ editOrDone }
             style={{flex: 1}} 
@@ -311,17 +312,18 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
             accessibilityHint="Will save any changes and go back">
             <ButtonText>{ readOnly? 'Edit' : 'Done' }</ButtonText>
           </Button>
-          { (readOnly || isNew) ? null : <Button style={{flex: 1}} onPress={ cancel }>
+          { (readOnly || isNew) ? null : <Button className="bottom-button" style={{flex: 1}} onPress={ cancel }>
             <ButtonText>Cancel</ButtonText> 
             </Button>}
-          { (readOnly || isNew) ? null : <Button style={{flex: 1}} onPress={ deleteBike }> 
+          { (readOnly || isNew) ? null : <Button className="bottom-button" style={{flex: 1}} onPress={ deleteBike }> 
             <ButtonText>Delete</ButtonText>
             </Button>}
-          { (readOnly && !isNew) ? <Button style={{flex: 1}} onPress={ maintenanceHistory }>
+          { (readOnly && !isNew) ? <Button className="bottom-button" style={{flex: 1}} onPress={ maintenanceHistory }>
             <ButtonText>History</ButtonText>
             </Button> : null }
           {(connectedToStrava && readOnly &&!isNew ) ?
             <Button
+              className="bottom-button"
               style={{flex: 1}}
               onPress={ viewOnStrava }
               accessibilityLabel="View on Strava"
@@ -333,37 +335,5 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     </BaseLayout>
   );
 };
-
-
-/**
-  return (
-    <Surface style={useStyle.containerScreen}>
-      <Card>      
-      <Surface style={useStyle.bottomButtons}>
-        <Button mode="contained"
-          onPress={ editOrDone }
-          style={{flex: 1}}
-          accessibilityLabel="Finished editing"
-          accessibilityHint="Will save any changes and go back">
-          { readOnly? 'Edit' : 'Done' }
-        </Button>
-        { (readOnly || isNew) ? null : <Button mode="contained" style={{flex: 1}} onPress={ cancel }> Cancel </Button>}
-        { (readOnly || isNew) ? null : <Button mode="contained" style={{flex: 1}} onPress={ deleteBike }> Delete </Button>}
-        { (readOnly && !isNew) ? <Button mode="contained" style={{flex: 1}} onPress={ maintenanceHistory }> History </Button> : null }
-        {(connectedToStrava() && readOnly &&!isNew ) ?
-          <Tooltip title={"View Strava: Will open the bike details on Strava"}>
-            <Button
-            mode="outlined"
-            style={{flex: 1}}
-            onPress={ viewOnStrava }
-            accessibilityLabel="View on Strava"
-            accessibilityHint="Open up the bike details on Strava">View on Strava
-          </Button>
-        </Tooltip> : null}
-      </Surface>
-    </Surface>
-  )
-};
-*/
 
 export default BikeComponent;

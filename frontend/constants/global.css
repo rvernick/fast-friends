@@ -1,6 +1,14 @@
 @tailwind base;
 @tailwind components;
 
+.bottom-button {
+  @apply shadow-md rounded-2xl m-1
+}
+
+.row-primary {
+  @apply shadow-md
+}
+
 /* Put any composed (@apply) statements here */
 
 @tailwind utilities;
