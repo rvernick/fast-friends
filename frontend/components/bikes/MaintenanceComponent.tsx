@@ -178,8 +178,8 @@ const MaintenanceComponent = () => {
         <HStack key={"maintenanceItem-" + maintenanceItem.id}>
           <BikePartIcon maintenanceItem={maintenanceItem}/>
           <VStack>
-            <Text>{maintenanceItem.part}</Text>
-            <Text>{description}</Text>
+            <Text className="text-lg">{maintenanceItem.part}</Text>
+            <Text className="text-sm">{description}</Text>
           </VStack>
         </HStack>
       </Pressable>
