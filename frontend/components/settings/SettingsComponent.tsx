@@ -45,7 +45,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const [warnOnLosingData, setWarnOnLosingData] = useState(false);
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
-  
+
   const blankUser = {username: email,
     firstName: '',
     lastName: '',
@@ -53,7 +53,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     stravaId: providedStravaId,
     units: "miles",
     pushToken: '' };
-    
+
   const { status, data, error, isFetching } = useQuery({
     queryKey: ['user'],
     queryFn: () => fetchUser(session, email),
@@ -70,7 +70,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     forget("ff.preferences");
     setIsDirty(false);
   }
-  
+
   const [firstName, setEnteredFirstName] = useState(ensureString(data?.firstName));
   const [lastName, setEnteredLastName] = useState(ensureString(data?.lastName));
   const [cellPhone, setEnteredCellPhone] = useState(ensureString(data?.cellPhone));
@@ -170,7 +170,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const hideWarnAgainstLinking = () => {
     setWarnAgainstLinking(false);
   }
-  
+
   const unlinkFromStrava = async () => {
     setConfirmUnlink(false);
     const msg = await stravaController.unlinkFromStrava(session, appContext, data);
@@ -247,6 +247,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           </AlertDialogBody>
           <AlertDialogFooter>
             <Button
+              className="bottom-button shadow-md rounded-lg m-1"
               variant="outline"
               action="secondary"
               onPress={() => setConfirmUnlink(false)}
@@ -254,7 +255,10 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             >
               <ButtonText>Cancel</ButtonText>
               </Button>
-              <Button size="sm" onPress={unlinkFromStrava}>
+              <Button
+                className="bottom-button shadow-md rounded-lg m-1"
+                size="sm"
+                onPress={unlinkFromStrava}>
                 <ButtonText>Unlink</ButtonText>
             </Button>
               </AlertDialogFooter>
@@ -280,14 +284,17 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           </AlertDialogBody>
           <AlertDialogFooter>
             <Button
-              variant="outline"
-              action="secondary"
-              onPress={() => setWarnAgainstDeleting(false)}
-              size="sm"
-            >
+                className="bottom-button shadow-md rounded-lg m-1"
+                variant="outline"
+                action="secondary"
+                onPress={() => setWarnAgainstDeleting(false)}
+                size="sm">
               <ButtonText>Cancel</ButtonText>
               </Button>
-              <Button size="sm" onPress={deleteAccount}>
+              <Button
+                  className="bottom-button shadow-md rounded-lg m-1"
+                  size="sm"
+                  onPress={deleteAccount}>
                 <ButtonText>Delete Account</ButtonText>
             </Button>
               </AlertDialogFooter>
@@ -318,7 +325,10 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             <Text>{(stravaId.length > 0) ? ('Strava id: ' + stravaId) : ''}</Text>
           </Pressable>
           {readOnly || isDirty || stravaId.length == 0 ? null : (
-            <Button className="bottom-button" onPress={() => setConfirmUnlink(true) } disabled={stravaId.length == 0}>
+            <Button
+                className="bottom-button shadow-md rounded-lg m-1"
+                onPress={() => setConfirmUnlink(true) }
+                disabled={stravaId.length == 0}>
               <ButtonText>Unlink</ButtonText>
             </Button>)}
           <UnlinkWarningComponent />
@@ -386,6 +396,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             </Radio>
           </RadioGroup>
           <Button
+            className="shadow-md rounded-lg m-1"
             style={{flex: 1}}
             onPress={ () => router.push('/(home)/(settings)/change-password') }
             accessibilityLabel="Change Password"
@@ -395,6 +406,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
         </VStack>
         {readOnly ? null : (
           <Button
+          className="shadow-md rounded-lg m-1"
           style={{flex: 1}}
           onPress={() => setWarnAgainstDeleting(true)}
           accessibilityLabel="Delete Account"
@@ -404,6 +416,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
         <HStack>
           {readOnly ? (
             <Button
+              className="bottom-button shadow-md rounded-lg m-1"
               style={{flex: 1}}
               onPress={() => setReadOnly(false)}
               accessibilityLabel="Edit Account"
@@ -412,6 +425,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             </Button>
           ) 
             : (<Button
+              className="bottom-button shadow-md rounded-lg m-1"
               style={{flex: 1}}
               isDisabled={!isDirty}
               onPress={updateAccount}
@@ -422,6 +436,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
           <DeleteAccountComponent />
           {readOnly ? null : (
             <Button
+              className="bottom-button shadow-md rounded-lg m-1"
               style={{flex: 1}}
               onPress={cancel}
               accessibilityLabel="Cancel edit"
@@ -432,98 +447,4 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
       </VStack>
     </BaseLayout>
   )
-  // return (
-  //   <Surface >
-  //     {/* <ScrollView style={styles.container}> */}
-  //     <Card>
-  //       <Card.Content>
-  //         <Portal>
-  //           <Dialog visible={warnAgainstLinking} onDismiss={hideWarnAgainstLinking}>
-  //             <Dialog.Title>Alert</Dialog.Title>
-  //             <Dialog.Content>
-  //               <Text variant="bodyMedium">Log in through browser to link with Strava https://www.pedal-assistant.com</Text>
-  //             </Dialog.Content>
-  //             <Dialog.Actions>
-  //               <Button onPress={hideWarnAgainstLinking}>Done</Button>
-  //             </Dialog.Actions>
-  //           </Dialog>
-  //         </Portal> 
-  //         <Portal>
-  //           <Dialog visible={warnOnLosingData} onDismiss={cancelLinkToStrava}>
-  //             <Dialog.Title>Alert</Dialog.Title>
-  //             <Dialog.Content>
-  //               <Text variant="bodyMedium">Do you want to save changes before linking to Strava</Text>
-  //             </Dialog.Content>
-  //             <Dialog.Actions>
-  //               <Button onPress={saveAndGoToStrava}>Save and Link to Strava</Button>
-  //               <Button onPress={cancelLinkToStrava}>Cancel</Button>
-  //             </Dialog.Actions>
-  //           </Dialog>
-  //         </Portal> 
-  //       </Card.Content>
-  //     </Card>
-  //     <Card>
-  //       <Card.Title title={firstName + ': ' + email} />
-  //       <Card.Content>
-  //         <HelperText type="error" visible={errorMessage.length > 0} style={{ marginTop: 10 }}>
-  //           {errorMessage}
-  //         </HelperText>
-  //         <HelperText type="error" visible={mobileErrorMessage.length > 0} style={{ marginTop: 10 }}>
-  //           {mobileErrorMessage}
-  //         </HelperText>
-        
-  //         <HelperText type="error"> </HelperText>
-  //         <Button
-  //           mode="contained"
-  //           onPress={ updateAccount }
-  //           disabled={!isDirty || mobileErrorMessage.length > 0}
-  //           testID="update-button"
-  //           accessibilityLabel="Save Changes"
-  //           accessibilityHint="Save settings changes">
-  //               Update Account
-  //         </Button>
-  //         {isDirty ? <Button
-  //           mode="contained"
-  //           onPress={ cancel }
-  //           testID="cancel-button"
-  //           accessibilityLabel="Cancel Changes"
-  //           accessibilityHint="Cancel settings changes">
-  //               Cancel
-  //         </Button> : null}
-  //         <Portal>
-  //           <Dialog visible={saveSuccessful} onDismiss={ () => setSaveSuccessful(false)}>
-  //             <Dialog.Title>Alert</Dialog.Title>
-  //             <Dialog.Content>
-  //               <Text variant="bodyMedium">Account Update Successful</Text>
-  //             </Dialog.Content>
-  //             <Dialog.Actions>
-  //               <Button onPress={() => setSaveSuccessful(false)}>Ok</Button>
-  //             </Dialog.Actions>
-  //           </Dialog>
-  //         </Portal> 
-  //         <HelperText type="error"> </HelperText>
-  //         <Button mode="contained" onPress={ () => router.push('/(home)/(settings)/change-password') }>
-  //             Change Password
-  //         </Button>
-  //         <Text> </Text>
-  //         <Button mode="contained" onPress={ () => setWarnAgainstDeleting(true) }>
-  //             Delete Account
-  //         </Button>
-  //         <Portal>
-  //           <Dialog visible={warnAgainstDeleting} onDismiss={ () => setWarnAgainstDeleting(false)}>
-  //             <Dialog.Title>Alert</Dialog.Title>
-  //             <Dialog.Content>
-  //               <Text variant="bodyMedium">Are you sure you want to delete your account?  Cannot be undone.</Text>
-  //             </Dialog.Content>
-  //             <Dialog.Actions>
-  //               <Button onPress={() => setWarnAgainstDeleting(false)}>Cancel</Button>
-  //               <Button onPress={deleteAccount}>Delete</Button>
-  //             </Dialog.Actions>
-  //           </Dialog>
-  //         </Portal> 
-  //       </Card.Content>
-  //     </Card>
-  //     {/* </ScrollView> */}
-  //   </Surface>
-  // )
 };

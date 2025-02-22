@@ -35,6 +35,9 @@ const { LightTheme, DarkTheme } = adaptNavigationTheme({
 const CombinedLightTheme = merge(LightTheme, customLightTheme);
 const CombinedDarkTheme = merge(DarkTheme, customDarkTheme);
 
+CombinedLightTheme.roundness = 2;
+CombinedDarkTheme.roundness = 2;
+
 const onError = (error: Error, stackTrace: string) => {
   console.error(error, stackTrace);
 };
@@ -56,7 +59,7 @@ export default function RootLayout() {
         <SessionProvider>
           <NotificationProvider>
             <GlobalStateProvider>
-              <ThemeProvider value={colorScheme}>
+              <ThemeProvider value={colorScheme} >
                 <GluestackUIProvider mode={systemColorScheme === 'dark' ? 'dark' : 'light'}>
                   <PaperProvider theme={colorScheme}> 
                     <Slot />

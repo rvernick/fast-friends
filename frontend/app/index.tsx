@@ -38,7 +38,7 @@ export default function Index() {
             <Text> </Text>
           </VStack>
         </VStack>
-        <Button className="bottom-button" onPress={signIn}>
+        <Button className="bottom-button shadow-md rounded-lg m-1" onPress={signIn}>
           <ButtonText>Get Started</ButtonText>
         </Button>
         <VStack>   

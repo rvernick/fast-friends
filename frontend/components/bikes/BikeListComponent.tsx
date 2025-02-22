@@ -80,14 +80,23 @@ type BikeRowProps = {
 
   const BikeRow: React.FC<BikeRowProps> = ({ bike }) => {
     const [mileageField, setMileageField] = useState('');
+    const [description, setDescription] = useState('');
 
     const syncMileage = async (bike: Bike) => {
       const prefs = await preferences;
       setMileageField(metersToDisplayString(bike.odometerMeters, prefs) + ' ' + prefs.units);
     }
 
+    const syncDescription = async (bike: Bike) => {
+      const prefs = await preferences;
+      const milageString = metersToDisplayString(bike.odometerMeters, prefs) + ' ' + prefs.units;
+      const val = bike.type || '';
+      setDescription(val + ' - ' + milageString);
+    }
+
     useEffect(() => {
       syncMileage(bike);
+      syncDescription(bike);
     }, [bike]);
 
     return (
@@ -95,8 +104,8 @@ type BikeRowProps = {
         <HStack className='row-primary' key={'bike: ' + bike.id + '-' + bike.odometerMeters} >
             {bike.isElectronic ? <ZapIcon size="48"/> : <BikeIcon size="48"/> }
             <VStack>
-              <Text className="text-lg">{bike.name}</Text>
-              <Text>{bike.type + ' - ' + mileageField}</Text>
+              <Text className="text-xl">{bike.name}</Text>
+              <Text>{description}</Text>
             </VStack>
           <Pressable className="absolute top-0 right-0" onPress={() => editBike(bike.id)} >
             <BikeTypeIcon bikeType={bike.type}/>
@@ -140,7 +149,7 @@ type BikeRowProps = {
           </ScrollView>
           <HStack className="w-full flex bg-background-0 flex-grow justify-center">
             <Button 
-              className="bottom-button"
+              className="bottom-button shadow-md rounded-lg m-1"
               action="primary"
               onPress={ addBike }
               style={{flex: 1}} 

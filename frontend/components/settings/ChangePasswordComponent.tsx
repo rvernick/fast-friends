@@ -162,7 +162,7 @@ export const ChangePasswordComponent = () => {
         </VStack>
         <HStack>
           <Button 
-            className="bottom-button"
+            className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             disabled={passwordConfirmErrorMessage.length > 0 || passwordConfirmErrorMessage.length > 0}
             onPress={ changePassword }
@@ -171,8 +171,8 @@ export const ChangePasswordComponent = () => {
             accessibilityHint="Submits the new password for verification and changing">
             <ButtonText>Update Password</ButtonText>
           </Button>
-          <Button 
-            className="bottom-button"
+          <Button
+            className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ backToSettings }
             style={{flex: 1}} 

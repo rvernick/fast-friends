@@ -29,7 +29,7 @@ import { useToast } from "@/components/ui/toast";
 export const LoginComponent = () => {
   const session = useSession();
   const queryClient = useQueryClient();
-  
+
   var user = '';
   var pword = '';
 
@@ -314,7 +314,9 @@ export const LoginComponent = () => {
           </HStack>
         </VStack>
         <VStack className="w-full my-7 " space="lg">
-          <Button className="w-full" onPress={handleSubmit(onSubmit)}>
+          <Button
+              className="bottom-button shadow-md rounded-lg m-1"
+              onPress={handleSubmit(onSubmit)}>
             <ButtonText className="font-medium">Log in</ButtonText>
           </Button>
         </VStack>
