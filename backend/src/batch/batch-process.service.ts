@@ -87,8 +87,8 @@ export class BatchProcessService {
       const currentBatchProcess = await this.batchProcessRepository.findOneBy({ id });
       currentBatchProcess.lockedKey = null;
       currentBatchProcess.lockedOn = null;
-      await this.batchProcessRepository.save(batchProcess);
-      this.logger.log('Unlocked batch process ' + JSON.stringify(batchProcess));
+      await this.batchProcessRepository.save(currentBatchProcess);
+      this.logger.log('Unlocked batch process ' + JSON.stringify(currentBatchProcess));
     } catch (error) {
       this.logger.log('Error finishing batch process name: ', batchProcess.name);
       this.logger.log('Error finishing batch process key: ', batchProcess.lockedKey);
