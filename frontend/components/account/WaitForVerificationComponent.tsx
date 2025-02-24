@@ -126,7 +126,7 @@ export const WaitForVerificationComponent = () => {
                 <AlertText>Incorrect Verification Code</AlertText>
               </Alert>)
              : <Text> </Text>}
-            <Button className="bottom-button" size="md" variant="solid"
+            <Button className="bottom-button shadow-md rounded-lg m-1" size="md" variant="solid"
                 action="primary" 
                 onPress={submitCode}
                 testID="submitButton"
@@ -134,7 +134,7 @@ export const WaitForVerificationComponent = () => {
                 accessibilityHint="The button to submit the info to verify email">
               <ButtonText>Submit</ButtonText>
             </Button>
-            <Button className="bottom-button" size="md" variant="solid"
+            <Button className="bottom-button shadow-md rounded-lg m-1" size="md" variant="solid"
                 action="secondary" 
                 onPress={startEmailVerification}
                 testID="resendButton"

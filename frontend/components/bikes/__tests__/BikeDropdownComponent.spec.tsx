@@ -38,21 +38,21 @@ describe('Bike Dropdown Component', () => {
   it('Should not crash when bikes undefined', async () => {
     startComponent(undefined);
 
-    const partSelector = await screen.findAllByText('Bike');
+    const partSelector = await screen.findByTestId('bikeDropdown');
     expect(partSelector).not.toBeNull();
   });
 
   it('Should not crash when bikes is null', async () => {
     startComponent(null);
 
-    const partSelector = await screen.findAllByText('Bike');
+    const partSelector = await screen.findByTestId('bikeDropdown');
     expect(partSelector).not.toBeNull();
   });
 
   it('Should not crash when bikes is empty', async () => {
     startComponent([]);
     
-    const partSelector = await screen.findAllByText('Bike');
+    const partSelector = await screen.findByTestId('bikeDropdown');
     expect(partSelector).not.toBeNull();
   });
 

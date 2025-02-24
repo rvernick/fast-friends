@@ -193,9 +193,10 @@ export const CreateAccountComponent: React.FC<CreateAccountComponentProps> = ({ 
               </Alert>)
              : <Text> </Text>}
             <Button size="md" variant="solid"
+                className="bottom-button shadow-md rounded-lg m-1"
                 action="primary" 
                 onPress={apply}
-                // disabled={!(isValidEmail(email) || email === DEVELOPER)}
+                disabled={emailErrorMessage.length > 0 || passwordConfirmErrorMessage.length > 0 || passwordErrorMessage.length > 0}
                 testID="submitButton"
                 accessibilityLabel="Sign Up Button"
                 accessibilityHint="The button to submit the info to create the new account">

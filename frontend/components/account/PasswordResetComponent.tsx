@@ -56,7 +56,7 @@ export const PasswordResetComponent = () => {
                 accessibilityLabel="Email Address"
                 accessibilityHint="Email address for account which needs a password reset"/>
             </Input>
-            <Button className="bottom-button" size="md" variant="solid"
+            <Button className="bottom-button shadow-md rounded-lg m-1" size="md" variant="solid"
                 action="primary" 
                 onPress={resetPassword}
                 disabled={!(isValidEmail(email) || email === DEVELOPER)}

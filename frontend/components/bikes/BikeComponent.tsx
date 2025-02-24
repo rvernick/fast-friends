@@ -304,7 +304,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
         </VStack>
         <HStack>
           <Button 
-            className="bottom-button"
+            className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ editOrDone }
             style={{flex: 1}} 
@@ -312,18 +312,18 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
             accessibilityHint="Will save any changes and go back">
             <ButtonText>{ readOnly? 'Edit' : 'Done' }</ButtonText>
           </Button>
-          { (readOnly || isNew) ? null : <Button className="bottom-button" style={{flex: 1}} onPress={ cancel }>
+          { (readOnly || isNew) ? null : <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ cancel }>
             <ButtonText>Cancel</ButtonText> 
             </Button>}
-          { (readOnly || isNew) ? null : <Button className="bottom-button" style={{flex: 1}} onPress={ deleteBike }> 
+          { (readOnly || isNew) ? null : <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ deleteBike }> 
             <ButtonText>Delete</ButtonText>
             </Button>}
-          { (readOnly && !isNew) ? <Button className="bottom-button" style={{flex: 1}} onPress={ maintenanceHistory }>
+          { (readOnly && !isNew) ? <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ maintenanceHistory }>
             <ButtonText>History</ButtonText>
             </Button> : null }
           {(connectedToStrava && readOnly &&!isNew ) ?
             <Button
-              className="bottom-button"
+              className="bottom-button shadow-md rounded-lg m-1"
               style={{flex: 1}}
               onPress={ viewOnStrava }
               accessibilityLabel="View on Strava"

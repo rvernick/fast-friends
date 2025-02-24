@@ -87,7 +87,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const [dueDateErrorMessage, setDueDateErrorMessage] = useState('');
   const [dueDistanceLabel, setDueDistanceLabel] = useState('Due Distance (miles)');
   const [defaultLongevityLabel, setDefaultLongevityLabel] = useState('Default Longevity (miles)');
-  const [brand, setBrand] = useState('Shimano');
+  const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
   const [link, setLink] = useState('');
   const [defaultLongevity, setDefaultLongevity] = useState('1500');
@@ -169,9 +169,13 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   }
 
   const cancel = () => {
-    setIsInitialized(false);
-    setReadOnly(true);
-    reset();
+    if (isNew) {
+      navigation.goBack();
+    } else {
+      setIsInitialized(false);
+      setReadOnly(true);
+      reset();
+    }
   }
 
   const resetMaintenanceItem = async (item: MaintenanceItem) => {
@@ -745,7 +749,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       </Input>
       <HStack className="w-full flex bg-background-0 flex-grow justify-center">
           <Button 
-            className="bottom-button"
+            className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ editOrDone }
             style={{flex: 1}} 
@@ -755,7 +759,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         </Button>
         { (!readOnly || isNew) ? null : (
           <Button
-            className="bottom-button"
+            className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ () => router.replace({pathname: '/(home)/(assistance)/instructions',  params: {part: part, action: action}}) }
             style={{flex: 1}} 
@@ -764,9 +768,9 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             <ButtonText>Instructions</ButtonText>
           </Button>
         )}
-        { (readOnly || isNew) ? null : (
+        { (readOnly) ? null : (
           <Button
-            className="bottom-button"
+            className="bottom-button shadow-md rounded-lg m-1"
             onPress={ cancel }
             style={{flex: 1}} 
             accessibilityLabel="Cancel"
@@ -776,7 +780,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         )}
         { (readOnly || isNew || deleteLabel === 'History') ? null : (
           <Button
-            className="bottom-button"
+            className="bottom-button shadow-md rounded-lg m-1"
             onPress={ deleteMaintenanceItem }
             style={{flex: 1}} 
             accessibilityLabel="Delete"
@@ -784,9 +788,9 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             <ButtonText>{deleteLabel}</ButtonText>
           </Button>
         )}
-        { (readOnly || isNew || deleteLabel === 'History') ? (
+        { (readOnly || deleteLabel === 'History') ? (
           <Button
-            className="bottom-button"
+            className="bottom-button shadow-md rounded-lg m-1"
             onPress={ goToHistory }
             style={{flex: 1}} 
             accessibilityLabel="History"

@@ -178,8 +178,8 @@ const MaintenanceComponent = () => {
         <HStack key={"maintenanceItem-" + maintenanceItem.id}>
           <BikePartIcon maintenanceItem={maintenanceItem}/>
           <VStack>
-            <Text>{maintenanceItem.part}</Text>
-            <Text>{description}</Text>
+            <Text className="text-lg">{maintenanceItem.part}</Text>
+            <Text className="text-sm">{description}</Text>
           </VStack>
         </HStack>
       </Pressable>
@@ -217,7 +217,7 @@ const MaintenanceComponent = () => {
         <HStack className="w-full" key={"bike-" + bike.id}>
           <BikeIcon size="48"/>
           <VStack>
-            <Text >{bike.name}</Text>
+            <Text className='text-xl' >{bike.name}</Text>
             <Text>{description}</Text>
           </VStack>
           <Pressable className="absolute top-0 right-0" onPress={toggleExpanded} >
@@ -359,7 +359,7 @@ const MaintenanceComponent = () => {
             No bikes found. Add a bike or sync with Strava.
           </Text>
           <Button 
-            className="bottom-button"
+            className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ refresh }
             style={{flex: 1}} 
@@ -399,7 +399,7 @@ const MaintenanceComponent = () => {
         </ScrollView>
         <HStack className="w-full flex justify-center">
           <Button 
-            className="bottom-button"
+            className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ addMaintenanceItem }
             style={{flex: 1}}
@@ -408,7 +408,7 @@ const MaintenanceComponent = () => {
             <ButtonText>Add Maintenance Item</ButtonText>
           </Button>
           <Button 
-              className="bottom-button"
+              className="bottom-button shadow-md rounded-lg m-1"
               onPress={ logMaintenance }
               style={{flex: 1}}
               accessibilityLabel="Log Maintenance"

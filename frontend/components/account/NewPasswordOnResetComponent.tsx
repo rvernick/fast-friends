@@ -149,7 +149,8 @@ export const NewPasswordOnResetComponent: React.FC<NewPasswordOnResetProps> = ()
               <AlertText>{passwordConfirmErrorMessage}</AlertText>
             </Alert>)
             : <Text> </Text>}
-          <Button size="md" variant="solid"
+          <Button variant="solid"
+            className="bottom-button shadow-md rounded-lg m-1"
             onPress={callResetPassword}
             accessibilityLabel="Submit New Password"
             accessibilityHint="Validates and updates passord for the account"
