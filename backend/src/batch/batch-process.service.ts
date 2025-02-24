@@ -46,11 +46,21 @@ export class BatchProcessService {
           this.logger.error('Locked batch process key mismatch');
           return null;
         }
+      } else {
+        if (this.hasBeenLockedForTooLong(wasLocked)) {
+          this.unlock(batchProcess);
+        }
       }
     } catch (error) {
       this.logger.log('Error locking batch process name: ', error);
       return null;
     }
+  }
+
+  private hasBeenLockedForTooLong(batchProcess: BatchProcess): boolean {
+    const lockDuration = 12 * 60 * 60 * 1000 ; // 12 hours
+    const lockAge = new Date().getTime() - batchProcess.lockedOn.getTime();
+    return lockAge > lockDuration;
   }
 
   async finish(batchProcess: BatchProcess) {
