@@ -381,14 +381,18 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
               accessibilityLabel="Mobile number"
               accessibilityHint="Mobile number"/>
           </Input>
-          <RadioGroup isDisabled={readOnly} value={units} onChange={updateUnits} >
-            <Radio value="miles">
+          <RadioGroup
+              isDisabled={readOnly}
+              value={units}
+              onChange={updateUnits}
+              testID="miles-km-selection">
+            <Radio value="miles" testID="unit-miles">
               <RadioIndicator>
                 <RadioIcon as={CircleIcon} />
               </RadioIndicator>
               <RadioLabel>miles</RadioLabel>
             </Radio>
-            <Radio value="km">
+            <Radio value="km" testID="unit-km">
               <RadioIndicator>
                 <RadioIcon as={CircleIcon} />
               </RadioIndicator>
@@ -419,6 +423,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
               className="bottom-button shadow-md rounded-lg m-1"
               style={{flex: 1}}
               onPress={() => setReadOnly(false)}
+              testID="edit-button"
               accessibilityLabel="Edit Account"
               accessibilityHint="Edit the user account">
                 <ButtonText>Edit</ButtonText>
@@ -429,6 +434,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
               style={{flex: 1}}
               isDisabled={!isDirty}
               onPress={updateAccount}
+              testID="update-button"
               accessibilityLabel="Update Account"
               accessibilityHint="Update the user account">
                 <ButtonText>Update</ButtonText>

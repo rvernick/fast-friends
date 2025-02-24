@@ -56,32 +56,29 @@ describe('Settings Component', () => {
 
   it('Button disabled until dirty', async () => {
     startComponent();
+    const editButton = await screen.findByTestId('edit-button');
+    fireEvent.press(editButton);
     const updateButton = await screen.findByTestId('update-button');
     console.log('button found');
     expect(updateButton.props.accessibilityState.disabled).toBe(true);
     console.log('button disabled');
-    const kmButton = screen.getByTestId('unit-km');
-    console.log('km button found');
+    const milesButton = screen.getByTestId('unit-miles');
+    // console.log('miles button found: ', milesButton.props);
 
     // fireEvent.press(kmButton);
     const user = userEvent.setup();
-    await user.press(kmButton)
-    console.log('km button pressed');
-    waitFor(() => {
-      // const buttonNow = screen.getByTestId('update-button');
-      // const refindButton = await screen.findByTestId('unit-km');
-      // console.log('refound button');
-      expect(updateButton.props.accessibilityState.disabled).toBe(false);
-      console.log('done right');
-    }, {
-        timeout: 2000,
-    });
-   
+    await user.press(milesButton)
+    // console.log('miles button pressed', milesButton.props);
+    const updatedButton = await screen.findByTestId('update-button');
+    // console.log('updated button found', updatedButton.props);
+    expect(updatedButton.props.accessibilityState.disabled).toBe(false);
     console.log('done');
   });
 
   it('Name disabled until dirty by name', async () => {
     startComponent();
+    const editButton = await screen.findByTestId('edit-button');
+    fireEvent.press(editButton);
     const updateButton = await screen.findByTestId('update-button');
     console.log('by name button found');
     expect(updateButton.props.accessibilityState.disabled).toBe(true);
@@ -100,12 +97,14 @@ describe('Settings Component', () => {
     expect(kmButton.props.accessibilityState.checked).toBe(true);
     expect(milesButton.props.accessibilityState.checked).toBe(false);
     
-    const user = userEvent.setup();
+    const user = userEvent.setup();    
+    const editButton = await screen.findByTestId('edit-button');
+    fireEvent.press(editButton);
+
     await user.press(milesButton)
 
     expect(kmButton.props.accessibilityState.checked).toBe(false);
     expect(milesButton.props.accessibilityState.checked).toBe(true);
 
   });
-
 });
