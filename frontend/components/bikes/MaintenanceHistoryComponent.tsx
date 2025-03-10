@@ -2,14 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { useQuery } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
 import { router, useNavigation } from 'expo-router';
-import { Text, Surface, DataTable, ActivityIndicator, Button } from 'react-native-paper';
 import { useSession } from '@/common/ctx';
-import { Dimensions, ScrollView } from 'react-native';
-import { createStyles, defaultWebStyles } from '@/common/styles';
+import { SafeAreaView, ScrollView, View } from 'react-native';
 import { ensureString, isMobile, isMobileSize, metersToDisplayString } from '@/common/utils';
 import { BikeDropdown } from '../common/BikeDropdown';
 import MaintenanceHistoryController from './MaintenanceHistoryController';
 import { MaintenanceHistoryItem } from '@/models/MaintenanceHistory';
+import { VStack } from '../ui/vstack';
+import { HStack } from '../ui/hstack';
+import { Button, ButtonText } from '../ui/button';
+import { Text } from '../ui/text';
+import { Spinner } from '../ui/spinner';
+import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Pressable } from '../ui/pressable';
 
 type MaintenanceHistoryProps = {
   bikeid: number,
@@ -32,9 +37,6 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
   const [initialized, setInitialized ] = useState(false);
   const [distanceStrings, setDistanceStrings ] = useState(new Map<string, string>());
   const [distanceHeader, setDistanceHeader ] = useState('Distance (miles)');
-
-  const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const { data: bikes, error: bikesError, isFetching: bikesFetching } = useQuery({
     queryKey: ['bikes'],
@@ -204,97 +206,97 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
         An error occured!
       </Text>
     )
-  } else {
-    return (
-      <Surface style={useStyle.containerScreen}>
-        {historyFetching ? <ActivityIndicator animating={historyFetching} size="large" /> : null }
-        <BikeDropdown
-          bikes={bikes}
-          value={bikeId}
-          readonly={false}
-          onSelect={handleBikePress}
-          useAll={!smallScreen}
-        />
-        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
-          <DataTable style={useStyle.containerBody} testID='historyTable'>
-            <DataTable.Header>
-              {smallScreen ? null : (<DataTable.Title
-                numeric={false}
-                sortDirection={sortBy('bike')}
-                onPress={() => handleSort('bike')}>
-                  Bike</DataTable.Title>
-              )}
-              <DataTable.Title
-                numeric={false}
-                sortDirection={sortBy('part')}
-                onPress={() => handleSort('part')}>
-                  Part</DataTable.Title>
-              <DataTable.Title
-                numeric={false}
-                sortDirection={sortBy('action')}
-                onPress={() => handleSort('action')}>
-                  Action</DataTable.Title>
-              <DataTable.Title
-                numeric={true}
-                sortDirection={sortBy('distance')}
-                testID='distanceHeader'
-                onPress={() => handleSort('distance')}>
-                  {distanceHeader}</DataTable.Title>
-            </DataTable.Header>
-            {history && history.length > 0 ? (
-              sortedAndFilteredHistory(history, sortColumn, sortDirection).map((historyItem, index, histories) => (
-                <DataTable.Row
-                    onPress={() => editHistoryItem(historyItem)}
-                    key={'history' + historyItem.id}
-                    testID={"row: " + index}>
-                  {smallScreen ? null : (
-                    <DataTable.Cell testID={"bikeCell: " + index}>{historyItem.bikeName}</DataTable.Cell>
-                  )}
-                  <DataTable.Cell testID={"partCell: " + index}>{historyItem.part}</DataTable.Cell>
-                  <DataTable.Cell testID={"actionCell: " + index}>{historyItem.action}</DataTable.Cell>
-                  <DataTable.Cell testID={"distanceCell: " + index} numeric>{distanceStrings.get(historyItem.id.toFixed(0))}</DataTable.Cell>
-
-                </DataTable.Row>
-              ))) : (historyFetching ? (
-                  <DataTable.Row>
-                  <DataTable.Cell>Fetching </DataTable.Cell>
-                  <DataTable.Cell>History</DataTable.Cell>
-                  <DataTable.Cell> </DataTable.Cell>
-                  <DataTable.Cell>{"0"}</DataTable.Cell>
-                </DataTable.Row>
-              ) : (
-                <DataTable.Row>
-                  <DataTable.Cell>No history found</DataTable.Cell>
-                  <DataTable.Cell>Log history</DataTable.Cell>
-                  <DataTable.Cell>To start tracking</DataTable.Cell>
-                  <DataTable.Cell>{"0"}</DataTable.Cell>
-                </DataTable.Row>
-              ))}
-          </DataTable>
-        </ScrollView>
-        <Surface style={useStyle.bottomButtons}>
-          <Button
-            style={{flex: 1}}
-            mode="contained"
-            onPress={ logMaintenance }
-            testID="log-maintenance-button"
-            accessibilityLabel="Log Maintenance"
-            accessibilityHint="Log Maintenance">
-                Log Maintenance
+  } 
+  return (
+    <SafeAreaView className="w-full h-full bottom-1">
+      <VStack className="w-full h-full">
+        {historyFetching ? <Spinner size="large" /> : null }
+        <HStack className="w-full flex justify-between">
+          <Text className="text-lg font-bold center-y">Bike: </Text>
+          <View style={{justifyContent: "center",width: "50%"}}>
+            <BikeDropdown
+              bikes={bikes}
+              value={bikeId}
+              readonly={false}
+              useAll={!smallScreen}
+              onSelect={handleBikePress} />
+          </View>
+        </HStack>
+        {history && history.length > 0 ? (
+          <ScrollView
+            className="w-full h-full"
+            contentContainerStyle={{ flexGrow: 1 }}>
+              <Table className="w-full">              
+                <TableHeader>
+                  <TableRow>
+                    {smallScreen? null : <TableHead>Bike</TableHead>}
+                    <TableHead>Part</TableHead>
+                    <TableHead>Action</TableHead>
+                    <TableHead>{distanceHeader}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedAndFilteredHistory(history, sortColumn, sortDirection).map((historyItem) => 
+                    <TableRow key={"tr" + historyItem.id}>
+                      {smallScreen? null : (
+                        <TableData useRNView={true}>
+                          <Pressable onPress={() => editHistoryItem(historyItem)}>
+                            <Text>{historyItem.bikeName}</Text>
+                          </Pressable>
+                        </TableData>
+                      )}
+                      <TableData useRNView={true}>
+                        <Pressable onPress={() => editHistoryItem(historyItem)}>
+                          <Text>{historyItem.part}</Text>
+                        </Pressable>
+                      </TableData>
+                      <TableData useRNView={true}>
+                        <Pressable onPress={() => editHistoryItem(historyItem)}>
+                          <Text>{historyItem.action}</Text>
+                        </Pressable>
+                      </TableData>
+                      <TableData useRNView={true}>
+                        <Pressable onPress={() => editHistoryItem(historyItem)}>
+                          <Text>{distanceStrings.get(historyItem.id.toFixed(0))}</Text>
+                        </Pressable>
+                      </TableData>
+                    </TableRow>
+                    )}
+                </TableBody>
+              </Table>
+          </ScrollView>
+        ) : (historyFetching ? (
+            <VStack className="w-full h-full">
+              <Text>Loading history...</Text>
+            </VStack>
+          ) : (
+            <Text>No history found</Text>
+          )
+        )}
+      
+        <HStack className="w-full flex bg-background-0 flex-grow justify-center">
+          <Button 
+              className="bottom-button shadow-md rounded-lg m-1"
+              onPress={ logMaintenance }
+              style={{flex: 1}}
+              testID="log-maintenance-button"
+              accessibilityLabel="Log Maintenance"
+              accessibilityHint="Log Maintenance">
+              <ButtonText>Log Maintenance</ButtonText>
           </Button>
-          <Button
-            style={{flex: 1}}
-            mode="contained"
-            onPress={ createHistoryItem }
-            testID="add-history-button"
-            accessibilityLabel="Add History Item"
-            accessibilityHint="Add History Item">
-                Add History Item
+          <Button 
+              className="bottom-button shadow-md rounded-lg m-1"
+              onPress={ createHistoryItem }
+              style={{flex: 1}}
+              testID="add-history-button"
+              accessibilityLabel="Add History Item"
+              accessibilityHint="Add History Item">
+              <ButtonText>Add History Item</ButtonText>
           </Button>
-        </Surface>
-      </Surface>
-    );
-  }
+        </HStack>
+      </VStack>
+    </SafeAreaView>
+    )
 };
 
 export default MaintenanceHistoryComponent;

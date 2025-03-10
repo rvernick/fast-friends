@@ -33,6 +33,7 @@ import {
 } from "lucide-react-native"
 import { Pressable } from '../ui/pressable';
 import { Spinner } from '../ui/spinner';
+import { View } from 'react-native';
 
 interface BikeMaintenanceListItem {
   bike: Bike;
@@ -382,11 +383,13 @@ const MaintenanceComponent = () => {
       <VStack className="w-full h-full">
         <HStack className="w-full flex justify-between">
           <Text className="center-y">Sort by:</Text>
+          <View style={{justifyContent: "center",width: "50%"}}>
             <Dropdown
               label='Sort By:'
               value={sortOption}
               options={sortOptions}
               onSelect={updateSorting}/>  
+          </View>
         </HStack>
         <ScrollView
           className="w-full h-full"

@@ -39,9 +39,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
         initialLabel={initialLabel}
         onValueChange={handleSelect}
         testID={testID}>
-        <SelectTrigger>
+        <SelectTrigger className="justify-items-end">
           <SelectInput value={value} testID={testID}/>
-          <SelectIcon as={ChevronDownIcon} />
+          <SelectIcon className="mr-3" as={ChevronDownIcon} />
         </SelectTrigger>
         <SelectPortal>
           <SelectBackdrop />
