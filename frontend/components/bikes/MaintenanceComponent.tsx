@@ -378,8 +378,8 @@ const MaintenanceComponent = () => {
     )
   }
   return (
-    <SafeAreaView className="w-full h-full">
-      <VStack className="w-full h-full gap-2">
+    <SafeAreaView className="w-full h-full bottom-1">
+      <VStack className="w-full h-full">
         <HStack className="w-full flex justify-between">
           <Text className="center-y">Sort by:</Text>
             <Dropdown
@@ -397,7 +397,7 @@ const MaintenanceComponent = () => {
           ))}
         </VStack>
         </ScrollView>
-        <HStack className="w-full flex justify-center">
+        <HStack className="w-full flex bg-background-0 flex-grow justify-center">
           <Button 
             className="bottom-button shadow-md rounded-lg m-1"
             action="primary"

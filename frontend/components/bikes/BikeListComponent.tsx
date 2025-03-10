@@ -139,7 +139,7 @@ type BikeRowProps = {
     )
   } else if (data && data.length > 0) {
     return (
-      <SafeAreaView className="w-full h-full">
+      <SafeAreaView className="w-full h-full bottom-1">
         <VStack className="w-full h-full">
           <ScrollView
             className="w-full h-full"
