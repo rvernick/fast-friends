@@ -63,52 +63,120 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
 
   const createFilteredHistory = (histories: MaintenanceHistoryItem[]): MaintenanceHistoryItem[] => {
     // console.log('create filtered history: ' + history);
-    if (!histories || histories.length === 0) return [];
-    if (bikeId && bikeId.length > 0 && bikeId !== '_All') {
-      return histories?.filter(h => ensureString(h.bikeId) === bikeId) || [];
-    } 
-    return histories || [];
+    try {
+      if (!histories || histories.length === 0) return [];
+      if (bikeId && bikeId.length > 0 && bikeId !== '_All') {
+        return histories?.filter(h => ensureString(h.bikeId) === bikeId);
+      }
+    } catch (error) {
+        console.log('Error filtering history: ', error);
+    }
+    return histories;
   }
 
   const compareHistoryItem = (col: string, upDown: string, a: MaintenanceHistoryItem, b: MaintenanceHistoryItem): number => {
     var result = 0;
-    if (col === 'distance') {
-      result = b.distanceMeters - a.distanceMeters;
-      if (result === 0) {
-        result = b.bikeName.localeCompare(a.bikeName);
+    try {
+      if (col === 'distance') {
+        result = compareDistance(a, b);
+        if (result === 0) {
+          result = compareBikeName(a, b);
+        }
+        if (result === 0) {
+          result = comparePartName(a, b);
+        }
+      } else if (col === 'bike') {
+        result = compareBikeName(a, b);
+        if (result === 0) {
+          result = comparePartName(a, b);
+        }
+      } else if (col === 'action') {
+        result = b.action.localeCompare(a.action);
+        if (result === 0) {
+          result = compareBikeName(a, b);
+        }
+      } else {
+        result = comparePartName(a, b);
+        if (result === 0) {
+          result = compareBikeName(a, b);
+        }
       }
+      result = result * (upDown === 'descending'? 1 : -1);
       if (result === 0) {
-        result = b.part.localeCompare(a.part);
+        result = compareDistance(a, b);
       }
-    } else if (col === 'bike') {
-      result = b.bikeName.localeCompare(a.bikeName);
-      if (result === 0) {
-        result = b.part.localeCompare(a.part);
-      }
-    } else if (col === 'action') {
-      result = b.action.localeCompare(a.action);
-      if (result === 0) {
-        result = b.bikeName.localeCompare(a.bikeName);
-      }
-    } else {
-      result = b.part.localeCompare(a.part);
-      if (result === 0) {
-        result = b.bikeName.localeCompare(a.bikeName);
-      }
-    }
-    result = result * (upDown === 'descending'? 1 : -1);
-    if (result === 0) {
-      result = b.distanceMeters - a.distanceMeters;
+    } catch (error) {
+      console.log('Error comparing history items: ', error);
     }
     return result;
   }
 
+  const compareDistance = (a: MaintenanceHistoryItem, b: MaintenanceHistoryItem): number => {
+    if (!a) {
+      if (b) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+    if (a.distanceMeters) {
+      if (b && b.distanceMeters) {
+        return b.distanceMeters - a.distanceMeters;
+      } 
+      return -1;
+    }
+    if (b && b.distanceMeters) {
+      return 1;
+    } 
+    return 0;
+  }
+
+  const compareBikeName = (a: MaintenanceHistoryItem, b: MaintenanceHistoryItem): number => {
+    if (!a) {
+      if (b) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+    if (a.bikeName) {
+      if (b && b.bikeName) {
+        return b.bikeName.localeCompare(a.bikeName);
+      } 
+      return -1;
+    }
+    if (b && b.bikeName) {
+      return 1;
+    } 
+    return 0;
+  }
+
+  const comparePartName = (a: MaintenanceHistoryItem, b: MaintenanceHistoryItem): number => {
+    if (!a) {
+      if (b) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+    if (a.part) {
+      if (b && b.part) {
+        return b.part.localeCompare(a.part);
+      } 
+      return -1;
+    }
+    if (b && b.part) {
+      return 1;
+    } 
+    return 0;
+  }
+
   const sortedAndFilteredHistory = (histories: MaintenanceHistoryItem[], col: string, upDown: string) => {
     try {
-      const history = createFilteredHistory(histories);
+      const filteredHistories = createFilteredHistory(histories);
       // console.log('Sorted and filtered history: ' + JSON.stringify(history));
-      if (!history || history.length === 0) return [];
-      return history.sort((a, b) => { return compareHistoryItem(col, upDown, a, b); });
+      if (!filteredHistories || filteredHistories.length === 0) return [];
+      return filteredHistories.sort((a, b) => { return compareHistoryItem(col, upDown, a, b); });
     } catch (error) {
       console.error('Error sorting and filtering history: ', error);
       return [];

@@ -100,6 +100,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     if (!bikes) {
       return;
     }
+    const logs = [];
     for (const bike of bikes) {
       for (const item of bike.maintenanceItems) {
         const nextDue = item.dueDistanceMeters ? bike.odometerMeters + item.defaultLongevity : null;
@@ -114,21 +115,25 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
           nextDate: nextDate,
           selected: false,
         };
-        maintenanceLogs.push(log);
+        logs.push(log);
       }
     }
-    setMaintenanceLogs(maintenanceLogs.sort((a, b) => sortValue(a) - sortValue(b)));
+    setMaintenanceLogs(logs.sort((a, b) => sortValue(a) - sortValue(b)));
   }
 
   const sortValue = (mlog: MaintenanceLog): number => {
-    if (mlog.due) {
-      return mlog.due;
-    }
-    if (mlog.nextDate) {
-      const milisecondsTillDue = mlog.nextDate?.getTime() - today().getTime();
-      const daysTilDue = milisecondsTillDue / (1000 * 60 * 60 * 24);
-      const metersTillDue = daysTilDue * 10*1000;
-      return metersTillDue + mlog.bikeMileage;  // 10k per day
+    try {
+      if (mlog.due) {
+        return mlog.due;
+      }
+      if (mlog.nextDate) {
+        const milisecondsTillDue = mlog.nextDate?.getTime() - today().getTime();
+        const daysTilDue = milisecondsTillDue / (1000 * 60 * 60 * 24);
+        const metersTillDue = daysTilDue * 10*1000;
+        return metersTillDue + mlog.bikeMileage;  // 10k per day
+      }
+    } catch (error) {
+      console.log('Error sorting maintenance log: ', error);
     }
     return Infinity;
   }
