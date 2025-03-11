@@ -281,14 +281,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
                 autoCapitalize="none"
                 autoCorrect={false}/>
             </Input>
-          //   <Input
-          //   onChangeText={}
-          //   value={ nextDueString }
-          //   onBlur={ensureSelected}
-          //   inputMode="numeric"
-          //   key={"nextDue" + rowKey}
-          // />
-            ) : (
+          ) : (
             <DatePickerInput
               locale="en"
               validRange={{startDate: today()}}
@@ -352,26 +345,24 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
       <VStack className="w-full h-full">
         {isInitialized ? null : <Spinner size="large" /> }
         <HStack className="w-full flex justify-between">
-          
           <Text className="text-lg font-bold center-y">Bike: </Text>
-          
-        <View style={{justifyContent: "center",width: "50%"}}>
-          {bikes && bikes.length > 1 ? <BikeDropdown
-            bikes={bikes}
-            value={bikeIdString}
-            readonly={false}
-            onSelect={selectBike} /> : <Text>{bikeName}</Text>}
-      </View>
+          <View style={{justifyContent: "center",width: "50%"}}>
+            {bikes && bikes.length > 1 ? <BikeDropdown
+              bikes={bikes}
+              value={bikeIdString}
+              readonly={false}
+              onSelect={selectBike} /> : <Text>{bikeName}</Text>}
+          </View>
         </HStack>
         <MaintenanceLogHeader />
         <ScrollView
           className="w-full h-full"
           contentContainerStyle={{ flexGrow: 1 }}>
-        <VStack className="w-full h-full">
-          {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) => 
-            <MaintenanceLogRow log={log} rowKey={"mlr" + log.id} key={"mlr" + log.id}/>
-          )}
-        </VStack>
+          <VStack className="w-full h-full">
+            {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) => 
+              <MaintenanceLogRow log={log} rowKey={"mlr" + log.id} key={"mlr" + log.id}/>
+            )}
+          </VStack>
         </ScrollView>
         <HStack className="w-full flex bg-background-0 flex-grow justify-center">
           <Button 
