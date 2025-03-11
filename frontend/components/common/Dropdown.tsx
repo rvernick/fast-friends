@@ -40,7 +40,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         onValueChange={handleSelect}
         testID={testID}>
         <SelectTrigger className="justify-items-end">
-          <SelectInput value={value} testID={testID}/>
+          <SelectInput  className="flex-1"  value={value} testID={testID}/>
           <SelectIcon className="mr-3" as={ChevronDownIcon} />
         </SelectTrigger>
         <SelectPortal>
