@@ -32,10 +32,15 @@ usr.username = 'ts@t.com'
 and bike."deletedOn" is NULL
 ;
 
-select bike.name, mi.part, mi.action, mi.due_distance_meters, mi.due_date
+select bike.name, mi.part, mi.action, 
+  bike."odometerMeters"/1609 as mileage, mi.due_distance_meters/1609 as Due, 
+  mi.due_date, bike.id as bid, usr.id, bike.is_retired
 from maintenance_item mi
 INNER JOIN bike bike on mi."bikeId" = bike.id
 INNER JOIN public.user usr on bike."userId" = usr.id
 where
-usr.username = "bulk@pedal-assistant.com"
+usr.username = 'rvernick@yahoo.com'
+and bike.is_retired = FALSE
+and bike."deletedOn" IS NULL
+order by bike.id, mi.due_distance_meters ASC
 ;
