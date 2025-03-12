@@ -3,7 +3,7 @@
     "name": "Pedal Assistant",
     "slug": "fast-friends",
     "owner": "fast-friends",
-    "version": "1.0.20",
+    "version": "1.0.22",
     "orientation": "portrait",
     "icon": "./assets/images/spiral-gears.jpg",
     "scheme": "com.pedal-assistant",
@@ -22,7 +22,7 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "buildNumber": "48"
+      "buildNumber": "57"
     },
     "android": {
       "adaptiveIcon": {

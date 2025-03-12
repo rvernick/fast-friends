@@ -2,14 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { useQuery } from'@tanstack/react-query';
 import { useGlobalContext } from '@/common/GlobalContext';
 import { router, useNavigation } from 'expo-router';
-import { Text, Surface, DataTable, ActivityIndicator, Button } from 'react-native-paper';
 import { useSession } from '@/common/ctx';
-import { Dimensions, ScrollView } from 'react-native';
-import { createStyles, defaultWebStyles } from '@/common/styles';
+import { SafeAreaView, ScrollView, View } from 'react-native';
 import { ensureString, isMobile, isMobileSize, metersToDisplayString } from '@/common/utils';
 import { BikeDropdown } from '../common/BikeDropdown';
 import MaintenanceHistoryController from './MaintenanceHistoryController';
 import { MaintenanceHistoryItem } from '@/models/MaintenanceHistory';
+import { VStack } from '../ui/vstack';
+import { HStack } from '../ui/hstack';
+import { Button, ButtonText } from '../ui/button';
+import { Text } from '../ui/text';
+import { Spinner } from '../ui/spinner';
+import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Pressable } from '../ui/pressable';
 
 type MaintenanceHistoryProps = {
   bikeid: number,
@@ -32,9 +37,6 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
   const [initialized, setInitialized ] = useState(false);
   const [distanceStrings, setDistanceStrings ] = useState(new Map<string, string>());
   const [distanceHeader, setDistanceHeader ] = useState('Distance (miles)');
-
-  const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
 
   const { data: bikes, error: bikesError, isFetching: bikesFetching } = useQuery({
     queryKey: ['bikes'],
@@ -61,52 +63,120 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
 
   const createFilteredHistory = (histories: MaintenanceHistoryItem[]): MaintenanceHistoryItem[] => {
     // console.log('create filtered history: ' + history);
-    if (!histories || histories.length === 0) return [];
-    if (bikeId && bikeId.length > 0 && bikeId !== '_All') {
-      return histories?.filter(h => ensureString(h.bikeId) === bikeId) || [];
-    } 
-    return histories || [];
+    try {
+      if (!histories || histories.length === 0) return [];
+      if (bikeId && bikeId.length > 0 && bikeId !== '_All') {
+        return histories?.filter(h => ensureString(h.bikeId) === bikeId);
+      }
+    } catch (error) {
+        console.log('Error filtering history: ', error);
+    }
+    return histories;
   }
 
   const compareHistoryItem = (col: string, upDown: string, a: MaintenanceHistoryItem, b: MaintenanceHistoryItem): number => {
     var result = 0;
-    if (col === 'distance') {
-      result = b.distanceMeters - a.distanceMeters;
-      if (result === 0) {
-        result = b.bikeName.localeCompare(a.bikeName);
+    try {
+      if (col === 'distance') {
+        result = compareDistance(a, b);
+        if (result === 0) {
+          result = compareBikeName(a, b);
+        }
+        if (result === 0) {
+          result = comparePartName(a, b);
+        }
+      } else if (col === 'bike') {
+        result = compareBikeName(a, b);
+        if (result === 0) {
+          result = comparePartName(a, b);
+        }
+      } else if (col === 'action') {
+        result = b.action.localeCompare(a.action);
+        if (result === 0) {
+          result = compareBikeName(a, b);
+        }
+      } else {
+        result = comparePartName(a, b);
+        if (result === 0) {
+          result = compareBikeName(a, b);
+        }
       }
+      result = result * (upDown === 'descending'? 1 : -1);
       if (result === 0) {
-        result = b.part.localeCompare(a.part);
+        result = compareDistance(a, b);
       }
-    } else if (col === 'bike') {
-      result = b.bikeName.localeCompare(a.bikeName);
-      if (result === 0) {
-        result = b.part.localeCompare(a.part);
-      }
-    } else if (col === 'action') {
-      result = b.action.localeCompare(a.action);
-      if (result === 0) {
-        result = b.bikeName.localeCompare(a.bikeName);
-      }
-    } else {
-      result = b.part.localeCompare(a.part);
-      if (result === 0) {
-        result = b.bikeName.localeCompare(a.bikeName);
-      }
-    }
-    result = result * (upDown === 'descending'? 1 : -1);
-    if (result === 0) {
-      result = b.distanceMeters - a.distanceMeters;
+    } catch (error) {
+      console.log('Error comparing history items: ', error);
     }
     return result;
   }
 
+  const compareDistance = (a: MaintenanceHistoryItem, b: MaintenanceHistoryItem): number => {
+    if (!a) {
+      if (b) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+    if (a.distanceMeters) {
+      if (b && b.distanceMeters) {
+        return b.distanceMeters - a.distanceMeters;
+      } 
+      return -1;
+    }
+    if (b && b.distanceMeters) {
+      return 1;
+    } 
+    return 0;
+  }
+
+  const compareBikeName = (a: MaintenanceHistoryItem, b: MaintenanceHistoryItem): number => {
+    if (!a) {
+      if (b) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+    if (a.bikeName) {
+      if (b && b.bikeName) {
+        return b.bikeName.localeCompare(a.bikeName);
+      } 
+      return -1;
+    }
+    if (b && b.bikeName) {
+      return 1;
+    } 
+    return 0;
+  }
+
+  const comparePartName = (a: MaintenanceHistoryItem, b: MaintenanceHistoryItem): number => {
+    if (!a) {
+      if (b) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+    if (a.part) {
+      if (b && b.part) {
+        return b.part.localeCompare(a.part);
+      } 
+      return -1;
+    }
+    if (b && b.part) {
+      return 1;
+    } 
+    return 0;
+  }
+
   const sortedAndFilteredHistory = (histories: MaintenanceHistoryItem[], col: string, upDown: string) => {
     try {
-      const history = createFilteredHistory(histories);
+      const filteredHistories = createFilteredHistory(histories);
       // console.log('Sorted and filtered history: ' + JSON.stringify(history));
-      if (!history || history.length === 0) return [];
-      return history.sort((a, b) => { return compareHistoryItem(col, upDown, a, b); });
+      if (!filteredHistories || filteredHistories.length === 0) return [];
+      return filteredHistories.sort((a, b) => { return compareHistoryItem(col, upDown, a, b); });
     } catch (error) {
       console.error('Error sorting and filtering history: ', error);
       return [];
@@ -204,97 +274,97 @@ const MaintenanceHistoryComponent: React.FC<MaintenanceHistoryProps> = ({ bikeid
         An error occured!
       </Text>
     )
-  } else {
-    return (
-      <Surface style={useStyle.containerScreen}>
-        {historyFetching ? <ActivityIndicator animating={historyFetching} size="large" /> : null }
-        <BikeDropdown
-          bikes={bikes}
-          value={bikeId}
-          readonly={false}
-          onSelect={handleBikePress}
-          useAll={!smallScreen}
-        />
-        <ScrollView contentContainerStyle={{flexGrow:1}} style={useStyle.containerBody}>
-          <DataTable style={useStyle.containerBody} testID='historyTable'>
-            <DataTable.Header>
-              {smallScreen ? null : (<DataTable.Title
-                numeric={false}
-                sortDirection={sortBy('bike')}
-                onPress={() => handleSort('bike')}>
-                  Bike</DataTable.Title>
-              )}
-              <DataTable.Title
-                numeric={false}
-                sortDirection={sortBy('part')}
-                onPress={() => handleSort('part')}>
-                  Part</DataTable.Title>
-              <DataTable.Title
-                numeric={false}
-                sortDirection={sortBy('action')}
-                onPress={() => handleSort('action')}>
-                  Action</DataTable.Title>
-              <DataTable.Title
-                numeric={true}
-                sortDirection={sortBy('distance')}
-                testID='distanceHeader'
-                onPress={() => handleSort('distance')}>
-                  {distanceHeader}</DataTable.Title>
-            </DataTable.Header>
-            {history && history.length > 0 ? (
-              sortedAndFilteredHistory(history, sortColumn, sortDirection).map((historyItem, index, histories) => (
-                <DataTable.Row
-                    onPress={() => editHistoryItem(historyItem)}
-                    key={'history' + historyItem.id}
-                    testID={"row: " + index}>
-                  {smallScreen ? null : (
-                    <DataTable.Cell testID={"bikeCell: " + index}>{historyItem.bikeName}</DataTable.Cell>
-                  )}
-                  <DataTable.Cell testID={"partCell: " + index}>{historyItem.part}</DataTable.Cell>
-                  <DataTable.Cell testID={"actionCell: " + index}>{historyItem.action}</DataTable.Cell>
-                  <DataTable.Cell testID={"distanceCell: " + index} numeric>{distanceStrings.get(historyItem.id.toFixed(0))}</DataTable.Cell>
-
-                </DataTable.Row>
-              ))) : (historyFetching ? (
-                  <DataTable.Row>
-                  <DataTable.Cell>Fetching </DataTable.Cell>
-                  <DataTable.Cell>History</DataTable.Cell>
-                  <DataTable.Cell> </DataTable.Cell>
-                  <DataTable.Cell>{"0"}</DataTable.Cell>
-                </DataTable.Row>
-              ) : (
-                <DataTable.Row>
-                  <DataTable.Cell>No history found</DataTable.Cell>
-                  <DataTable.Cell>Log history</DataTable.Cell>
-                  <DataTable.Cell>To start tracking</DataTable.Cell>
-                  <DataTable.Cell>{"0"}</DataTable.Cell>
-                </DataTable.Row>
-              ))}
-          </DataTable>
-        </ScrollView>
-        <Surface style={useStyle.bottomButtons}>
-          <Button
-            style={{flex: 1}}
-            mode="contained"
-            onPress={ logMaintenance }
-            testID="log-maintenance-button"
-            accessibilityLabel="Log Maintenance"
-            accessibilityHint="Log Maintenance">
-                Log Maintenance
+  } 
+  return (
+    <SafeAreaView className="w-full h-full bottom-1">
+      <VStack className="w-full h-full">
+        {historyFetching ? <Spinner size="large" /> : null }
+        <HStack className="w-full flex justify-between">
+          <Text className="text-lg font-bold center-y">Bike: </Text>
+          <View style={{justifyContent: "center",width: "50%"}}>
+            <BikeDropdown
+              bikes={bikes}
+              value={bikeId}
+              readonly={false}
+              useAll={!smallScreen}
+              onSelect={handleBikePress} />
+          </View>
+        </HStack>
+        {history && history.length > 0 ? (
+          <ScrollView
+            className="w-full h-full"
+            contentContainerStyle={{ flexGrow: 1 }}>
+              <Table className="w-full">              
+                <TableHeader>
+                  <TableRow>
+                    {smallScreen? null : <TableHead>Bike</TableHead>}
+                    <TableHead>Part</TableHead>
+                    <TableHead>Action</TableHead>
+                    <TableHead>{distanceHeader}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedAndFilteredHistory(history, sortColumn, sortDirection).map((historyItem) => 
+                    <TableRow key={"tr" + historyItem.id}>
+                      {smallScreen? null : (
+                        <TableData useRNView={true}>
+                          <Pressable onPress={() => editHistoryItem(historyItem)}>
+                            <Text>{historyItem.bikeName}</Text>
+                          </Pressable>
+                        </TableData>
+                      )}
+                      <TableData useRNView={true}>
+                        <Pressable onPress={() => editHistoryItem(historyItem)}>
+                          <Text>{historyItem.part}</Text>
+                        </Pressable>
+                      </TableData>
+                      <TableData useRNView={true}>
+                        <Pressable onPress={() => editHistoryItem(historyItem)}>
+                          <Text>{historyItem.action}</Text>
+                        </Pressable>
+                      </TableData>
+                      <TableData useRNView={true}>
+                        <Pressable onPress={() => editHistoryItem(historyItem)}>
+                          <Text>{distanceStrings.get(historyItem.id.toFixed(0))}</Text>
+                        </Pressable>
+                      </TableData>
+                    </TableRow>
+                    )}
+                </TableBody>
+              </Table>
+          </ScrollView>
+        ) : (historyFetching ? (
+            <VStack className="w-full h-full">
+              <Text>Loading history...</Text>
+            </VStack>
+          ) : (
+            <Text>No history found</Text>
+          )
+        )}
+      
+        <HStack className="w-full flex bg-background-0 flex-grow justify-center">
+          <Button 
+              className="bottom-button shadow-md rounded-lg m-1"
+              onPress={ logMaintenance }
+              style={{flex: 1}}
+              testID="log-maintenance-button"
+              accessibilityLabel="Log Maintenance"
+              accessibilityHint="Log Maintenance">
+              <ButtonText>Log Maintenance</ButtonText>
           </Button>
-          <Button
-            style={{flex: 1}}
-            mode="contained"
-            onPress={ createHistoryItem }
-            testID="add-history-button"
-            accessibilityLabel="Add History Item"
-            accessibilityHint="Add History Item">
-                Add History Item
+          <Button 
+              className="bottom-button shadow-md rounded-lg m-1"
+              onPress={ createHistoryItem }
+              style={{flex: 1}}
+              testID="add-history-button"
+              accessibilityLabel="Add History Item"
+              accessibilityHint="Add History Item">
+              <ButtonText>Add History Item</ButtonText>
           </Button>
-        </Surface>
-      </Surface>
-    );
-  }
+        </HStack>
+      </VStack>
+    </SafeAreaView>
+    )
 };
 
 export default MaintenanceHistoryComponent;

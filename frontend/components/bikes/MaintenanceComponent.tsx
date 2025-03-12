@@ -33,6 +33,7 @@ import {
 } from "lucide-react-native"
 import { Pressable } from '../ui/pressable';
 import { Spinner } from '../ui/spinner';
+import { View } from 'react-native';
 
 interface BikeMaintenanceListItem {
   bike: Bike;
@@ -98,8 +99,8 @@ const MaintenanceComponent = () => {
 
   const sortOptions = ["A-Z", "Due"].map(option => ({ label: option, value: option}));
 
-  const sortItems = (items: MaintenanceItem[]): MaintenanceItem[] => {
-    if (sortOption === 'A-Z') {
+  const sortItems = (items: MaintenanceItem[], sortBy: string): MaintenanceItem[] => {
+    if (sortBy === 'A-Z') {
       return items.sort((a, b) => a.part.localeCompare(b.part));
     }
     // sort option Due by default
@@ -323,7 +324,7 @@ const MaintenanceComponent = () => {
       const bikeItem = getItemForBike(bike);
       sortedItems.push(bikeItem);
       if (bikeItem.expanded) {
-        for (const maintenanceItem of sortItems(bike.maintenanceItems)) {
+        for (const maintenanceItem of sortItems(bike.maintenanceItems, sortBy)) {
           sortedItems.push({ bike: bike, maintenanceItem: maintenanceItem, expanded: false, key: "maintenanceItem-" + maintenanceItem.id });
         }
       }
@@ -378,15 +379,17 @@ const MaintenanceComponent = () => {
     )
   }
   return (
-    <SafeAreaView className="w-full h-full">
-      <VStack className="w-full h-full gap-2">
+    <SafeAreaView className="w-full h-full bottom-1">
+      <VStack className="w-full h-full">
         <HStack className="w-full flex justify-between">
           <Text className="center-y">Sort by:</Text>
+          <View style={{justifyContent: "center",width: "50%"}}>
             <Dropdown
               label='Sort By:'
               value={sortOption}
               options={sortOptions}
               onSelect={updateSorting}/>  
+          </View>
         </HStack>
         <ScrollView
           className="w-full h-full"
@@ -397,7 +400,7 @@ const MaintenanceComponent = () => {
           ))}
         </VStack>
         </ScrollView>
-        <HStack className="w-full flex justify-center">
+        <HStack className="w-full flex bg-background-0 flex-grow justify-center">
           <Button 
             className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
@@ -431,7 +434,7 @@ export const bikeId = (bike: Bike): string => {
 // navigation.push('Bike', { bike })
 
 export const getSortedBikes = (bikes: Bike[] | null, sortBy: string): Bike[] => {
-  if (!bikes) return [];
+  if (!bikes || bikes.length < 1) return [];
   if (sortBy === 'A-Z') {
     console.log('sort by A-Z sorting bikes');
     return bikes.sort((a, b) => compareName(a, b));
@@ -440,16 +443,23 @@ export const getSortedBikes = (bikes: Bike[] | null, sortBy: string): Bike[] => 
 }
 
 const compareName = (a: Bike, b: Bike): number => {
-  console.log('a.name:', a.name, 'b.name:', b.name);
-  console.log(a.name.localeCompare(b.name));
-  return a.name.localeCompare(b.name);
+  // console.log('a.name:', a.name, 'b.name:', b.name);
+  // console.log(a.name.localeCompare(b.name));
+  if (a.name && b.name) {
+    return a.name.localeCompare(b.name);
+  }
+  return 0;
 }
 
 const soonestDue = (bike: Bike): number => {
   var smallest = 100000;
   for (const item of bike.maintenanceItems) {
-    const overdue = bike.odometerMeters - item.dueDistanceMeters;
-    smallest = Math.min(smallest, overdue);
+    try {
+      const overdue = bike.odometerMeters - item.dueDistanceMeters;
+      smallest = Math.min(smallest, overdue);
+    } catch (error) {
+      console.log('Error calculating overdue:', error);
+    }
   }
   return smallest;
 }

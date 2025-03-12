@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
-import { Button, Text, Surface, Checkbox, TextInput, Card, Icon, HelperText, ActivityIndicator } from "react-native-paper";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, isMobileSize, metersToDisplayString, milesToMeters, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -13,6 +12,16 @@ import { Dimensions, ScrollView, View } from "react-native";
 import { createStyles, defaultWebStyles } from "@/common/styles";
 import { BikeDropdown } from "../common/BikeDropdown";
 import { DatePickerInput } from "react-native-paper-dates";
+import { SafeAreaView } from "../ui/safe-area-view";
+import { VStack } from "../ui/vstack";
+import { HStack } from "../ui/hstack";
+import { Button, ButtonText } from "../ui/button";
+import { Spinner } from "../ui/spinner";
+import { Checkbox, CheckboxIcon, CheckboxIndicator } from "../ui/checkbox";
+import { Text } from "../ui/text";
+import { Input, InputField } from "../ui/input";
+import { Icon, CheckIcon } from "../ui/icon";
+import { Pressable } from "../ui/pressable";
 
 const threeThousandMilesInMeters = milesToMeters(3000);
 
@@ -91,6 +100,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     if (!bikes) {
       return;
     }
+    const logs = [];
     for (const bike of bikes) {
       for (const item of bike.maintenanceItems) {
         const nextDue = item.dueDistanceMeters ? bike.odometerMeters + item.defaultLongevity : null;
@@ -105,21 +115,25 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
           nextDate: nextDate,
           selected: false,
         };
-        maintenanceLogs.push(log);
+        logs.push(log);
       }
     }
-    setMaintenanceLogs(maintenanceLogs.sort((a, b) => sortValue(a) - sortValue(b)));
+    setMaintenanceLogs(logs.sort((a, b) => sortValue(a) - sortValue(b)));
   }
 
   const sortValue = (mlog: MaintenanceLog): number => {
-    if (mlog.due) {
-      return mlog.due;
-    }
-    if (mlog.nextDate) {
-      const milisecondsTillDue = mlog.nextDate?.getTime() - today().getTime();
-      const daysTilDue = milisecondsTillDue / (1000 * 60 * 60 * 24);
-      const metersTillDue = daysTilDue * 10*1000;
-      return metersTillDue + mlog.bikeMileage;  // 10k per day
+    try {
+      if (mlog.due) {
+        return mlog.due;
+      }
+      if (mlog.nextDate) {
+        const milisecondsTillDue = mlog.nextDate?.getTime() - today().getTime();
+        const daysTilDue = milisecondsTillDue / (1000 * 60 * 60 * 24);
+        const metersTillDue = daysTilDue * 10*1000;
+        return metersTillDue + mlog.bikeMileage;  // 10k per day
+      }
+    } catch (error) {
+      console.log('Error sorting maintenance log: ', error);
     }
     return Infinity;
   }
@@ -169,14 +183,17 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     const [nextDueDate, setNextDueDate] = useState(log.nextDate);
     const [nextDueString, setNextDueString] = useState('0');
     const [dueDistanceString, setDueDistanceString] = useState('0');
+    const [selected, setSelected] = useState(log.selected);
 
     const toggleSelectedRow = () => {    
       if (checkedIds.includes(log.id)) {
         log.selected = false;
+        setSelected(false);
         setCheckedIds((prevIds) => prevIds.filter((id) => id!== log.id));
       } else {
         setCheckedIds((prevIds) => [...prevIds, log.id]);
         log.selected = true;
+        setSelected(true);
       }
     }
 
@@ -206,7 +223,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
 
     const ensureSelected = () => {
       if (!checkedIds.includes(log.id)) {
-        setCheckedIds((prevIds) => [...prevIds, log.id]);
+        toggleSelectedRow();
       }
     }
 
@@ -225,29 +242,51 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     }, [nextDueValue]);
 
     return (
-      <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
-        <View style={{ width: "15%", padding: 1}}>
-          <Checkbox key={"cb" + rowKey} status={checkedIds.includes(log.id) ? 'checked' : 'unchecked'}
-            onPress={toggleSelectedRow}/>
+      <HStack>
+        <View style={{ width: "15%", padding: 1, justifyContent: "center"}}>
+          <Checkbox
+              value="check"
+              isChecked={selected}
+              onChange={toggleSelectedRow}>
+            <CheckboxIndicator>
+              <CheckboxIcon as={CheckIcon} />
+            </CheckboxIndicator>
+          </Checkbox>
         </View>
         <View style={{justifyContent: "center", width: "20%", padding: 1}}>
-          <Text key={"prt" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.part}</Text>
+          <Pressable onPress={toggleSelectedRow}>
+            <Text key={"prt" + rowKey} >{log.maintenanceItem.part}</Text>
+          </Pressable>
         </View>
         <View style={{justifyContent: "center", width: "18%", padding: 1}}>
-          <Text key={"act" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.action}</Text>
+          <Pressable onPress={toggleSelectedRow}>
+            <Text key={"act" + rowKey}>{log.maintenanceItem.action}</Text>
+          </Pressable>
         </View>
         <View style={{ justifyContent: "center", width: "23%", padding: 1}}>
-          <Text key={"due" + rowKey} onPress={toggleSelectedRow}>
-            {dueDistanceString}</Text>
+          <Pressable onPress={toggleSelectedRow}>
+            <Text key={"due" + rowKey}>{dueDistanceString}</Text>
+          </Pressable>
         </View>
         <View style={{ justifyContent: "center", width: "24%", padding: 1}}>
-          {log.nextDue ? (<TextInput
-            onChangeText={(newValue) => {setNextDue(newValue)}}
-            value={ nextDueString }
-            onBlur={ensureSelected}
-            inputMode="numeric"
-            key={"nextDue" + rowKey}
-          />) : (
+          {log.nextDue ? (
+            <Input
+              variant="outline"
+              size="md"
+              isDisabled={false}
+              isInvalid={false}
+              isReadOnly={false}
+            >
+              <InputField 
+                keyboardType="number-pad"
+                value={nextDueString}
+                onChangeText={(newValue) => {setNextDue(newValue)}}
+                onBlur={ensureSelected}
+                inputMode="numeric"
+                autoCapitalize="none"
+                autoCorrect={false}/>
+            </Input>
+          ) : (
             <DatePickerInput
               locale="en"
               validRange={{startDate: today()}}
@@ -258,15 +297,15 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
               inputMode="start"
             />)}
         </View>
-      </View>
+      </HStack>
     )
   };
 
   const MaintenanceLogHeader = () => {
     return (
-      <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
-        <View style={{justifyContent: "center", width: "15%", padding: 10}}>
-          <Icon source="check" size={24} color="black" />
+      <HStack>
+          <View style={{justifyContent: "center", width: "15%", padding: 10}}>
+          <Icon size="lg" as={CheckIcon} />
         </View>
         <View style={{justifyContent: "center", width: "20%", padding: 10, }}>
           <Text>Part</Text>
@@ -274,13 +313,13 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
         <View style={{justifyContent: "center", width: "18%", padding: 10, }}>
           <Text>Action</Text>
         </View>
-        <View style={{justifyContent: "center",width: "23%"}}>
+        <View style={{justifyContent: "center",width: "23%", padding: 10}}>
           <Text>Due</Text>
         </View>
         <View style={{justifyContent: "center", width: "24%", padding: 10}}>
           <Text>Next Due</Text>
         </View>
-      </View>
+      </HStack>
     );
   }
 
@@ -307,49 +346,61 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   }), [bikeName];
 
   return (
-    <Surface style={useStyle.containerScreen}>
-      {isInitialized ? null : <ActivityIndicator animating={true} size="large" /> }
-      <Card style={useStyle.input} >
-        {bikes && bikes.length > 1 ? <BikeDropdown
-          bikes={bikes}
-          value={bikeIdString}
-          readonly={false}
-          onSelect={selectBike} /> : <Text>{bikeName}</Text>}
-      </Card>
-      
-      <ScrollView style={useStyle.scrollView}>
+    <SafeAreaView className="w-full h-full bottom-1">
+      <VStack className="w-full h-full">
+        {isInitialized ? null : <Spinner size="large" /> }
+        <HStack className="w-full flex justify-between">
+          <Text className="text-lg font-bold center-y">Bike: </Text>
+          <View style={{justifyContent: "center",width: "50%"}}>
+            {bikes && bikes.length > 1 ? <BikeDropdown
+              bikes={bikes}
+              value={bikeIdString}
+              readonly={false}
+              onSelect={selectBike} /> : <Text>{bikeName}</Text>}
+          </View>
+        </HStack>
         <MaintenanceLogHeader />
-        {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) => 
-          <MaintenanceLogRow log={log} rowKey={"mlr" + log.id} key={"mlr" + log.id}/>
-        )}
-      </ScrollView>
-              
-      <Surface style={useStyle.bottomButtons}>
-        <Button
-          style={{flex: 1}}
-          mode="contained"
-          onPress={goBack}>
-            Cancel
-        </Button>
-        {isMobileSize() ? null : (
-          <Button
+        <ScrollView
+          className="w-full h-full"
+          contentContainerStyle={{ flexGrow: 1 }}>
+          <VStack className="w-full h-full">
+            {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) => 
+              <MaintenanceLogRow log={log} rowKey={"mlr" + log.id} key={"mlr" + log.id}/>
+            )}
+          </VStack>
+        </ScrollView>
+        <HStack className="w-full flex bg-background-0 flex-grow justify-center">
+          <Button 
+            className="bottom-button shadow-md rounded-lg m-1"
+            action="primary"
+            onPress={ goBack }
             style={{flex: 1}}
-            mode="contained"
-            onPress={() => {router.push('/(home)/(assistance)/instructions')}}>
-              Instructions
+            accessibilityLabel="Add Maintenance Item"
+            accessibilityHint="Opens page for adding a maintenance item">
+            <ButtonText>Cancel</ButtonText>
           </Button>
-        )}
-        <Button
-          style={{flex: 1}}
-          mode="contained"
-          disabled={checkedIds.length < 1}
-          onPress={submitMaintenance}>
-            Mark Done
-        </Button>
-        <HelperText visible={errorMessage.length > 0} type={"error"}>{errorMessage}</HelperText>
-      </Surface>
-
-    </Surface>
+          {isMobileSize() ? null : (
+              <Button 
+                className="bottom-button shadow-md rounded-lg m-1"
+                onPress={ () => {router.push('/(home)/(assistance)/instructions')}}
+                style={{flex: 1}}
+                accessibilityLabel="Show Instructions"
+                accessibilityHint="Go to Instructions page">
+                <ButtonText>Instructions</ButtonText>
+            </Button>
+          )}
+          <Button 
+              className="bottom-button shadow-md rounded-lg m-1"
+              onPress={ submitMaintenance }
+              isDisabled={checkedIds.length < 1}
+              style={{flex: 1}}
+              accessibilityLabel="Mark Maintenance Item as Done"
+              accessibilityHint="Maintenace logged and next maintenance will be scheduled">
+              <ButtonText>Mark Done</ButtonText>
+          </Button>
+        </HStack>
+      </VStack>
+    </SafeAreaView>
   )
 };
 

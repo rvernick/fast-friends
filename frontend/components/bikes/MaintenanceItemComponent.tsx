@@ -152,12 +152,16 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       setReadOnly(false);
     }
   }
+
+  const goBack = () => {
+    router.replace('/(home)/(maintenanceItems)/maintenance');
+  }
   
   const deleteMaintenanceItem = async () => {
     if (await controller.deleteMaintenanceItem(session, email, maintenanceItem.id)) {
       bike.maintenanceItems = bike.maintenanceItems.filter(mi => mi.id!== maintenanceItem.id);
       queryClient.removeQueries({ queryKey: ['bikes'] });
-      navigation.goBack();
+      goBack();
     } else {
       setDeleteLabel('History');
       setErrorMessage('Cannot delete maintenance item with history');
@@ -170,7 +174,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
 
   const cancel = () => {
     if (isNew) {
-      navigation.goBack();
+      goBack();
     } else {
       setIsInitialized(false);
       setReadOnly(true);
