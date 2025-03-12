@@ -132,33 +132,33 @@ const MaintenanceComponent = () => {
   const MaintenanceItemComp: React.FC<MaintenanceItemCompProps> = ({ item, maintenanceItem }) => {
     const [description, setDescription ] = useState('');
 
-    const syncDescription = async () => {
-      var desc = maintenanceItem.action;
+    const syncDescription = async (mi: MaintenanceItem) => {
+      var desc = mi.action;
       const prefs = await preferences;
-      if (maintenanceItem.dueDistanceMeters && maintenanceItem.dueDistanceMeters > 0) {
-        if (maintenanceItem.bikeDistance && maintenanceItem.bikeDistance > 0) {
-          if (maintenanceItem.bikeDistance > maintenanceItem.dueDistanceMeters) {
-            const metersOverdue = maintenanceItem.bikeDistance - maintenanceItem.dueDistanceMeters;
+      if (mi.dueDistanceMeters && mi.dueDistanceMeters > 0) {
+        if (mi.bikeDistance && mi.bikeDistance > 0) {
+          if (mi.bikeDistance > mi.dueDistanceMeters) {
+            const metersOverdue = mi.bikeDistance - mi.dueDistanceMeters;
             desc += ' overdue: ' + metersToDisplayString(metersOverdue, prefs);
             desc += distanceUnitDisplayString(prefs);
-            desc += ' ('+ metersToDisplayString(maintenanceItem.dueDistanceMeters, prefs) + ')';
+            desc += ' ('+ metersToDisplayString(mi.dueDistanceMeters, prefs) + ')';
           } else {
-            const metersRemaining = maintenanceItem.dueDistanceMeters - maintenanceItem.bikeDistance;
+            const metersRemaining = mi.dueDistanceMeters - mi.bikeDistance;
             desc += ' in: '+ metersToDisplayString(metersRemaining, prefs);
             desc += distanceUnitDisplayString(prefs);
-            desc += ' ('+ metersToDisplayString(maintenanceItem.dueDistanceMeters, prefs) + ')';
+            desc += ' ('+ metersToDisplayString(mi.dueDistanceMeters, prefs) + ')';
           }
         } else {
-          desc += ' at: '+ metersToDisplayString(maintenanceItem.dueDistanceMeters, prefs);
+          desc += ' at: '+ metersToDisplayString(mi.dueDistanceMeters, prefs);
         }
       }
-      if (maintenanceItem.dueDate) {
-        if (today().getTime() > new Date(maintenanceItem.dueDate).getTime()) {
+      if (mi.dueDate) {
+        if (today().getTime() > new Date(mi.dueDate).getTime()) {
           desc += ' overdue: ';
         } else {
           desc += ' by: ';
         }
-        desc += new Date(maintenanceItem.dueDate).toLocaleDateString('en-US');
+        desc += new Date(mi.dueDate).toLocaleDateString('en-US');
       }
       setDescription(desc);
     }
@@ -171,8 +171,8 @@ const MaintenanceComponent = () => {
     }
 
     useEffect(() => {
-      syncDescription();
-    }, []);
+      syncDescription(maintenanceItem);  // for some reason, this doesn't always trigger.  Maybe tie to item better?
+    }, [maintenanceItem]);
 
     return (
       <Pressable className="w-full" onPress={editMaintenanceItem}>
