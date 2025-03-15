@@ -4,6 +4,7 @@ import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@/models/User";
 import { identifyLogRocketMobile, identifyLogRocketWeb } from "./logrocket";
+import { FACE_ID_PASSWORD, FACE_ID_USERNAME, LAST_LOGIN_TIME_MS } from "./constants";
 
 export const strippedPhone = (formattedPhone: string) => {
   if (!formattedPhone) {
@@ -76,6 +77,10 @@ export const isValidEmail = (email: string): boolean => {
     email.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/) != null);
 }
 
+export const isValidSession = async (session: any): Promise<boolean> => {
+  return await confirmLogin(session) === 'logged-in';
+}
+
 export async function confirmLogin(session: any): Promise<string> {
   if (session === null || session.jwt_token === null) {
     return '';
@@ -120,8 +125,10 @@ export async function login(username: string, password: string, session: any) {
           console.log('setting appContext.jwtToken to:' + body);
           console.log('body ' + body.access_token);
           if (isMobile()) {
-            remember("ff.username", username);
-            remember("ff.password", password);
+            const now = new Date();
+            remember(FACE_ID_USERNAME, username);
+            remember(FACE_ID_PASSWORD, password);
+            remember(LAST_LOGIN_TIME_MS, now.getTime().toString());
           }
           initializeLogRocket(body.user);
           console.log('setting appContext.email to:'+ username);
@@ -129,8 +136,8 @@ export async function login(username: string, password: string, session: any) {
         });
       } else {
         console.log('Login failed ' + resp.statusText);
-        forget("ff.username");
-        forget("ff.password");
+        forget(FACE_ID_USERNAME);
+        forget(FACE_ID_PASSWORD);
         return 'Invalid username or password';
       }
     })

@@ -25,6 +25,7 @@ import { Link, LinkText } from "@/components/ui/link";
 import { Button, ButtonText } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react-native";
 import { useToast } from "@/components/ui/toast";
+import { FACE_ID_PASSWORD, FACE_ID_USERNAME } from "@/common/constants";
 
 export const LoginComponent = () => {
   const session = useSession();
@@ -109,8 +110,8 @@ export const LoginComponent = () => {
   }
 
   const attemptLoginViaDeviceId = async () => {
-    const lastUser = await remind('ff.username');
-    const lastPass = await remind('ff.password');
+    const lastUser = await remind(FACE_ID_USERNAME);
+    const lastPass = await remind(FACE_ID_PASSWORD);
     if (lastUser && lastPass) {
       attemptLoginUsing(lastUser, lastPass);
     } else {
@@ -127,8 +128,8 @@ export const LoginComponent = () => {
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
     const types = await LocalAuthentication.supportedAuthenticationTypesAsync()
     const hasBiometrics = await LocalAuthentication.isEnrolledAsync();
-    const lastUser =  await remind('ff.username');
-    const lastPass = await remind('ff.password');
+    const lastUser =  await remind('FACE_ID_USERNAME');
+    const lastPass = await remind('FACE_ID_PASSWORD');
     if ( !hasHardware
       || !hasBiometrics
       || !types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)
