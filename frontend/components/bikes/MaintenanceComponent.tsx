@@ -385,7 +385,6 @@ const MaintenanceComponent = () => {
           <Text className="center-y">Sort by:</Text>
           <View style={{justifyContent: "center",width: "50%"}}>
             <Dropdown
-              label='Sort By:'
               value={sortOption}
               options={sortOptions}
               onSelect={updateSorting}/>  

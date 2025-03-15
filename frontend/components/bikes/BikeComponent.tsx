@@ -254,26 +254,26 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
                 accessibilityLabel="Milage"
                 accessibilityHint="Mileage of the bike"/>
           </Input>
+          <Text>Groupset</Text>
           <Dropdown
             disabled={readOnly}
-            label="Groupset"
             initialLabel="Choose a groupset"
             options={groupsetOptions}
             value={groupsetBrand}
             testID="groupsetDropdown"
             onSelect={(value) => setGroupsetBrand(value ? value : '')}
           />
+          <Text>Type</Text>
           <Dropdown
             disabled={readOnly}
-            label="Type"
             options={typeOptions}
             value={type}
             testID="typeDropdown"
             onSelect={(value) => setType(value ? value : '')}
           />
+          <Text>Speeds</Text>
           <Dropdown
             disabled={readOnly}
-            label="Speeds"
             options={speedOptions}
             value={speed}
             testID="speedsDropdown"

@@ -15,7 +15,6 @@ export const BooleanDropdown: React.FC<BooleanDropdownProps> = ({ label, value, 
   return (
     <Dropdown
       value={value ? 'Yes' : 'No'}
-      label={label}
       disabled={readonly}
       onSelect={(value) => onSelect(value == 'Yes')}
       options={options}

@@ -7,7 +7,6 @@ interface Option { label: string; value: string };
 
 type DropdownProps = {
   value: string;
-  label: string;
   disabled?: boolean;
   onSelect: (value: string) => void;
   options: Option[];
@@ -21,7 +20,6 @@ export const Dropdown: React.FC<DropdownProps> = ({
     onSelect,
     options,
     testID="dropdown",
-    label,
     initialLabel="Choose..."
   }) => {
   

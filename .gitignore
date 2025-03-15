@@ -66,3 +66,4 @@ temp/
 notes
 
 trash/*
+frontend/components/common/BottomButton.tsx

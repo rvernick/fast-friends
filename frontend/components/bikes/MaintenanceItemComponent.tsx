@@ -556,9 +556,9 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         actions={availabileActions}
         onSelect={actionSelected}
         />
+      {readOnly? null : <Text>Track By:</Text>}
       {readOnly ? null : <Dropdown
         options={deadlineOptions}
-        label="Track by"
         value={deadline}
         onSelect={deadlineSelected}
         testID="deadlineDropdown"  />}
