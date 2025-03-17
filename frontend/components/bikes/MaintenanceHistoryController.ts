@@ -1,7 +1,6 @@
 import AppContext from "@/common/app-context";
 import AppController from "@/common/AppController";
 import { getHistory } from "@/common/data-utils";
-import { getInternal } from "@/common/http-utils";
 import { MaintenanceHistoryItem } from "@/models/MaintenanceHistory";
 
 class MaintenanceHistoryController extends AppController {

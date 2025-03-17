@@ -3,14 +3,15 @@ import { Surface, Text } from 'react-native-paper';
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { forget } from '@/common/utils';
+import { FACE_ID_USERNAME, FACE_ID_PASSWORD } from '@/common/constants';
 
 export default function SignOut() {
   const session = useSession();
   const queryClient = useQueryClient();
 
   const signOut = () => {
-    forget("ff.username");
-    forget("ff.password");
+    forget(FACE_ID_USERNAME);
+    forget(FACE_ID_PASSWORD);
     forget('ff.deeplink');
     forget('ff.deeplinkParams');
     session.signOut();

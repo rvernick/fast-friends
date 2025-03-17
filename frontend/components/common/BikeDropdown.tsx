@@ -9,7 +9,6 @@ type BikeDropdownProps = {
   readonly: boolean;
   onSelect: (value: string) => void;
   useAll?: boolean;
-  label?: string;
   testID?: string;
 };
 
@@ -19,7 +18,6 @@ export const BikeDropdown: React.FC<BikeDropdownProps> = ({
     readonly,
     onSelect,
     useAll = false,
-    label = "Bike",
     testID="bikeDropdown"}) => {
   const [bikeList, setBikeList] = useState<Bike[]>([]);
   const [options, setOptions] = useState<any[]>([]);
@@ -70,7 +68,6 @@ export const BikeDropdown: React.FC<BikeDropdownProps> = ({
   return (
     <Dropdown
       value={bikeNameFor(value)}
-      label={label}
       disabled={readonly}
       onSelect={handleSelect}
       options={options}

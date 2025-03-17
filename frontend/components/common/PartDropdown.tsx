@@ -32,7 +32,6 @@ export const PartDropdown: React.FC<PartDropdownProps> = ({
   return (
     <Dropdown
       value={value}
-      label={label}
       disabled={readonly}
       onSelect={handleSelect}
       options={options}

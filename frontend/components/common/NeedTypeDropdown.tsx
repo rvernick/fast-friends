@@ -28,7 +28,6 @@ export const NeedTypeDropdown: React.FC<NeedTypeDropdownProps> = ({
   return (
     <Dropdown
       value={value}
-      label={label}
       disabled={readonly}
       onSelect={handleSelect}
       options={options}
