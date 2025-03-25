@@ -13,12 +13,11 @@ import { StravaService } from './strava.service';
 import { UserService } from '../user/user.service';
 import { Notification } from './notification';
 import { UpdateMaintenanceItemDto } from './update-maintenance-item.dto';
-import { Part } from './part';
+import { Part, Action } from './enums';
 import { BatchProcessService } from '../batch/batch-process.service';
 import { MaintenanceLogDto, MaintenanceLogRequestDto } from './log-maintenance.dto';
 import { MaintenanceHistory } from './maintenance-history.entity';
 import { MaintenanceHistorySummary } from './maintenance-history-summary';
-import { Action } from './action';
 import { UpdateMaintenanceHistoryItemDto } from './update-maintenance-history-item.dto';
 
 

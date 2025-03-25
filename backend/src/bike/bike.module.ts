@@ -17,12 +17,16 @@ import { BatchProcessService } from '../batch/batch-process.service';
 import { MaintenanceHistory } from './maintenance-history.entity';
 import { EmailVerify } from '../user/email-verify.entity';
 import { StravaVerify } from '../user/strava-verify.entity';
+import { BikeDefinition } from './bike-definition.entity';
+import { BikeComponent } from './bike-component.entity';
+import { BikeDefinitionService } from './bike-definition.service';
 
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([
     User, Bike, MaintenanceItem, MaintenanceHistory,
     PasswordReset, Notification, BatchProcess, EmailVerify,
-    StravaVerify])],
+    StravaVerify,
+    BikeDefinition, BikeComponent])],
   providers: [
     {
       provide: APP_GUARD,
@@ -32,6 +36,7 @@ import { StravaVerify } from '../user/strava-verify.entity';
     BatchProcessService,
     UserService,
     StravaService,
+    BikeDefinitionService,
   ],
   controllers: [BikeController],
   exports: [BikeService],

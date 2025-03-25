@@ -1,0 +1,390 @@
+ export const bikeDefinitionSchema =  {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pedal Assistant Bike",
+  "description": "Full description of a Bike in Pedal Assistant",
+  "type": "object",
+
+  "properties": {
+    "brand": {
+      "description": "The manufacturer of the bike",
+      "type": "string"
+    },
+    "model": {
+      "description": "The specific model of the bike",
+      "type": "string"
+    },
+    "line": {
+      "description": "The specific line of the bike",
+      "type": "string"
+    },
+    "colors": {
+      "description": "The color of the bike",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "frameMaterial": {
+      "description": "The material used for the frame",
+      "type": "string"
+    },
+    "year": {
+      "description": "The year the bike was manufactured",
+      "type": "string"
+    },
+    "hasElectricAssist": {
+      "description": "Does the bike have electric assist",
+      "type": "boolean"
+    },
+    "productLink": {
+      "description": "The link to the bike's product page",
+      "type": "string"
+    },
+    "frontWheel": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the front wheel",
+          "type": "string"
+        },
+        "model": {
+          "description": "The specific model of the front wheel",
+          "type": "string"
+        },
+        "size": {
+          "description": "The size of the front wheel",
+          "type": "string"
+        },
+        "quickRelease": {
+          "description": "Does it have quick release",
+          "type": "boolean"
+        },
+        "thruAxle": {
+          "description": "Does it have a thru-axle",
+          "type": "boolean"
+        },
+        "tubelessReady": {
+          "description": "Is it tubeless ready",
+          "type": "boolean"
+        },
+        "clincher": {
+          "description": "Is it a clincher mounted rim",
+          "type": "boolean"
+        },
+        "tubular": {
+          "description": "Is it a tubular rim",
+          "type": "boolean"
+        },
+        "hookless": {
+          "description": "Does it use a hookless rim",
+          "type": "boolean"
+        },
+        "productLink": {
+          "description": "The link to the bike's product page",
+          "type": "string"
+        }
+      }
+    },
+    "rearWheel": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the front wheel",
+          "type": "string"
+        },
+        "model": {
+          "description": "The specific model of the front wheel",
+          "type": "string"
+        },
+        "size": {
+          "description": "The size of the front wheel",
+          "type": "string"
+        },
+        "tubelessReady": {
+          "description": "Is it tubeless ready",
+          "type": "boolean"
+        },
+        "clincher": {
+          "description": "Is it a clincher mounted rim",
+          "type": "boolean"
+        },
+        "tubular": {
+          "description": "Is it a tubular rim",
+          "type": "boolean"
+        },
+        "hookless": {
+          "description": "Does it use a hookless rim",
+          "type": "boolean"
+        },
+        "productLink": {
+          "description": "The link to the bike's product page",
+          "type": "string"
+        }
+      }
+    },
+    "frontTire": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the front tire",
+          "type": "string"
+        },
+        "model": {
+          "description": "The specific model of the front tire",
+          "type": "string"
+        },
+        "size": {
+          "description": "The size of the front tire",
+          "type": "string"
+        },
+        "tubeless": {
+          "description": "Is it tubeless ready",
+          "type": "boolean"
+        },
+        "productLink": {
+          "description": "The link to the bike's product page",
+          "type": "string"
+        }
+      }
+    },
+    "rearTire": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the front tire",
+          "type": "string"
+        },
+        "model": {
+          "description": "The specific model of the front tire",
+          "type": "string"
+        },
+        "size": {
+          "description": "The size of the front tire",
+          "type": "string"
+        },
+        "tubeless": {
+          "description": "Is it tubeless ready",
+          "type": "boolean"
+        },
+        "productLink": {
+          "description": "The link to the bike's product page",
+          "type": "string"
+        }
+      }
+    },
+    "chain": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the front tire",
+          "type": "string"
+        },
+        "model": {
+          "description": "The specific model of the front tire",
+          "type": "string"
+        },
+        "speeds": {
+          "description": "The number of cogs on the rear cassette",
+          "type": "string"
+        },
+        "productLink": {
+          "description": "The link to the bike's product page",
+          "type": "string"
+        }
+      }
+    },
+    "cassette": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the front tire",
+          "type": "string"
+        },
+        "model": {
+          "description": "The specific model of the front tire",
+          "type": "string"
+        },
+        "speeds": {
+          "description": "The number of cogs on the rear cassette",
+          "type": "number"
+        },
+        "cogConfiguration": {
+          "description": "The configuration of the cogs on the cassette (e.g. 11-28)",
+          "type": "string"
+        },
+        "productLink": {
+          "description": "The link to the bike's product page",
+          "type": "string"
+        }
+      }
+    },
+    "cranks": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the cranks",
+          "type": "string"
+        },
+        "model": {
+          "description": "The specific model of the cranks",
+          "type": "string"
+        },
+        "chainringCount": {
+          "description": "The number of chainrings on the crankset",
+          "type": "number"
+        },
+        "chainringSizes": {
+          "description": "The chainring configuration (e.g. 50/34)",
+          "type": "number"
+        },
+        "size": {
+          "description": "The length of the crank arms (e.g. 172.5mm)",
+          "type": "string"
+        },
+        "productLink": {
+          "description": "The link to the bike's product page",
+          "type": "string"
+        }
+      }
+    },
+    "frontShifter": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the shifter",
+          "type": "string"
+        },
+        "model": {
+          "description": "The specific model of the shifter",
+          "type": "string"
+        },
+        "electronic": {
+          "description": "True if the shifter is electric, false if it's mechanical",
+          "type": "boolean"
+        },
+        "wireless": {
+          "description": "True if the shifter is wireless, false if uses cable or a wire",
+          "type": "boolean"
+        }
+      }
+    },
+    "rearShifter": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the shifter",
+          "type": "string"
+        },
+        "model": {
+          "description": "The specific model of the shifter",
+          "type": "string"
+        },
+        "electric": {
+          "description": "True if the shifter is electric, false if it's mechanical",
+          "type": "boolean"
+        },
+        "wireless": {
+          "description": "True if the shifter is wireless, false if uses cable or a wire",
+          "type": "boolean"
+        }
+      }
+    },
+    "frontBrake": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the brake",
+          "type": "string"
+          },
+        "model": {
+          "description": "The specific model of the brake",
+          "type": "string"
+        },
+        "disc": {
+          "description": "True if the brake is disc brake, false if it's cable brake",
+          "type": "boolean"
+          },
+        "hydric": {
+          "description": "True if the brake is hydric, false if it's non-hydric",
+          "type": "boolean"
+        },
+        "size": {
+          "description": "The size of the brake",
+          "type": "string"
+        },
+        "productLink": {
+          "description": "The link to the bike's product page",
+          "type": "string"
+        }
+      }
+    },
+    "rearBrake": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the brake",
+          "type": "string"
+          },
+        "model": {
+          "description": "The specific model of the brake",
+          "type": "string"
+        },
+        "disc": {
+          "description": "True if the brake is disc brake, false if it's cable brake",
+          "type": "boolean"
+          },
+        "hydric": {
+          "description": "True if the brake is hydric, false if it's non-hydric",
+          "type": "boolean"
+        },
+        "size": {
+          "description": "The size of the brake",
+          "type": "string"
+        },
+        "productLink": {
+          "description": "The link to the bike's product page",
+          "type": "string"
+        }
+      }
+    },
+    "pedals": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the brake",
+          "type": "string"
+          },
+        "model": {
+          "description": "The specific model of the brake",
+          "type": "string"
+        }
+      }
+    },
+    "frontShock": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the shock",
+          "type": "string"
+          },
+        "model": {
+          "description": "The specific model of the shock",
+          "type": "string"
+        }
+      }
+    },
+    "rearShock": {
+      "type": "object",
+      "properties": {
+        "brand": {
+          "description": "The manufacturer of the shock",
+          "type": "string"
+        },
+        "model": {
+          "description": "The specific model of the shock",
+          "type": "string"
+        }
+      }
+    }
+  }
+}
