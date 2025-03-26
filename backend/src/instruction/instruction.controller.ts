@@ -16,14 +16,11 @@ import { InstructionService } from './instruction.service';
 export class InstructionController {
   constructor(private instructionService: InstructionService) {}
 
-  @HttpCode(HttpStatus.OK)
   @Get('health')
-  
   health(): string {
     return 'Up';
   }
 
-  @HttpCode(HttpStatus.OK)
   @Get('instruction')
   @Public()
   getInstruction(@Query('part') part: string, @Query('action') action: string): Promise<Instruction | null> {
@@ -41,24 +38,21 @@ export class InstructionController {
       return null;
     }
   }
-
-  @HttpCode(HttpStatus.OK)
+  
   @Public()
   @Get('instructions')
   getInstructions(@Query('part') part: string): Promise<Instruction[] | null> {
     console.log('instruction/instructions part:'+ part);
     return this.instructionService.getInstructions(part);
   }
-
-  @HttpCode(HttpStatus.OK)
+  
   @UseGuards(AuthGuard)
   @Post('add-instruction')
   addOrUpdateInstruction(@Body() instruction: Instruction): Promise<Instruction | null> {
     console.log('instruction/add-instruction user: '+ JSON.stringify(instruction));
     return this.instructionService.addOrUpdate(instruction);
   }
-
-  @HttpCode(HttpStatus.OK)
+  
   // @UseGuards(AuthGuard)
   @Public()
   @Post('synchronize')

@@ -17,7 +17,6 @@ import { BikeDefinitionService } from './bike-definition.service';
 export class BikeDefinitionController {
   constructor(private bikeDefinitionService: BikeDefinitionService) {}
   // update-or-add-maintenance-history-item
-  @HttpCode(HttpStatus.OK)
   // @UseGuards(AuthGuard)   TODO: put the guard back in
   @Public()               // TODO: add the guard back in
   @Post('bootstrap-brand')
