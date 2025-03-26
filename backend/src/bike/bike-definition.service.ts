@@ -1,4 +1,4 @@
-import { Logger, Injectable, Inject } from '@nestjs/common';
+import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { User } from '../user/user.entity';
@@ -141,4 +141,53 @@ export class BikeDefinitionService {
     return this.chatGPT;
   }
   
+  async bootStrapAll(year?: string): Promise<void> {
+    if (!year) {
+      year = '2024';
+    }
+    const brands = await this.getAllBrands();
+    for (const brand of brands) {
+      await this.bootStrapBrand(brand, year);
+    }
+  }
+
+  async bootStrapBrand(brand: string, year?: string): Promise<void> {
+    if (!year) {
+      year = '2024';
+    }
+    const models = await this.getModels(brand, year);
+    for (const model of models) {
+      const lines = await this.getLines(brand, model, year);
+      for (const line of lines) {
+        await this.createDefintionFor(year, brand, model, line);
+      }
+    }
+  }
+
+  private async getAllBrands(): Promise<string[]> {
+    const response = await this.queryBikeInfoList('List the top 25 brands of bikes');
+    console.log('Brands: ', response);
+    return Promise.all(['Specialized']);
+  }
+
+  private async getModels(brand: string, year?: string): Promise<string[]> {
+    const query = year ? `List the models of ${brand} bikes in ${year}` : `List the models of ${brand} bikes`;
+    return ['Roubaix'];
+  }
+
+  private async getLines(brand: string, model: string, year?: string): Promise<string[]> {
+    const query = year ? `List the lines of ${brand} ${model} bikes in ${year}` : `List the lines of ${brand} ${model} bikes`;
+    return ['Pro', 'Comp'];
+  }
+
+  private async queryBikeInfoList(query: string): Promise<string[]> {
+    const response = await this.openAIClient().responses.create({
+      model: 'gpt-4o-mini',
+      instructions: 'You are a bike specification expert who answer with a list of strings',
+      input: query,
+    });
+    console.log('Bike info list query: ', query);
+    console.log('Bike info list query response: ', response);
+    return [];
+  }
 };
