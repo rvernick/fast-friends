@@ -20,6 +20,7 @@ import { StravaVerify } from '../user/strava-verify.entity';
 import { BikeDefinition } from './bike-definition.entity';
 import { BikeComponent } from './bike-component.entity';
 import { BikeDefinitionService } from './bike-definition.service';
+import { BikeDefinitionController } from './bike-definition.controller';
 
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([
@@ -38,8 +39,8 @@ import { BikeDefinitionService } from './bike-definition.service';
     StravaService,
     BikeDefinitionService,
   ],
-  controllers: [BikeController],
-  exports: [BikeService],
+  controllers: [BikeController, BikeDefinitionController],
+  exports: [BikeService, BikeDefinitionService],
 })
 
 export class BikeModule {}

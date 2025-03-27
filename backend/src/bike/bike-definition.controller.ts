@@ -1,15 +1,10 @@
 import {
   Body,
   Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
   Post,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 
-import { Bike } from './bike.entity';
 import { AuthGuard, Public } from '../auth/auth.guard';
 import { BikeDefinitionService } from './bike-definition.service';
 
@@ -19,11 +14,16 @@ export class BikeDefinitionController {
   // update-or-add-maintenance-history-item
   // @UseGuards(AuthGuard)   TODO: put the guard back in
   @Public()               // TODO: add the guard back in
-  @Post('bootstrap-brand')
-  bootstrap(@Body('brand') brand: string): Promise<void> {
-    console.log('bike-definition/', brand);
-    return this.bikeDefinitionService.bootStrapBrand(brand);
+  @Post('bootstrap')
+  bootstrap(@Body('year') year: string): Promise<void> {
+    try {
+      console.log('bootstrap/', year);
+      this.bikeDefinitionService.bootStrapAll(year);
+      return;
+    } catch (error) {
+      console.log('bike-definition/bootstrap error:', error);
+      return null;
+    }
   }
-
 
 }

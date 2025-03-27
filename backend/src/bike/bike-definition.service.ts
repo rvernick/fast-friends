@@ -1,12 +1,12 @@
 import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
-import { User } from '../user/user.entity';
 import { BikeDefinition } from './bike-definition.entity';
-import OpenAI, { toFile } from 'openai';
+import OpenAI from 'openai';
 const logger = new Logger('BikeDefinitionService');
-import { bikeDefinitionSchema } from './bike.schema';
 import { createDefinitionFromJSON } from './bike-definition-parser';
+import { z } from 'zod';
+import { zodResponseFormat } from "openai/helpers/zod";
 
 @Injectable()
 export class BikeDefinitionService {
@@ -14,7 +14,7 @@ export class BikeDefinitionService {
   chatGPT = null;
 
   constructor(
-    @InjectRepository(User)
+    @InjectRepository(BikeDefinition)
     private bikeDefinitionRepository: Repository<BikeDefinition>,
   ) {}
 
@@ -99,34 +99,47 @@ export class BikeDefinitionService {
   }
 
   async createDefintionFor(year: string, brand: string, model: string, line: string): Promise<BikeDefinition> {
-    const definitionJSON = this.queryChatGPTDefinition(year, brand, model, line);
-    const definition = createDefinitionFromJSON(definitionJSON);
-    return await this.bikeDefinitionRepository.save(definition);
+    try {
+      const response = await this.queryChatGPTDefinition(year, brand, model, line);
+      console.log('Got response from ChatGPT: ', response);
+      const definition = createDefinitionFromJSON(response);
+      console.log('Created bike definition: ', definition);
+      const result =  await this.bikeDefinitionRepository.save(definition);
+      console.log('Saved bike definition: ', result);
+      return result;
+    } catch (error) {
+      logger.log('Error creating bike definition: ', error);
+      return null;
+    }
   }
-
 
   private async queryChatGPTDefinition(year: string, brand: string, model: string, line: string): Promise<any> {
-    const query = `What is a bike definition for a ${year} ${brand} ${model} ${line}?`;
-    const client = this.openAIClient();
-    if (!this.jsonDefinitionHasBeenUploaded) {
-      await this.uploadJSONDefinition(client);
-      this.jsonDefinitionHasBeenUploaded = true;
+    try {
+      const query = `Can you describe a ${year} ${brand} ${model} ${line}? `;
+      const client = this.openAIClient();
+      const response = await client.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+              "role": "system", 
+              "content": "You are a verbose and meticulous bike specification expert"
+          },
+          {
+              "role": "user", 
+              "content": "Can you describe the 2024 Specialized Roubaix SL8 Pro"
+          }
+      ],
+        response_format: zodResponseFormat(bikeDefinitionSchema, "bike_definition"),
+      });
+      console.log('Got response from ChatGPT: ', response);
+      console.log('Choices', response.choices[0]);
+      console.log('Choices', response.choices[0].message);
+      return JSON.parse(response.choices[0].message.content);
+    } catch (error) {
+      logger.log('Error querying ChatGPT: ', error);
+      return null;
     }
-    console.log('Querying ChatGPT for bike definition: ', query);
-    return client.responses.create({
-      model: 'gpt-4o',
-      instructions: 'You are a bike specification expert who answers with the JSON schema in bikeDefinition.json',
-      input: query,
-    });
   }
-
-  private async uploadJSONDefinition(client: OpenAI): Promise<void> {
-    await client.files.create({
-      file: await toFile(Buffer.from(JSON.stringify(bikeDefinitionSchema)), 'bikeDefinition.json'),
-      purpose: 'fine-tune',
-    });
-  }
-
 
   private openAIClient(): OpenAI {
     if (!this.chatGPT) {
@@ -145,7 +158,7 @@ export class BikeDefinitionService {
     if (!year) {
       year = '2024';
     }
-    const brands = await this.getAllBrands();
+    const brands = await this.getAllBrands(year);
     for (const brand of brands) {
       await this.bootStrapBrand(brand, year);
     }
@@ -155,6 +168,7 @@ export class BikeDefinitionService {
     if (!year) {
       year = '2024';
     }
+    console.log(`Bootstrapping brand ${brand} with year ${year}`);
     const models = await this.getModels(brand, year);
     for (const model of models) {
       const lines = await this.getLines(brand, model, year);
@@ -164,23 +178,24 @@ export class BikeDefinitionService {
     }
   }
 
-  private async getAllBrands(): Promise<string[]> {
-    const response = await this.queryBikeInfoList('List the top 25 brands of bikes');
-    console.log('Brands: ', response);
-    return Promise.all(['Specialized']);
+  private async getAllBrands(year: string ): Promise<string[]> {
+    const query = `List the top 25 brands of bikes in ${year} as a pipe (|) deliniated list with no model or trim information`;
+    await this.queryBikeInfoList(query);
+    return ['Specialized'];
   }
 
   private async getModels(brand: string, year?: string): Promise<string[]> {
-    const query = year ? `List the models of ${brand} bikes in ${year}` : `List the models of ${brand} bikes`;
-    return ['Roubaix'];
+    const queryBase = year ? `List the models/family of ${brand} bikes in ${year}` : `List the models of ${brand} bikes`;
+    return this.queryBikeInfoList(queryBase + ' as a pipe (|) deliniated list with no brand or trim information')
   }
 
   private async getLines(brand: string, model: string, year?: string): Promise<string[]> {
-    const query = year ? `List the lines of ${brand} ${model} bikes in ${year}` : `List the lines of ${brand} ${model} bikes`;
-    return ['Pro', 'Comp'];
+    const queryBase = year ? `List the available trims of ${brand} ${model} bikes in ${year}` : `List the lines of ${brand} ${model} bikes`;
+    const query = queryBase + ' as a pipe (|) deliniated list with no brand or model information';
+    return this.queryBikeInfoList(query);
   }
 
-  private async queryBikeInfoList(query: string): Promise<string[]> {
+  private async queryBikeInfoList(query: string): Promise<string[]> {    
     const response = await this.openAIClient().responses.create({
       model: 'gpt-4o-mini',
       instructions: 'You are a bike specification expert who answer with a list of strings',
@@ -188,6 +203,134 @@ export class BikeDefinitionService {
     });
     console.log('Bike info list query: ', query);
     console.log('Bike info list query response: ', response);
-    return [];
+    console.log('Output: ', response.output);
+    console.log('Output[0]: ', response.output[0]);
+    const result = response.output_text.split('|').map(item => item.trim());
+    console.log('Result: ', result);
+    return result.filter(item => item.trim().length > 0);
   }
 };
+
+export const bikeDefinitionSchema = z.object({
+  brand: z.string().describe("The manufacturer of the bike"),
+  model: z.string().describe("The specific model of the bike"),
+  line: z.string().describe("The specific line of the bike"),
+  type: z.string().describe("The type of bike (e.g., road, hybrid, mountain)"),
+  colors: z.array(z.string()).describe("The color of the bike"),
+  sizes: z.array(z.string()).describe("The available sizes of the bike"),
+  frameMaterial: z.string().describe("The material used for the frame"),
+  year: z.string().describe("The year the bike was manufactured"),
+  hasElectricAssist: z.boolean().describe("Does the bike have electric assist"),
+  productLink: z.string().describe("The link to the bike's product page"),
+  groupsetBrand: z.string().describe("The brand of the groupset"),
+  groupsetLine: z.string().describe("The specific line of the groupset"),
+  groupsetSpeed: z.number().describe("The speed of the groupset"),
+  description: z.string().describe("A brief description of the bike"),
+
+  frontWheel: z.object({
+    brand: z.string().describe("The manufacturer of the front wheel"),
+    model: z.string().describe("The specific model of the front wheel"),
+    size: z.string().describe("The size of the front wheel"),
+    quickRelease: z.boolean().describe("Does it have quick release"),
+    thruAxle: z.boolean().describe("Does it have a thru-axle"),
+    tubelessReady: z.boolean().describe("Is it tubeless ready"),
+    clincher: z.boolean().describe("Is it a clincher mounted rim"),
+    tubular: z.boolean().describe("Is it a tubular rim"),
+    hookless: z.boolean().describe("Does it use a hookless rim"),
+    productLink: z.string().describe("The link to the bike's product page"),
+  }),
+
+  rearWheel: z.object({
+    brand: z.string().describe("The manufacturer of the rear wheel"),
+    model: z.string().describe("The specific model of the rear wheel"),
+    size: z.string().describe("The size of the rear wheel"),
+    tubelessReady: z.boolean().describe("Is it tubeless ready"),
+    clincher: z.boolean().describe("Is it a clincher mounted rim"),
+    tubular: z.boolean().describe("Is it a tubular rim"),
+    hookless: z.boolean().describe("Does it use a hookless rim"),
+    productLink: z.string().describe("The link to the bike's product page"),
+  }),
+
+  frontTire: z.object({
+    brand: z.string().describe("The manufacturer of the front tire"),
+    model: z.string().describe("The specific model of the front tire"),
+    size: z.string().describe("The size of the front tire"),
+    tubeless: z.boolean().describe("Is it tubeless ready"),
+    productLink: z.string().describe("The link to the bike's product page"),
+  }),
+
+  rearTire: z.object({
+    brand: z.string().describe("The manufacturer of the rear tire"),
+    model: z.string().describe("The specific model of the rear tire"),
+    size: z.string().describe("The size of the rear tire"),
+    tubeless: z.boolean().describe("Is it tubeless ready"),
+    productLink: z.string().describe("The link to the bike's product page"),
+  }),
+
+  chain: z.object({
+    brand: z.string().describe("The manufacturer of the chain"),
+    model: z.string().describe("The specific model of the chain"),
+    speeds: z.string().describe("The number of cogs on the rear cassette"),
+    productLink: z.string().describe("The link to the bike's product page"),
+  }),
+
+  cassette: z.object({
+    brand: z.string().describe("The manufacturer of the cassette"),
+    model: z.string().describe("The specific model of the cassette"),
+    speeds: z.number().describe("The number of cogs on the rear cassette"),
+    cogConfiguration: z.string().describe("The configuration of the cogs on the cassette (e.g. 11-28)"),
+    productLink: z.string().describe("The link to the bike's product page"),
+  }),
+
+  cranks: z.object({
+    brand: z.string().describe("The manufacturer of the cranks"),
+    model: z.string().describe("The specific model of the cranks"),
+    chainringCount: z.number().describe("The number of chainrings on the crankset"),
+    chainringSizes: z.number().describe("The chainring configuration (e.g. 50/34)"),
+    size: z.string().describe("The length of the crank arms (e.g. 172.5mm)"),
+    productLink: z.string().describe("The link to the bike's product page"),
+  }),
+
+  frontShifter: z.object({
+    brand: z.string().describe("The manufacturer of the shifter"),
+    model: z.string().describe("The specific model of the shifter"),
+    electronic: z.boolean().describe("True if the shifter is electric, false if it's mechanical"),
+    wireless: z.boolean().describe("True if the shifter is wireless, false if uses cable or a wire"),
+  }),
+
+  rearShifter: z.object({
+    brand: z.string().describe("The manufacturer of the shifter"),
+    model: z.string().describe("The specific model of the shifter"),
+    electronic: z.boolean().describe("True if the shifter is electric, false if it's mechanical"),
+    wireless: z.boolean().describe("True if the shifter is wireless, false if uses cable or a wire"),
+  }),
+
+  frontBrake: z.object({
+    brand: z.string().describe("The manufacturer of the brake"),
+    model: z.string().describe("The specific model of the brake"),
+    disc: z.boolean().describe("True if the brake is disc brake, false if it's cable brake"),
+    hydric: z.boolean().describe("True if the brake is hydric, false if it's non-hydric"),
+    size: z.string().describe("The size of the brake"),
+    productLink: z.string().describe("The link to the bike's product page"),
+  }),
+
+  rearBrake: z.object({
+    brand: z.string().describe("The manufacturer of the brake"),
+    model: z.string().describe("The specific model of the brake"),
+    disc: z.boolean().describe("True if the brake is disc brake, false if it's cable brake"),
+    hydric: z.boolean().describe("True if the brake is hydric, false if it's non-hydric"),
+    size: z.string().describe("The size of the brake"),
+    productLink: z.string().describe("The link to the bike's product page"),
+  }),
+
+  frontShock: z.object({
+    brand: z.string().describe("The manufacturer of the shock"),
+    model: z.string().describe("The specific model of the shock"),
+  }),
+
+  rearShock: z.object({
+    brand: z.string().describe("The manufacturer of the shock"),
+    model: z.string().describe("The specific model of the shock"),
+  }),
+});
+

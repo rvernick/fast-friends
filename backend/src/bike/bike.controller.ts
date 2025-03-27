@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
-  HttpStatus,
   Post,
   Query,
   UseGuards,
@@ -28,11 +26,11 @@ export class BikeController {
   @UseGuards(AuthGuard)
   @Get('bike')
   getBike(@Query('bikeid') bikeId: number, @Query('username') username: string): Promise<Bike | null> {
-    if (bikeId == null) {
-      console.log('bike/bike has no bikeId: ' + username);
-      throw new Error('bike/bike bikeid is required') as any;
-    }
     try {
+      if (bikeId == null) {
+        console.log('bike/bike has no bikeId: ' + username);
+        return null;
+      }
       console.log(bikeId + ' bike/bike username: '+ username);
       const result = this.bikeService.getBike(bikeId, username);
       console.log('bike/bike result: '+ result);
@@ -46,100 +44,159 @@ export class BikeController {
   @UseGuards(AuthGuard)
   @Get('bikes')
   getBikes(@Query('username') username: string): Promise<Bike[] | null> {
-    console.log('bike/bikes user:'+ username);
-    return this.bikeService.getBikes(username);
+    try {
+      console.log('bike/bikes user:'+ username);
+      return this.bikeService.getBikes(username);
+    } catch (error) {
+      console.log('bike/bikes error:', error);
+      return null;
+    }
   }
   
   @UseGuards(AuthGuard)
   @Post('add-or-update-bike')
   updateOrAddBike(@Body() bike: UpdateBikeDto): Promise<Bike | null> {
-    console.log('bike/add-or-update-bike bike:'+ JSON.stringify(bike));
-    const result = this.bikeService.updateOrAddBike(bike);
-    console.log('bike/add-or-update-bike bike done:'+ JSON.stringify(result));
-    return result;
+    try {
+      console.log('bike/add-or-update-bike bike:'+ JSON.stringify(bike));
+      const result = this.bikeService.updateOrAddBike(bike);
+      console.log('bike/add-or-update-bike bike done:'+ JSON.stringify(result));
+      return result;
+    } catch (error) {
+      console.log('bike/add-or-update-bike error:', error);
+      return null;
+    }
   }
   
   @UseGuards(AuthGuard)
   @Post('delete-bike')
   deleteBike(@Body() bike: DeleteBikeDto): Promise<Bike | null> {
-    console.log('bike/add-or-update-bike bike:'+ JSON.stringify(bike));
-    return this.bikeService.deleteBike(bike);
+    try {
+      console.log('bike/add-or-update-bike bike:'+ JSON.stringify(bike));
+      return this.bikeService.deleteBike(bike);
+    } catch (error) {
+      console.log('bike/add-or-update-bike error:', error);
+      return null;
+    }
   }
-  
+
   @UseGuards(AuthGuard)
   @Get('maintenance-items')
   getMaintenanceItems(@Query('username') username: string): Promise<MaintenanceItem[] | null> {
-    console.log('user/maintenance-items user:'+ username);
-    return this.bikeService.getMaintenanceItems(username);
+    try {
+      console.log('user/maintenance-items user:'+ username);
+      return this.bikeService.getMaintenanceItems(username);
+    } catch (error) {
+      console.log('user/maintenance-items error:', error);
+      return null;
+    }
   }
   
   @UseGuards(AuthGuard)
   @Get('maintenance-item')
   getMaintenanceItem(@Query('maintenanceid') maintenanceId: number, @Query('username') username: string): Promise<MaintenanceItem | null> {
-    console.log('user/maintenance-items user:'+ maintenanceId +' username: '+ username);
-    if (maintenanceId === undefined || maintenanceId === null) {
-      throw Error('Maintenance id is required');
+    try {
+      console.log('user/maintenance-items user:'+ maintenanceId +' username: '+ username);
+      if (maintenanceId === undefined || maintenanceId === null) {
+        throw Error('Maintenance id is required');
+      }
+      return this.bikeService.getMaintenanceItem(maintenanceId, username);
+    } catch (error) {
+      console.log('user/maintenance-items error:', error);
+      return null;
     }
-    return this.bikeService.getMaintenanceItem(maintenanceId, username);
   }
   
   @UseGuards(AuthGuard)
   @Post('update-or-add-maintenance-item')
   updateMaintenanceItem(@Body() maintenanceItem: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
-    console.log('bike/update-or-add-maintenance-item user:'+ maintenanceItem.username +' id: '+ maintenanceItem.id);
-    return this.bikeService.updateOrAddMaintenanceItem(maintenanceItem);
+    try {
+      console.log('bike/update-or-add-maintenance-item user:'+ maintenanceItem.username +' id: '+ maintenanceItem.id);
+      return this.bikeService.updateOrAddMaintenanceItem(maintenanceItem);
+    } catch (error) {
+      console.log('bike/update-or-add-maintenance-item error:', error);
+      throw error;
+    }
   }
   
   @UseGuards(AuthGuard)
   @Post('delete-maintenance-item')
   deleteMaintenanceItem(@Body('maintenanceid') maintenanceId: number, @Body('username') username: string): Promise<boolean> {
-    console.log('bike/delete-maintenance-items user:'+ maintenanceId +' username: '+ username);
-    if (maintenanceId === undefined || maintenanceId === null) {
-      throw Error('Maintenance id is required');
+    try {
+      console.log('bike/delete-maintenance-items user:'+ maintenanceId +' username: '+ username);
+      if (maintenanceId === undefined || maintenanceId === null) {
+        throw Error('Maintenance id is required');
+      }
+      return this.bikeService.deleteMaintenanceItem(maintenanceId, username);
+    } catch (error) {
+      console.log('bike/delete-maintenance-items error:', error);
+      return Promise.resolve(false);
     }
-    return this.bikeService.deleteMaintenanceItem(maintenanceId, username);
   }
   
   @UseGuards(AuthGuard)
   @Post('log-performed-maintenance')
   logPerformedMaintenance(@Body() maintenanceLogs: MaintenanceLogRequestDto): Promise<string> {
-    console.log('log-performed-maintenance user:' + JSON.stringify(maintenanceLogs));
-    return this.bikeService.logPerformedMaintenance(maintenanceLogs);
+    try {
+      console.log('log-performed-maintenance user:' + JSON.stringify(maintenanceLogs));
+      return this.bikeService.logPerformedMaintenance(maintenanceLogs);
+    } catch (error) {
+      console.log('log-performed-maintenance error:', error);
+      return error.message;
+    }
   }
   
   @UseGuards(AuthGuard)
   @Get('maintenance-history')
   getMaintenanceHistory(@Query('username') username: string): Promise<MaintenanceHistorySummary[]> {
-    console.log('bike/maintenance-history user:'+ username);
-    return this.bikeService.getMaintenanceHistory(username);
+    try {
+      console.log('bike/maintenance-history user:'+ username);
+      return this.bikeService.getMaintenanceHistory(username);
+    } catch (error) {
+      console.log('bike/maintenance-history error:', error);
+      return null;
+    }
   }
   
   @UseGuards(AuthGuard)
   @Get('maintenance-history-item')
   getMaintenanceHistoryItem(@Query('maintenance_history_id') maintenanceHistoryId: number, @Query('username') username: string): Promise<MaintenanceHistorySummary | null> {
-    console.log('bike/maintenance-history-item user:'+ maintenanceHistoryId +' username: '+ username);
-    if (maintenanceHistoryId === undefined || maintenanceHistoryId === null) {
-      throw Error('Maintenance id is required');
+    try {
+      console.log('bike/maintenance-history-item user:'+ maintenanceHistoryId +' username: '+ username);
+      if (maintenanceHistoryId === undefined || maintenanceHistoryId === null) {
+        throw Error('Maintenance id is required');
+      }
+      return this.bikeService.getMaintenanceHistoryItem(maintenanceHistoryId, username);
+    } catch (error) {
+      console.log('bike/maintenance-history-item error:', error);
+      return null;
     }
-    return this.bikeService.getMaintenanceHistoryItem(maintenanceHistoryId, username);
   }
 
   // update-or-add-maintenance-history-item  
   @UseGuards(AuthGuard)
   @Post('update-or-add-maintenance-history-item')
   updateMaintenanceHistoryItem(@Body() maintenanceHistoryItem: UpdateMaintenanceHistoryItemDto): Promise<MaintenanceHistory> {
-    console.log('bike/update-or-add-maintenance-item user:'+ maintenanceHistoryItem.username +' id: '+ maintenanceHistoryItem.id);
-    return this.bikeService.updateOrAddMaintenanceHistoryItem(maintenanceHistoryItem);
+    try {
+      console.log('bike/update-or-add-maintenance-item user:'+ maintenanceHistoryItem.username +' id: '+ maintenanceHistoryItem.id);
+      return this.bikeService.updateOrAddMaintenanceHistoryItem(maintenanceHistoryItem);
+    } catch (error) {
+      console.log('bike/update-or-add-maintenance-item error:', error);
+      return Promise.resolve(null) as any;
+    }
   }
   
   @UseGuards(AuthGuard)
   @Post('delete-maintenance-history-item')
   deleteMaintenanceHistoryItem(@Body('maintenance_history_id') maintenanceHistoryId: number, @Body('username') username: string): Promise<boolean> {
-    console.log('bike/delete-maintenance-history-item:'+ maintenanceHistoryId +' username: '+ username);
-    if (maintenanceHistoryId === undefined || maintenanceHistoryId === null) {
-      throw Error('Maintenance History id is required');
+    try {
+      console.log('bike/delete-maintenance-history-item:'+ maintenanceHistoryId +' username: '+ username);
+      if (maintenanceHistoryId === undefined || maintenanceHistoryId === null) {
+        throw Error('Maintenance History id is required');
+      }
+      return this.bikeService.deleteMaintenanceHistoryItem(maintenanceHistoryId, username);
+    } catch (error) {
+      console.log('bike/delete-maintenance-history-item error:', error);
+      return Promise.resolve(false);
     }
-    return this.bikeService.deleteMaintenanceHistoryItem(maintenanceHistoryId, username);
   }
-
 }

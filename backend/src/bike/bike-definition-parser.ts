@@ -1,6 +1,6 @@
 import { BikeComponent } from "./bike-component.entity";
 import { BikeDefinition } from "./bike-definition.entity";
-import { Part } from "./enums";
+import { GroupsetBrand, Material, Part } from "./enums";
 
 export const createDefinitionFromJSON = (definitionJSON: any): BikeDefinition => {
   const definition = new BikeDefinition();
@@ -13,35 +13,72 @@ export const createDefinitionFromJSON = (definitionJSON: any): BikeDefinition =>
   definition.electricAssist = definitionJSON.electricAssist;
   definition.productLink = definitionJSON.productLink;
   definition.type = definitionJSON.type;
-  definition.material = definitionJSON.material;
-  definition.groupsetBrand = definitionJSON.groupsetBrand;
+  definition.materialDescription = definitionJSON.frameMaterial;
+  definition.material = getMaterial(definitionJSON.frameMaterial);
+  definition.groupsetBrand = getGroupsetBrand(definitionJSON.groupsetBrand);
   definition.groupsetLine = definitionJSON.groupsetLine;
+  definition.groupsetSpeed = definitionJSON.groupsetSpeed;
   definition.basis = definitionJSON;
-  definition.components = createComponentsFrom(definitionJSON);
+  definition.description = definitionJSON.description;
+  addComponents(definition, definitionJSON);
   console.log(`Created bike definition from JSON: ${JSON.stringify(definitionJSON)}`);
   return definition;
 }
 
-const createComponentsFrom = (definitionJSON: any): BikeComponent[] => {
-  const components: BikeComponent[] = [];
-  addComponent(components, Part.FRONT_WHEEL, definitionJSON.frontWheel);
-  addComponent(components, Part.REAR_WHEEL, definitionJSON.rearWheel);
-  addComponent(components, Part.FRONT_TIRE, definitionJSON.frontTire);
-  addComponent(components, Part.REAR_TIRE, definitionJSON.rearTire);
-  addComponent(components, Part.CHAIN, definitionJSON.chain);
-  addComponent(components, Part.CASSETTE, definitionJSON.cassette);
-  addComponent(components, Part.CRANKSET, definitionJSON.cranks);
-  addComponent(components, Part.FRONT_SHIFTER, definitionJSON.frontShifter);
-  addComponent(components, Part.REAR_SHIFTER, definitionJSON.rearShifter);
-  addComponent(components, Part.FRONT_BRAKE, definitionJSON.frontBrake);
-  addComponent(components, Part.REAR_BRAKE, definitionJSON.rearBrake);
-  addComponent(components, Part.PEDALS, definitionJSON.pedals);
-  addComponent(components, Part.FRONT_SUSPENSION, definitionJSON.frontShock);
-  addComponent(components, Part.REAR_SUSPENSION, definitionJSON.rearShock);
-  return components;
+const getGroupsetBrand = (brand: string): GroupsetBrand => {
+  if (!brand || brand.length === 0) {
+    return null;
+  }
+  const brandLower = brand.toLowerCase();
+  if (brandLower.match(/shim/i)) {
+    return GroupsetBrand.SHIMANO;
+  } else if (brandLower.match(/sram/i)) {
+    return GroupsetBrand.SRAM;
+  } else if (brandLower.match(/camp/i)) {
+    return GroupsetBrand.CAMPAGNOLO;
+  }
+  return null;
+}
+export const getMaterial = (material: string): Material => {
+  if (!material) {
+    return null;
+  }
+  if (material.match(/carb/i)) {
+    return Material.CARBON;
+  } else if (material.match(/allo/i) || material.match(/alumin/i)) {
+    return Material.ALLOY;
+  } else if (material.match(/titan/i)) {
+    return Material.TITANIUM;
+  } else if (material.match(/stee/i) || material.match(/cro/i)) {
+    return Material.STEEL;
+  } else if (material.match(/bambo/i)) {
+    return Material.BAMBOO;
+  }
+  return null;
 }
 
-const addComponent = (components: BikeComponent[], part: Part, definition: any): BikeComponent => {
+const addComponents = (bikeDef: BikeDefinition, definitionJSON: any): void => {
+  if (bikeDef.components == null) {
+    bikeDef.components = [];
+  }
+  addComponent(bikeDef, Part.FRONT_WHEEL, definitionJSON.frontWheel);
+  addComponent(bikeDef, Part.REAR_WHEEL, definitionJSON.rearWheel);
+  addComponent(bikeDef, Part.FRONT_TIRE, definitionJSON.frontTire);
+  addComponent(bikeDef, Part.REAR_TIRE, definitionJSON.rearTire);
+  addComponent(bikeDef, Part.CHAIN, definitionJSON.chain);
+  addComponent(bikeDef, Part.CASSETTE, definitionJSON.cassette);
+  addComponent(bikeDef, Part.CRANKSET, definitionJSON.cranks);
+  addComponent(bikeDef, Part.FRONT_SHIFTER, definitionJSON.frontShifter);
+  addComponent(bikeDef, Part.REAR_SHIFTER, definitionJSON.rearShifter);
+  addComponent(bikeDef, Part.FRONT_BRAKE, definitionJSON.frontBrake);
+  addComponent(bikeDef, Part.REAR_BRAKE, definitionJSON.rearBrake);
+  // addComponent(components, Part.PEDALS, definitionJSON.pedals);
+  addComponent(bikeDef, Part.FRONT_SUSPENSION, definitionJSON.frontShock);
+  addComponent(bikeDef, Part.REAR_SUSPENSION, definitionJSON.rearShock);
+  return;
+}
+
+const addComponent = (bikeDef: BikeDefinition, part: Part, definition: any): BikeComponent => {
   if (definition) {
     console.log(`Found ${definition.brand} for part ${part}`);
   }
@@ -49,12 +86,19 @@ const addComponent = (components: BikeComponent[], part: Part, definition: any):
     console.log(`No brand ${definition} for part ${part}`);
     return;
   }
+  if (definition.brand.toLowerCase() === "n/a" 
+    || definition.brand.toLowerCase() === "not applicable"
+    || definition.brand.toLowerCase() === "none") {
+    return;
+  }
   const result = new BikeComponent();
   result.part = part;
   result.brand = definition.brand;
   result.model = definition.model;
   result.line = definition.line;
-  result.productLink = definition.productLink;
+  if (definition.productLink && definition.productLink !== bikeDef.productLink) {
+    result.productLink = definition.productLink;
+  }
   result.type = definition.type;
   result.size = definition.size;
   result.tubelessReady = definition.tubelessReady;
@@ -72,5 +116,5 @@ const addComponent = (components: BikeComponent[], part: Part, definition: any):
   result.disc = definition.disc;
   result.hydraulic = definition.hydraulic;
 
-  components.push(result)
+  bikeDef.components.push(result)
 }

@@ -25,6 +25,8 @@ import { EmailVerify } from './user/email-verify.entity';
 import { HelpRequestModule } from './help/help-request.module';
 import { HelpComment, HelpCommentVote, HelpOffer, HelpRequest } from './help/help-request.entity';
 import { StravaVerify } from './user/strava-verify.entity';
+import { BikeDefinition } from './bike/bike-definition.entity';
+import { BikeComponent } from './bike/bike-component.entity';
 
 @Module({
   imports: [
@@ -58,7 +60,8 @@ import { StravaVerify } from './user/strava-verify.entity';
           Instruction, Step, ToolNeed, Tool, InstructionReference,
           EmailVerify,
           HelpRequest, HelpComment, HelpCommentVote, HelpOffer,
-          StravaVerify
+          StravaVerify,
+          BikeDefinition, BikeComponent,
         ],
         synchronize: true,
       }),

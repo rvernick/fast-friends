@@ -61,8 +61,8 @@ export class BikeDefinition {
   searchString: string;
 
   @Column({
-    generatedType: 'VIRTUAL',
-    asExpression: `'year' || ' ' || 'brand' || ' ' || 'model' || ' ' || 'line'`,
+    type: 'varchar',
+    nullable: true,
   })
   description: string;
 
@@ -99,6 +99,12 @@ export class BikeDefinition {
     nullable: true,
   })
   material: Material;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  materialDescription: string;
 
   @Column({
     type: "enum",
