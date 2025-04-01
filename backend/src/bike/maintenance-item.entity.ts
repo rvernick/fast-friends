@@ -9,8 +9,7 @@ import {
   Index,
 } from 'typeorm';
 import { Bike } from './bike.entity';
-import { Part } from './part';
-import { Action } from './action';
+import { Part, Action } from './enums';
 
 const oneThousandMilesInMeters = 1609344;
 const threeThousandMilesInMeters = 4828032;

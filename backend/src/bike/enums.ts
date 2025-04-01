@@ -24,6 +24,13 @@ export enum Part {
   REAR_TIRE_SEALANT = "Rear Tire Sealant",
   LEFT_SHIFTER_BATTERY = "Left Shifter Battery",
   RIGHT_SHIFTER_BATTERY = "Right Shifter Battery",
+  FRONT_WHEEL = "Front Wheel",
+  REAR_WHEEL = "Rear Wheel",
+  PEDALS = "Pedals",
+  FRONT_SHIFTER = "Front Shifter",
+  REAR_SHIFTER = "Rear Shifter",
+  FRONT_BRAKE = "Front Brake",
+  REAR_BRAKE = "Rear Brake",
 };
 
 export const getPartFor = (partCode: string): Part | null => {
@@ -35,4 +42,37 @@ export const getPartFor = (partCode: string): Part | null => {
     }
   }
   return null;
+}
+
+
+export enum GroupsetBrand {
+  SHIMANO = "Shimano",
+  SRAM = "SRAM",
+  CAMPAGNOLO = "Campagnolo"
+}
+
+export enum Action {
+  CHECK = "Check",
+  CLEAN = "Clean",
+  LUBRICATE = "Lubricate",
+  REPLACE = "Replace",
+};
+
+export const getActionFor = (actionCode: string): Action | null => {
+  const vals = Object.values(Action);
+  const keys = Object.keys(Action)
+  for (const checkKey in keys) {
+    if (vals[checkKey] === actionCode) {
+      return Action[keys[checkKey]];
+    }
+  }
+  return null;
+}
+
+export enum Material {
+  CARBON = "Carbon",
+  ALLOY = "Alloy",
+  STEEL = "Steel",
+  TITANIUM = "Titanium",
+  BAMBOO = "Bamboo",
 }

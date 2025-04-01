@@ -10,8 +10,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { User } from '../user/user.entity';
-import { Part } from '../bike/part';
-import { Action } from '../bike/action';
+import { Part, Action } from '../bike/enums';
 
 export enum NeedType {
   QUESTION = "I have a question",

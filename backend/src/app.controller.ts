@@ -7,14 +7,12 @@ export class AppController {
   private readonly logger = new Logger(AppController.name);
   constructor(private readonly appService: AppService) {}
 
-  @HttpCode(HttpStatus.OK)
   @Public()
   @Get()
   health() {
     return 'Up';
   }
 
-  @HttpCode(HttpStatus.OK)
   @Public()
   @Get('check')
   isUp() {
@@ -22,7 +20,6 @@ export class AppController {
     return 'Check ok';
   }
 
-  @HttpCode(HttpStatus.OK)
   @Get('secrets')
   getSecrets() {
     return this.appService.getSecrets();

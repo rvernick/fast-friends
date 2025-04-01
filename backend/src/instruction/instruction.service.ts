@@ -2,8 +2,7 @@ import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Instruction } from './instruction.entity';
-import { Part } from '../bike/part';
-import { Action } from '../bike/action';
+import { Part, Action } from '../bike/enums';
 import { InstructionUpdater } from './instruction-updater';
 
 

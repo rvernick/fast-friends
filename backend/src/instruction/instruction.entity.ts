@@ -7,8 +7,7 @@ import {
   Index,
   OneToMany,
 } from 'typeorm';
-import { Part } from '../bike/part';
-import { Action } from '../bike/action';
+import { Part, Action } from '../bike/enums';
 import { LevelOfDifficulty } from './level-of-difficulty';
 import { Step } from './step.entity';
 import { ToolNeed } from './tool-need.entity';

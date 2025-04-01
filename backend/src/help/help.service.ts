@@ -4,8 +4,7 @@ import { Repository } from "typeorm";
 import { HelpRequestDto } from "./help-request.dto";
 import { getNeedTypeFor, HelpComment, HelpRequest } from "./help-request.entity";
 import { UserService } from "../user/user.service";
-import { getPartFor } from "../bike/part";
-import { getActionFor } from "../bike/action";
+import { getPartFor, getActionFor } from "../bike/enums";
 import { AddCommentDto } from "./add-comment.dto";
 
 

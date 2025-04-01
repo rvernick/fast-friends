@@ -11,12 +11,7 @@ import {
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { MaintenanceItem } from './maintenance-item.entity';
-
-export enum GroupsetBrand {
-  SHIMANO = "Shimano",
-  SRAM = "SRAM",
-  CAMPAGNOLO = "Campagnolo"
-}
+import { GroupsetBrand } from './enums';
 
 @Entity()
 export class Bike {

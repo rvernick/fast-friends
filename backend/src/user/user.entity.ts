@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
   DeleteDateColumn,
+  Index,
 } from 'typeorm';
 import { EncryptionTransformer } from 'typeorm-encrypted';
 import * as bcrypt from 'bcrypt';
@@ -25,6 +26,7 @@ export const createNewUser = (username: string, password: string) => {
 const key = process.env.COLUMN_ENCRYPTION_KEY;
 
 @Entity()
+@Index(["username", "deletedOn"], { unique: true })
 export class User {
   constructor(username: string, pass: string) {
     if (username != null && username.length > 0) {
