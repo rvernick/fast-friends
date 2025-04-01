@@ -18,6 +18,9 @@ import { CheckIcon, InfoIcon } from "../ui/icon";
 import { Dropdown } from "../common/Dropdown";
 import { Checkbox, CheckboxIcon, CheckboxIndicator, CheckboxLabel } from "../ui/checkbox";
 import { HStack } from "../ui/hstack";
+import { Radio, RadioGroup, RadioLabel } from "../ui/radio";
+import BikeFrameComponent from "./BikeFrameComponent";
+import { MaintenanceItem } from "@/models/MaintenanceItem";
 
 const groupsetBrands = [
   'Shimano',
@@ -25,8 +28,11 @@ const groupsetBrands = [
   'Campagnolo',
   'Other',
 ]
+
 const groupsetSpeeds = ['1', '9', '10', '11', '12', '13'];
 const types = ['Road', 'Mountain', 'Hybrid', 'Cruiser', 'Electric', 'Cargo', 'Gravel'].sort();
+const miArray: MaintenanceItem[] = new Array(0);
+
 const newBike = {
       id: 0,
       name: '',
@@ -36,6 +42,8 @@ const newBike = {
       isElectronic: false,
       odometerMeters: 0,
       isRetired: false,
+      maintenanceItems: miArray,
+      stravaId: '',
   }
 type BikeProps = {
   bikeid: number
@@ -52,6 +60,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   var bikeId = bikeid ? bikeid : 0;
 
   const isNew = bikeId === 0;
+  const [bike, setBike] = useState(newBike);
   const [bikeName, setBikeName] = useState(newBike.name);
   const [readOnly, setReadOnly] = useState(!isNew);
   const [groupsetBrand, setGroupsetBrand] = useState(newBike.groupsetBrand);
@@ -65,7 +74,9 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const [milageLabel, setMileageLabel] = useState('Mileage');
   const [isRetired, setIsRetired] = useState(newBike.isRetired);
   const [connectedToStrava, setConnectedToStrava] = useState(false);
-
+  const [isDirty, setIsDirty] = useState(false);
+  const [page, setPage] = useState("frame");
+  
   const controller = new BikeController(appContext);
   const preferences = controller.getUserPreferences(session);
 
@@ -79,6 +90,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
 
   const resetBike = async (bike: Bike) => {
     const pref = await preferences
+    setBike(bike);
     setMileageLabel('Mileage (' + pref.units + ')');
     console.log('reset bike: ' + JSON.stringify(bike));
     setBikeName(ensureString(bike.name));
@@ -134,6 +146,11 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const cancel = () => {
     setIsInitialized(false);
     setReadOnly(true);
+  }
+
+  const updatePage = (newPage: string) => {
+    setPage(newPage);
+    console.log("Switching to page: ", newPage);
   }
 
   const maintenanceHistory = () => {
@@ -207,118 +224,53 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
   const typeOptions = types.map(type => ({ label: type, value: type }));
 
+  const markAsDirty = () => {
+    setIsDirty(true);
+  }
+
   return (
     <BaseLayout>
-      <VStack className="max-w-[440px] w-full" space="md">
-        <VStack className="w-full">
-          <Text>Name</Text>
-          <Input
-            variant="outline"
-            size="md"
-            isDisabled={false}
-            isInvalid={false}
-            isReadOnly={readOnly}
-          >
-            <InputField 
-              autoComplete="off"
-              value={bikeName}
-              readOnly={readOnly}
-              onChangeText={updateName}
-              placeholder="Enter bike name here..." 
-              testID="nameInput"
-              autoCapitalize="words"
-              autoCorrect={false}
-              textContentType="name"
-              accessibilityLabel="Name"
-              accessibilityHint="The name of the bike being edited"/>
-          </Input>
-          {errorMessage.length > 0 ? (
-            <Alert action="error" variant="outline">
-              <AlertIcon as={InfoIcon} />
-              <AlertText>{errorMessage}</AlertText>
-            </Alert>)
-            : <Text> </Text>}
-          <Text>{milageLabel}</Text>
-          <Input
-            variant="outline"
-            size="md"
-            isDisabled={false}
-            isInvalid={false}
-            isReadOnly={readOnly || connectedToStrava}>
-              <InputField 
-                value={milage}
-                onChangeText={(value) => setMileage(value ? value : '')}
-                readOnly={readOnly || connectedToStrava}
-                inputMode="numeric"
-                testID="mileageField"
-                accessibilityLabel="Milage"
-                accessibilityHint="Mileage of the bike"/>
-          </Input>
-          <Text>Groupset</Text>
-          <Dropdown
-            disabled={readOnly}
-            initialLabel="Choose a groupset"
-            options={groupsetOptions}
-            value={groupsetBrand}
-            testID="groupsetDropdown"
-            onSelect={(value) => setGroupsetBrand(value ? value : '')}
-          />
-          <Text>Type</Text>
-          <Dropdown
-            disabled={readOnly}
-            options={typeOptions}
-            value={type}
-            testID="typeDropdown"
-            onSelect={(value) => setType(value ? value : '')}
-          />
-          <Text>Speeds</Text>
-          <Dropdown
-            disabled={readOnly}
-            options={speedOptions}
-            value={speed}
-            testID="speedsDropdown"
-            onSelect={(value) => setSpeeds(value ? value : '')}
-          />
-          <Checkbox size="md"
-              value="Is Electronic"
-              isDisabled={readOnly}
-              isChecked={isElectronic} 
-              onChange={(newVal) => setIsElectronic(newVal)}
-              accessibilityLabel="Has Electric Assist"> 
-            <CheckboxIndicator>
-              <CheckboxIcon as={CheckIcon} />
-            </CheckboxIndicator>
-            <CheckboxLabel>Electric</CheckboxLabel>
-          </Checkbox>
-          <Checkbox size="md"
-              value="Is Retired"
-              isDisabled={readOnly}
-              isChecked={isRetired} 
-              onChange={(newVal) => setIsRetired(newVal)}
-              accessibilityLabel="Is Retired"> 
-            <CheckboxIndicator>
-              <CheckboxIcon as={CheckIcon} />
-            </CheckboxIndicator>
-            <CheckboxLabel>Retired</CheckboxLabel>
-          </Checkbox>
-        </VStack>
+      <VStack >
+        <RadioGroup
+            className="w-full"
+            value={page}
+            isDisabled={isDirty}
+            onChange={updatePage}
+            testID="page-selection">
+          <HStack className="w-full justify-between ">
+            <Radio value="frame" testID="frame-selector">
+              <RadioLabel>Frame</RadioLabel>
+            </Radio>
+            <Radio value="shifters" testID="shifters-selector">
+              <RadioLabel>Shifters</RadioLabel>
+            </Radio>
+            <Radio value="drivetrain" testID="drivetrain-selector">
+              <RadioLabel>Drivetrain</RadioLabel>
+            </Radio>
+          </HStack>
+        </RadioGroup>
+        {page !== "frame" ? null : <BikeFrameComponent bike={bike} markDirty={markAsDirty}/>}  
+         {/* setDirty={setIsDirty} */}
         <HStack>
-          <Button 
-            className="bottom-button shadow-md rounded-lg m-1"
-            action="primary"
-            onPress={ editOrDone }
-            style={{flex: 1}} 
-            accessibilityLabel="Finished editing"
-            accessibilityHint="Will save any changes and go back">
-            <ButtonText>{ readOnly? 'Edit' : 'Done' }</ButtonText>
-          </Button>
-          { (readOnly || isNew) ? null : <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ cancel }>
+          {!isDirty ? null : (
+            <Button 
+              className="bottom-button shadow-md rounded-lg m-1"
+              action="primary"
+              onPress={ editOrDone }
+              disabled={!isDirty}
+              style={{flex: 1}} 
+              accessibilityLabel="Finished editing"
+              accessibilityHint="Will save any changes and go back">
+              <ButtonText>Save</ButtonText>
+            </Button>
+            )}
+          { !isDirty ? null : <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ cancel }>
             <ButtonText>Cancel</ButtonText> 
             </Button>}
-          { (readOnly || isNew) ? null : <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ deleteBike }> 
+          { isDirty ? null : <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ deleteBike }> 
             <ButtonText>Delete</ButtonText>
             </Button>}
-          { (readOnly && !isNew) ? <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ maintenanceHistory }>
+          { !isDirty ? <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ maintenanceHistory }>
             <ButtonText>History</ButtonText>
             </Button> : null }
           {(connectedToStrava && readOnly &&!isNew ) ?

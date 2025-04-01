@@ -23,6 +23,7 @@ import { NotificationProvider } from '@/common/NotificationContext';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 
 import "@/constants/global.css";
+import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
 
 const customDarkTheme = { ...MD3DarkTheme, colors: Colors.dark };
 const customLightTheme = { ...MD3LightTheme, colors: Colors.light };
@@ -61,9 +62,11 @@ export default function RootLayout() {
             <GlobalStateProvider>
               <ThemeProvider value={colorScheme} >
                 <GluestackUIProvider mode={systemColorScheme === 'dark' ? 'dark' : 'light'}>
-                  <PaperProvider theme={colorScheme}> 
-                    <Slot />
-                  </PaperProvider>
+                  <AutocompleteDropdownContextProvider>
+                    <PaperProvider theme={colorScheme}> 
+                      <Slot />
+                    </PaperProvider>
+                  </AutocompleteDropdownContextProvider>
                 </GluestackUIProvider>
               </ThemeProvider>
             </GlobalStateProvider>
