@@ -55,7 +55,7 @@ export class BikeDefinition {
   @Index()
   @Column({
     generatedType: 'STORED',
-    asExpression: `'year' || 'brand' || 'model' || 'line'`,
+    asExpression: `lower(brand) || lower(model) || lower(line)`,
     name: 'search_string',
   })
   searchString: string;

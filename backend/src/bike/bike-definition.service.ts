@@ -7,6 +7,7 @@ const logger = new Logger('BikeDefinitionService');
 import { createDefinitionFromJSON } from './bike-definition-parser';
 import { z } from 'zod';
 import { zodResponseFormat } from "openai/helpers/zod";
+import { Bike } from './bike.entity';
 
 @Injectable()
 export class BikeDefinitionService {
@@ -16,7 +17,92 @@ export class BikeDefinitionService {
   constructor(
     @InjectRepository(BikeDefinition)
     private bikeDefinitionRepository: Repository<BikeDefinition>,
+    @InjectRepository(Bike)
+    private bikeRepository: Repository<Bike>,
   ) {}
+
+  async getBikeDefinitionsFor(brand: string, model: string, line: string): Promise<BikeDefinition[]> {
+    return this.bikeDefinitionRepository.find({
+      where: {
+        brand: brand,
+        model: model,
+        line: line,
+      },
+    });
+  }
+
+  async getAllBrands(): Promise<string[]> {
+    const adHocBrandsPromise = this.bikeRepository
+      .createQueryBuilder()
+      .select('brand')
+      .distinct(true)
+      .getRawMany();
+
+    const definedBrands = await this.bikeDefinitionRepository
+      .createQueryBuilder()
+      .select('brand')
+      .distinct(true)
+      .getRawMany();
+
+      console.log('defined: '+ JSON.stringify(definedBrands));
+      const resultSet = new Set<string>();
+      definedBrands.forEach((row) => resultSet.add(row.brand));
+      const adHocBrands = await adHocBrandsPromise;
+      adHocBrands.forEach((row) => resultSet.add(row.brand));
+      return Array.from(resultSet).filter((brand) => brand !== null);
+  }
+
+  async getAllModelsForBrand(brand: string): Promise<string[]> {
+    if (brand === null) {
+      return [];
+    }
+    console.log('get all models for brand: '+ brand);
+    const adHocBrandsPromise = this.bikeRepository
+      .createQueryBuilder()
+      .select('model')
+      .distinct(true)
+      .where('brand = :brand', { brand: brand })
+      .getRawMany();
+
+    const definedBrands = await this.bikeDefinitionRepository
+      .createQueryBuilder()
+      .select('model')
+      .distinct(true)
+      .where('brand = :brand', { brand: brand })
+      .getRawMany();
+
+      console.log('adHocBrands: '+ JSON.stringify(definedBrands));
+      const resultSet = new Set<string>();
+      definedBrands.forEach((row) => resultSet.add(row.model));
+      const adHocBrands = await adHocBrandsPromise;
+      adHocBrands.forEach((row) => resultSet.add(row.model));
+      return Array.from(resultSet).filter((brand) => brand !== null);
+  }
+
+    async getAllLinesForBrandModel(brand: string, model: string): Promise<string[]> {
+    const adHocBrandsPromise = this.bikeRepository
+      .createQueryBuilder()
+      .select('bike.line')
+      .distinctOn(['bike.line'])
+      .where('bike.brand = :brand', { brand: brand })
+      .andWhere('bike.model = :model', { model: model })
+      .getRawMany();
+
+    const definedBrands = await this.bikeDefinitionRepository
+      .createQueryBuilder()
+      .select('bikeDefinition.line')
+      .distinctOn(['bikeDefinition.line'])
+      .where('bikeDefinition.brand = :brand', { brand: brand })
+      .andWhere('bikeDefinition.model = :model', { model: model })
+      .getRawMany();
+
+      console.log('adHocBrands: '+ JSON.stringify(definedBrands));
+      const resultSet = new Set<string>();
+      definedBrands.forEach((row) => resultSet.add(row.bikedefinition_line));
+      const adHocBrands = await adHocBrandsPromise;
+      adHocBrands.forEach((row) => resultSet.add(row.bike_line));
+      return Array.from(resultSet);
+  }
 
   async getPotentialStringCompletes(starter: string): Promise<Map<string, BikeDefinition>> {
     const sortMap = new Map<number, number>();
@@ -99,10 +185,13 @@ export class BikeDefinitionService {
   }
 
   async createDefintionFor(year: string, brand: string, model: string, line: string): Promise<BikeDefinition> {
-    try {
+    try {      
       const response = await this.queryChatGPTDefinition(year, brand, model, line);
       console.log('Got response from ChatGPT: ', response);
       const definition = createDefinitionFromJSON(response);
+      definition.brand = brand;
+      definition.model = model;
+      definition.line = line;
       console.log('Created bike definition: ', definition);
       const result =  await this.bikeDefinitionRepository.save(definition);
       console.log('Saved bike definition: ', result);
@@ -126,7 +215,7 @@ export class BikeDefinitionService {
           },
           {
               "role": "user", 
-              "content": "Can you describe the 2024 Specialized Roubaix SL8 Pro"
+              "content": query,
           }
       ],
         response_format: zodResponseFormat(bikeDefinitionSchema, "bike_definition"),
@@ -158,7 +247,8 @@ export class BikeDefinitionService {
     if (!year) {
       year = '2024';
     }
-    const brands = await this.getAllBrands(year);
+    const brands = await this.searchForAllBrands(year);
+    console.log(`Bootstrapping all brands with year ${year}`, brands);
     for (const brand of brands) {
       await this.bootStrapBrand(brand, year);
     }
@@ -169,27 +259,29 @@ export class BikeDefinitionService {
       year = '2024';
     }
     console.log(`Bootstrapping brand ${brand} with year ${year}`);
-    const models = await this.getModels(brand, year);
+    const models = await this.searchForModels(brand, year);
     for (const model of models) {
-      const lines = await this.getLines(brand, model, year);
+      const lines = await this.searchForLines(brand, model, year);
       for (const line of lines) {
+        console.log(`Creating bike definition for: ${year} ${brand} ${model} ${line}`);
         await this.createDefintionFor(year, brand, model, line);
       }
     }
   }
 
-  private async getAllBrands(year: string ): Promise<string[]> {
-    const query = `List the top 25 brands of bikes in ${year} as a pipe (|) deliniated list with no model or trim information`;
-    await this.queryBikeInfoList(query);
-    return ['Specialized'];
+  private async searchForAllBrands(year: string ): Promise<string[]> {
+    const query = `List the top brands of bikes in ${year} as a pipe (|) deliniated list with no model or trim information.`;
+    // return this.queryBikeInfoList(query);
+    // return ['Specialized'];
+    return ['Specialized', 'Giant'];
   }
 
-  private async getModels(brand: string, year?: string): Promise<string[]> {
+  private async searchForModels(brand: string, year?: string): Promise<string[]> {
     const queryBase = year ? `List the models/family of ${brand} bikes in ${year}` : `List the models of ${brand} bikes`;
-    return this.queryBikeInfoList(queryBase + ' as a pipe (|) deliniated list with no brand or trim information')
+    return this.queryBikeInfoList(queryBase + ' as a pipe (|) deliniated list with no brand or trim information');
   }
 
-  private async getLines(brand: string, model: string, year?: string): Promise<string[]> {
+  private async searchForLines(brand: string, model: string, year?: string): Promise<string[]> {
     const queryBase = year ? `List the available trims of ${brand} ${model} bikes in ${year}` : `List the lines of ${brand} ${model} bikes`;
     const query = queryBase + ' as a pipe (|) deliniated list with no brand or model information';
     return this.queryBikeInfoList(query);
@@ -205,11 +297,30 @@ export class BikeDefinitionService {
     console.log('Bike info list query response: ', response);
     console.log('Output: ', response.output);
     console.log('Output[0]: ', response.output[0]);
-    const result = response.output_text.split('|').map(item => item.trim());
+    var result = response
+      .output_text.split('|')
+      .map(item => item.trim())
+      .filter(item => item.trim().length > 0);
+    if (isAnIndexedList(result)) {
+      result = result.map(item => removeIndex(item));
+    }
     console.log('Result: ', result);
-    return result.filter(item => item.trim().length > 0);
+    return result;
   }
 };
+
+export const isAnIndexedList = (stringList: string[]): boolean => {
+  for (const item of stringList) {
+    if (!item.match(/^(\d+)\.\s+(.+)$/)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export const removeIndex = (item: string): string => {
+  return item.replace(/^(\d+)\.\s+(.+)$/, '$2');
+}
 
 export const bikeDefinitionSchema = z.object({
   brand: z.string().describe("The manufacturer of the bike"),

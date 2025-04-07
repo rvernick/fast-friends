@@ -118,3 +118,48 @@ export const getMaintenanceHistoryItem = (session: any, maintenanceHistoryId: nu
   }
 };
 
+export const getAllBrands = async (session: any): Promise<string[]> => {
+  if (session === null) {
+    console.log('get all brands has no context');
+    return Promise.resolve([]);
+  }
+  const jwtToken = session.jwt_token;
+  if (jwtToken == null) {
+    console.log('get all brands has no token dying');
+    return Promise.resolve([]);
+  }
+
+  try {
+    const parameters = {};
+    console.log('get all brands');
+    const result = getInternal('/bike-definition/all-brands', parameters, jwtToken);
+    console.log('get all brands result:', await result);
+    return result;
+  } catch(e: any) {
+    console.log(e.message);
+    return Promise.resolve([]);
+  }
+};
+
+export const getModels = async (session: any, brand: string): Promise<string[]> => {
+  if (session === null) {
+    console.log('get all brands has no context');
+    return Promise.resolve([]);
+  }
+  const jwtToken = session.jwt_token;
+  if (jwtToken == null) {
+    console.log('get all brands has no token dying');
+    return Promise.resolve([]);
+  }
+
+  try {
+    const parameters = {
+      brand: brand,
+    };
+    console.log('get all brands');
+    return getInternal('/bike-definition/models-for-brand', parameters, jwtToken);
+  } catch(e: any) {
+    console.log(e.message);
+    return Promise.resolve([]);
+  }
+}

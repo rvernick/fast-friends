@@ -12,6 +12,7 @@ import {
 import { User } from '../user/user.entity';
 import { MaintenanceItem } from './maintenance-item.entity';
 import { GroupsetBrand } from './enums';
+import { BikeDefinition } from './bike-definition.entity';
 
 @Entity()
 export class Bike {
@@ -48,6 +49,34 @@ export class Bike {
     nullable: true,
   })
   type: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  brand: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  model: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  line: string;
+
+  @Column({
+    type: 'integer',
+    nullable: true,
+  })
+  year: number;
+
+  @ManyToOne((type) => BikeDefinition, { nullable: true, cascade: false, eager: false })
+  @JoinColumn({ name: "bike_definition_id" })
+  bikeDefinition: BikeDefinition;
 
   @Column({
     type: "enum",

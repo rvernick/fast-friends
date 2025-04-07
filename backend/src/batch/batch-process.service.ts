@@ -32,22 +32,31 @@ export class BatchProcessService {
 
   async attemptToLock(batchProcess: BatchProcess): Promise<BatchProcess> {
     try {
-      const wasLocked = await this.findByName(batchProcess.name);
-      if (wasLocked.lockedKey == null) {
-        batchProcess.lockedKey = Math.random().toString(36).substr(2, 10);
-        batchProcess.lockedOn = new Date();
-        this.logger.log('Locked batch process');
-        await this.batchProcessRepository.save(batchProcess);
-        const lockedConfirmation = await this.findByName(batchProcess.name);
-        if (lockedConfirmation.lockedKey === batchProcess.lockedKey) {
+      if (batchProcess.lockedKey == null) {
+        const lockedKey = Math.random().toString(36).substr(2, 10);
+        const lockedOn = new Date();
+        this.logger.log('Locking batch process');
+        const lockQuery = this.batchProcessRepository.createQueryBuilder();
+        const lockedBatchProcess = await lockQuery
+          .update(BatchProcess).set({
+            lockedKey: lockedKey,
+            lockedOn: lockedOn,
+          })
+          .where({ id: batchProcess.id })
+          .andWhere({ lockedKey: null })
+          .execute();
+        if (lockedBatchProcess.affected == 1) {
           this.logger.log('Locked batch process successfully');
-          return lockedConfirmation;
+          return await this.findByName(batchProcess.name);
+        } else if (lockedBatchProcess.affected == 0) {
+          this.logger.log('Batch process already locked');
+          return null;
         } else {
-          this.logger.error('Locked batch process key mismatch');
+          this.logger.log('Unexpected number of affected rows when locking batch process');
           return null;
         }
       } else {
-        if (this.hasBeenLockedForTooLong(wasLocked)) {
+        if (this.hasBeenLockedForTooLong(batchProcess)) {
           this.unlock(batchProcess);
         }
       }
