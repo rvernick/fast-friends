@@ -272,19 +272,21 @@ export class BikeDefinitionService {
   private async searchForAllBrands(year: string ): Promise<string[]> {
     const query = `List the top brands of bikes in ${year} as a pipe (|) deliniated list with no model or trim information.`;
     // return this.queryBikeInfoList(query);
-    // return ['Specialized'];
-    return ['Specialized', 'Giant'];
+    return ['Giant'];
+    // return ['Specialized', 'Giant'];
   }
 
   private async searchForModels(brand: string, year?: string): Promise<string[]> {
     const queryBase = year ? `List the models/family of ${brand} bikes in ${year}` : `List the models of ${brand} bikes`;
-    return this.queryBikeInfoList(queryBase + ' as a pipe (|) deliniated list with no brand or trim information');
+    const result = await this.queryBikeInfoList(queryBase + ' as a pipe (|) deliniated list with no brand or trim information');
+    return result.map(model => removeRedundantInfo(brand, model))
   }
 
   private async searchForLines(brand: string, model: string, year?: string): Promise<string[]> {
     const queryBase = year ? `List the available trims of ${brand} ${model} bikes in ${year}` : `List the lines of ${brand} ${model} bikes`;
     const query = queryBase + ' as a pipe (|) deliniated list with no brand or model information';
-    return this.queryBikeInfoList(query);
+    const result = await this.queryBikeInfoList(query);
+    return result.map(line => removeRedundantInfo(model, line))
   }
 
   private async queryBikeInfoList(query: string): Promise<string[]> {    
@@ -301,25 +303,25 @@ export class BikeDefinitionService {
       .output_text.split('|')
       .map(item => item.trim())
       .filter(item => item.trim().length > 0);
-    if (isAnIndexedList(result)) {
-      result = result.map(item => removeIndex(item));
-    }
+    
+    result = result.map(item => removeIndex(item));
     console.log('Result: ', result);
     return result;
   }
 };
 
-export const isAnIndexedList = (stringList: string[]): boolean => {
-  for (const item of stringList) {
-    if (!item.match(/^(\d+)\.\s+(.+)$/)) {
-      return false;
-    }
+export const removeRedundantInfo = (brand: string, model: string): string => {
+  if (model.startsWith(brand)) {
+    return model.substring(brand.length + 1).trim();
   }
-  return true;
+  return model;
 }
 
 export const removeIndex = (item: string): string => {
-  return item.replace(/^(\d+)\.\s+(.+)$/, '$2');
+  if (item.match(/^(\d+)\.\s+(.+)$/)) {
+    return item.replace(/^(\d+)\.\s+(.+)$/, '$2');
+  }
+  return item;
 }
 
 export const bikeDefinitionSchema = z.object({
