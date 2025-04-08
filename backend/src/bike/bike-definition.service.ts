@@ -271,8 +271,8 @@ export class BikeDefinitionService {
 
   private async searchForAllBrands(year: string ): Promise<string[]> {
     const query = `List the top brands of bikes in ${year} as a pipe (|) deliniated list with no model or trim information.`;
-    // return this.queryBikeInfoList(query);
-    return ['Giant'];
+    return await this.queryBikeInfoList(query);
+    // return ['Giant'];
     // return ['Specialized', 'Giant'];
   }
 
