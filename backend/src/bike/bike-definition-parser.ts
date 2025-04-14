@@ -1,13 +1,19 @@
 import { BikeComponent } from "./bike-component.entity";
+import { BikeDefinitionBasis } from "./bike-definition-basis.entity";
 import { BikeDefinition } from "./bike-definition.entity";
 import { GroupsetBrand, Material, Part } from "./enums";
 
-export const createDefinitionFromJSON = (definitionJSON: any): BikeDefinition => {
+export const createDefinitionFromJSON = (query: string, definitionJSON: any): BikeDefinition => {
   const definition = new BikeDefinition();
   definition.brand = definitionJSON.brand;
   definition.model = definitionJSON.model;
   definition.line = definitionJSON.line;
   definition.year = parseInt(definitionJSON.year);
+  populateDefinitionFromJSON(definition, query, definitionJSON);
+  return definition;
+}
+
+export const populateDefinitionFromJSON = (definition: BikeDefinition, query: string, definitionJSON: any) => {
   definition.colors = definitionJSON.colors;
   definition.sizes = definitionJSON.sizes;
   definition.electricAssist = definitionJSON.electricAssist;
@@ -18,6 +24,9 @@ export const createDefinitionFromJSON = (definitionJSON: any): BikeDefinition =>
   definition.groupsetBrand = getGroupsetBrand(definitionJSON.groupsetBrand);
   definition.groupsetLine = definitionJSON.groupsetLine;
   definition.groupsetSpeed = definitionJSON.groupsetSpeed;
+  const basis = new BikeDefinitionBasis();
+  basis.json = definitionJSON;
+  basis.query = query;
   definition.basis = definitionJSON;
   definition.description = definitionJSON.description;
   addComponents(definition, definitionJSON);

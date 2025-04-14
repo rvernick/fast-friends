@@ -21,13 +21,14 @@ import { BikeDefinition } from './bike-definition.entity';
 import { BikeComponent } from './bike-component.entity';
 import { BikeDefinitionService } from './bike-definition.service';
 import { BikeDefinitionController } from './bike-definition.controller';
+import { BikeDefinitionBasis } from './bike-definition-basis.entity';
 
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([
     User, Bike, MaintenanceItem, MaintenanceHistory,
     PasswordReset, Notification, BatchProcess, EmailVerify,
     StravaVerify,
-    BikeDefinition, BikeComponent])],
+    BikeDefinition, BikeComponent, BikeDefinitionBasis])],
   providers: [
     {
       provide: APP_GUARD,

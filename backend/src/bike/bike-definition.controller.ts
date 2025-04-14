@@ -9,7 +9,7 @@ import {
 
 import { AuthGuard, Public } from '../auth/auth.guard';
 import { BikeDefinitionService } from './bike-definition.service';
-import { BikeDefinition } from './bike-definition.entity';
+import { BikeDefinition, BikeDefinitionSummary } from './bike-definition.entity';
 
 @Controller('bike-definition')
 export class BikeDefinitionController {
@@ -37,10 +37,30 @@ export class BikeDefinitionController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('models-for-brand')
+  @Get('models-for')
   getModelsFor(@Query('brand') brand: string): Promise<string[]> {
-    console.log('bike-definition/models-for-brand');
+    console.log('bike-definition/models-for');
     return this.bikeDefinitionService.getAllModelsForBrand(brand);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('lines-for')
+  getLinesFor(@Query('brand') brand: string, @Query('model') model: string): Promise<string[]> {
+    console.log('bike-definition/lines-for');
+    return this.bikeDefinitionService.getAllLinesForBrandModel(brand, model);
+  }
+
+  @Public()
+  // @UseGuards(AuthGuard)
+  @Get('search')
+  searchDefinitions(
+      @Query('year') year: string,
+      @Query('brand') brand: string,
+      @Query('model') model: string,
+      @Query('line') line): Promise<BikeDefinitionSummary[]> {
+
+    console.log(`bike-definition/search for: ${year} ${brand} ${model} ${line} `);
+    return this.bikeDefinitionService.searchDefinitions(year, brand, model, line);
   }
 
   @UseGuards(AuthGuard)

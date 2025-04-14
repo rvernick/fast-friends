@@ -27,6 +27,7 @@ import { HelpComment, HelpCommentVote, HelpOffer, HelpRequest } from './help/hel
 import { StravaVerify } from './user/strava-verify.entity';
 import { BikeDefinition } from './bike/bike-definition.entity';
 import { BikeComponent } from './bike/bike-component.entity';
+import { BikeDefinitionBasis } from './bike/bike-definition-basis.entity';
 
 @Module({
   imports: [
@@ -61,7 +62,7 @@ import { BikeComponent } from './bike/bike-component.entity';
           EmailVerify,
           HelpRequest, HelpComment, HelpCommentVote, HelpOffer,
           StravaVerify,
-          BikeDefinition, BikeComponent,
+          BikeDefinition, BikeComponent, BikeDefinitionBasis,
         ],
         synchronize: true,
       }),

@@ -1,4 +1,4 @@
-import { getModels } from "@/common/data-utils";
+import { getLines, getModels } from "@/common/data-utils";
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { Text } from "@/components/ui/text";
@@ -8,17 +8,18 @@ import { VStack } from "../ui/vstack";
 import { sleep } from "@/common/utils";
 import { FlatList } from "react-native";
 
-type ModelAutocompleteDropdownProps = {
+type LineAutocompleteDropdownProps = {
   session: any;
   brand: string;
+  model: string;
   value: string;
   readonly: boolean;
   onSelect: (value: string) => void;
   testID?: string;
 };
 
-export const ModelAutocompleteDropdown: React.FC<ModelAutocompleteDropdownProps> = ({ session, brand, value, readonly, onSelect, testID="brandSelector" }) => {
-  const [models, setModels] = useState<string[]>([]);
+export const LineAutocompleteDropdown: React.FC<LineAutocompleteDropdownProps> = ({ session, brand, model, value, readonly, onSelect, testID="brandSelector" }) => {
+  const [lines, setLines] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selected, setSelected] = useState<string>('');
   const [showList, setShowList] = useState(false);
@@ -28,29 +29,31 @@ export const ModelAutocompleteDropdown: React.FC<ModelAutocompleteDropdownProps>
   // TODO: set bike values based on selected model
  
   const updateTextAndGetSuggestions = async (text: string) => {
+    if (!text) {
+      setSelected('')
+      updateSuggestions('');
+      return;
+    }
     updateSuggestions(text);
     setSelected(text);
   }
 
   const updateSuggestions = async (text: string) => {
-    console.log('getSuggestions text: ' + text);
-    console.log('getSuggestions models: ', models);
-    // if (!text || text.length == 0) {
-    //   setSuggestions([]);
-    // }
+    // console.log('getSuggestions text: ' + text);
+    // console.log('getSuggestions lines: ', lines);
     const search = text.toLowerCase();
-    const filteredModels = models.filter(b => b.toLowerCase().includes(search));
-    const sortedModels = filteredModels.sort((a, b) => closeScore(text, a, b)).slice(0, 5);
-    console.log('getSuggestions sortedModels: ', sortedModels);
-    if (sortedModels.length > 0) {
+    const filteredLines = lines.filter(b => b.toLowerCase().includes(search));
+    const sortedLines = filteredLines.sort((a, b) => closeScore(text, a, b)).slice(0, 5);
+    console.log('getSuggestions sortedLines: ', sortedLines);
+    if (sortedLines.length > 0) {
       setShowList(true);
     } else {
       setShowList(false);
     }
-    if (sortedModels.length === 0 && text.length > 3) {
+    if (sortedLines.length === 0 && text.length > 3) {
       // searchForModel(text);  TODO: create API for asking ChatGPT to find model like...
     }
-    setSuggestions(sortedModels);
+    setSuggestions(sortedLines);
     console.log('getSuggestions text: ' + text);
   }
 
@@ -95,13 +98,13 @@ export const ModelAutocompleteDropdown: React.FC<ModelAutocompleteDropdownProps>
     }
   }
 
-  const syncModels = async (updatedBrand: string) => {
-    setModels(await getModels(session, updatedBrand));
+  const syncLines = async (updatedBrand: string, updatedModel: string) => {
+    setLines(await getLines(session, updatedBrand, updatedModel));
   }
 
   useEffect(() => {
-    syncModels(brand);
-  }, [brand]);
+    syncLines(brand, model);
+  }, [brand, model]);
   
   const renderItem = (item: string) => {
     return (
@@ -130,13 +133,13 @@ export const ModelAutocompleteDropdown: React.FC<ModelAutocompleteDropdownProps>
           value={selected}
           onChangeText={updateTextAndGetSuggestions}
           onBlur={handleBlur}
-          placeholder="Enter model here (e.g. Defy, Rockhopper, Occam, Domane)" 
-          testID="modelInput"
+          placeholder="Enter Line here (e.g. Pro, Advanced, Comp, etc.)" 
+          testID="lineInput"
           inputMode="none"
           autoCapitalize="none"
           autoCorrect={false}
-          accessibilityLabel="model"
-          accessibilityHint="The model of the bike"/>
+          accessibilityLabel="line"
+          accessibilityHint="The line of the bike based on brand and model"/>
       </Input>
       {suggestions.length > 0 && (showList || inList.length > 0)? (
         <FlatList

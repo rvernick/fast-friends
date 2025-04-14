@@ -39,7 +39,7 @@ describe('BikeDefinitionParser', () => {
       }
 
     }
-    const bikeDef = createDefinitionFromJSON(json);
+    const bikeDef = createDefinitionFromJSON("Fake a JSON response", json);
     expect(bikeDef.brand).toEqual('Specialized');
     expect(bikeDef.groupsetBrand).toEqual('Shimano');
     expect(bikeDef.colors.length).toEqual(2);

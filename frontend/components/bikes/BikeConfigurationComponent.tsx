@@ -10,14 +10,17 @@ import { VStack } from "../ui/vstack";
 import { Text } from "../ui/text";
 import { Input, InputField } from "../ui/input";
 import { Alert, AlertIcon, AlertText } from "../ui/alert";
-import { CheckIcon, InfoIcon } from "../ui/icon";
-import { Dropdown } from "../common/Dropdown";
-import { BikeDefinition } from "@/models/BikeDefinition";
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, InfoIcon } from "lucide-react-native";
+import { BikeDefinitionSummary } from "@/models/BikeDefinition";
 import { Checkbox, CheckboxIcon, CheckboxIndicator, CheckboxLabel } from "../ui/checkbox";
 import { BrandAutocompleteDropdown } from "../common/BrandAutocompleteDropdown";
 import { HStack } from "../ui/hstack";
 import { ModelAutocompleteDropdown } from "../common/ModelAutocompleteDropdown";
 import { ScrollView } from "../ui/scroll-view";
+import { LineAutocompleteDropdown } from "../common/LineAutocompleteDropdown";
+import { getBikeDefinitions } from "@/common/data-utils";
+import { Pressable } from "../ui/pressable";
+import { BikeIcon } from "lucide-react-native";
 
 const groupsetBrands = [
   'Shimano',
@@ -59,6 +62,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const [unsureOfYear, setUnsureOfYear] = useState(false);
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
+  const [line, setLine] = useState('');
   const [groupsetBrand, setGroupsetBrand] = useState(newBike.groupsetBrand);
   const [speed, setSpeeds] = useState(newBike.groupsetSpeed.toString());
   const [type, setType] = useState(newBike.type);
@@ -71,7 +75,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const [isInitialized, setIsInitialized] = useState(isNew);
   const [errorMessage, setErrorMessage] = useState('');
   const [preferences, setPreferences] = useState({ units: 'miles'});
-  const [possibleDefinitions, setPossibleDefinitions] = useState<BikeDefinition[]>([]);
+  const [possibleDefinitions, setPossibleDefinitions] = useState<BikeDefinitionSummary[]>([]);
 
   const controller = new BikeController(appContext);
   
@@ -166,6 +170,44 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     }
   }, [bike]);
 
+  const updateBrand = (newBrand: string) => {
+    const oldBrand = brand;
+    setBrand(newBrand);
+    if (shouldReset(newBrand, oldBrand)) {
+      updateModel('');
+    }
+  }
+
+  const updateModel = (newModel: string) => {
+    const oldModel = model;
+    setModel(newModel);
+    if (shouldReset(newModel, oldModel)) {
+      updateLine('');
+    } else {
+      searchPossibleDefinitions(year, brand, newModel, line);
+    }
+  }
+
+  const updateLine = (newLine: string) => {
+    const oldLine = line;
+    setLine(newLine);
+    searchPossibleDefinitions(year, brand, model, newLine);
+  }
+
+  const shouldReset = (newVal: string, oldVal: string) => {
+    if (newVal.startsWith(oldVal)) return false;
+    return true;
+  }
+
+  const searchPossibleDefinitions = async (year: string, brand: string, model: string, line: string) => {
+    const newDefinitions = await getBikeDefinitions(session, year, brand, model, line);
+    if (newDefinitions.length > 10) {
+      setPossibleDefinitions(newDefinitions.slice(0, 10));
+    } else {
+      setPossibleDefinitions(newDefinitions);
+    }
+  }
+
   const checkConnectedToStrava = (stravaId: string | null) => {
     setConnectedToStrava(
       stravaId !== null 
@@ -173,12 +215,48 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
         && stravaId!= '0');
   }
 
+  type BikeDefinitionProps = {
+    bikeDefinition: BikeDefinitionSummary;
+    bike: Bike;
+  };
+  const BikeDefinitionComponent: React.FC<BikeDefinitionProps> = ({ bikeDefinition, bike }) => {
+    const [description, setDescription ] = useState('');
+    const [expanded, setExpanded ] = useState(false);
+  
+    const chooseDefinition = () => {
+      // TODO: pass in logic to take the definition and use it
+    }
+    const syncDescription = async () => {
+      const val = bikeDefinition.year + ' ' + bikeDefinition.brand +' ' + bikeDefinition.model +' ' + bikeDefinition.line;
+      setDescription(val);
+    }
+      useEffect(() => {
+        syncDescription();
+      }, []);
+  
+      return (
+        <Pressable className="row-primary w-full" onPress={chooseDefinition} >
+          <HStack className="w-full" key={"bike-" + bike.id}>
+            <BikeIcon size="24"/>
+            <VStack>
+              <Text>{description}</Text>
+              <HStack>
+                <Text>{bikeDefinition.groupsetBrand} </Text>
+                <Text>{bikeDefinition.groupsetLine} </Text>
+                <Text>{bikeDefinition.groupsetSpeed} speed</Text>
+              </HStack>
+            </VStack>
+          </HStack>
+        </Pressable>
+      )
+    }
+
   const groupsetOptions = groupsetBrands.map(brand => ({ label: brand, value: brand }));
   const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
   const typeOptions = types.map(type => ({ label: type, value: type }));
 
   return (
-    <VStack className="w-full">
+    <VStack className="w-full h-full">
       <Text>Name</Text>
       <Input
         variant="outline"
@@ -244,27 +322,52 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
             session={session}
             value={brand}
             readonly={false}
-            onSelect={setBrand}
+            onSelect={updateBrand}
           />
         </VStack>
         <VStack className="flex-1">
-          <Text>Model</Text>  
+          <Text>Model</Text>
           {/* TODO: reset bike doesn't update these */}
           <ModelAutocompleteDropdown 
             session={session}
             brand={brand}
             value={model}
             readonly={false}
-            onSelect={setModel}
+            onSelect={updateModel}
           />
         </VStack>
       </HStack>
-    <ScrollView style={{ flex: 1 }}>
-      {possibleDefinitions.map((definition) => (
-        <Text key={definition.id}>{definition.description}</Text>
-      ))}
-    </ScrollView>
-      
+      {model && model.length > 0 ? (
+          <Text>{possibleDefinitions.length} - Line</Text>
+        ) : null
+      }
+      {model && model.length > 0 ? (
+        <LineAutocompleteDropdown
+          session={session}
+          brand={brand}
+          model={model}
+          value={line}
+          readonly={false}
+          onSelect={updateLine}
+        />
+        ) : null
+      }
+      <VStack className="flex-1">
+        <ScrollView>
+          {possibleDefinitions.map((definition) => (
+            <BikeDefinitionComponent bikeDefinition={definition} bike={bike}/>
+          ))}
+        </ScrollView>
+      </VStack>
+      {/* <ScrollView
+        className="w-full h-full"
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
+        {possibleDefinitions.map((definition) => (
+          <BikeDefinitionComponent bikeDefinition={definition} bike={bike}/>
+        ))}
+      </ScrollView>
+       */}
 
     </VStack>
   );

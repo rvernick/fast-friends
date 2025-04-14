@@ -1,5 +1,5 @@
 
-export interface BikeDefinition {
+export interface BikeDefinitionSummary {
   id: number;
   year: string;
   brand: string;

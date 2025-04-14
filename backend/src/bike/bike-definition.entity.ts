@@ -8,21 +8,25 @@ import {
   OneToMany,
   JoinColumn,
   Index,
+  OneToOne,
 } from 'typeorm';
 import { BikeComponent } from './bike-component.entity';
 import { GroupsetBrand, Material } from './enums';
+import { BikeDefinitionBasis } from './bike-definition-basis.entity';
 
 
 @Entity()
 export class BikeDefinition {
   constructor() {
+    this.colors = [];
+    this.sizes = [];
   }
 
   @PrimaryGeneratedColumn()
   id: number;
 
   @OneToMany((type) => BikeComponent, (component) => component.bikeDefinition, {
-    eager: true,
+    eager: false,
     cascade: true,
   })
   @JoinColumn()
@@ -125,11 +129,16 @@ export class BikeDefinition {
   @Column({nullable: true})
   groupsetSpeed: number;
 
+  @OneToOne(() => BikeDefinitionBasis, {cascade: true, eager: false})
+  @JoinColumn({name: 'bike_definition_basis_id', referencedColumnName: 'id'  })
+  basis: BikeDefinitionBasis;
+
   @Column({
     type: 'jsonb',
     nullable: true,
+    name: 'basis_json',
   })
-  basis: any;
+  basisJSON: any;
 
   @DeleteDateColumn({
     nullable: true,
@@ -146,4 +155,35 @@ export class BikeDefinition {
     name: 'updated_on',
   })
   updatedOn: Date;
+};
+
+export class BikeDefinitionSummary {
+  constructor(bikeDefinition: BikeDefinition) {
+    this.id = bikeDefinition.id;
+    this.year = bikeDefinition.year.toString();
+    this.brand = bikeDefinition.brand;
+    this.model = bikeDefinition.model;
+    this.line = bikeDefinition.line;
+    this.description = bikeDefinition.description;
+    this.groupsetSpeed = bikeDefinition.groupsetSpeed;
+    this.groupsetBrand = bikeDefinition.groupsetBrand;
+    this.groupsetLine = bikeDefinition.groupsetLine;
+    this.material = bikeDefinition.material;
+    this.colors = bikeDefinition.colors;
+    this.sizes = bikeDefinition.sizes;
+  }
+
+  id: number;
+  year: string;
+  brand: string;
+  model: string;
+  line: string;
+  description: string;
+  groupsetSpeed: number;
+  groupsetBrand: GroupsetBrand;
+  groupsetLine: string;
+  material: Material;
+  colors: string[];
+  sizes: string[];
+
 }

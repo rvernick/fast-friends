@@ -157,7 +157,57 @@ export const getModels = async (session: any, brand: string): Promise<string[]> 
       brand: brand,
     };
     console.log('get all brands');
-    return getInternal('/bike-definition/models-for-brand', parameters, jwtToken);
+    return getInternal('/bike-definition/models-for', parameters, jwtToken);
+  } catch(e: any) {
+    console.log(e.message);
+    return Promise.resolve([]);
+  }
+}
+
+export const getLines = async (session: any, brand: string, model: string): Promise<string[]> => {
+  if (session === null) {
+    console.log('get all lines has no context');
+    return Promise.resolve([]);
+  }
+  const jwtToken = session.jwt_token;
+  if (jwtToken == null) {
+    console.log('get all lines has no token dying');
+    return Promise.resolve([]);
+  }
+
+  try {
+    const parameters = {
+      brand: brand,
+      model: model,
+    };
+    console.log('get all lines for ' + brand + ' model: ', model);
+    return getInternal('/bike-definition/lines-for', parameters, jwtToken);
+  } catch(e: any) {
+    console.log(e.message);
+    return Promise.resolve([]);
+  }
+}
+
+export const getBikeDefinitions = async (session: any, year: string, brand: string, model: string, line: string): Promise<any[]> => {
+  if (session === null) {
+    console.log('get all lines has no context');
+    return Promise.resolve([]);
+  }
+  const jwtToken = session.jwt_token;
+  if (jwtToken == null) {
+    console.log('get all lines has no token dying');
+    return Promise.resolve([]);
+  }
+
+  try {
+    const parameters = {
+      year: year,
+      brand: brand,
+      model: model,
+      line: line
+    };
+    console.log('get definitions for ', parameters);
+    return getInternal('/bike-definition/search', parameters, jwtToken);
   } catch(e: any) {
     console.log(e.message);
     return Promise.resolve([]);
