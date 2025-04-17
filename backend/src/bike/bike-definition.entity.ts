@@ -9,10 +9,12 @@ import {
   JoinColumn,
   Index,
   OneToOne,
+  ManyToOne,
 } from 'typeorm';
 import { BikeComponent } from './bike-component.entity';
 import { GroupsetBrand, Material } from './enums';
 import { BikeDefinitionBasis } from './bike-definition-basis.entity';
+import { Brand, Line, Model } from './brand.entity';
 
 
 @Entity()
@@ -32,23 +34,41 @@ export class BikeDefinition {
   @JoinColumn()
   components: BikeComponent[];
 
+  @ManyToOne(() => Brand, { eager: true, nullable: false })
+  @JoinColumn({ name: "brand_id" })
+  brand: Brand;
+
+  @ManyToOne(() => Model, { eager: true, nullable: false })
+  @JoinColumn({ name: "model_id" })
+  model: Model;
+
+  @ManyToOne(() => Line, { eager: true, nullable: true })
+  @JoinColumn({ name: "line_id" })
+  line: Line;
+
+  // @VirtualColumn({ query: (alias) => `SELECT name FROM "brand" WHERE "id" = ${alias}.brand` })
+  // brand_name: string;
+  // https://orkhan.gitbook.io/typeorm/docs/decorator-reference#generated
   @Column({
     type: 'varchar',
     nullable: false,
+    name: 'brand_name',
   })
-  brand: string;
+  brandName: string;
 
   @Column({
     type: 'varchar',
     nullable: true,
+    name: 'model_name',
   })
-  model: string;
+  modelName: string;
 
   @Column({
     type: 'varchar',
     nullable: true,
+    name: 'line_name',
   })
-  line: string;
+  lineName: string;
 
   @Column({
     type: 'integer',
@@ -59,7 +79,7 @@ export class BikeDefinition {
   @Index()
   @Column({
     generatedType: 'STORED',
-    asExpression: `lower(brand) || lower(model) || lower(line)`,
+    asExpression: `lower(brand_name) || lower(model_name) || lower(line_name)`,
     name: 'search_string',
   })
   searchString: string;
@@ -161,9 +181,9 @@ export class BikeDefinitionSummary {
   constructor(bikeDefinition: BikeDefinition) {
     this.id = bikeDefinition.id;
     this.year = bikeDefinition.year.toString();
-    this.brand = bikeDefinition.brand;
-    this.model = bikeDefinition.model;
-    this.line = bikeDefinition.line;
+    this.brand = bikeDefinition.brandName;
+    this.model = bikeDefinition.modelName;
+    this.line = bikeDefinition.lineName;
     this.description = bikeDefinition.description;
     this.groupsetSpeed = bikeDefinition.groupsetSpeed;
     this.groupsetBrand = bikeDefinition.groupsetBrand;

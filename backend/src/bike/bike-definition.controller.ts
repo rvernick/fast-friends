@@ -53,14 +53,16 @@ export class BikeDefinitionController {
   @Public()
   // @UseGuards(AuthGuard)
   @Get('search')
-  searchDefinitions(
+  async searchDefinitions(
       @Query('year') year: string,
       @Query('brand') brand: string,
       @Query('model') model: string,
       @Query('line') line): Promise<BikeDefinitionSummary[]> {
 
     console.log(`bike-definition/search for: ${year} ${brand} ${model} ${line} `);
-    return this.bikeDefinitionService.searchDefinitions(year, brand, model, line);
+    const result = await this.bikeDefinitionService.searchDefinitions(year, brand, model, line);
+    console.log('bike-definition/search returning: ', result);
+    return result;
   }
 
   @UseGuards(AuthGuard)

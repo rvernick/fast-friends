@@ -3,16 +3,6 @@ import { BikeDefinitionBasis } from "./bike-definition-basis.entity";
 import { BikeDefinition } from "./bike-definition.entity";
 import { GroupsetBrand, Material, Part } from "./enums";
 
-export const createDefinitionFromJSON = (query: string, definitionJSON: any): BikeDefinition => {
-  const definition = new BikeDefinition();
-  definition.brand = definitionJSON.brand;
-  definition.model = definitionJSON.model;
-  definition.line = definitionJSON.line;
-  definition.year = parseInt(definitionJSON.year);
-  populateDefinitionFromJSON(definition, query, definitionJSON);
-  return definition;
-}
-
 export const populateDefinitionFromJSON = (definition: BikeDefinition, query: string, definitionJSON: any) => {
   definition.colors = definitionJSON.colors;
   definition.sizes = definitionJSON.sizes;
@@ -95,7 +85,7 @@ const addComponent = (bikeDef: BikeDefinition, part: Part, definition: any): Bik
     console.log(`No brand ${definition} for part ${part}`);
     return;
   }
-  if (definition.brand.toLowerCase() === "n/a" 
+  if (definition.brand.toLowerCase() === "n/a"
     || definition.brand.toLowerCase() === "not applicable"
     || definition.brand.toLowerCase() === "none") {
     return;

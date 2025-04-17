@@ -8,6 +8,7 @@ import { populateDefinitionFromJSON } from './bike-definition-parser';
 import { z } from 'zod';
 import { zodResponseFormat } from "openai/helpers/zod";
 import { Bike } from './bike.entity';
+import { Brand, Line, Model } from './brand.entity';
 
 @Injectable()
 export class BikeDefinitionService {
@@ -17,6 +18,12 @@ export class BikeDefinitionService {
   constructor(
     @InjectRepository(BikeDefinition)
     private bikeDefinitionRepository: Repository<BikeDefinition>,
+    @InjectRepository(Brand)
+    private brandRepository: Repository<Brand>,
+    @InjectRepository(Model)
+    private modelRepository: Repository<Model>,
+    @InjectRepository(Line)
+    private lineRepository: Repository<Line>,
     @InjectRepository(Bike)
     private bikeRepository: Repository<Bike>,
   ) {}
@@ -24,15 +31,15 @@ export class BikeDefinitionService {
   async getBikeDefinitionsFor(brand: string, model: string, line: string): Promise<BikeDefinition[]> {
     return this.bikeDefinitionRepository.find({
       where: {
-        brand: brand,
-        model: model,
-        line: line,
+        brandName: brand,
+        modelName: model,
+        lineName: line,
       },
     });
   }
 
 
-  async searchDefinitions(year: string, brand: string, model: string, line: string): Promise<BikeDefinitionSummary[]> {
+  async searchDefinitions(year: string, brandName: string, modelName: string, lineName: string): Promise<BikeDefinitionSummary[]> {
     try {
       var result = [];
       if (year.length !== 4) {
@@ -43,23 +50,23 @@ export class BikeDefinitionService {
       const exactMatchPromise = this.bikeDefinitionRepository.find({
         where: {
           year: yearNumber,
-          brand: brand,
-          model: model,
-          line: line,
+          brandName: brandName,
+          modelName: modelName,
+          lineName: lineName,
         },
       });
-      const yearlessMatchPromise = this.getBikeDefinitionsFor(brand, model, line);
+      const yearlessMatchPromise = this.getBikeDefinitionsFor(brandName, modelName, lineName);
       const linelessMatchPromise = this.bikeDefinitionRepository.find({
           where: {
             // year: yearNumber,   // As the database grows, this might need to be added back
-            brand: brand,
-            model: model,
+            brandName: brandName,
+            modelName: modelName,
           },
         });
       const exactMatch = await exactMatchPromise;
-      if (exactMatch.length < 1 && this.canBootstrap(yearNumber, brand, model, line)) {
-        console.log('Bootstraping definition for ', { year, brand, model, line });
-        const placeHolder = await this.startDefinitionFor(year, brand, model, line);
+      if (exactMatch.length < 1 && this.canBootstrap(yearNumber, brandName, modelName, lineName)) {
+        console.log('Bootstraping definition for ', { year, brand: brandName, model: modelName, line: lineName });
+        const placeHolder = await this.startDefinitionFor(year, brandName, modelName, lineName);
         result.push(placeHolder);
       } else {
         result = result.concat(exactMatch);
@@ -99,76 +106,28 @@ export class BikeDefinitionService {
   }
 
   async getAllBrands(): Promise<string[]> {
-    const adHocBrandsPromise = this.bikeRepository
-      .createQueryBuilder()
-      .select('brand')
-      .distinct(true)
-      .getRawMany();
-
-    const definedBrands = await this.bikeDefinitionRepository
-      .createQueryBuilder()
-      .select('brand')
-      .distinct(true)
-      .getRawMany();
-
-      console.log('defined: '+ JSON.stringify(definedBrands));
-      const resultSet = new Set<string>();
-      definedBrands.forEach((row) => resultSet.add(row.brand));
-      const adHocBrands = await adHocBrandsPromise;
-      adHocBrands.forEach((row) => resultSet.add(row.brand));
-      return Array.from(resultSet).filter((brand) => brand !== null);
+    const brands = await this.brandRepository.find();
+    return brands.map((brand) => brand.name);
   }
 
-  async getAllModelsForBrand(brand: string): Promise<string[]> {
-    if (brand === null) {
+  async getAllModelsForBrand(brandName: string): Promise<string[]> {
+    if (brandName === null) {
       return [];
     }
-    console.log('get all models for brand: '+ brand);
-    const adHocBrandsPromise = this.bikeRepository
-      .createQueryBuilder()
-      .select('model')
-      .distinct(true)
-      .where('brand = :brand', { brand: brand })
-      .getRawMany();
-
-    const definedBrands = await this.bikeDefinitionRepository
-      .createQueryBuilder()
-      .select('model')
-      .distinct(true)
-      .where('brand = :brand', { brand: brand })
-      .getRawMany();
-
-    console.log('adHocBrands: '+ JSON.stringify(definedBrands));
-    const resultSet = new Set<string>();
-    definedBrands.forEach((row) => resultSet.add(row.model));
-    const adHocBrands = await adHocBrandsPromise;
-    adHocBrands.forEach((row) => resultSet.add(row.model));
-    return Array.from(resultSet).filter((brand) => brand !== null);
+    const brand = await this.brandRepository.findOne({ where: { name: brandName }});
+    return brand.models.map((model) => model.name);
   }
 
-    async getAllLinesForBrandModel(brand: string, model: string): Promise<string[]> {
-    const adHocBrandsPromise = this.bikeRepository
-      .createQueryBuilder()
-      .select('line')
-      .distinct(true)
-      .where('brand = :brand', { brand: brand })
-      .andWhere('model = :model', { model: model })
-      .getRawMany();
-
-    const definedBrands = await this.bikeDefinitionRepository
-      .createQueryBuilder()
-      .select('line')
-      .distinct(true)
-      .where('brand = :brand', { brand: brand })
-      .andWhere('model = :model', { model: model })
-      .getRawMany();
-
-    console.log('adHocBrands: '+ JSON.stringify(definedBrands));
-    const resultSet = new Set<string>();
-    definedBrands.forEach((row) => resultSet.add(row.line));
-    const adHocBrands = await adHocBrandsPromise;
-    adHocBrands.forEach((row) => resultSet.add(row.line));
-    return Array.from(resultSet);
+  async getAllLinesForBrandModel(brandName: string, modelName: string): Promise<string[]> {
+    const brand = await this.brandRepository.findOne({ where: { name: brandName }});
+    if (!brand) {
+      return [];
+    }
+    const model = await this.modelRepository.findOne({ where: { name: modelName, brand: brand }});
+    if (!model) {
+      return [];
+    }
+    return model.lines.map((line) => line.name);
   }
 
   async getPotentialStringCompletes(starter: string): Promise<Map<string, BikeDefinition>> {
@@ -210,13 +169,13 @@ export class BikeDefinitionService {
     if (word.match(/[0-9]{3}/)) {
       return 1;
     }
-    if (definition.brand.toLowerCase().includes(word.toLowerCase())) {
+    if (definition.brandName.toLowerCase().includes(word.toLowerCase())) {
       return 2;
     }
-    if (definition.model.toLowerCase().includes(word.toLowerCase())) {
+    if (definition.modelName.toLowerCase().includes(word.toLowerCase())) {
       return 3;
     }
-    if (definition.line.toLowerCase().includes(word.toLowerCase())) {
+    if (definition.lineName.toLowerCase().includes(word.toLowerCase())) {
       return 1;
     }
   }
@@ -231,7 +190,7 @@ export class BikeDefinitionService {
   private createSearchStringMap(definitions: BikeDefinition[]): Map<string, BikeDefinition> {
     const searchStringMap = new Map<string, BikeDefinition>();
 
-    definitions.forEach((definition) => searchStringMap.set(definition.brand, definition));
+    definitions.forEach((definition) => searchStringMap.set(definition.brandName, definition));
     return searchStringMap;
   }
 
@@ -242,7 +201,7 @@ export class BikeDefinitionService {
         return [];
       }
       return await this.bikeDefinitionRepository.findBy({
-        searchString: 
+        searchString:
           ILike("%${searchString}%"),
       });
     } catch (error) {
@@ -251,33 +210,71 @@ export class BikeDefinitionService {
     }
   }
 
-  async startDefinitionFor(year: string, brand: string, model: string, line: string): Promise<BikeDefinition> {
+  async startDefinitionFor(year: string, brandName: string, modelName: string, lineName: string): Promise<BikeDefinition> {
+    const brand = await this.ensureBrand(brandName);
+    const model = await this.ensureModel(brand, modelName);
+    const line = await this.ensureLine(model, lineName);
     const definition = await this.bikeDefinitionRepository.create();
     definition.year = parseInt(year);
     definition.brand = brand;
     definition.model = model;
     definition.line = line;
+    definition.brandName = brandName;
+    definition.modelName = modelName;
+    definition.lineName = lineName;
     const result = await this.bikeDefinitionRepository.save(definition);
     this.fillInDefinition(definition);
     return result;
   }
 
+  private async ensureBrand(brandName: string): Promise<Brand> {
+    const brand = await this.brandRepository.findOne({ where: { name: brandName }});
+    if (!brand) {
+      const newBrand = this.brandRepository.create();
+      newBrand.name = brandName;
+      return await this.brandRepository.save(brand);
+    }
+    return brand;
+  }
+
+  private async ensureModel(brand: Brand, modelName: string): Promise<Model> {
+    const model = await this.modelRepository.findOne({ where: { name: modelName, brand }});
+    if (!model) {
+      const newModel = this.modelRepository.create();
+      newModel.name = modelName;
+      newModel.brand = brand;
+      return await this.modelRepository.save(newModel);
+    }
+    return model;
+  }
+
+  private async ensureLine(model: Model, lineName: string): Promise<Line> {
+    const line = await this.lineRepository.findOne({ where: { name: lineName, model: model }});
+    if (!line) {
+      const newLine = this.lineRepository.create();
+      newLine.name = lineName;
+      newLine.model = model;
+      return await this.lineRepository.save(newLine);
+    }
+    return line;
+  }
+
   async fillInDefinition(definition: BikeDefinition): Promise<void> {
     const yearString = definition.year.toString();
-    const {query, response} = await this.queryChatGPTDefinition(yearString, definition.brand, definition.model, definition.line ? definition.line : '');
+    const {query, response} = await this.queryChatGPTDefinition(yearString, definition.brandName, definition.modelName, definition.lineName ? definition.lineName : '');
     populateDefinitionFromJSON(definition, query, response);
     const result = await this.bikeDefinitionRepository.save(definition);
   }
 
   async createDefintionFor(year: string, brand: string, model: string, line: string): Promise<BikeDefinition> {
-    try {      
+    try {
       const {query, response} = await this.queryChatGPTDefinition(year, brand, model, line);
       console.log('Got response from ChatGPT: ', response);
       const definition = await this.bikeDefinitionRepository.create();
       definition.year = parseInt(year);
-      definition.brand = brand;
-      definition.model = model;
-      definition.line = line;
+      definition.brandName = brand;
+      definition.modelName = model;
+      definition.lineName = line;
       populateDefinitionFromJSON(definition, query, response);
       console.log('Created bike definition: ', definition);
       const result =  await this.bikeDefinitionRepository.save(definition);
@@ -297,11 +294,11 @@ export class BikeDefinitionService {
         model: "gpt-4o",
         messages: [
           {
-              "role": "system", 
+              "role": "system",
               "content": "You are a verbose and meticulous bike specification expert"
           },
           {
-              "role": "user", 
+              "role": "user",
               "content": query,
           }
       ],
@@ -329,7 +326,7 @@ export class BikeDefinitionService {
     }
     return this.chatGPT;
   }
-  
+
   async bootStrapAll(year?: string): Promise<void> {
     if (!year) {
       year = '2024';
@@ -376,7 +373,7 @@ export class BikeDefinitionService {
     return result.map(line => removeRedundantInfo(model, line))
   }
 
-  private async queryBikeInfoList(query: string): Promise<string[]> {    
+  private async queryBikeInfoList(query: string): Promise<string[]> {
     const response = await this.openAIClient().responses.create({
       model: 'gpt-4o-mini',
       instructions: 'You are a bike specification expert who answer with a list of strings',
@@ -390,7 +387,7 @@ export class BikeDefinitionService {
       .output_text.split('|')
       .map(item => item.trim())
       .filter(item => item.trim().length > 0);
-    
+
     result = result.map(item => removeIndex(item));
     console.log('Result: ', result);
     return result;
