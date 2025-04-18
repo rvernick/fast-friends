@@ -1,12 +1,14 @@
 import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
-import { BikeDefinition } from './bike-definition.entity';
+import { BikeDefinition, BikeDefinitionSummary } from './bike-definition.entity';
 import OpenAI from 'openai';
 const logger = new Logger('BikeDefinitionService');
-import { createDefinitionFromJSON } from './bike-definition-parser';
+import { populateDefinitionFromJSON } from './bike-definition-parser';
 import { z } from 'zod';
 import { zodResponseFormat } from "openai/helpers/zod";
+import { Bike } from './bike.entity';
+import { Brand, Line, Model } from './brand.entity';
 
 @Injectable()
 export class BikeDefinitionService {
@@ -16,7 +18,117 @@ export class BikeDefinitionService {
   constructor(
     @InjectRepository(BikeDefinition)
     private bikeDefinitionRepository: Repository<BikeDefinition>,
+    @InjectRepository(Brand)
+    private brandRepository: Repository<Brand>,
+    @InjectRepository(Model)
+    private modelRepository: Repository<Model>,
+    @InjectRepository(Line)
+    private lineRepository: Repository<Line>,
+    @InjectRepository(Bike)
+    private bikeRepository: Repository<Bike>,
   ) {}
+
+  async getBikeDefinitionsFor(brand: string, model: string, line: string): Promise<BikeDefinition[]> {
+    return this.bikeDefinitionRepository.find({
+      where: {
+        brandName: brand,
+        modelName: model,
+        lineName: line,
+      },
+    });
+  }
+
+
+  async searchDefinitions(year: string, brandName: string, modelName: string, lineName: string): Promise<BikeDefinitionSummary[]> {
+    try {
+      var result = [];
+      if (year.length !== 4) {
+        logger.log('Invalid year format. Must be 4 digits');
+        return result;
+      }
+      const yearNumber = parseInt(year);
+      const exactMatchPromise = this.bikeDefinitionRepository.find({
+        where: {
+          year: yearNumber,
+          brandName: brandName,
+          modelName: modelName,
+          lineName: lineName,
+        },
+      });
+      const yearlessMatchPromise = this.getBikeDefinitionsFor(brandName, modelName, lineName);
+      const linelessMatchPromise = this.bikeDefinitionRepository.find({
+          where: {
+            // year: yearNumber,   // As the database grows, this might need to be added back
+            brandName: brandName,
+            modelName: modelName,
+          },
+        });
+      const exactMatch = await exactMatchPromise;
+      if (exactMatch.length < 1 && this.canBootstrap(yearNumber, brandName, modelName, lineName)) {
+        console.log('Bootstraping definition for ', { year, brand: brandName, model: modelName, line: lineName });
+        const placeHolder = await this.startDefinitionFor(year, brandName, modelName, lineName);
+        result.push(placeHolder);
+      } else {
+        result = result.concat(exactMatch);
+      }
+
+      // TODO: remove duplicates before returning
+      const yearlessMatch = await yearlessMatchPromise;
+      const soFar = exactMatch.concat(yearlessMatch);
+      if (soFar.length < 10) {
+        return this.dedupBikeDefinitionSummarys(soFar.concat(await linelessMatchPromise));
+      }
+      return this.dedupBikeDefinitionSummarys(soFar);
+    } catch (e: any) {
+      console.log(e.message);
+      return [];
+    }
+  }
+
+  dedupBikeDefinitionSummarys(definitions: BikeDefinition[]): BikeDefinitionSummary[] {
+    const usedDefinitions = new Set<number>();
+    const result = [];
+    definitions.forEach((definition) => {
+      if (!usedDefinitions.has(definition.id)) {
+        result.push(new BikeDefinitionSummary(definition));
+        usedDefinitions.add(definition.id);
+      }
+    });
+    return result;
+  }
+
+  canBootstrap(year: number, brand: string, model: string, line: string): boolean {
+    return year > 1990
+      && brand!== null
+      && model!== null
+      && brand.length > 2
+      && model.length > 3;
+  }
+
+  async getAllBrands(): Promise<string[]> {
+    const brands = await this.brandRepository.find();
+    return brands.map((brand) => brand.name);
+  }
+
+  async getAllModelsForBrand(brandName: string): Promise<string[]> {
+    if (brandName === null) {
+      return [];
+    }
+    const brand = await this.brandRepository.findOne({ where: { name: brandName }});
+    return brand.models.map((model) => model.name);
+  }
+
+  async getAllLinesForBrandModel(brandName: string, modelName: string): Promise<string[]> {
+    const brand = await this.brandRepository.findOne({ where: { name: brandName }});
+    if (!brand) {
+      return [];
+    }
+    const model = await this.modelRepository.findOne({ where: { name: modelName, brand: brand }});
+    if (!model) {
+      return [];
+    }
+    return model.lines.map((line) => line.name);
+  }
 
   async getPotentialStringCompletes(starter: string): Promise<Map<string, BikeDefinition>> {
     const sortMap = new Map<number, number>();
@@ -57,13 +169,13 @@ export class BikeDefinitionService {
     if (word.match(/[0-9]{3}/)) {
       return 1;
     }
-    if (definition.brand.toLowerCase().includes(word.toLowerCase())) {
+    if (definition.brandName.toLowerCase().includes(word.toLowerCase())) {
       return 2;
     }
-    if (definition.model.toLowerCase().includes(word.toLowerCase())) {
+    if (definition.modelName.toLowerCase().includes(word.toLowerCase())) {
       return 3;
     }
-    if (definition.line.toLowerCase().includes(word.toLowerCase())) {
+    if (definition.lineName.toLowerCase().includes(word.toLowerCase())) {
       return 1;
     }
   }
@@ -78,7 +190,7 @@ export class BikeDefinitionService {
   private createSearchStringMap(definitions: BikeDefinition[]): Map<string, BikeDefinition> {
     const searchStringMap = new Map<string, BikeDefinition>();
 
-    definitions.forEach((definition) => searchStringMap.set(definition.brand, definition));
+    definitions.forEach((definition) => searchStringMap.set(definition.brandName, definition));
     return searchStringMap;
   }
 
@@ -89,7 +201,7 @@ export class BikeDefinitionService {
         return [];
       }
       return await this.bikeDefinitionRepository.findBy({
-        searchString: 
+        searchString:
           ILike("%${searchString}%"),
       });
     } catch (error) {
@@ -98,11 +210,76 @@ export class BikeDefinitionService {
     }
   }
 
+  async startDefinitionFor(year: string, brandName: string, modelName: string, lineName: string): Promise<BikeDefinition> {
+    const brand = await this.ensureBrand(brandName);
+    const model = await this.ensureModel(brand, modelName);
+    const line = await this.ensureLine(model, lineName);
+    const definition = await this.bikeDefinitionRepository.create();
+    definition.year = parseInt(year);
+    definition.brand = brand;
+    definition.model = model;
+    definition.line = line;
+    definition.brandName = brandName;
+    definition.modelName = modelName;
+    definition.lineName = lineName;
+    const result = await this.bikeDefinitionRepository.save(definition);
+    this.fillInDefinition(definition);
+    return result;
+  }
+
+  private async ensureBrand(brandName: string): Promise<Brand> {
+    if (brandName === null || brandName.length < 2) {
+      console.error(`Invalid brand name: ${brandName}`);
+      return Promise.resolve(null);
+    }
+    const brand = await this.brandRepository.findOne({ where: { name: brandName }});
+    if (!brand) {
+      const newBrand = this.brandRepository.create();
+      newBrand.name = brandName;
+      return await this.brandRepository.save(newBrand);
+    }
+    return brand;
+  }
+
+  private async ensureModel(brand: Brand, modelName: string): Promise<Model> {
+    const model = await this.modelRepository.findOne({ where: { name: modelName, brand }});
+    if (!model) {
+      const newModel = this.modelRepository.create();
+      newModel.name = modelName;
+      newModel.brand = brand;
+      return await this.modelRepository.save(newModel);
+    }
+    return model;
+  }
+
+  private async ensureLine(model: Model, lineName: string): Promise<Line> {
+    const line = await this.lineRepository.findOne({ where: { name: lineName, model: model }});
+    if (!line) {
+      const newLine = this.lineRepository.create();
+      newLine.name = lineName;
+      newLine.model = model;
+      return await this.lineRepository.save(newLine);
+    }
+    return line;
+  }
+
+  async fillInDefinition(definition: BikeDefinition): Promise<void> {
+    const yearString = definition.year.toString();
+    const {query, response} = await this.queryChatGPTDefinition(yearString, definition.brandName, definition.modelName, definition.lineName ? definition.lineName : '');
+    populateDefinitionFromJSON(definition, query, response);
+    const result = await this.bikeDefinitionRepository.save(definition);
+  }
+
   async createDefintionFor(year: string, brand: string, model: string, line: string): Promise<BikeDefinition> {
     try {
-      const response = await this.queryChatGPTDefinition(year, brand, model, line);
+      const {query, response} = await this.queryChatGPTDefinition(year, brand, model, line);
       console.log('Got response from ChatGPT: ', response);
-      const definition = createDefinitionFromJSON(response);
+      const definition = await this.bikeDefinitionRepository.create();
+      definition.year = parseInt(year);
+      definition.brandName = brand;
+      definition.modelName = model;
+      definition.lineName = line;
+      populateDefinitionFromJSON(definition, query, response);
       console.log('Created bike definition: ', definition);
       const result =  await this.bikeDefinitionRepository.save(definition);
       console.log('Saved bike definition: ', result);
@@ -121,12 +298,12 @@ export class BikeDefinitionService {
         model: "gpt-4o",
         messages: [
           {
-              "role": "system", 
+              "role": "system",
               "content": "You are a verbose and meticulous bike specification expert"
           },
           {
-              "role": "user", 
-              "content": "Can you describe the 2024 Specialized Roubaix SL8 Pro"
+              "role": "user",
+              "content": query,
           }
       ],
         response_format: zodResponseFormat(bikeDefinitionSchema, "bike_definition"),
@@ -134,7 +311,7 @@ export class BikeDefinitionService {
       console.log('Got response from ChatGPT: ', response);
       console.log('Choices', response.choices[0]);
       console.log('Choices', response.choices[0].message);
-      return JSON.parse(response.choices[0].message.content);
+      return {query: query, response: JSON.parse(response.choices[0].message.content)};
     } catch (error) {
       logger.log('Error querying ChatGPT: ', error);
       return null;
@@ -153,49 +330,99 @@ export class BikeDefinitionService {
     }
     return this.chatGPT;
   }
-  
-  async bootStrapAll(year?: string): Promise<void> {
-    if (!year) {
-      year = '2024';
-    }
-    const brands = await this.getAllBrands(year);
-    for (const brand of brands) {
-      await this.bootStrapBrand(brand, year);
+
+  async bootstrapBrandsInternally(): Promise<void> {
+    const basis = bootstrapBasis;
+    for (const brandName in basis) {
+      // const newBrand = this.ensureBrand(brand);
+      console.log(`Adding brand: ${brandName}`);
+      const brand = await this.ensureBrand(brandName);
+      const models = basis[brandName];
+      console.log('Adding Models', models);
+      models.forEach((model) => {
+        console.log('Adding Model', model);
+        const newModel = this.ensureModel(brand, model);
+      });
     }
   }
 
-  async bootStrapBrand(brand: string, year?: string): Promise<void> {
+  async bootstrapBrands(): Promise<void> {
+    const brands = await this.searchForAllBrands(null);
+    console.log('Bootstrapping brands:', brands);
+    for (const brand of brands) {
+      const newBrand = this.ensureBrand(brand);
+    }
+  }
+
+  async bootstrapModels(): Promise<void> {
+    const brands = await this.brandRepository.find();
+    console.log('Bootstrapping models:', brands);
+    for (const brand of brands) {
+      console.log("adding models for: ", brand.name);
+      const models = await this.searchForModels(brand.name, "2024");
+      for (const model of models) {
+        const newModel = await this.ensureModel(brand, model);
+      }
+    }
+    this.exportBrandsAndModels()
+  }
+
+  async exportBrandsAndModels(): Promise<void> {
+    const brandNames = await this.getAllBrands();
+    const mapping = {};
+    for (const brandName of brandNames) {
+      mapping[brandName] = await this.getAllModelsForBrand(brandName);
+    }
+    console.log(mapping);
+  }
+
+  async bootstrapAll(year?: string): Promise<void> {
+    if (!year) {
+      year = '2024';
+    }
+    const brands = await this.searchForAllBrands(year);
+    console.log(`Bootstrapping all brands with year ${year}`, brands);
+    for (const brand of brands) {
+      await this.bootstrapBrand(brand, year);
+    }
+  }
+
+  async bootstrapBrand(brand: string, year?: string): Promise<void> {
     if (!year) {
       year = '2024';
     }
     console.log(`Bootstrapping brand ${brand} with year ${year}`);
-    const models = await this.getModels(brand, year);
+    const models = await this.searchForModels(brand, year);
     for (const model of models) {
-      const lines = await this.getLines(brand, model, year);
+      const lines = await this.searchForLines(brand, model, year);
       for (const line of lines) {
+        console.log(`Creating bike definition for: ${year} ${brand} ${model} ${line}`);
         await this.createDefintionFor(year, brand, model, line);
       }
     }
   }
 
-  private async getAllBrands(year: string ): Promise<string[]> {
-    const query = `List the top 25 brands of bikes in ${year} as a pipe (|) deliniated list with no model or trim information`;
-    await this.queryBikeInfoList(query);
-    return ['Specialized'];
+  private async searchForAllBrands(year: string ): Promise<string[]> {
+    const query = `List the top brands of bikes in ${year} as a pipe (|) deliniated list with no model or trim information.`;
+    return await this.queryBikeInfoList(query);
+    // return ['Giant'];
+    // return ['Specialized', 'Giant'];
   }
 
-  private async getModels(brand: string, year?: string): Promise<string[]> {
+  private async searchForModels(brand: string, year?: string): Promise<string[]> {
     const queryBase = year ? `List the models/family of ${brand} bikes in ${year}` : `List the models of ${brand} bikes`;
-    return this.queryBikeInfoList(queryBase + ' as a pipe (|) deliniated list with no brand or trim information')
+    const result = await this.queryBikeInfoList(queryBase + ' as a pipe (|) deliniated list with no brand or trim information');
+    return result.map(model => removeRedundantInfo(brand, model))
   }
 
-  private async getLines(brand: string, model: string, year?: string): Promise<string[]> {
+  private async searchForLines(brand: string, model: string, year?: string): Promise<string[]> {
     const queryBase = year ? `List the available trims of ${brand} ${model} bikes in ${year}` : `List the lines of ${brand} ${model} bikes`;
     const query = queryBase + ' as a pipe (|) deliniated list with no brand or model information';
-    return this.queryBikeInfoList(query);
+    const result = await this.queryBikeInfoList(query);
+    return result.map(line => removeRedundantInfo(model, line))
   }
 
-  private async queryBikeInfoList(query: string): Promise<string[]> {    
+  private async queryBikeInfoList(query: string): Promise<string[]> {
     const response = await this.openAIClient().responses.create({
       model: 'gpt-4o-mini',
       instructions: 'You are a bike specification expert who answer with a list of strings',
@@ -205,11 +432,30 @@ export class BikeDefinitionService {
     console.log('Bike info list query response: ', response);
     console.log('Output: ', response.output);
     console.log('Output[0]: ', response.output[0]);
-    const result = response.output_text.split('|').map(item => item.trim());
+    var result = response
+      .output_text.split('|')
+      .map(item => item.trim())
+      .filter(item => item.trim().length > 0);
+
+    result = result.map(item => removeIndex(item));
     console.log('Result: ', result);
-    return result.filter(item => item.trim().length > 0);
+    return result;
   }
 };
+
+export const removeRedundantInfo = (brand: string, model: string): string => {
+  if (model.startsWith(brand)) {
+    return model.substring(brand.length + 1).trim();
+  }
+  return model;
+}
+
+export const removeIndex = (item: string): string => {
+  if (item.match(/^(\d+)\.\s+(.+)$/)) {
+    return item.replace(/^(\d+)\.\s+(.+)$/, '$2');
+  }
+  return item;
+}
 
 export const bikeDefinitionSchema = z.object({
   brand: z.string().describe("The manufacturer of the bike"),
@@ -334,3 +580,125 @@ export const bikeDefinitionSchema = z.object({
   }),
 });
 
+const bootstrapBasis = {
+  Giant: [
+    'FastRoad',       'XTC',
+    'Talon',          'Stance',
+    'Trance X',
+    'Defy',           'Explore E+',
+    'Fathom',         'TCR',
+    'Revolt',         'Anthem',
+    'Seek',
+    'Propel',         'Trance',
+    'RISE',           'Reign',
+    'Talons'
+  ],
+  Specialized: [
+    'Diverge',
+    'Epic',
+    'Allez Elite',
+    'Turbo Levo',
+    'Allez',
+    'Allez S-Works',
+    'Turbo Levo',
+    'Roubaix',
+    'Sirrus Carbon',
+    'Sirrus',
+    'Stumpjumper',
+    'Roubaix',
+    'Sirrus Sport',
+    'Rockhopper',
+    'Turbo Kenevo',
+    'Stumpjumper ',
+    'Tarmac',
+    'Turbo Levo Pro',
+    'Anthem',
+    'Chisel',
+    'Hotrock',
+    'S-Works',
+    'Enduro',
+    'Fuse',
+    'Pathfinder',
+    'Camber',
+    'Crave',
+    'Turbo'
+  ],
+  'Santa Cruz': [
+    '5010',      'Megatower',
+    'Tallboy',   'Chameleon',
+    'Bronson',   'Nomad',
+    'Blur',      'Stigmata',
+    'Hightower'
+  ],
+  Orbea: [
+    'Katu',   'Wild FS',
+    'Avanat', 'Vector',
+    'Occam',  'Avant H30',
+    'Orca',   'Terra',
+    'MX',     'Rallon'
+  ],
+  Cannondale: [
+    'Scalpel',   'Topstone',
+    'Moterra',   'Jekyll',
+    'Habit',     'SuperSix EVO',
+    'Quick',     'Trail',
+    'FSI',       'Bad Boy',
+    'Adventure', 'SystemSix',
+    'CAADX',     'Synapse'
+  ],
+  Fuji: [
+    'Hybrid',     'Tahoe',
+    'Nevada',     'Jari',
+    'Sports',     'Transonic',
+    'Avenue',     'Absolute',
+    'Gran Fondo', 'Roubaix'
+  ],
+  Trek: [
+    'Emonda',     'Bontrager',
+    'Dual Sport', 'Domane',
+    'Verve',      'Fuel EX',
+    'Stache',     'Madone',
+    'Allant',     'Slash',
+    'Rail',       'Marlin'
+  ],
+  Bianchi: [
+    'Specialissima',
+    'Aria',
+    'E-Road',
+    'Infinito',
+    'Impulso',
+    'C-Sport',
+    'Vertigo',
+    'Sprint',
+    'Oltre',
+    'Pista'
+  ],
+  Kona: [
+    'Sutra',   'Explosif',
+    'Hei Hei', 'Big Honzo',
+    'Rove',    'Honzo',
+    'Splice',  'Surgy',
+    'Kahuna',  'Remote',
+    'Libre',   'Process'
+  ],
+  Scott: [
+    'E-Silence',    'Metrix',
+    'Scale eRIDE',  'Genius',
+    'Spark',        'Spark eRIDE',
+    'Aspect',       'Contessa',
+    'Addict',       'Ransom',
+    'Genius eRIDE', 'Ransom eRIDE',
+    'Scale',        'Subcross'
+  ],
+  Marin: [
+    'Pine Mountain',
+    'Alpine Trail',
+    'Headlands',
+    'eBay',
+    'San Quentin',
+    'Peralta',
+    'Nicasio',
+    'Rift Zone',
+    'Hawk Hill'
+  ]
+}

@@ -108,13 +108,13 @@ export const GettingStartedComponent = () => {
             <List.Item title="Ride" description="You can disconnect from Strava at anytime"/>
           </List.Accordion>
           <List.Accordion
-            title="2) Create Maintenance Schedule">
+            title="2) Configure Bikes and Maintenance Schedule">
             <List.Item title={<Button
                 mode="contained"
                 onPress={() => router.push('/(home)/(maintenanceItems)/bulk-maintenance')}
                 accessibilityLabel="Create Maintenance Schedule"
                 accessibilityHint="Create Maintenance Schedule">
-                  Create Maintenance Schedule
+                  Configure Bikes
               </Button>} />
             <List.Item title="Click link" description="This will bring you to a default list of maintenace items to choose from"/>
             <List.Item title="Add/Update Maintenance Items" description="A maintenance item can be an action of: Replace, Lubricate, Clean or Check"/>
