@@ -14,20 +14,35 @@ import { BikeDefinition, BikeDefinitionSummary } from './bike-definition.entity'
 @Controller('bike-definition')
 export class BikeDefinitionController {
   constructor(private bikeDefinitionService: BikeDefinitionService) {}
+
   // update-or-add-maintenance-history-item
   // @UseGuards(AuthGuard)   TODO: put the guard back in
   @Public()               // TODO: add the guard back in
   @Post('bootstrap')
-  bootstrap(@Body('year') year: string): Promise<void> {
+  bootstrap(): Promise<void> {
     try {
-      console.log('bootstrap/', year);
-      this.bikeDefinitionService.bootStrapAll(year);
+      console.log('bootstrap/');
+      this.bikeDefinitionService.bootstrapBrandsInternally();
       return;
     } catch (error) {
       console.log('bike-definition/bootstrap error:', error);
       return null;
     }
   }
+
+  // @Public()               // TODO: add the guard back in
+  // @Post('bootstrap-models')
+  // bootstrapModels(): Promise<void> {
+  //   try {
+  //     console.log('bootstrap/');
+  //     this.bikeDefinitionService.bootstrapModels();
+
+  //     return;
+  //   } catch (error) {
+  //     console.log('bike-definition/bootstrap error:', error);
+  //     return null;
+  //   }
+  // }
 
   @UseGuards(AuthGuard)
   @Get('all-brands')

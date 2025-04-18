@@ -228,11 +228,15 @@ export class BikeDefinitionService {
   }
 
   private async ensureBrand(brandName: string): Promise<Brand> {
+    if (brandName === null || brandName.length < 2) {
+      console.error(`Invalid brand name: ${brandName}`);
+      return Promise.resolve(null);
+    }
     const brand = await this.brandRepository.findOne({ where: { name: brandName }});
     if (!brand) {
       const newBrand = this.brandRepository.create();
       newBrand.name = brandName;
-      return await this.brandRepository.save(brand);
+      return await this.brandRepository.save(newBrand);
     }
     return brand;
   }
@@ -327,18 +331,63 @@ export class BikeDefinitionService {
     return this.chatGPT;
   }
 
-  async bootStrapAll(year?: string): Promise<void> {
+  async bootstrapBrandsInternally(): Promise<void> {
+    const basis = bootstrapBasis;
+    for (const brandName in basis) {
+      // const newBrand = this.ensureBrand(brand);
+      console.log(`Adding brand: ${brandName}`);
+      const brand = await this.ensureBrand(brandName);
+      const models = basis[brandName];
+      console.log('Adding Models', models);
+      models.forEach((model) => {
+        console.log('Adding Model', model);
+        const newModel = this.ensureModel(brand, model);
+      });
+    }
+  }
+
+  async bootstrapBrands(): Promise<void> {
+    const brands = await this.searchForAllBrands(null);
+    console.log('Bootstrapping brands:', brands);
+    for (const brand of brands) {
+      const newBrand = this.ensureBrand(brand);
+    }
+  }
+
+  async bootstrapModels(): Promise<void> {
+    const brands = await this.brandRepository.find();
+    console.log('Bootstrapping models:', brands);
+    for (const brand of brands) {
+      console.log("adding models for: ", brand.name);
+      const models = await this.searchForModels(brand.name, "2024");
+      for (const model of models) {
+        const newModel = await this.ensureModel(brand, model);
+      }
+    }
+    this.exportBrandsAndModels()
+  }
+
+  async exportBrandsAndModels(): Promise<void> {
+    const brandNames = await this.getAllBrands();
+    const mapping = {};
+    for (const brandName of brandNames) {
+      mapping[brandName] = await this.getAllModelsForBrand(brandName);
+    }
+    console.log(mapping);
+  }
+
+  async bootstrapAll(year?: string): Promise<void> {
     if (!year) {
       year = '2024';
     }
     const brands = await this.searchForAllBrands(year);
     console.log(`Bootstrapping all brands with year ${year}`, brands);
     for (const brand of brands) {
-      await this.bootStrapBrand(brand, year);
+      await this.bootstrapBrand(brand, year);
     }
   }
 
-  async bootStrapBrand(brand: string, year?: string): Promise<void> {
+  async bootstrapBrand(brand: string, year?: string): Promise<void> {
     if (!year) {
       year = '2024';
     }
@@ -531,3 +580,125 @@ export const bikeDefinitionSchema = z.object({
   }),
 });
 
+const bootstrapBasis = {
+  Giant: [
+    'FastRoad',       'XTC',
+    'Talon',          'Stance',
+    'Trance X',
+    'Defy',           'Explore E+',
+    'Fathom',         'TCR',
+    'Revolt',         'Anthem',
+    'Seek',
+    'Propel',         'Trance',
+    'RISE',           'Reign',
+    'Talons'
+  ],
+  Specialized: [
+    'Diverge',
+    'Epic',
+    'Allez Elite',
+    'Turbo Levo',
+    'Allez',
+    'Allez S-Works',
+    'Turbo Levo',
+    'Roubaix',
+    'Sirrus Carbon',
+    'Sirrus',
+    'Stumpjumper',
+    'Roubaix',
+    'Sirrus Sport',
+    'Rockhopper',
+    'Turbo Kenevo',
+    'Stumpjumper ',
+    'Tarmac',
+    'Turbo Levo Pro',
+    'Anthem',
+    'Chisel',
+    'Hotrock',
+    'S-Works',
+    'Enduro',
+    'Fuse',
+    'Pathfinder',
+    'Camber',
+    'Crave',
+    'Turbo'
+  ],
+  'Santa Cruz': [
+    '5010',      'Megatower',
+    'Tallboy',   'Chameleon',
+    'Bronson',   'Nomad',
+    'Blur',      'Stigmata',
+    'Hightower'
+  ],
+  Orbea: [
+    'Katu',   'Wild FS',
+    'Avanat', 'Vector',
+    'Occam',  'Avant H30',
+    'Orca',   'Terra',
+    'MX',     'Rallon'
+  ],
+  Cannondale: [
+    'Scalpel',   'Topstone',
+    'Moterra',   'Jekyll',
+    'Habit',     'SuperSix EVO',
+    'Quick',     'Trail',
+    'FSI',       'Bad Boy',
+    'Adventure', 'SystemSix',
+    'CAADX',     'Synapse'
+  ],
+  Fuji: [
+    'Hybrid',     'Tahoe',
+    'Nevada',     'Jari',
+    'Sports',     'Transonic',
+    'Avenue',     'Absolute',
+    'Gran Fondo', 'Roubaix'
+  ],
+  Trek: [
+    'Emonda',     'Bontrager',
+    'Dual Sport', 'Domane',
+    'Verve',      'Fuel EX',
+    'Stache',     'Madone',
+    'Allant',     'Slash',
+    'Rail',       'Marlin'
+  ],
+  Bianchi: [
+    'Specialissima',
+    'Aria',
+    'E-Road',
+    'Infinito',
+    'Impulso',
+    'C-Sport',
+    'Vertigo',
+    'Sprint',
+    'Oltre',
+    'Pista'
+  ],
+  Kona: [
+    'Sutra',   'Explosif',
+    'Hei Hei', 'Big Honzo',
+    'Rove',    'Honzo',
+    'Splice',  'Surgy',
+    'Kahuna',  'Remote',
+    'Libre',   'Process'
+  ],
+  Scott: [
+    'E-Silence',    'Metrix',
+    'Scale eRIDE',  'Genius',
+    'Spark',        'Spark eRIDE',
+    'Aspect',       'Contessa',
+    'Addict',       'Ransom',
+    'Genius eRIDE', 'Ransom eRIDE',
+    'Scale',        'Subcross'
+  ],
+  Marin: [
+    'Pine Mountain',
+    'Alpine Trail',
+    'Headlands',
+    'eBay',
+    'San Quentin',
+    'Peralta',
+    'Nicasio',
+    'Rift Zone',
+    'Hawk Hill'
+  ]
+}
