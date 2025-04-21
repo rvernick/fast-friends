@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { router, useNavigation } from "expo-router";
+import { defaultMaintenanceItems } from "./default-maintenance";
+import { useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, fetchUser, isMobile, isMobileSize, metersToDisplayString } from "@/common/utils";
+import { displayStringToMeters, ensureString, isMobileSize, metersToDisplayString, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Linking, SafeAreaView } from "react-native";
-import { BaseLayout } from "../layouts/base-layout";
+import {  SafeAreaView } from "react-native";
 import { VStack } from "../ui/vstack";
 import { Button, ButtonText } from "../ui/button";
 import { HStack } from "../ui/hstack";
@@ -15,18 +15,11 @@ import { Radio, RadioGroup, RadioLabel } from "../ui/radio";
 import { MaintenanceItem } from "@/models/MaintenanceItem";
 import BikeConfigurationComponent from "./BikeConfigurationComponent";
 import BulkAddMaintenanceComponent from "./BulkAddMaintenanceComponent";
+import { MaintenanceLog } from "@/models/MaintenanceLog";
+import { updateOrCreateMaintenanceItems } from "./common/maintenanceItemUtils";
 
 const NULL_OPTIONAL_FIELD_ID = -1;
 
-const groupsetBrands = [
-  'Shimano',
-  'SRAM',
-  'Campagnolo',
-  'Other',
-]
-
-const groupsetSpeeds = ['1', '9', '10', '11', '12', '13'];
-const types = ['Road', 'Mountain', 'Hybrid', 'Cruiser', 'Electric', 'Cargo', 'Gravel'].sort();
 const miArray: MaintenanceItem[] = new Array(0);
 
 const newBike = {
@@ -67,6 +60,9 @@ const InitialConfigurationComponent = () => {
   const [isRetired, setIsRetired] = useState(newBike.isRetired);
   const [connectedToStrava, setConnectedToStrava] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceLog[]>([]);
+  const [logsCreatedFor, setLogsCreatedFor] = useState<number>(0);
+
   const MODEL = 'Model';
   const MAINTENANCE = 'Maintenance';
   const [page, setPage] = useState(MODEL);
@@ -81,10 +77,18 @@ const InitialConfigurationComponent = () => {
     queryFn: () => controller.getCurrentBikes(session, email),
   });
 
+  const skip = () => {
+    if (page == MAINTENANCE) {
+      goToNextBike();
+      setPage(MODEL);
+    } else {
+      setPage(MAINTENANCE);
+    }
+  }
 
   const saveAndContinue = async () => {
     if (page == MAINTENANCE) {
-      // saveMaintenanceItems();  TODO
+      saveMaintenanceItems();
       goToNextBike();
       setPage(MODEL);
     } else {
@@ -105,7 +109,7 @@ const InitialConfigurationComponent = () => {
         bikeMatched = true;
       }
     }
-    console.log('No more bikes to go to, returning to first');
+    queryClient.invalidateQueries({ queryKey: ['bikes'] });
   }
 
   const resetBike = async (bike: Bike) => {
@@ -122,16 +126,34 @@ const InitialConfigurationComponent = () => {
     setMileage(metersToDisplayString(bike.odometerMeters, pref));
     setStravaId(ensureString(bike.stravaId));
     checkConnectedToStrava(bike.stravaId);
+    ensureMaintenanceLogs(bike);
     setReadOnly(true);
   }
 
-  const goBack = () => {  // maybe in AppController?
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.push('/(home)');
+  const ensureMaintenanceLogs = (aBike: Bike) => {
+      console.log('ensureMaintenanceLogs');
+      if (logsCreatedFor == aBike.id) {
+        return;
+      }
+      const logs = [];
+      setLogsCreatedFor(aBike.id);
+      var logId = 1;
+      for (const item of defaultMaintenanceItems(aBike)) {
+        var log = {
+          id: logId++,
+          bikeId: aBike.id,
+          bikeMileage: aBike.odometerMeters,
+          maintenanceItem: item,
+          due: item.dueDistanceMeters,
+          nextDue: item.dueDistanceMeters? aBike.odometerMeters + item.defaultLongevity : null,
+          nextDate: item.dueDate? new Date(today().getTime() + item.defaultLongevityDays * 24 * 60 * 60 * 1000) : null,
+          selected: false,
+        }
+        logs.push(log);
+      }
+
+      setMaintenanceLogs(logs);
     }
-  }
 
   const saveModelInfo = async function() {
     try {
@@ -147,20 +169,20 @@ const InitialConfigurationComponent = () => {
         isRetired,
         currentBike.bikeDefinitionSummary ? currentBike.bikeDefinitionSummary.id : NULL_OPTIONAL_FIELD_ID);
       console.log('update bike result: ' + result);
-      queryClient.invalidateQueries({ queryKey: ['bikes'] });
-      if (result == '') {
-        goBack();
-      } else {
-        setErrorMessage(result);
-      }
     } catch (error) {
       console.error('Error saving bike: ', error);
     }
   };
 
-  const cancel = () => {
-    setIsInitialized(false);
-    setReadOnly(true);
+  const saveMaintenanceItems = async () => {
+    setErrorMessage('');
+    const selectedItems = maintenanceLogs.filter(log => log.selected);
+
+    const result = await updateOrCreateMaintenanceItems(session, selectedItems);
+    console.log('submit maintenance result: ', result);
+    if (result && result.length > 0) {
+      setErrorMessage(result);
+    }
   }
 
   const updatePage = (newPage: string) => {
@@ -256,7 +278,7 @@ const InitialConfigurationComponent = () => {
         </RadioGroup> */}
         <VStack>
           {page !== MODEL ? null : <BikeConfigurationComponent bike={currentBike} markDirty={markAsDirty}/>}
-          {page !== MAINTENANCE ? null : <BulkAddMaintenanceComponent bike={currentBike} markDirty={markAsDirty}/>}
+          {page !== MAINTENANCE ? null : <BulkAddMaintenanceComponent maintenanceLogs={maintenanceLogs} markDirty={markAsDirty}/>}
           {/* {page !== "frame" ? null : <BikeFrameComponent bike={bike} markDirty={markAsDirty}/>}   */}
           {/* {page !== "shifters" ? null : <BikeConfigurationComponent bike={bike} markDirty={markAsDirty}/>} */}
           {/* setDirty={setIsDirty} */}
@@ -271,7 +293,7 @@ const InitialConfigurationComponent = () => {
             accessibilityHint="Will save any changes and go to the next screen">
             <ButtonText>{saveLabel}</ButtonText>
           </Button>
-          <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ cancel }>
+          <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ skip }>
             <ButtonText>Skip</ButtonText>
           </Button>
         </HStack>
@@ -280,33 +302,4 @@ const InitialConfigurationComponent = () => {
   );
 };
 
-
-/**
- *
- <SafeAreaView className="w-full h-full">
-      <ScrollView
-        className="w-full h-full"
-        contentContainerStyle={{ flexGrow: 1 }}
-      >
-        <HStack className="w-full h-full bg-background-0 flex-grow justify-center">
-          <VStack
-            className="relative hidden md:flex h-full w-full flex-1  items-center  justify-center"
-            space="md"
-          >
-            <Image
-              // height="100%"
-              // width="100%"
-              source={require("@/assets/images/spiral-gears.jpg")}
-              className="object-cover h-full w-full"
-              alt="Radial Gradient"
-            />
-          </VStack>
-          <VStack className="md:items-center md:justify-start flex-1 w-full  p-9 md:gap-10 gap-16 md:m-auto md:w-1/2 h-full">
-            {props.children}
-          </VStack>
-        </HStack>
-      </ScrollView>
-    </SafeAreaView>
-
- */
 export default InitialConfigurationComponent;

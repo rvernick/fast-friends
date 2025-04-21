@@ -1,66 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { router, useNavigation } from "expo-router";
+import { router } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, isMobileSize, metersToDisplayString, milesToMeters, today } from "@/common/utils";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
-import { Part } from "@/models/MaintenanceItem";
 import { MaintenanceLog } from "@/models/MaintenanceLog";
 import { Dimensions, ScrollView, View, StyleSheet } from "react-native";
-import { createStyles, defaultWebStyles } from "@/common/styles";
 import { DatePickerInput } from "react-native-paper-dates";
-import { defaultMaintenanceItems } from "./default-maintenance";
 import { VStack } from "../ui/vstack";
 import { Text } from "../ui/text";
 import { Checkbox, CheckboxIcon, CheckboxIndicator } from "../ui/checkbox";
-import { CheckIcon, SquareCheck } from "lucide-react-native";
+import { CheckIcon } from "lucide-react-native";
 import { Input, InputField } from "../ui/input";
-import { Button, ButtonIcon } from "../ui/button";
 import { HStack } from "../ui/hstack";
 import { Pressable } from "../ui/pressable";
-
-const newBike = {
-  id: 0,
-  name: '',
-  type: 'Road',
-  groupsetSpeed: 11,
-  groupsetBrand: 'Shimano',
-  isElectronic: false,
-  odometerMeters: 0,
-  maintenanceItems: [],
-  stravaId: '',
-  isRetired: false,
-}
+import { Divider } from "../ui/divider";
 
 type BulkAddMaintenanceProps = {
-  bike: Bike,
+  maintenanceLogs: MaintenanceLog[],
   markDirty: () => void;
 };
 
-const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({bike, markDirty}) => {
+const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({maintenanceLogs, markDirty}) => {
   const session = useSession();
   const appContext = useGlobalContext();
-  const navigation = useNavigation();
-  const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
-  
+
   const [bikeIdString, setBikeIdString] = useState('0');
   const [checkedIds, setCheckedIds] = useState([0]);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceLog[]>([]);
-  const [logsCreatedFor, setLogsCreatedFor] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState('');
-  const [saveLabel, setSaveLabel] = useState('Save & Next Bike');
 
   const controller = new MaintenanceItemController(appContext);
   const preferences = controller.getUserPreferences(session);
 
   const dimensions = Dimensions.get('window');
-  const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles;
   const largeProportionsStyle = StyleSheet.create({
     checkBox: {width: "15%", padding: 1},
     part: {width: "19%", justifyContent: "center", padding: 1},
@@ -79,75 +56,32 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({bike, m
   });
   const proportionStyle = isMobileSize()? smallProportionsStyle : largeProportionsStyle;
 
-  const syncBike = async (aBike: Bike) => {
-    if (aBike) {
-      console.log('Selected bike id: ', aBike.id);
-      setBikeIdString(aBike.id.toString());
-      selectTopEight(aBike);
-      setErrorMessage('');
-      console.log('Selected bikeById id: ', aBike.id);
-    } else {
-      console.log('Bike not found: ', aBike);
-    }
-  }
-
-  const skip = () => {
-    router.replace('/(home)/maintenance');
-  }
-
   const toggleSelectAll = () => {
     if (selectAll) {  // was checked all now uncheck all
-      setCheckedIds([]);
       maintenanceLogs.forEach(log => log.selected = false);
+      setSelectAll(false);
     } else {  // was unchecked all now check all
       maintenanceLogs.forEach(log => log.selected = true);
-      setCheckedIds(maintenanceLogs.map(log => log.id));
+      setSelectAll(true);
     }
-    setSelectAll(!selectAll);
   }
 
-  const selectTopEight = (bike: Bike) => {
+  const selectTopEight = () => {
     console.log('selectTopEight', maintenanceLogs);
-    const newCheckedIds = [];
     var addedCount = 0;
     for (const log of maintenanceLogs) {
       if (addedCount++ < 8) {
         console.log('selectTopEight: ', log);
-        newCheckedIds.push(log.id);
+        log.selected = true;
       }
     }
-    setCheckedIds(newCheckedIds);
-  }
-
-  const ensureMaintenanceLogs = (aBike: Bike) => {
-    console.log('ensureMaintenanceLogs');
-    if (logsCreatedFor.includes(aBike.id)) {
-      return;
-    }
-    logsCreatedFor.push(aBike.id);
-    var logId = 1;
-    for (const item of defaultMaintenanceItems(aBike)) {
-      var log = {
-        id: logId++,
-        bikeId: bike.id,
-        bikeMileage: bike.odometerMeters,
-        maintenanceItem: item,
-        due: item.dueDistanceMeters,
-        nextDue: item.dueDistanceMeters? bike.odometerMeters + item.defaultLongevity : null,
-        nextDate: item.dueDate? new Date(today().getTime() + item.defaultLongevityDays * 24 * 60 * 60 * 1000) : null,
-        selected: false,
-      }
-      maintenanceLogs.push(log);
-    }
-
-    setMaintenanceLogs(maintenanceLogs);
   }
 
   const createMaintenanceItems = async (bike: Bike) => {
     setErrorMessage('');
     const selectedItems = maintenanceLogs.filter(log => checkedIds.includes(log.id) && log.bikeId === bike.id);
 
-    const result = await controller.createMaintenanceItems(session, selectedItems);
+    const result = await controller.updateOrCreateMaintenanceItems(session, selectedItems);
     console.log('submit maintenance result: ', result);
     if (result && result.length > 0) {
       setErrorMessage(result);
@@ -165,15 +99,11 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({bike, m
     const [doEveryString, setDoEveryString] = useState('0');
     const [dueString, setDueString] = useState('0');
     const [unit, setUnit] = useState('miles');
+    const [selected, setSelected] = useState(log.selected);
 
-    const toggleSelectedRow = () => {    
-      if (checkedIds.includes(log.id)) {
-        log.selected = false;
-        setCheckedIds((prevIds) => prevIds.filter((id) => id!== log.id));
-      } else {
-        setCheckedIds((prevIds) => [...prevIds, log.id]);
-        log.selected = true;
-      }
+    const toggleSelectedRow = () => {
+      log.selected =!log.selected;
+      setSelected(log.selected);
     }
 
     const setNextDueMilage = async (newValue: string) => {
@@ -203,9 +133,8 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({bike, m
     }
 
     const ensureSelected = () => {
-      if (!checkedIds.includes(log.id)) {
-        setCheckedIds((prevIds) => [...prevIds, log.id]);
-      }
+      log.selected = true;
+      setSelected(true);
     }
 
     const setDoEvery = async (newValue: string) => {
@@ -214,7 +143,7 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({bike, m
         const numberValue = parseInt(newValue);
         if (numberValue > 0) {
           setDoEveryString(newValue);
-          
+
           if (log.maintenanceItem.defaultLongevity > 0) {
             const newLongevity = displayStringToMeters(newValue, prefs);
             log.maintenanceItem.defaultLongevity = newLongevity;
@@ -249,19 +178,23 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({bike, m
     const byMileage = () => {
       return log.maintenanceItem.defaultLongevity > 0;
     }
-    
+
     useEffect(() => {
       syncNextDueString();
     }, [dueValue]);
+
+    useEffect(() => {
+      setSelected(log.selected);
+    }, [log]);
 
     return (
       <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
         <View style={proportionStyle.checkBox}>
           <Checkbox size="md"
               value="Not Sure"
-              isChecked={log.selected}
+              isChecked={selected}
               onChange={toggleSelectedRow}
-              accessibilityLabel="Include Maintenance Item"> 
+              accessibilityLabel="Include Maintenance Item">
             <CheckboxIndicator>
               <CheckboxIcon as={CheckIcon} />
             </CheckboxIndicator>
@@ -269,12 +202,12 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({bike, m
         </View>
         <View style={proportionStyle.part}>
           <Pressable onPress={toggleSelectedRow}>
-            <Text key={"prt" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.part}</Text>
+            <Text key={"prt" + rowKey}>{log.maintenanceItem.part}</Text>
           </Pressable>
         </View>
         <View style={proportionStyle.action}>
           <Pressable onPress={toggleSelectedRow}>
-            <Text key={"act" + rowKey} onPress={toggleSelectedRow}>{log.maintenanceItem.action}</Text>
+            <Text key={"act" + rowKey}>{log.maintenanceItem.action}</Text>
           </Pressable>
         </View>
 
@@ -284,12 +217,12 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({bike, m
             isDisabled={false}
             isInvalid={false}
           >
-            <InputField 
+            <InputField
               autoComplete="off"
               value={doEveryString}
               onChangeText={(newValue) => {setDoEvery(newValue)}}
               onBlur={ensureSelected}
-              placeholder="Enter bike name here..." 
+              placeholder="Enter bike name here..."
               testID="nameInput"
               inputMode="numeric"
               autoCapitalize="none"
@@ -312,11 +245,11 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({bike, m
             isDisabled={false}
             isInvalid={false}
           >
-            <InputField 
+            <InputField
               autoComplete="off"
               value={dueString}
               onChangeText={(newValue) => {setNextDueMilage(newValue)}}
-              placeholder="Enter bike name here..." 
+              placeholder="Enter bike name here..."
               testID="nameInput"
               inputMode="numeric"
               onBlur={ensureSelected}
@@ -349,7 +282,7 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({bike, m
               value="Not Sure"
               isChecked={selectAll}
               onChange={toggleSelectAll}
-              accessibilityLabel="Include Maintenance Item"> 
+              accessibilityLabel="Include Maintenance Item">
             <CheckboxIndicator>
               <CheckboxIcon as={CheckIcon} />
             </CheckboxIndicator>
@@ -374,67 +307,22 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({bike, m
           )}
         </HStack>
       );
-    // return (
-    //   <View style={{flex: 1, flexDirection: "row", marginLeft: 1, marginRight: 1}}>
-    //     <View style={{justifyContent: "center", width: "15%", padding: 10}}>
-    //       <Button size="lg" className="rounded-full p-3.5" onPress={toggleAll}>
-    //         <ButtonIcon as={SquareCheck} />
-    //       </Button>
-    //     </View>
-    //     <View style={proportionStyle.part}>
-    //       <Text>Part</Text>
-    //     </View>
-    //     <View style={proportionStyle.action}>
-    //       <Text>Action</Text>
-    //     </View>
-    //     <View style={proportionStyle.doEvery}>
-    //       <Text>Do Every</Text>
-    //     </View>
-    //     <View style={proportionStyle.unit}>
-    //       <Text> </Text>
-    //     </View>
-    //     { isMobileSize() ? null : (
-    //       <View style={proportionStyle.nextDue}>
-    //         <Text>Next Due</Text>
-    //       </View>
-    //     )}
-    //   </View>
-    // );
   }
 
   const rowKeyFor = (log: MaintenanceLog): string => {
     return log.id.toString() + log.maintenanceItem.part + log.maintenanceItem.action;
   }
 
-  const toggleAll = () => {
-    if (checkedIds.length > 0) {
-      setCheckedIds([]);
-      maintenanceLogs.forEach((log) => log.selected = false);
-    } else {
-      const newCheckedIds = [];
-      for (const log of maintenanceLogs) {
-        if (log.bikeId === bike.id) {
-          newCheckedIds.push(log.id);
-        }
-      }
-      maintenanceLogs.forEach((log) => log.selected = true);
-      setCheckedIds(newCheckedIds);
-    }
-  }
-
   useEffect(() => {
-     selectTopEight(bike);
+     selectTopEight();
   }, [maintenanceLogs]);
-
-  useEffect(() => {
-    ensureMaintenanceLogs(bike);
-  }, [bike]);
 
   return (
     <VStack >
       <MaintenanceLogHeader />
+      <Divider className="w-full"/>
       <ScrollView className="w-full h-full">
-        {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) => 
+        {maintenanceLogs.map((log) =>
           <MaintenanceLogRow log={log} rowKey={"mlr" + rowKeyFor(log)} key={"mlr" + rowKeyFor(log)}/>
         )}
       </ScrollView>
