@@ -107,7 +107,7 @@ export class BikeDefinitionService {
 
   async getAllBrands(): Promise<string[]> {
     const brands = await this.brandRepository.find();
-    return brands.map((brand) => brand.name);
+    return brands.map((brand) => brand.name).sort();
   }
 
   async getAllModelsForBrand(brandName: string): Promise<string[]> {
@@ -115,7 +115,7 @@ export class BikeDefinitionService {
       return [];
     }
     const brand = await this.brandRepository.findOne({ where: { name: brandName }});
-    return brand.models.map((model) => model.name);
+    return brand.models.map((model) => model.name).sort();
   }
 
   async getAllLinesForBrandModel(brandName: string, modelName: string): Promise<string[]> {
@@ -338,12 +338,17 @@ export class BikeDefinitionService {
       console.log(`Adding brand: ${brandName}`);
       const brand = await this.ensureBrand(brandName);
       const models = basis[brandName];
-      console.log('Adding Models', models);
-      models.forEach((model) => {
-        console.log('Adding Model', model);
-        const newModel = this.ensureModel(brand, model);
-      });
+      if (models.length > 0) {
+        console.log('Checking Models', models);
+        models.forEach(async (model) => {
+          console.log('Adding Model', model);
+          const newModel = await this.ensureModel(brand, model);
+        });
+      } else {
+        await this.bootstrapModelsFor(brand);
+      }
     }
+    this.exportBrandsAndModels();
   }
 
   async bootstrapBrands(): Promise<void> {
@@ -358,13 +363,17 @@ export class BikeDefinitionService {
     const brands = await this.brandRepository.find();
     console.log('Bootstrapping models:', brands);
     for (const brand of brands) {
-      console.log("adding models for: ", brand.name);
-      const models = await this.searchForModels(brand.name, "2024");
-      for (const model of models) {
-        const newModel = await this.ensureModel(brand, model);
-      }
+      this.bootstrapModelsFor(brand);
     }
     this.exportBrandsAndModels()
+  }
+
+  private async bootstrapModelsFor(brand: Brand): Promise<void> {
+    console.log("adding models for: ", brand.name);
+    const models = await this.searchForModels(brand.name, "2024");
+    for (const model of models) {
+      const newModel = await this.ensureModel(brand, model);
+    }
   }
 
   async exportBrandsAndModels(): Promise<void> {
@@ -581,18 +590,389 @@ export const bikeDefinitionSchema = z.object({
 });
 
 const bootstrapBasis = {
-  Giant: [
-    'FastRoad',       'XTC',
-    'Talon',          'Stance',
-    'Trance X',
-    'Defy',           'Explore E+',
-    'Fathom',         'TCR',
-    'Revolt',         'Anthem',
-    'Seek',
-    'Propel',         'Trance',
-    'RISE',           'Reign',
-    'Talons'
+  '3T': [ 'Aeron', 'Cargo', 'Exploro', 'Racer', 'Strada' ],
+  Alchemy: [
+    'Allroad',
+    'Arcturus',
+    'Carbon 27.5',
+    'Carbon 29',
+    'Chamois',
+    'Lycos',
+    'Orca',
+    'Rival'
   ],
+  'Allied Cycle Works': [ 'BC40' ],
+  Avanti: [
+    'Advocatus', 'Aventure',
+    'Corsa',     'Giro',
+    'Kuda',      'Metro',
+    'Seca',      'Stage',
+    'Tempo',     'X-Track'
+  ],
+  BMC: [
+    'Agonist',
+    'Alpenchallenge',
+    'Crossmachine',
+    'Fourstroke',
+    'Roadmachine',
+    'Speedfox',
+    'Teammachine',
+    'Timemachine',
+    'URS'
+  ],
+  Bianchi: [
+    'Aria',
+    'C-Sport',
+    'E-Road',
+    'Impulso',
+    'Infinito',
+    'Oltre',
+    'Pista',
+    'Specialissima',
+    'Sprint',
+    'Vertigo'
+  ],
+  Boardman: [
+    'Adventure',
+    'Elite',
+    'Hybrid',
+    'Mountain',
+    'Performance',
+    'Road',
+    'Support'
+  ],
+  Brompton: [ 'A Line', 'C Line', 'Electric Line', 'P Line', 'Superlight Line' ],
+  Cannondale: [
+    'Adventure', 'Bad Boy',
+    'CAADX',     'FSI',
+    'Habit',     'Jekyll',
+    'Moterra',   'Quick',
+    'Scalpel',   'SuperSix EVO',
+    'Synapse',   'SystemSix',
+    'Topstone',  'Trail'
+  ],
+  Canyon: [
+    'Aeroad',       'Exceed',
+    'Grand Canyon', 'Neuron',
+    'Pathlite',     'Roadlite',
+    'Spectral',     'Speedmax',
+    'Stitched',     'Strive',
+    'Torque',       'Ultimate',
+    'Watchman'
+  ],
+  Cervelo: [
+    'Aspero',
+    'Caledonia',
+    'P-Series',
+    'R-Series',
+    'S-Series',
+    'T4',
+    'Z-Series'
+  ],
+  Cinelli: [
+    'Experience', 'Gazzetta',
+    'Hobo',       'Iride',
+    'Nemo',       'Porteur',
+    'Strato',     'Supercorsa',
+    'Tipo Pista', 'Veltrix'
+  ],
+  'Co-op': [ 'Electric', 'Hybrid', 'Kids', 'Mountain', 'Road' ],
+  Colnago: [
+    'Arabesque', 'C',
+    'C64',       'C68',
+    'E64',       'Master',
+    'V2-R',      'V3Rs',
+    'Z'
+  ],
+  Cube: [
+    'ACCESS',    'ACID',     'AIM',
+    'ATTENTION', 'CROSS',    'CUBIE',
+    'E-BIKE',    'ELITE',    'FRET',
+    'HPP',       'HYDRO',    'JET',
+    'KID',       'NATURE',   'NUR',
+    'RACE',      'REACTION', 'SL',
+    'STEREO',    'STING',    'TOUR'
+  ],
+  Dahon: [
+    'Cadenza', 'Ciao',  'Curve',
+    'D6',      'D7',    'D8',
+    'Dash',    'EEZZ',  'Flat',
+    'Horizon', 'K3',    'Mariner',
+    'Mu',      'Route', 'Speed',
+    'Vitesse', 'Vybe'
+  ],
+  'De Rosa': [
+    'Elite',
+    'King XS',
+    'Merak',
+    'Pace',
+    'Protos',
+    'R72',
+    'R838',
+    'Super Record'
+  ],
+  Devinci: [
+    'Alloy',    'Django',
+    'E-MTB',    'Hemingway',
+    'Marshall', 'Spartan',
+    'Troy',     'Wilson'
+  ],
+  Diamonback: [
+    'Adventure',
+    'BMX',
+    'Electric',
+    'Hybrid',
+    'Kids',
+    'Mountain',
+    'Road'
+  ],
+  Esker: [ 'Bheast', 'Hayduke', 'Jaffle', 'Rook' ],
+  Evil: [ 'Following', 'Insurgent', 'Offering', 'The Calling', 'Wreckoning' ],
+  Felt: [
+    'AR',       'Compulsion',
+    'Decree',   'F-Series',
+    'FR',       'Nine',
+    'Sundance', 'VR',
+    'Verza',    'Z'
+  ],
+  Focus: [
+    'E-Mountain', 'Hooch',
+    'Jam2',       'Jantour',
+    'Nuroad',     'Paralane',
+    'Planet',     'Raven',
+    'Sam2',       'T.E.C.',
+    'Thron',      'Whistle'
+  ],
+  Fuji: [
+    'Absolute',   'Avenue',
+    'Gran Fondo', 'Hybrid',
+    'Jari',       'Nevada',
+    'Roubaix',    'Sports',
+    'Tahoe',      'Transonic'
+  ],
+  GT: [
+    'Aether',
+    'Aggressor',
+    'Avalanche',
+    'Force',
+    'Fury',
+    'Grunge',
+    'Sensor',
+    'Speed Series'
+  ],
+  Giant: [
+    'Anthem',         'Defy',
+    'Explore E+',     'FastRoad',
+    'Fathom',         'Propel',
+    'RISE',           'Reign',
+    'Revolt',         'Seek',
+    'Stance',         'TCR',
+    'Talon',          'Talons',
+    'Trance',         'Trance X',
+    'XTC'
+  ],
+  Haro: [
+    'BMX',       'Cruiser',
+    'Dirt Jump', 'Electric',
+    'Hybrid',    'Kids',
+    'Mountain',  'Urban'
+  ],
+  Ibis: [ 'DV9', 'Exie', 'Hakka', 'Mojo', 'Ripley', 'Ripmo' ],
+  Jamis: [
+    'Allegro', 'Citizen',
+    'Coda',    'Commuter',
+    'Dakar',   'Dragonfly',
+    'Hudson',  'Renegade',
+    'Tyax',    'Ventura'
+  ],
+  KHS: [
+    '4 Season 100', '4 Season 200',
+    'Alite 100',    'Alite 200',
+    'Flite 100',    'Flite 200',
+    'Piston 100',   'Piston 200',
+    'Sixfifty 300', 'Sixfifty 500',
+    'Softail 300',  'Softail 500',
+    'T-Rex 202',    'Urban 100',
+    'Urban 200',    'XCT 100',
+    'XCT 200'
+  ],
+  KTM: [
+    '1290',          '250',
+    '250 SX',        '300 EXC',
+    '390',           '390 Adventure',
+    '450 SX-F',      '500 EXC',
+    '690 Enduro',    '690 SMC',
+    '890 Adventure', '890 Duke',
+    'Adventure',     'Duke',
+    'EXC',           'Freeride',
+    'RC',            'SX',
+    'Super Duke'
+  ],
+  Kona: [
+    'Big Honzo', 'Explosif',
+    'Hei Hei',   'Honzo',
+    'Kahuna',    'Libre',
+    'Process',   'Remote',
+    'Rove',      'Splice',
+    'Surgy',     'Sutra'
+  ],
+  Lapierre: [
+    'Alpine',   'Edge',
+    'Overvolt', 'Sensium',
+    'Spider',   'Tonic',
+    'Trail',    'Xelius',
+    'Zesty'
+  ],
+  Look: [
+    '30',          '395',
+    '465',         '575',
+    '785',         '795',
+    'E-574',       'E-640',
+    'E-765',       'E-800',
+    'Essentielle'
+  ],
+  Lynskey: [
+    'GR250',
+    'GR250 SRAM',
+    'GR300',
+    'GR300 Classic',
+    'GR300 Di2',
+    'GR300 Disc',
+    'GR300 SRAM',
+    'R290',
+    'R300',
+    'R500'
+  ],
+  Marin: [
+    'Alpine Trail',
+    'Hawk Hill',
+    'Headlands',
+    'Nicasio',
+    'Peralta',
+    'Pine Mountain',
+    'Rift Zone',
+    'San Quentin',
+    'eBay'
+  ],
+  'Eddy Merckx': [
+    '467',
+    '525',
+    '525 EVO',
+    'EMX-1',
+    'EMX-3',
+    'Gran Fondo 100',
+    'MXL',
+    'Road Race 2024',
+    'Torino'
+  ],
+  Mongoose: [
+    '',       'Bicycle',
+    'Bounty', 'Brawler',
+    'Dirt',   'Kicker',
+    'Legion', 'Ranger',
+    'Rogue',  'Switch',
+    'Title',  'Tyax'
+  ],
+  Moots: [
+    '',
+    'Baxter',
+    'Mooto X',
+    'Mooto ZB',
+    'Psychlo X',
+    'Routt',
+    'Vamoots',
+    'Vamoots RSL'
+  ],
+  Niner: [
+    'AIR 9',     'JET 9',
+    'MCR 9',     'RIP 9',
+    'RLT 9',     'SIR 9',
+    'Vandoit 9', 'WFO 9'
+  ],
+  Norco: [
+    'Commuter',  'Cross Country',
+    'Dirt Jump', 'Electric',
+    'Enduro',    'Fat Bike',
+    'Gravel',    'Kids',
+    'Mountain',  'Road',
+    'Trail'
+  ],
+  Orbea: [
+    'Avanat', 'Avant H30',
+    'Katu',   'MX',
+    'Occam',  'Orca',
+    'Rallon', 'Terra',
+    'Vector', 'Wild FS'
+  ],
+  Pinarello: [
+    'Delta',   'Dogma F',
+    'Dogma X', 'F',
+    'F10X',    'Gan',
+    'Nytro',   'Paris',
+    'Prince',  'Treviso'
+  ],
+  Pivot: [
+    'E-Mountain Bike',
+    'Firebird',
+    'Les 27.5',
+    'Les 29',
+    'Mach 4 SL',
+    'Phoenix',
+    'Shuttle',
+    'Switchblade',
+    'Trail 429',
+    'Vault'
+  ],
+  Poygon: [
+    'Collosus',
+    'Premier',
+    'Siskiu',
+    'Ursa',
+    'Xtrada'
+  ],
+  'Quintana Roo': [
+    'SRSIX', 'K-Force',
+    'SRFive',
+    'Caliente',
+    'PRFive',
+    'Tequilo',
+    'X-PR',    'V-PR',
+    'Shiv',  'Service Course'
+  ],
+  Raleigh: [
+    'Avenue',  'Cadent',
+    'Cinder',  'Clubman',
+    'Merit',   'Motus',
+    'Pioneer', 'Pioneer Mini',
+    'Redux',   'Sprite',
+    'Strive',  'Talus',
+    'Tokul',   'Tufftrax',
+    'Willard'
+  ],
+  Salsa: [
+    'Beargrease', 'Cutthroat',
+    'Fargo',      'Journeyman',
+    'Mukluk',     'Salsa',
+    'Timberjack', 'Vaya',
+    'Warbird'
+  ],
+  'Santa Cruz': [
+    '5010',      'Blur',
+    'Bronson',   'Chameleon',
+    'Hightower', 'Megatower',
+    'Nomad',     'Stigmata',
+    'Tallboy'
+  ],
+  Scott: [
+    'Addict',       'Aspect',
+    'Contessa',     'E-Silence',
+    'Genius',       'Genius eRIDE',
+    'Metrix',       'Ransom',
+    'Ransom eRIDE', 'Scale',
+    'Scale eRIDE',  'Spark',
+    'Spark eRIDE',  'Subcross'
+  ],
+  Scotty: [ 'Electric', 'FX', 'Hybrid', 'Sport', 'Trail' ],
   Specialized: [
     'Diverge',
     'Epic',
@@ -623,82 +1003,45 @@ const bootstrapBasis = {
     'Crave',
     'Turbo'
   ],
-  'Santa Cruz': [
-    '5010',      'Megatower',
-    'Tallboy',   'Chameleon',
-    'Bronson',   'Nomad',
-    'Blur',      'Stigmata',
-    'Hightower'
+  Surly: [
+    'Big Easy',
+    'Dirt Wand',
+    'Disc Trucker',
+    'ECR',
+    'Karate Monkey',
+    'Long Haul Trucker',
+    'Loop',
+    'Midnight Special',
+    'Ogre',
+    'Preamble',
+    'Steamroller',
+    'Straggler',
+    'Troll'
   ],
-  Orbea: [
-    'Katu',   'Wild FS',
-    'Avanat', 'Vector',
-    'Occam',  'Avant H30',
-    'Orca',   'Terra',
-    'MX',     'Rallon'
-  ],
-  Cannondale: [
-    'Scalpel',   'Topstone',
-    'Moterra',   'Jekyll',
-    'Habit',     'SuperSix EVO',
-    'Quick',     'Trail',
-    'FSI',       'Bad Boy',
-    'Adventure', 'SystemSix',
-    'CAADX',     'Synapse'
-  ],
-  Fuji: [
-    'Hybrid',     'Tahoe',
-    'Nevada',     'Jari',
-    'Sports',     'Transonic',
-    'Avenue',     'Absolute',
-    'Gran Fondo', 'Roubaix'
+  Transition: [
+    'Carbon Crossover',
+    'Lurky',
+    'Patrol',
+    'Scout',
+    'Sentinel',
+    'Sentry',
+    'Spire',
+    'TR11'
   ],
   Trek: [
-    'Emonda',     'Bontrager',
-    'Dual Sport', 'Domane',
-    'Verve',      'Fuel EX',
-    'Stache',     'Madone',
-    'Allant',     'Slash',
-    'Rail',       'Marlin'
+    'Allant', 'Bontrager',
+    'Domane', 'Dual Sport',
+    'Emonda', 'Fuel EX',
+    'Madone', 'Marlin',
+    'Rail',   'Slash',
+    'Stache', 'Verve'
   ],
-  Bianchi: [
-    'Specialissima',
-    'Aria',
-    'E-Road',
-    'Infinito',
-    'Impulso',
-    'C-Sport',
-    'Vertigo',
-    'Sprint',
-    'Oltre',
-    'Pista'
-  ],
-  Kona: [
-    'Sutra',   'Explosif',
-    'Hei Hei', 'Big Honzo',
-    'Rove',    'Honzo',
-    'Splice',  'Surgy',
-    'Kahuna',  'Remote',
-    'Libre',   'Process'
-  ],
-  Scott: [
-    'E-Silence',    'Metrix',
-    'Scale eRIDE',  'Genius',
-    'Spark',        'Spark eRIDE',
-    'Aspect',       'Contessa',
-    'Addict',       'Ransom',
-    'Genius eRIDE', 'Ransom eRIDE',
-    'Scale',        'Subcross'
-  ],
-  Marin: [
-    'Pine Mountain',
-    'Alpine Trail',
-    'Headlands',
-    'eBay',
-    'San Quentin',
-    'Peralta',
-    'Nicasio',
-    'Rift Zone',
-    'Hawk Hill'
+  Ventum: [ 'One', 'T', 'V', 'X', 'Z' ],
+  'YT Industries': [ 'Capra', 'Decoy', 'Dirt Love', 'Izzo', 'Jeffsy', 'Tues' ],
+  Yeti: [
+    'ARC',   'ASR',
+    'SB115', 'SB130',
+    'SB140', 'SB150',
+    'SB160'
   ]
-}
+};
