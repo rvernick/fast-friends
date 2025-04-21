@@ -26,7 +26,7 @@ export const ModelAutocompleteDropdown: React.FC<ModelAutocompleteDropdownProps>
 
   // TODO: handle unknown brands
   // TODO: set bike values based on selected model
- 
+
   const updateTextAndGetSuggestions = async (text: string) => {
     updateSuggestions(text);
     setSelected(text);
@@ -35,9 +35,11 @@ export const ModelAutocompleteDropdown: React.FC<ModelAutocompleteDropdownProps>
   const updateSuggestions = async (text: string) => {
     console.log('getSuggestions text: ' + text);
     console.log('getSuggestions models: ', models);
-    // if (!text || text.length == 0) {
-    //   setSuggestions([]);
-    // }
+    if (!text || text.length == 0) {
+      setSuggestions([]);
+      setShowList(false);
+      return;
+    }
     const search = text.toLowerCase();
     const filteredModels = models.filter(b => b.toLowerCase().includes(search));
     const sortedModels = filteredModels.sort((a, b) => closeScore(text, a, b)).slice(0, 5);
@@ -102,7 +104,12 @@ export const ModelAutocompleteDropdown: React.FC<ModelAutocompleteDropdownProps>
   useEffect(() => {
     syncModels(brand);
   }, [brand]);
-  
+
+  useEffect(() => {
+    setSelected(value);
+    setShowList(false);
+  }, [value]);
+
   const renderItem = (item: string) => {
     return (
       <Pressable
@@ -118,19 +125,19 @@ export const ModelAutocompleteDropdown: React.FC<ModelAutocompleteDropdownProps>
     <VStack>
       <Input
         className="opacity-100 z-50"
-        variant="outline"  
+        variant="outline"
         size="md"
         isDisabled={false}
         isInvalid={false}
         isReadOnly={false}
       >
-        <InputField 
+        <InputField
           className="opacity-100 z-50"
           autoComplete="off"
           value={selected}
           onChangeText={updateTextAndGetSuggestions}
           onBlur={handleBlur}
-          placeholder="Enter model here (e.g. Defy, Rockhopper, Occam, Domane)" 
+          placeholder="Enter model here (e.g. Defy, Rockhopper, Occam, Domane)"
           testID="modelInput"
           inputMode="none"
           autoCapitalize="none"

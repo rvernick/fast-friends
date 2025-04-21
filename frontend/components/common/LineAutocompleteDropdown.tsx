@@ -14,11 +14,12 @@ type LineAutocompleteDropdownProps = {
   model: string;
   value: string;
   readonly: boolean;
+  blankPlaceholder: boolean;
   onSelect: (value: string) => void;
   testID?: string;
 };
 
-export const LineAutocompleteDropdown: React.FC<LineAutocompleteDropdownProps> = ({ session, brand, model, value, readonly, onSelect, testID="brandSelector" }) => {
+export const LineAutocompleteDropdown: React.FC<LineAutocompleteDropdownProps> = ({ session, brand, model, value, blankPlaceholder, onSelect, testID="brandSelector" }) => {
   const [lines, setLines] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selected, setSelected] = useState<string>('');
@@ -27,7 +28,7 @@ export const LineAutocompleteDropdown: React.FC<LineAutocompleteDropdownProps> =
 
   // TODO: handle unknown brands
   // TODO: set bike values based on selected model
- 
+
   const updateTextAndGetSuggestions = async (text: string) => {
     if (!text) {
       setSelected('')
@@ -105,7 +106,11 @@ export const LineAutocompleteDropdown: React.FC<LineAutocompleteDropdownProps> =
   useEffect(() => {
     syncLines(brand, model);
   }, [brand, model]);
-  
+
+  useEffect(() => {
+    setSelected(value);
+  }, [value]);
+
   const renderItem = (item: string) => {
     return (
       <Pressable
@@ -121,19 +126,19 @@ export const LineAutocompleteDropdown: React.FC<LineAutocompleteDropdownProps> =
     <VStack>
       <Input
         className="opacity-100 z-50"
-        variant="outline"  
+        variant="outline"
         size="md"
         isDisabled={false}
         isInvalid={false}
         isReadOnly={false}
       >
-        <InputField 
+        <InputField
           className="opacity-100 z-50"
           autoComplete="off"
           value={selected}
           onChangeText={updateTextAndGetSuggestions}
           onBlur={handleBlur}
-          placeholder="Enter Line here (e.g. Pro, Advanced, Comp, etc.)" 
+          placeholder={blankPlaceholder ? '' : "Enter Line here (e.g. Pro, Advanced, Comp, etc.)"}
           testID="lineInput"
           inputMode="none"
           autoCapitalize="none"

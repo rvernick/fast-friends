@@ -1,3 +1,4 @@
+import { BikeDefinitionSummary } from "./BikeDefinition";
 import { MaintenanceItem } from "./MaintenanceItem";
 
 export interface Bike {
@@ -11,4 +12,5 @@ export interface Bike {
   maintenanceItems: MaintenanceItem[];
   stravaId: string;
   isRetired: boolean;
+  bikeDefinitionSummary: BikeDefinitionSummary | null;
 };

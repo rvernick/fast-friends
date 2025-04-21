@@ -76,9 +76,10 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const [errorMessage, setErrorMessage] = useState('');
   const [preferences, setPreferences] = useState({ units: 'miles'});
   const [possibleDefinitions, setPossibleDefinitions] = useState<BikeDefinitionSummary[]>([]);
+  const [definition, setDefinition] = useState<BikeDefinitionSummary | null>(null);
 
   const controller = new BikeController(appContext);
-  
+
   const resetBike = async (bike: Bike) => {
     console.log('Bike Frame bike: ' + bike.name);
     // console.log('reset bike: ' + JSON.stringify(bike));
@@ -92,6 +93,18 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     setSpeeds(ensureString(bike.groupsetSpeed));
     navigation.setOptions({ title: ensureString(bike.name) });
     checkConnectedToStrava(bike.stravaId);
+    if (bike.bikeDefinitionSummary) {
+      console.log('update bike definition: ' + JSON.stringify(bike.bikeDefinitionSummary));
+      setDefinition(bike.bikeDefinitionSummary);
+      setBrand(bike.bikeDefinitionSummary.brand);
+      setModel(bike.bikeDefinitionSummary.model);
+      if (bike.bikeDefinitionSummary.line) {
+        setLine(bike.bikeDefinitionSummary.line);
+      }
+      console.log('updated bike definition:');
+    } else {
+      setDefinition(null);
+    }
   }
 
   const updateName = (name: string) => {
@@ -115,6 +128,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
           setYear('20' + itemValue);
         }
         markDirty();
+        // TODO: Should update possible definitions
         return;
       }
     }
@@ -175,6 +189,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     setBrand(newBrand);
     if (shouldReset(newBrand, oldBrand)) {
       updateModel('');
+      setDefinition(null);
     }
   }
 
@@ -183,6 +198,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     setModel(newModel);
     if (shouldReset(newModel, oldModel)) {
       updateLine('');
+      setDefinition(null);
     } else {
       searchPossibleDefinitions(year, brand, newModel, line);
     }
@@ -201,6 +217,12 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
 
   const searchPossibleDefinitions = async (year: string, brand: string, model: string, line: string) => {
     const newDefinitions = await getBikeDefinitions(session, year, brand, model, line);
+    const exactMatch = findExactDefinition(newDefinitions, year, brand, model, line);
+    if (exactMatch) {
+      console.log('BikeFrameComponent exact match found', exactMatch);
+    } else {
+      console.log('BikeFrameComponent no exact match found', );
+    }
     if (newDefinitions.length > 10) {
       setPossibleDefinitions(newDefinitions.slice(0, 10));
     } else {
@@ -208,24 +230,66 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     }
   }
 
+  const findExactDefinition = (definitions: BikeDefinitionSummary[], year: string, brand: string, model: string, line: string) => {
+    return definitions.find(d => d.year === year && d.brand === brand && d.model === model && d.line === line);
+  }
+
+  const chooseDefinition = (definition: BikeDefinitionSummary) => {
+    console.log('BikeFrameComponent choosing definition', definition);
+    setDefinition(definition);
+    bike.bikeDefinitionSummary = definition;
+    if (definition) {
+      bike.groupsetBrand = definition.groupsetBrand
+      bike.groupsetSpeed = definition.groupsetSpeed;
+      setYear(definition.year);
+      setBrand(definition.brand);
+      setModel(definition.model);
+      setLine(definition.line);
+      setSpeeds(definition.groupsetSpeed.toString());
+    } else {
+      setBrand(bike.groupsetBrand);
+      setSpeeds(bike.groupsetSpeed.toString());
+    }
+    setErrorMessage('');
+    markDirty();
+  }
+
   const checkConnectedToStrava = (stravaId: string | null) => {
     setConnectedToStrava(
-      stravaId !== null 
+      stravaId !== null
         && stravaId !== ''
         && stravaId!= '0');
+  }
+
+  type BikeDetailsProps = {
+    bike: Bike;
+    bikeDefinitionSummary: BikeDefinitionSummary | null;
+  }
+
+  const BikeDetailsComponent: React.FC<BikeDetailsProps> = ({ bike, bikeDefinitionSummary }) => {
+    return (
+      <VStack>
+        <Text>Brand: {bikeDefinitionSummary?.brand}</Text>
+        <Text>Model: {bikeDefinitionSummary?.model}</Text>
+        <Text>Line: {bikeDefinitionSummary?.line}</Text>
+        <Text>Groupset: {bike.groupsetBrand} {bikeDefinitionSummary?.groupsetLine}</Text>
+        <Text>Type: {bike.type}</Text>
+        <Text>Speeds: {bike.groupsetSpeed} speed</Text>
+        <Text>Electric assist: {bike.isElectronic? 'Yes' : 'No'}</Text>
+        <Text>Retired: {bike.isRetired? 'Yes' : 'No'}</Text>
+      </VStack>
+    )
   }
 
   type BikeDefinitionProps = {
     bikeDefinition: BikeDefinitionSummary;
     bike: Bike;
   };
+
   const BikeDefinitionComponent: React.FC<BikeDefinitionProps> = ({ bikeDefinition, bike }) => {
     const [description, setDescription ] = useState('');
     const [expanded, setExpanded ] = useState(false);
-  
-    const chooseDefinition = () => {
-      // TODO: pass in logic to take the definition and use it
-    }
+
     const syncDescription = async () => {
       const val = bikeDefinition.year + ' ' + bikeDefinition.brand +' ' + bikeDefinition.model +' ' + bikeDefinition.line;
       setDescription(val);
@@ -233,21 +297,19 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
       useEffect(() => {
         syncDescription();
       }, []);
-  
+
       return (
-        <Pressable className="row-primary w-full" onPress={chooseDefinition} >
-          <HStack className="w-full" key={"bike-" + bike.id}>
-            <BikeIcon size="24"/>
-            <VStack>
-              <Text>{description}</Text>
-              <HStack>
-                <Text>{bikeDefinition.groupsetBrand} </Text>
-                <Text>{bikeDefinition.groupsetLine} </Text>
-                <Text>{bikeDefinition.groupsetSpeed} speed</Text>
-              </HStack>
-            </VStack>
-          </HStack>
-        </Pressable>
+        <HStack className="w-full" key={"bike-" + bike.id}>
+          <BikeIcon size="24"/>
+          <VStack>
+            <Text>{description}</Text>
+            <HStack>
+              <Text>{bikeDefinition.groupsetBrand} </Text>
+              <Text>{bikeDefinition.groupsetLine} </Text>
+              <Text>{bikeDefinition.groupsetSpeed} speed</Text>
+            </HStack>
+          </VStack>
+        </HStack>
       )
     }
 
@@ -256,7 +318,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const typeOptions = types.map(type => ({ label: type, value: type }));
 
   return (
-    <VStack className="w-full h-full">
+    <VStack className="w-full">
       <Text>Name</Text>
       <Input
         variant="outline"
@@ -264,11 +326,11 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
         isDisabled={false}
         isInvalid={false}
       >
-        <InputField 
+        <InputField
           autoComplete="off"
           value={bikeName}
           onChangeText={updateName}
-          placeholder="Enter bike name here..." 
+          placeholder="Enter bike name here..."
           testID="nameInput"
           autoCapitalize="words"
           autoCorrect={false}
@@ -282,8 +344,8 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
           <AlertText>{errorMessage}</AlertText>
         </Alert>)
         : <Text> </Text>}
-      <HStack className="w-full bg-background-0 flex-grow justify-center">
-        <VStack className="flex-1">
+      <HStack className="w-full bg-background-0 flex-grow ">
+        <VStack className="w-full">
           <Text>Year</Text>
           <Input
             variant="outline"
@@ -291,11 +353,11 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
             isDisabled={false}
             isInvalid={false}
           >
-            <InputField 
+            <InputField
               autoComplete="off"
               value={year}
               onChangeText={updateYear}
-              placeholder="Enter bike year here..." 
+              placeholder="Enter bike year here..."
               testID="yearInput"
               autoCapitalize="words"
               autoCorrect={false}
@@ -306,9 +368,9 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
         </VStack>
         <Checkbox size="md"
           value="Not Sure"
-          isChecked={unsureOfYear} 
+          isChecked={unsureOfYear}
           onChange={(newVal) => setUnsureOfYear(newVal)}
-          accessibilityLabel="Might be a different year"> 
+          accessibilityLabel="Might be a different year">
         <CheckboxIndicator>
           <CheckboxIcon as={CheckIcon} />
         </CheckboxIndicator>
@@ -316,19 +378,19 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
       </Checkbox>
       </HStack>
       <HStack className="w-full bg-background-0 flex-grow justify-center">
-        <VStack className="flex-1">
+        <VStack className="w-full">
           <Text>Brand</Text>
-          <BrandAutocompleteDropdown 
+          <BrandAutocompleteDropdown
             session={session}
             value={brand}
             readonly={false}
             onSelect={updateBrand}
           />
         </VStack>
-        <VStack className="flex-1">
+        <VStack className="w-full">
           <Text>Model</Text>
           {/* TODO: reset bike doesn't update these */}
-          <ModelAutocompleteDropdown 
+          <ModelAutocompleteDropdown
             session={session}
             brand={brand}
             value={model}
@@ -338,7 +400,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
         </VStack>
       </HStack>
       {model && model.length > 0 ? (
-          <Text>{possibleDefinitions.length} - Line</Text>
+          <Text>Line</Text>
         ) : null
       }
       {model && model.length > 0 ? (
@@ -348,15 +410,24 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
           model={model}
           value={line}
           readonly={false}
+          blankPlaceholder={definition != null}
           onSelect={updateLine}
         />
         ) : null
       }
-      <VStack className="flex-1">
+      <VStack>
         <ScrollView>
-          {possibleDefinitions.map((definition) => (
-            <BikeDefinitionComponent bikeDefinition={definition} bike={bike}/>
-          ))}
+
+          {definition == null ? (
+            possibleDefinitions.map((definition) => (
+              <Pressable key={definition.id} onPress={() => chooseDefinition(definition)}>
+                <BikeDefinitionComponent key={definition.id} bikeDefinition={definition} bike={bike}/>
+              </Pressable>
+            ))
+            ) : (
+              <BikeDetailsComponent bikeDefinitionSummary={definition} bike={bike}/>
+            )
+          }
         </ScrollView>
       </VStack>
       {/* <ScrollView
@@ -376,7 +447,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
 export default BikeConfigurationComponent;
 
 /**
- * 
+ *
       <Text>{milageLabel}</Text>
       <Input
         className="z-0"
@@ -385,7 +456,7 @@ export default BikeConfigurationComponent;
         isDisabled={false}
         isInvalid={false}
         isReadOnly={connectedToStrava}>
-          <InputField 
+          <InputField
             className="z-0"
             value={milage}
             onChangeText={(value) => setMileage(value ? value : '')}
@@ -419,9 +490,9 @@ export default BikeConfigurationComponent;
       />
       <Checkbox size="md"
           value="Electric Assist"
-          isChecked={isElectronic} 
+          isChecked={isElectronic}
           onChange={(newVal) => updateIsElectricAssist(newVal)}
-          accessibilityLabel="Has Electric Assist"> 
+          accessibilityLabel="Has Electric Assist">
         <CheckboxIndicator>
           <CheckboxIcon as={CheckIcon} />
         </CheckboxIndicator>
@@ -429,12 +500,12 @@ export default BikeConfigurationComponent;
       </Checkbox>
       <Checkbox size="md"
           value="Is Retired"
-          isChecked={isRetired} 
+          isChecked={isRetired}
           onChange={(newVal) => updateIsRetired(newVal)}
-          accessibilityLabel="Is Retired"> 
+          accessibilityLabel="Is Retired">
         <CheckboxIndicator>
           <CheckboxIcon as={CheckIcon} />
         </CheckboxIndicator>
         <CheckboxLabel>Retired</CheckboxLabel>
-      </Checkbox> 
+      </Checkbox>
  */

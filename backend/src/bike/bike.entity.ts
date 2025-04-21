@@ -12,7 +12,7 @@ import {
 import { User } from '../user/user.entity';
 import { MaintenanceItem } from './maintenance-item.entity';
 import { GroupsetBrand } from './enums';
-import { BikeDefinition } from './bike-definition.entity';
+import { BikeDefinition, BikeDefinitionSummary } from './bike-definition.entity';
 
 @Entity()
 export class Bike {
@@ -51,24 +51,6 @@ export class Bike {
   type: string;
 
   @Column({
-    type: 'varchar',
-    nullable: true,
-  })
-  brand: string;
-
-  @Column({
-    type: 'varchar',
-    nullable: true,
-  })
-  model: string;
-
-  @Column({
-    type: 'varchar',
-    nullable: true,
-  })
-  line: string;
-
-  @Column({
     type: 'integer',
     nullable: true,
   })
@@ -78,6 +60,8 @@ export class Bike {
   @JoinColumn({ name: "bike_definition_id" })
   bikeDefinition: BikeDefinition;
 
+  bikeDefinitionSummary: BikeDefinitionSummary | null;
+  
   @Column({
     type: "enum",
     enum: GroupsetBrand,

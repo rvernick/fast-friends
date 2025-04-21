@@ -1,6 +1,6 @@
 import { getAllBrands } from "@/common/data-utils";
 import { useQuery } from "@tanstack/react-query";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Text } from "@/components/ui/text";
 import { Input, InputField } from "../ui/input";
 import { Pressable } from "../ui/pressable";
@@ -24,7 +24,7 @@ export const BrandAutocompleteDropdown: React.FC<BrandAutocompleteDropdownProps>
 
   // TODO: handle unknown brands
   // TODO: set bike values based on selected brand
- 
+
   const { data: brands, isFetching, isError } = useQuery({
     queryKey: ['brands'],
     queryFn: async () => getAllBrands(session),
@@ -101,6 +101,11 @@ export const BrandAutocompleteDropdown: React.FC<BrandAutocompleteDropdownProps>
     }
   }
 
+  useEffect(() => {
+    setSelected(value);
+    setShowList(false);
+  }, [value]);
+
   const renderItem = (item: string) => {
     return (
       <Pressable
@@ -117,19 +122,19 @@ export const BrandAutocompleteDropdown: React.FC<BrandAutocompleteDropdownProps>
     <VStack>
       <Input
         className="opacity-100 z-50"
-        variant="outline"  
+        variant="outline"
         size="md"
         isDisabled={false}
         isInvalid={false}
         isReadOnly={false}
       >
-        <InputField 
+        <InputField
           className="opacity-100 z-50"
           autoComplete="off"
           value={selected}
           onChangeText={updateTextAndGetSuggestions}
           onBlur={handleBlur}
-          placeholder="Enter brand here (e.g. Giant, Scott, Cannondale)" 
+          placeholder="Enter brand here (e.g. Giant, Scott, Cannondale)"
           testID="brandInput"
           inputMode="none"
           autoCapitalize="none"

@@ -16,6 +16,8 @@ import { MaintenanceItem } from "@/models/MaintenanceItem";
 import BikeConfigurationComponent from "./BikeConfigurationComponent";
 import BulkAddMaintenanceComponent from "./BulkAddMaintenanceComponent";
 
+const NULL_OPTIONAL_FIELD_ID = -1;
+
 const groupsetBrands = [
   'Shimano',
   'SRAM',
@@ -38,6 +40,7 @@ const newBike = {
       isRetired: false,
       maintenanceItems: miArray,
       stravaId: '',
+      bikeDefinitionSummary: null,
   }
 
 
@@ -49,7 +52,7 @@ const InitialConfigurationComponent = () => {
 
   const email = session.email ? session.email : '';
 
-  const [currentBike, setCurrentBike] = useState(newBike);
+  const [currentBike, setCurrentBike] = useState<Bike>(newBike);
   const [bikeName, setBikeName] = useState(newBike.name);
   const [readOnly, setReadOnly] = useState(false);
   const [groupsetBrand, setGroupsetBrand] = useState(newBike.groupsetBrand);
@@ -68,7 +71,7 @@ const InitialConfigurationComponent = () => {
   const MAINTENANCE = 'Maintenance';
   const [page, setPage] = useState(MODEL);
   const [saveLabel, setSaveLabel] = useState('Save & Next Bike');
-  
+
   const controller = new BikeController(appContext);
   const preferences = controller.getUserPreferences(session);
 
@@ -78,15 +81,16 @@ const InitialConfigurationComponent = () => {
     queryFn: () => controller.getCurrentBikes(session, email),
   });
 
-  
-  const editOrDone = (value: any) => {
-      updateBike();
-      if (page == MAINTENANCE) {
-        goToNextBike();
-        setPage(MODEL);
-      } else {
-        setPage(MAINTENANCE);
-      }
+
+  const saveAndContinue = async () => {
+    if (page == MAINTENANCE) {
+      // saveMaintenanceItems();  TODO
+      goToNextBike();
+      setPage(MODEL);
+    } else {
+      await saveModelInfo();
+      setPage(MAINTENANCE);
+    }
    }
 
   const goToNextBike = () => {
@@ -94,7 +98,7 @@ const InitialConfigurationComponent = () => {
     var bikeMatched = false;
     for (const bike of bikes) {
       if (bikeMatched) {
-        setCurrentBike(bike);
+        resetBike(bike);
         return;
       }
       if (currentBike.id == bike.id) {
@@ -129,22 +133,29 @@ const InitialConfigurationComponent = () => {
     }
   }
 
-  const updateBike = async function() {
-    // const result = await controller.updateBike(session, email, bikeId,
-    //   bikeName,
-    //   displayStringToMeters(milage, await preferences),
-    //   type,
-    //   groupsetBrand,
-    //   speed,
-    //   isElectronic,
-    //   isRetired);
-    // console.log('update bike result: ' + result);
-    // queryClient.invalidateQueries({ queryKey: ['bikes'] });
-    // if (result == '') {
-    //   goBack();
-    // } else {
-    //   setErrorMessage(result);
-    // }
+  const saveModelInfo = async function() {
+    try {
+      const result = await controller.updateBike(
+        session, email,
+        currentBike.id,
+        bikeName,
+        displayStringToMeters(milage, await preferences),
+        type,
+        groupsetBrand,
+        speed,
+        isElectronic,
+        isRetired,
+        currentBike.bikeDefinitionSummary ? currentBike.bikeDefinitionSummary.id : NULL_OPTIONAL_FIELD_ID);
+      console.log('update bike result: ' + result);
+      queryClient.invalidateQueries({ queryKey: ['bikes'] });
+      if (result == '') {
+        goBack();
+      } else {
+        setErrorMessage(result);
+      }
+    } catch (error) {
+      console.error('Error saving bike: ', error);
+    }
   };
 
   const cancel = () => {
@@ -176,7 +187,7 @@ const InitialConfigurationComponent = () => {
 
   const checkConnectedToStrava = (stravaId: string | null) => {
     setConnectedToStrava(
-      stravaId !== null 
+      stravaId !== null
         && stravaId !== ''
         && stravaId!= '0');
   }
@@ -184,7 +195,7 @@ const InitialConfigurationComponent = () => {
   const markAsDirty = () => {
     setIsDirty(true);
   }
-  
+
   const updateTitle = async (page: string, aBike: Bike) => {
     const pageAction = page === MODEL ? 'Model' : 'Maintenance Plan';
     const start = pageAction + ': '+ ensureString(aBike.name);
@@ -193,21 +204,27 @@ const InitialConfigurationComponent = () => {
     navigation.setOptions({ title: title });
   }
 
-        // if (isLastBike) {
-        //   setSaveLabel('Save & Finish');
-        // } else {
-        //   setSaveLabel('Save & Next Bike');
-        // }
+  const setToFirstBikeIfNotInitialized = () => {
+    if (bikes && bikes.length > 0) {
+      if (currentBike.id === 0) {
+        resetBike(bikes[0]);
+      }
+    }
+  }
 
   useEffect(() => {
     updateTitle(page, currentBike);
   }, [currentBike, page]);
 
   useEffect(() => {
+    setToFirstBikeIfNotInitialized();
     if (page === MODEL) {
       setSaveLabel('Build Maintenance Plan');
     } else if (page === MAINTENANCE) {
       if (bikes && bikes.length > 1) {
+        if (currentBike.id === 0) {
+          resetBike(bikes[0]);
+        }
         if (currentBike.id === bikes[bikes.length - 1].id) {
           setSaveLabel('Save & Finish');
         } else {
@@ -216,8 +233,8 @@ const InitialConfigurationComponent = () => {
       } else {
         setSaveLabel('Save & Finish');
       }
-    } 
-  }, [page, currentBike]);
+    }
+  }, [page, currentBike, bikes]);
 
   return (
     <SafeAreaView className="w-full h-full">
@@ -245,17 +262,17 @@ const InitialConfigurationComponent = () => {
           {/* setDirty={setIsDirty} */}
         </VStack>
         <HStack>
-          <Button 
+          <Button
             className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
-            onPress={ editOrDone }
-            style={{flex: 1}} 
+            onPress={ saveAndContinue }
+            style={{flex: 1}}
             accessibilityLabel="Finished editing"
             accessibilityHint="Will save any changes and go to the next screen">
             <ButtonText>{saveLabel}</ButtonText>
           </Button>
           <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ cancel }>
-            <ButtonText>Skip</ButtonText> 
+            <ButtonText>Skip</ButtonText>
           </Button>
         </HStack>
       </VStack>
@@ -265,7 +282,7 @@ const InitialConfigurationComponent = () => {
 
 
 /**
- * 
+ *
  <SafeAreaView className="w-full h-full">
       <ScrollView
         className="w-full h-full"

@@ -54,7 +54,10 @@ export class BikeDefinitionController {
   @UseGuards(AuthGuard)
   @Get('models-for')
   getModelsFor(@Query('brand') brand: string): Promise<string[]> {
-    console.log('bike-definition/models-for');
+    console.log('bike-definition/models-for', brand);
+    if (!brand) {
+      return Promise.resolve([]);
+    }
     return this.bikeDefinitionService.getAllModelsForBrand(brand);
   }
 
