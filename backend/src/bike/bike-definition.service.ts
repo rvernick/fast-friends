@@ -331,6 +331,38 @@ export class BikeDefinitionService {
     return this.chatGPT;
   }
 
+  async resetAndBootstrapInternally(): Promise<void> {
+    const lines = await this.lineRepository.find();
+    console.log('Resetting lines:', lines);
+    for (const line in lines) {
+      try {
+        await this.lineRepository.delete(line);
+      } catch (error) {
+        console.log("Error deleting line: ", line, error);
+      }
+    }
+    const models = await this.modelRepository.find();
+    console.log('Resetting lines:', models);
+    for (const model in models) {
+      try {
+        await this.modelRepository.delete(model);
+      } catch (error) {
+        console.log("Error deleting line: ", model, error);
+      }
+    }
+    const brands = await this.brandRepository.find();
+    console.log('Resetting brands:', brands);
+    for (const brand of brands) {
+      try {
+        await this.brandRepository.delete(brand);
+      } catch (error) {
+        console.log("Error deleting brand: ", brand, error);
+      }
+    }
+
+    await this.bootstrapBrandsInternally();
+  }
+
   async bootstrapBrandsInternally(): Promise<void> {
     const basis = bootstrapBasis;
     for (const brandName in basis) {
@@ -726,6 +758,17 @@ const bootstrapBasis = {
     'Mountain',
     'Road'
   ],
+  'Eddy Merckx': [
+    '467',
+    '525',
+    '525 EVO',
+    'EMX-1',
+    'EMX-3',
+    'Gran Fondo 100',
+    'MXL',
+    'Road Race 2024',
+    'Torino'
+  ],
   Esker: [ 'Bheast', 'Hayduke', 'Jaffle', 'Rook' ],
   Evil: [ 'Following', 'Insurgent', 'Offering', 'The Calling', 'Wreckoning' ],
   Felt: [
@@ -761,14 +804,14 @@ const bootstrapBasis = {
     'Speed Series'
   ],
   Giant: [
-    'Anthem',         'Defy',
-    'Explore E+',     'FastRoad',
-    'Fathom',         'Propel',
-    'RISE',           'Reign',
-    'Revolt',         'Seek',
-    'Stance',         'TCR',
-    'Talon',          'Talons',
-    'Trance',         'Trance X',
+    'Anthem',     'Defy',
+    'Explore E+', 'FastRoad',
+    'Fathom',     'Propel',
+    'RISE',       'Reign',
+    'Revolt',     'Seek',
+    'Stance',     'TCR',
+    'Talon',      'Talons',
+    'Trance',     'Trance X',
     'XTC'
   ],
   Haro: [
@@ -854,17 +897,6 @@ const bootstrapBasis = {
     'San Quentin',
     'eBay'
   ],
-  'Eddy Merckx': [
-    '467',
-    '525',
-    '525 EVO',
-    'EMX-1',
-    'EMX-3',
-    'Gran Fondo 100',
-    'MXL',
-    'Road Race 2024',
-    'Torino'
-  ],
   Mongoose: [
     '',       'Bicycle',
     'Bounty', 'Brawler',
@@ -923,21 +955,18 @@ const bootstrapBasis = {
     'Trail 429',
     'Vault'
   ],
-  Poygon: [
-    'Collosus',
-    'Premier',
-    'Siskiu',
-    'Ursa',
-    'Xtrada'
-  ],
+  Poygon: [ 'Collosus', 'Premier', 'Siskiu', 'Ursa', 'Xtrada' ],
   'Quintana Roo': [
-    'SRSIX', 'K-Force',
-    'SRFive',
     'Caliente',
+    'K-Force',
     'PRFive',
+    'SRFive',
+    'SRSIX',
+    'Service Course',
+    'Shiv',
     'Tequilo',
-    'X-PR',    'V-PR',
-    'Shiv',  'Service Course'
+    'V-PR',
+    'X-PR'
   ],
   Raleigh: [
     'Avenue',  'Cadent',
@@ -974,34 +1003,17 @@ const bootstrapBasis = {
   ],
   Scotty: [ 'Electric', 'FX', 'Hybrid', 'Sport', 'Trail' ],
   Specialized: [
-    'Diverge',
-    'Epic',
-    'Allez Elite',
-    'Turbo Levo',
-    'Allez',
-    'Allez S-Works',
-    'Turbo Levo',
-    'Roubaix',
-    'Sirrus Carbon',
-    'Sirrus',
-    'Stumpjumper',
-    'Roubaix',
-    'Sirrus Sport',
-    'Rockhopper',
-    'Turbo Kenevo',
-    'Stumpjumper ',
-    'Tarmac',
-    'Turbo Levo Pro',
-    'Anthem',
-    'Chisel',
-    'Hotrock',
-    'S-Works',
-    'Enduro',
-    'Fuse',
-    'Pathfinder',
-    'Camber',
-    'Crave',
-    'Turbo'
+    'Allez',         'Allez Elite',
+    'Anthem',        'Camber',
+    'Chisel',        'Crave',
+    'Diverge',       'Enduro',
+    'Epic',          'Fuse',
+    'Hotrock',       'Pathfinder',
+    'Rockhopper',    'Roubaix',
+    'S-Works',       'Sirrus',
+    'Sirrus Carbon', 'Stumpjumper',
+    'Tarmac',        'Turbo',
+    'Turbo Kenevo',  'Turbo Levo'
   ],
   Surly: [
     'Big Easy',
@@ -1045,3 +1057,4 @@ const bootstrapBasis = {
     'SB160'
   ]
 };
+
