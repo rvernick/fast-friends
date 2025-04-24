@@ -408,6 +408,21 @@ export class BikeDefinitionService {
     }
   }
 
+  async searchForLinesAndExport(): Promise<void> {
+    const brands = await this.brandRepository.find();
+    var skip = 0;
+    for (const brand of brands) {
+      if (skip++ > 10) {
+        const result = [];
+        for (const model of brand.models) {
+          const lines = await this.searchForLines(brand.name, model.name);
+          result.push({ brand: brand.name, model: model.name, lines: lines });
+        }
+        console.log('Exporting lines:', result);
+      }
+    }
+  }
+
   async exportBrandsAndModels(): Promise<void> {
     const brandNames = await this.getAllBrands();
     const mapping = {};
@@ -469,17 +484,17 @@ export class BikeDefinitionService {
       instructions: 'You are a bike specification expert who answer with a list of strings',
       input: query,
     });
-    console.log('Bike info list query: ', query);
-    console.log('Bike info list query response: ', response);
-    console.log('Output: ', response.output);
-    console.log('Output[0]: ', response.output[0]);
+    // console.log('Bike info list query: ', query);
+    // console.log('Bike info list query response: ', response);
+    // console.log('Output: ', response.output);
+    // console.log('Output[0]: ', response.output[0]);
     var result = response
       .output_text.split('|')
       .map(item => item.trim())
       .filter(item => item.trim().length > 0);
 
     result = result.map(item => removeIndex(item));
-    console.log('Result: ', result);
+    // console.log('Result: ', result);
     return result;
   }
 };
@@ -714,16 +729,21 @@ const bootstrapBasis = {
     'C64',       'C68',
     'E64',       'Master',
     'V2-R',      'V3Rs',
-    'Z'
+    'Z', 'C59', 'C68 Allroad', 'C68 Gravel'
   ],
   Cube: [
-    'ACCESS',    'ACID',     'AIM',
-    'ATTENTION', 'CROSS',    'CUBIE',
-    'E-BIKE',    'ELITE',    'FRET',
-    'HPP',       'HYDRO',    'JET',
-    'KID',       'NATURE',   'NUR',
-    'RACE',      'REACTION', 'SL',
-    'STEREO',    'STING',    'TOUR'
+    'Access',    'Acid',     'Aim',
+    'Attention', 'Cross',    'CUBIE',
+    'E-BIKE',    'Elite',    'Fret',
+    'HPP',       'Hydro',    'Jet',
+    'Kid',       'Nature',   'Nur',
+    'Race',      'Reaction', 'SL',
+    'Stero',    'Sting',    'Tour',
+    'Linening', 'Agree', 'Attain',
+    'Cross Race', 'Nuroad', 'Kathmandu',
+    'Supreme', 'Fold',
+
+
   ],
   Dahon: [
     'Cadenza', 'Ciao',  'Curve',
