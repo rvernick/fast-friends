@@ -41,6 +41,7 @@ type BikeFrameProps = {
 };
 
 const BikeFrameComponent: React.FC<BikeFrameProps> = ({bike, markDirty }) => {
+  // TODO: Delete if it continues to go unused
   console.log('BikeFrameComponent bike: ' + bike.name);
   const session = useSession();
   const navigation = useNavigation();
@@ -70,7 +71,7 @@ const BikeFrameComponent: React.FC<BikeFrameProps> = ({bike, markDirty }) => {
   const [preferences, setPreferences] = useState({ units: 'miles'});
 
   const controller = new BikeController(appContext);
-  
+
   const resetBike = async (bike: Bike) => {
     console.log('Bike Frame bike: ' + bike.name);
     // console.log('reset bike: ' + JSON.stringify(bike));
@@ -164,7 +165,7 @@ const BikeFrameComponent: React.FC<BikeFrameProps> = ({bike, markDirty }) => {
 
   const checkConnectedToStrava = (stravaId: string | null) => {
     setConnectedToStrava(
-      stravaId !== null 
+      stravaId !== null
         && stravaId !== ''
         && stravaId!= '0');
   }
@@ -182,11 +183,11 @@ const BikeFrameComponent: React.FC<BikeFrameProps> = ({bike, markDirty }) => {
         isDisabled={false}
         isInvalid={false}
       >
-        <InputField 
+        <InputField
           autoComplete="off"
           value={bikeName}
           onChangeText={updateName}
-          placeholder="Enter bike name here..." 
+          placeholder="Enter bike name here..."
           testID="nameInput"
           autoCapitalize="words"
           autoCorrect={false}
@@ -207,11 +208,11 @@ const BikeFrameComponent: React.FC<BikeFrameProps> = ({bike, markDirty }) => {
         isDisabled={false}
         isInvalid={false}
       >
-        <InputField 
+        <InputField
           autoComplete="off"
           value={year}
           onChangeText={updateYear}
-          placeholder="Enter bike year here..." 
+          placeholder="Enter bike year here..."
           testID="yearInput"
           autoCapitalize="words"
           autoCorrect={false}
@@ -222,7 +223,7 @@ const BikeFrameComponent: React.FC<BikeFrameProps> = ({bike, markDirty }) => {
       <HStack className="w-full bg-background-0 flex-grow justify-center">
         <VStack className="flex-1">
           <Text>Brand</Text>
-          <BrandAutocompleteDropdown 
+          <BrandAutocompleteDropdown
             session={session}
             value={brand}
             readonly={false}
@@ -230,9 +231,9 @@ const BikeFrameComponent: React.FC<BikeFrameProps> = ({bike, markDirty }) => {
           />
         </VStack>
         <VStack className="flex-1">
-          <Text>Model</Text>  
+          <Text>Model</Text>
           {/* TODO: reset bike doesn't update these */}
-          <ModelAutocompleteDropdown 
+          <ModelAutocompleteDropdown
             session={session}
             brand={brand}
             value={model}
@@ -249,7 +250,7 @@ const BikeFrameComponent: React.FC<BikeFrameProps> = ({bike, markDirty }) => {
         isDisabled={false}
         isInvalid={false}
         isReadOnly={connectedToStrava}>
-          <InputField 
+          <InputField
             className="z-0"
             value={milage}
             onChangeText={(value) => setMileage(value ? value : '')}
@@ -283,9 +284,9 @@ const BikeFrameComponent: React.FC<BikeFrameProps> = ({bike, markDirty }) => {
       />
       <Checkbox size="md"
           value="Electric Assist"
-          isChecked={isElectronic} 
+          isChecked={isElectronic}
           onChange={(newVal) => updateIsElectricAssist(newVal)}
-          accessibilityLabel="Has Electric Assist"> 
+          accessibilityLabel="Has Electric Assist">
         <CheckboxIndicator>
           <CheckboxIcon as={CheckIcon} />
         </CheckboxIndicator>
@@ -293,9 +294,9 @@ const BikeFrameComponent: React.FC<BikeFrameProps> = ({bike, markDirty }) => {
       </Checkbox>
       <Checkbox size="md"
           value="Is Retired"
-          isChecked={isRetired} 
+          isChecked={isRetired}
           onChange={(newVal) => updateIsRetired(newVal)}
-          accessibilityLabel="Is Retired"> 
+          accessibilityLabel="Is Retired">
         <CheckboxIndicator>
           <CheckboxIcon as={CheckIcon} />
         </CheckboxIndicator>

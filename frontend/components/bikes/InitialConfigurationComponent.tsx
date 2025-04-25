@@ -3,7 +3,7 @@ import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { defaultMaintenanceItems } from "./default-maintenance";
-import { useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobileSize, metersToDisplayString, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -110,6 +110,7 @@ const InitialConfigurationComponent = () => {
       }
     }
     queryClient.invalidateQueries({ queryKey: ['bikes'] });
+    router.replace('/(home)/(maintenanceItems)/maintenance');
   }
 
   const resetBike = async (bike: Bike) => {

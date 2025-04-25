@@ -691,7 +691,7 @@ const bootstrapBasis = {
   Brompton: [ 'A Line', 'C Line', 'Electric Line', 'P Line', 'Superlight Line' ],
   Cannondale: [
     'Adventure', 'Bad Boy',
-    'CAADX',     'FSI',
+    'CAADX',     'Checkpoint', 'FSI',
     'Habit',     'Jekyll',
     'Moterra',   'Quick',
     'Scalpel',   'SuperSix EVO',
