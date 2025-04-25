@@ -1,0 +1,889 @@
+
+const bikes = [
+  {
+    brand: '3T',
+    model: 'Aeron',
+    lines: [ '3.0', '4.0', '6.0', '9.0' ]
+  },
+  {
+    brand: '3T',
+    model: 'Cargo',
+    lines: [
+      'Sure! Here are the lines of 3T Cargo bikes:\n\nCargo bike frame',
+      'bike fork',
+      'bike handlebars',
+      'bike wheels',
+      'bike tires',
+      'bike drivetrain',
+      'bike brakes',
+      'bike cargo platform',
+      'bike lighting',
+      'bike accessories',
+      'bike storage',
+      'bike weight limit'
+    ]
+  },
+  {
+    brand: '3T',
+    model: 'Racer',
+    lines: [ '- Racer 5', '7', '9', 'Team' ]
+  },
+  {
+    brand: '3T',
+    model: 'Exploro',
+    lines: [ '1. Road\n2. Gravel\n3. CX' ]
+  },
+  {
+    brand: '3T',
+    model: 'Strada',
+    lines: [ '- Strada Due', 'Tre', 'Uno', 'Fino', 'Corsa' ]
+  },
+  {
+    brand: 'Alchemy',
+    model: 'Allroad',
+    lines: [
+      '- Alloy',
+      'Carbon',
+      'Gravel',
+      'Adventure',
+      'Commuter',
+      'All-Terrain',
+      'Touring',
+      'Utility',
+      "Women's Specific",
+      'Performance'
+    ]
+  },
+  {
+    brand: 'Alchemy',
+    model: 'Lycos',
+    lines: [
+      '- Alchemy Lycos  \n' +
+        '- Alchemy Lycos A1  \n' +
+        '- Alchemy Lycos A2  \n' +
+        '- Alchemy Lycos A3  \n' +
+        '- Alchemy Lycos A5'
+    ]
+  },
+  {
+    brand: 'Alchemy',
+    model: 'Chamois',
+    lines: [
+      'Sure! Here’s the list of Alchemy Chamois bike lines:\n\nStandard',
+      'Pro',
+      'LTD',
+      'Custom'
+    ]
+  },
+  {
+    brand: 'Alchemy',
+    model: 'Orca',
+    lines: [
+      '- Orca M10i\n' +
+        '- Orca M10\n' +
+        '- Orca M20i\n' +
+        '- Orca M20\n' +
+        '- Orca M30i\n' +
+        '- Orca M30\n' +
+        '- Orca H30\n' +
+        '- Orca H10\n' +
+        '- Orca H15\n' +
+        '- Orca H20'
+    ]
+  },
+  {
+    brand: 'Alchemy',
+    model: 'Carbon 29',
+    lines: [
+      'Performance',
+      'Cross Country',
+      'Trail',
+      'Enduro',
+      'All-Mountain',
+      'Gravel',
+      'Road'
+    ]
+  },
+  {
+    brand: 'Alchemy',
+    model: 'Rival',
+    lines: [
+      '- 24" Alloy Frame',
+      '720mm Wide Bars',
+      '3-Piece Crankset',
+      'Alloy Wheels',
+      '25x9 Gear Ratio  \n- 20" Alloy Frame',
+      '8.5" Rise Bars',
+      'Mid Bottom Bracket',
+      'U-brake',
+      '360° Rotor  \n- 26" Steel Frame',
+      'Linear Pull Brakes',
+      '2.5" Tires',
+      '3-Piece Crankset',
+      'Integrated Headset  \n- 20" Lightweight Frame',
+      'V-brakes',
+      'Padded Seat',
+      '14mm Axles',
+      'Threaded Headset  \n- 24" Steel Frame',
+      'Front Suspension Fork',
+      'Alloy Rims',
+      '3-Piece Crankset',
+      'Disc Brake Compatible'
+    ]
+  },
+  {
+    brand: 'Alchemy',
+    model: 'Carbon 27.5',
+    lines: [
+      "Sure! Here's the list of lines:\n\n- Hardtail",
+      'Full Suspension',
+      'Trail',
+      'Enduro',
+      'Downhill',
+      'XC'
+    ]
+  },
+  {
+    brand: 'Alchemy',
+    model: 'Arcturus',
+    lines: [
+      '- Mountain',
+      'Road',
+      'Gravel',
+      'Hybrid',
+      'Electric',
+      'Commuter',
+      'Fat Tire',
+      'Kids'
+    ]
+  },
+  {
+    brand: 'Avanti',
+    model: 'Aventure',
+    lines: [ '1', '2', '3', '4', '5' ]
+  },
+  {
+    brand: 'Avanti',
+    model: 'Seca',
+    lines: [ '- Seca 1', '2', '3', '4', '5' ]
+  },
+  {
+    brand: 'Avanti',
+    model: 'Giro',
+    lines: [
+      'Performance',
+      'Elite',
+      'Sport',
+      'Classic',
+      "Women's",
+      'Racing',
+      'Kids'
+    ]
+  },
+  {
+    brand: 'Avanti',
+    model: 'Corsa',
+    lines: [ 'Aero', 'Performance', 'Endurance', 'Gravel', 'Road' ]
+  },
+  {
+    brand: 'Avanti',
+    model: 'Stage',
+    lines: [ '1. Alu\n2. Carbon\n3. A2\n4. A3\n5. A0\n6. A1\n7. A2S\n8. A3S' ]
+  },
+  {
+    brand: 'Avanti',
+    model: 'Advocatus',
+    lines: [
+      '- A1', 'A2', 'A3',
+      'A4',   'A5', 'A6',
+      'A7',   'A8', 'A9',
+      'A10'
+    ]
+  },
+  {
+    brand: 'Avanti',
+    model: 'Kuda',
+    lines: [ '- Kuda 27.5\n- Kuda 29\n- Kuda G2\n- Kuda S3\n- Kuda G4' ]
+  },
+  {
+    brand: 'Avanti',
+    model: 'Tempo',
+    lines: [
+      'Road',
+      'Gravel',
+      'Cyclocross',
+      'Triathlon',
+      'Electric Road',
+      "Women's Road",
+      'Junior Road'
+    ]
+  },
+  {
+    brand: 'Avanti',
+    model: 'X-Track',
+    lines: [ '- X-Track Sport', 'Elite', 'Pro' ]
+  },
+  {
+    brand: 'Avanti',
+    model: 'Metro',
+    lines: [ '1', '2', '3', '4', '5' ]
+  },
+  {
+    brand: 'BMC',
+    model: 'Alpenchallenge',
+    lines: [ 'AMP', 'AL', 'ARow', 'F', '01' ]
+  },
+  {
+    brand: 'BMC',
+    model: 'Fourstroke',
+    lines: [ '01', '02', '03', '04' ]
+  },
+  {
+    brand: 'BMC',
+    model: 'Roadmachine',
+    lines: [ '01', '02', 'X', '03' ]
+  },
+  {
+    brand: 'BMC',
+    model: 'Teammachine',
+    lines: [ 'Road', 'Racing', 'Endurance', 'Aero', 'Disc Brake' ]
+  },
+  {
+    brand: 'BMC',
+    model: 'Agonist',
+    lines: [ 'Trail', 'XC Race', 'Enduro', 'Gravel', 'Road' ]
+  },
+  {
+    brand: 'BMC',
+    model: 'Crossmachine',
+    lines: [ 'X', 'X01', 'X02', 'X03' ]
+  },
+  {
+    brand: 'BMC',
+    model: 'Speedfox',
+    lines: [ 'Fourstroke', '', 'Agonist', 'Trailfox', 'Twostroke' ]
+  },
+  {
+    brand: 'BMC',
+    model: 'URS',
+    lines: [ 'Cross', 'Gravel', 'Allroad', 'Adventure' ]
+  },
+  {
+    brand: 'BMC',
+    model: 'Timemachine',
+    lines: [ 'Aero', 'Road', 'Triathlon', 'Gravel' ]
+  },
+  {
+    brand: 'Bianchi',
+    model: 'Aria',
+    lines: [ 'Aero', 'Sprint', 'Ultegra', 'Dura-Ace', 'Sram Red', '105' ]
+  },
+  {
+    brand: 'Bianchi',
+    model: 'Vertigo',
+    lines: [
+      'C2C',   'C2C 0',
+      'C2C 1', 'C2C 2',
+      'C2C 3', 'CV 0',
+      'CV 1',  'CV 2',
+      'CV 3',  'CV 4',
+      'CV 5',  'CV 6'
+    ]
+  },
+  {
+    brand: 'Bianchi',
+    model: 'Infinito',
+    lines: [ 'CV', 'XE', 'Allroad', 'Beyond' ]
+  },
+  {
+    brand: 'Bianchi',
+    model: 'Specialissima',
+    lines: [
+      '- Tour de France',
+      'Sesto Elemento',
+      'Cento',
+      '',
+      'Oltre',
+      'Intenso',
+      'Sprint',
+      'Aquilo'
+    ]
+  },
+  {
+    brand: 'Bianchi',
+    model: 'Impulso',
+    lines: [ 'Allroad', 'Corsa', 'E-Road', 'Gravel', 'Urban' ]
+  },
+  {
+    brand: 'Bianchi',
+    model: 'C-Sport',
+    lines: [ '1', '2', '3', '4', '5' ]
+  },
+  {
+    brand: 'Bianchi',
+    model: 'Sprint',
+    lines: [
+      'Aero',
+      'Classic',
+      'Endurance',
+      'Commuter',
+      'Racing',
+      'Gravel',
+      'Kids'
+    ]
+  },
+  {
+    brand: 'Bianchi',
+    model: 'Oltre',
+    lines: [ 'XR4', 'XR3', 'XR2', '105', 'R4' ]
+  },
+  {
+    brand: 'Bianchi',
+    model: 'Pista',
+    lines: [ '', 'Concept', 'Steel', 'Classica', 'Track' ]
+  },
+  {
+    brand: 'Bianchi',
+    model: 'E-Road',
+    lines: [ '', 'E-Adventure', 'E-Gran Fondo', 'E-Mountain' ]
+  },
+  {
+    brand: 'Boardman',
+    model: 'Adventure',
+    lines: [ '', 'Sport', 'Pro', '29er', 'Hybrid', '27.5' ]
+  },
+  {
+    brand: 'Boardman',
+    model: 'Road',
+    lines: [ 'Performance', 'Elite', '', 'Team', 'Comp', 'Sport', 'Hybrid' ]
+  },
+  {
+    brand: 'Boardman',
+    model: 'Hybrid',
+    lines: [
+      'Series',
+      'Performance Series',
+      'Adventure Series',
+      'Urban Series',
+      'Electric Series'
+    ]
+  },
+  {
+    brand: 'Boardman',
+    model: 'Mountain',
+    lines: [
+      'Trail',
+      'Enduro',
+      'Cross Country',
+      'Dirt Jump',
+      'Electric',
+      "Children's"
+    ]
+  },
+  {
+    brand: 'Boardman',
+    model: 'Support',
+    lines: [
+      'Sure! Here are the lines of Boardman Support bikes as a pipe-delimited list:\n' +
+        '\n' +
+        'Road',
+      'Mountain',
+      'Hybrid',
+      'Electric',
+      'Triathlon',
+      'Gravel'
+    ]
+  },
+  {
+    brand: 'Boardman',
+    model: 'Elite',
+    lines: [
+      'Road',
+      'Mountain',
+      'Gravel',
+      'Cyclocross',
+      'Triathlon',
+      'Track'
+    ]
+  },
+  {
+    brand: 'Boardman',
+    model: 'Performance',
+    lines: [ 'Elite', 'Pro', 'Sport', 'Base', 'Women’s' ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'Habit',
+    lines: [
+      'Trail', 'Carbon',
+      'Alloy', '2',
+      '3',     '4',
+      '5',     '6'
+    ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'SuperSix EVO',
+    lines: [
+      '- SuperSix EVO Hi-MOD\n' +
+        '- SuperSix EVO Carbon\n' +
+        '- SuperSix EVO SE\n' +
+        '- SuperSix EVO Neo\n' +
+        '- SuperSix EVO 3'
+    ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'Trail',
+    lines: [
+      'Aluminum',
+      'Carbon',
+      '29-inch',
+      '27.5-inch',
+      'Women’s',
+      'Hardtail',
+      'Full Suspension',
+      'Kids’'
+    ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'SystemSix',
+    lines: [ 'SuperSix EVO', 'Hi-Mod', 'Carbon', 'Disc', 'Women’s' ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'Bad Boy',
+    lines: [ 'Urban', '1', '2', '3', '4', '5' ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'Moterra',
+    lines: [ 'Neo', 'LT', '', 'SE' ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'FSI',
+    lines: [
+      'Lefty',
+      'F-Si',
+      'F-Si Carbon',
+      'F-Si 29',
+      'F-Si Race',
+      'F-Si Hi-Mod'
+    ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'Scalpel',
+    lines: [ 'Carbon 3', 'Carbon 2', 'Carbon 1', 'SE 3', 'SE 2', 'SE 1' ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'Synapse',
+    lines: [
+      'Endurance', 'Alloy',
+      'Carbon',    'Disc',
+      'Hi-Mod',    'Women’s',
+      '105',       'Ultegra',
+      'SuperSix',  'Lefty'
+    ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'Adventure',
+    lines: [ '1', '2', '3', 'EQ', 'NEO 1', 'NEO 2' ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'CAADX',
+    lines: [ 'E', 'E2', 'E5', 'E5 SE', 'S', 'S1', 'S2' ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'Topstone',
+    lines: [
+      'Alloy',
+      'Carbon',
+      'Lefty',
+      'Gravel',
+      'Electric',
+      'Women’s',
+      'Ultra-High Modulus Carbon'
+    ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'Jekyll',
+    lines: [
+      '120', '140', '160',
+      '180', '200', '220',
+      '240', '260', '280',
+      '300'
+    ]
+  },
+  {
+    brand: 'Cannondale',
+    model: 'Quick',
+    lines: [ '1', '2', '3', '4', 'CX', 'Neo' ]
+  },
+  {
+    brand: 'Canyon',
+    model: 'Grand Canyon',
+    lines: [
+      '5',    '6',    '7',
+      '8',    '9',    'AL 5',
+      'AL 6', 'AL 7', 'CF 8',
+      'CF 9'
+    ]
+  },
+  {
+    brand: 'Canyon',
+    model: 'Aeroad',
+    lines: [
+      'Ultimate CF SLX',
+      'Ultimate CF SL',
+      'CF SLX',
+      'CF SL',
+      'CF 8.0',
+      'AL',
+      'D',
+      '7.0',
+      'CF SL Disc'
+    ]
+  },
+  {
+    brand: 'Canyon',
+    model: 'Speedmax',
+    lines: [
+      'Ultimate', 'CF SLX',
+      'CF SL',    'AL',
+      'SL 8',     'SL 7',
+      'CF 8',     'CF 7',
+      'CF 6',     'AL 7',
+      'AL 6',     'AL 5'
+    ]
+  },
+  {
+    brand: 'Canyon',
+    model: 'Watchman',
+    lines: [
+      'Cross-Country',
+      'Trail',
+      'Enduro',
+      'Downhill',
+      'Electric',
+      'Gravel',
+      'Urban',
+      'Road'
+    ]
+  },
+  { brand: 'Canyon', model: 'Pathlite', lines: [ '5', '6', '7', '8' ] },
+  {
+    brand: 'Canyon',
+    model: 'Roadlite',
+    lines: [
+      '6',       '7',
+      '8',       'CF 8',
+      'CF SL 8', 'ON+ 7',
+      '9',       'AL 7',
+      'CF SL 7'
+    ]
+  },
+  {
+    brand: 'Canyon',
+    model: 'Torque',
+    lines: [
+      '29',   '27',
+      'CF',   'AL',
+      'CF 8', 'CF 7',
+      'AL 6', 'AL 5'
+    ]
+  },
+  {
+    brand: 'Canyon',
+    model: 'Neuron',
+    lines: [
+      'Aluminium', 'CF 8',
+      'CF SLX 8',  'CF 7',
+      'CF SLX 7',  'CF 6',
+      'CF SLX 6',  'CF 5',
+      'CF SLX 5',  'CF 4',
+      'AL 5',      'AL 6',
+      'AL 7'
+    ]
+  },
+  {
+    brand: 'Canyon',
+    model: 'Exceed',
+    lines: [ 'Cross Country', 'Marathon', 'Trail', 'Gravel' ]
+  },
+  {
+    brand: 'Canyon',
+    model: 'Spectral',
+    lines: [ 'Al', 'CF', 'CF SLX', 'CFR' ]
+  },
+  {
+    brand: 'Canyon',
+    model: 'Stitched',
+    lines: [
+      '- Stitched 360',
+      '- Stitched 720',
+      '- Stitched 720 Pro',
+      '- Stitched 720 CF',
+      '- Stitched 420'
+    ]
+  },
+  {
+    brand: 'Canyon',
+    model: 'Strive',
+    lines: [
+      'AL',     'CF 7',
+      'CF 8',   'CF 9',
+      'CFR',    'CF 7.0',
+      'CF 8.0', 'CF 9.0'
+    ]
+  },
+  {
+    brand: 'Canyon',
+    model: 'Ultimate',
+    lines: [
+      'CF SLX',
+      'CF SL',
+      'AL SLX',
+      'AL',
+      'WMN CF SLX',
+      'WMN CF SL',
+      'WMN AL SLX',
+      'WMN AL'
+    ]
+  },
+  {
+    brand: 'Cervelo',
+    model: 'Caledonia',
+    lines: [
+      'A',   'A20', 'A21',
+      'A23', 'A24', 'A30',
+      'A31', 'A32', 'A40',
+      'A41', 'A50', 'A51',
+      'A60', 'A61'
+    ]
+  },
+  {
+    brand: 'Cervelo',
+    model: 'S-Series',
+    lines: [ 'S3', 'S5', 'S5 DISC', 'S5 R', 'S3 DISC', 'S3X' ]
+  },
+  {
+    brand: 'Cervelo',
+    model: 'Aspero',
+    lines: [
+      'A',          'A Rival',
+      'A Dura-Ace', 'A Ultegra',
+      'A GRX',      'A SRAM',
+      'A Shimano',  'A Force',
+      'A ENVE',     'A Complete'
+    ]
+  },
+  {
+    brand: 'Cervelo',
+    model: 'T4',
+    lines: [
+      'Aero',
+      'Frameset',
+      'Components',
+      'Geometry',
+      'Finish Options',
+      'Size Range',
+      'Price Range'
+    ]
+  },
+  {
+    brand: 'Cervelo',
+    model: 'Z-Series',
+    lines: [
+      'R5', 'R3', 'S5',
+      'S3', 'P5', 'P3',
+      'A1', 'A2'
+    ]
+  },
+  { brand: 'Cervelo', model: 'P-Series', lines: [ 'P2', 'P3', 'P5' ] },
+  {
+    brand: 'Cervelo',
+    model: 'R-Series',
+    lines: [ 'R3', 'R5', 'R-SLA', 'R-SL', 'R-CA' ]
+  },
+  {
+    brand: 'Cinelli',
+    model: 'Strato',
+    lines: [ 'Alu', 'Steel', 'Carbon', 'Titanium', 'Limited Edition' ]
+  },
+  {
+    brand: 'Cinelli',
+    model: 'Porteur',
+    lines: [
+      'Classic',
+      'Stainless Steel',
+      'Urban',
+      'Alloy',
+      'Limited Edition',
+      'Travel',
+      'Cargo',
+      'Custom'
+    ]
+  },
+  {
+    brand: 'Cinelli',
+    model: 'Gazzetta',
+    lines: [ 'Road', 'Gravel', 'Urban', 'Fixed Gear', 'Adventure' ]
+  },
+  {
+    brand: 'Cinelli',
+    model: 'Hobo',
+    lines: [
+      'Steel',
+      'Alloy',
+      'Disc',
+      'Mixed-terrain',
+      'Urban',
+      'Gravel',
+      'Adventure'
+    ]
+  },
+  {
+    brand: 'Cinelli',
+    model: 'Experience',
+    lines: [ 'Road', 'Gravel', 'Urban', 'Cyclocross', 'Track', 'Specialized' ]
+  },
+  {
+    brand: 'Cinelli',
+    model: 'Veltrix',
+    lines: [
+      'Road',
+      'Gravel',
+      'Cyclocross',
+      'Commuter',
+      'Track',
+      'Endurance',
+      'Women’s'
+    ]
+  },
+  {
+    brand: 'Cinelli',
+    model: 'Iride',
+    lines: [
+      'Road',
+      'Track',
+      'Gravel',
+      'Urban',
+      'Adventure',
+      'Commuter',
+      'Electric'
+    ]
+  },
+  {
+    brand: 'Cinelli',
+    model: 'Nemo',
+    lines: [ 'Road', 'Gravel', 'E-MTB', 'Cross', 'Track', 'Urban' ]
+  },
+  {
+    brand: 'Cinelli',
+    model: 'Supercorsa',
+    lines: [
+      'Strada',  'Pista',
+      'Record',  'Steel',
+      'Track',   'Corsa',
+      'Revival', 'C-Type'
+    ]
+  },
+  {
+    brand: 'Cinelli',
+    model: 'Tipo Pista',
+    lines: [ 'Road', 'Track', 'Freestyle', 'Fixed Gear', 'Single Speed' ]
+  },
+  {
+    brand: 'Co-op',
+    model: 'Road',
+    lines: [
+      '- 3.0', '4.0',
+      '5.0',   '6.0',
+      '7.0',   '8.0',
+      '9.0',   '10.0'
+    ]
+  },
+  {
+    brand: 'Co-op',
+    model: 'Electric',
+    lines: [
+      'Commuter',   'Cargo',
+      'Folding',    'Mountain',
+      'Road',       'Hybrid',
+      'Cruiser',    'Fat Tire',
+      'E-Mountain', 'Step-Thru'
+    ]
+  },
+  {
+    brand: 'Co-op',
+    model: 'Kids',
+    lines: [
+      'Here are the lines of Co-op Kids bikes:\n\nBalance Bikes',
+      '20" Bikes',
+      '24" Bikes',
+      '26" Bikes',
+      '12" Bikes',
+      '16" Bikes'
+    ]
+  },
+  {
+    brand: 'Co-op',
+    model: 'Hybrid',
+    lines: [
+      'Bikes',
+      'Electric Hybrid Bikes',
+      'Mountain Hybrid Bikes',
+      'Commuter Hybrid Bikes',
+      'Fitness Hybrid Bikes',
+      "Women's Hybrid Bikes",
+      "Kids' Hybrid Bikes"
+    ]
+  },
+  {
+    brand: 'Co-op',
+    model: 'Mountain',
+    lines: [
+      'Hardtail',
+      'Full Suspension',
+      'Electric',
+      'Fat Bike',
+      "Kids' Mountain Bike",
+      'Gravel Bike',
+      'Trail Bike'
+    ]
+  },
+  {
+    brand: 'Colnago',
+    model: 'Arabesque',
+    lines: [
+      'Classic',
+      'Sport',
+      'Master',
+      'Corsa',
+      'Pista',
+      'Specialissima',
+      'C-Café',
+      'Mexico',
+      'Gara',
+      'Dream'
+    ]
+  },
+  {
+    brand: 'Colnago',
+    model: 'C64',
+    lines: [
+      '',         'Disc',
+      'Bstay',    'Frame Set',
+      'Prestige', 'Team',
+      'Mapei',    'Art Decor'
+    ]
+  },
+]

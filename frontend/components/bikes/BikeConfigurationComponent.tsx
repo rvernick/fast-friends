@@ -17,7 +17,7 @@ import { BrandAutocompleteDropdown } from "../common/BrandAutocompleteDropdown";
 import { HStack } from "../ui/hstack";
 import { ModelAutocompleteDropdown } from "../common/ModelAutocompleteDropdown";
 import { ScrollView } from "../ui/scroll-view";
-import { LineAutocompleteDropdown } from "../common/LineAutocompleteDropdown";
+// import { LineAutocompleteDropdown } from "../common/LineAutocompleteDropdown"; // Removed as lines is too hard for now
 import { getBikeDefinitions } from "@/common/data-utils";
 import { Pressable } from "../ui/pressable";
 import { BikeIcon } from "lucide-react-native";
@@ -399,7 +399,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
           />
         </VStack>
       </HStack>
-      {model && model.length > 0 ? (
+      {/*Will potentially add line back {model && model.length > 0 ? (
           <Text>Line</Text>
         ) : null
       }
@@ -414,10 +414,9 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
           onSelect={updateLine}
         />
         ) : null
-      }
+      } */}
       <VStack>
         <ScrollView>
-
           {definition == null ? (
             possibleDefinitions.map((definition) => (
               <Pressable key={definition.id} onPress={() => chooseDefinition(definition)}>

@@ -17,7 +17,7 @@ export class BikeDefinitionController {
 
   // update-or-add-maintenance-history-item
   // @UseGuards(AuthGuard)   TODO: put the guard back in
-  @Public()               // TODO: add the guard back in
+  @Public()
   @Post('bootstrap')
   bootstrap(): Promise<void> {
     try {
@@ -68,8 +68,7 @@ export class BikeDefinitionController {
     return this.bikeDefinitionService.getAllLinesForBrandModel(brand, model);
   }
 
-  @Public()
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('search')
   async searchDefinitions(
       @Query('year') year: string,
