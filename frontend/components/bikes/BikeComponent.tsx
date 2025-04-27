@@ -163,7 +163,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
 
   const checkConnectedToStrava = (stravaId: string | null) => {
     setConnectedToStrava(
-      stravaId !== null 
+      stravaId !== null
         && stravaId !== ''
         && stravaId!= '0');
   }
@@ -176,7 +176,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
 
     if (isMobile() && await attemptToLinkToStravaApp()) {
       return;
-    } 
+    }
 
     Linking.openURL(url).catch(err => console.error('Error opening strava link: ', err));
   }
@@ -219,12 +219,12 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
             isInvalid={false}
             isReadOnly={readOnly}
           >
-            <InputField 
+            <InputField
               autoComplete="off"
               value={bikeName}
               readOnly={readOnly}
               onChangeText={updateName}
-              placeholder="Enter bike name here..." 
+              placeholder="Enter bike name here..."
               testID="nameInput"
               autoCapitalize="words"
               autoCorrect={false}
@@ -245,7 +245,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
             isDisabled={false}
             isInvalid={false}
             isReadOnly={readOnly || connectedToStrava}>
-              <InputField 
+              <InputField
                 value={milage}
                 onChangeText={(value) => setMileage(value ? value : '')}
                 readOnly={readOnly || connectedToStrava}
@@ -282,9 +282,9 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
           <Checkbox size="md"
               value="Is Electronic"
               isDisabled={readOnly}
-              isChecked={isElectronic} 
+              isChecked={isElectronic}
               onChange={(newVal) => setIsElectronic(newVal)}
-              accessibilityLabel="Has Electric Assist"> 
+              accessibilityLabel="Has Electric Assist">
             <CheckboxIndicator>
               <CheckboxIcon as={CheckIcon} />
             </CheckboxIndicator>
@@ -293,9 +293,9 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
           <Checkbox size="md"
               value="Is Retired"
               isDisabled={readOnly}
-              isChecked={isRetired} 
+              isChecked={isRetired}
               onChange={(newVal) => setIsRetired(newVal)}
-              accessibilityLabel="Is Retired"> 
+              accessibilityLabel="Is Retired">
             <CheckboxIndicator>
               <CheckboxIcon as={CheckIcon} />
             </CheckboxIndicator>
@@ -303,19 +303,19 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
           </Checkbox>
         </VStack>
         <HStack>
-          <Button 
+          <Button
             className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ editOrDone }
-            style={{flex: 1}} 
+            style={{flex: 1}}
             accessibilityLabel="Finished editing"
             accessibilityHint="Will save any changes and go back">
             <ButtonText>{ readOnly? 'Edit' : 'Done' }</ButtonText>
           </Button>
           { (readOnly || isNew) ? null : <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ cancel }>
-            <ButtonText>Cancel</ButtonText> 
+            <ButtonText>Cancel</ButtonText>
             </Button>}
-          { (readOnly || isNew) ? null : <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ deleteBike }> 
+          { (readOnly || isNew) ? null : <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ deleteBike }>
             <ButtonText>Delete</ButtonText>
             </Button>}
           { (readOnly && !isNew) ? <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ maintenanceHistory }>

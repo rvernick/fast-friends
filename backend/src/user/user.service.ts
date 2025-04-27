@@ -172,7 +172,7 @@ export class UserService {
     } catch (e) {
       this.logger.log('Error syncing user to strava:'+ e.message);
     } finally {
-      if (lock) this.batchProcessService.unlock(lock);
+      if (lock) this.batchProcessService.unlockAndDelete(lock);
     }
   }
 
@@ -181,6 +181,7 @@ export class UserService {
     user.stravaId = athlete.id ? athlete.id.toString() : null;
     user.stravaCode = stravaAuthDto.stravaCode;
     user.stravaRefreshToken = stravaAuthDto.stravaRefreshToken;
+    // console.log('setting strava with: ', athlete);
     console.log('setting stravaId: ' + user.stravaId);
     console.log('setting userWith: ' + JSON.stringify(stravaAuthDto));
 
@@ -304,7 +305,7 @@ export class UserService {
     }
     return verify;
   }
-  
+
   async remove(id: number): Promise<void> {
     await this.usersRepository.softDelete(id);
   }
@@ -386,7 +387,7 @@ export class UserService {
     // console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
     const msg = 'Use the following link to reset your password: ' + passwordResetLink;
     const htmlMsg = 'Use the following link to reset your password: <a href="' + passwordResetLink + '"> Reset Password</a>';
-   
+
     sendEmail(email, 'Pedal Assistant Password Reset', msg, htmlMsg);
   };
 
@@ -410,7 +411,7 @@ export class UserService {
     // console.log('info', email + ' sending with:' + process.env.SENDGRID_API_KEY);
     const msg = 'Your email verification code is: ' + code + '.';
     const htmlMsg = 'Your email verification code is: ' + code + '.  ';
-    
+
     sendEmail(email, 'Pedal Assistant Verify Email', msg, htmlMsg);
   };
 

@@ -50,6 +50,7 @@ const newBike = {
   maintenanceItems: [],
   stravaId: '',
   isRetired: false,
+  bikeDefinitionSummary: null,
 }
 
 type MaintenanceItemProps = {
@@ -144,7 +145,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       }
     }
   };
- 
+
   const editOrDone = (value: any) => {
     if (!readOnly) {
       updateOrAddMaintenanceItem();
@@ -156,7 +157,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const goBack = () => {
     router.replace('/(home)/(maintenanceItems)/maintenance');
   }
-  
+
   const deleteMaintenanceItem = async () => {
     if (await controller.deleteMaintenanceItem(session, email, maintenanceItem.id)) {
       bike.maintenanceItems = bike.maintenanceItems.filter(mi => mi.id!== maintenanceItem.id);
@@ -206,7 +207,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           }
         }
       }
-      
+
       setPart(ensureString(item.part.toString()));
       setAction(ensureString(item.action.toString()));
       if (item.dueDistanceMeters  && item.dueDistanceMeters> 0) {
@@ -283,7 +284,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       if (!usedActions.includes(action)) {
         result.push(action);
       }
-    } 
+    }
     return result;
   }
 
@@ -341,7 +342,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
 
   const selectDefaultBike = () => {
     if (!bikes || bikes.length === 0) return;
-   
+
     const defaultBike = bikes[0];
     selectBike(ensureString(defaultBike.id));
   }
@@ -377,7 +378,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       console.error('Error initializing maintenance item: ', error);
     }
   }, [bikes, maintenanceItem]);
-  
+
   const partSelected = (part: string | undefined) => {
     console.log('partSelected: ', part);
     if (null === part) return;
@@ -467,7 +468,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
 
   const validateDateString = (dateString: string): boolean => {
     try {
-      console.log('Validating due date string: ', dateString); 
+      console.log('Validating due date string: ', dateString);
       const parsedDate = Date.parse(dateString);
       if (!isNaN(parsedDate)) {
         const newDueDate = new Date(parsedDate);
@@ -498,7 +499,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const dueDateStringChange = (dateString: string) => {
     setDueDateString(dateString);
     setDueDateErrorMessage('');
-    console.log('dueDateStringChange: ', dateString); 
+    console.log('dueDateStringChange: ', dateString);
     if (dateString.length >= 10) {
       validateDateString(dateString);
     }
@@ -527,13 +528,13 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   useEffect(() => {
     updateScrollStyle()
   }, [keyboardStatus]);
-  
+
   useEffect(() => {
     if (dueDate) {
       setDueDateString(dueDate.toLocaleDateString());
     }
   }, [dueDate]);
-  
+
   return (
     <BaseLayout>
     <VStack className="w-full">
@@ -573,7 +574,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           isInvalid={false}
           isReadOnly={readOnly || deadline == "Date"}
         >
-          <InputField 
+          <InputField
             autoComplete="off"
             value={dueMiles.toString()}
             readOnly={readOnly}
@@ -587,7 +588,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
       )}
       {deadline == "Date"? null : (
         <Text>{defaultLongevityLabel}</Text>
-      )} 
+      )}
       {deadline == "Date"? null : (
         <Input
           variant="outline"
@@ -596,7 +597,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           isInvalid={false}
           isReadOnly={readOnly || deadline == "Date"}
         >
-          <InputField 
+          <InputField
             autoComplete="off"
             value={defaultLongevity}
             readOnly={readOnly}
@@ -619,7 +620,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           isInvalid={false}
           isReadOnly={readOnly || deadline == "Distance"}
         >
-          <InputField 
+          <InputField
             autoComplete="off"
             value={dueDateString}
             readOnly={readOnly}
@@ -657,7 +658,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           isInvalid={false}
           isReadOnly={readOnly || deadline == "Distance"}
         >
-          <InputField 
+          <InputField
             autoComplete="off"
             value={dueDateString}
             readOnly={readOnly}
@@ -682,7 +683,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           isInvalid={false}
           isReadOnly={readOnly || deadline == "Distance"}
         >
-          <InputField 
+          <InputField
             autoComplete="off"
             value={defaultLongevityDays}
             readOnly={readOnly}
@@ -702,7 +703,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         isInvalid={false}
         isReadOnly={readOnly}
       >
-        <InputField 
+        <InputField
           autoComplete="off"
           value={brand}
           readOnly={readOnly}
@@ -721,7 +722,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           isInvalid={false}
           isReadOnly={readOnly}
         >
-          <InputField 
+          <InputField
             autoComplete="off"
             value={model}
             readOnly={readOnly}
@@ -740,7 +741,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           isInvalid={false}
           isReadOnly={readOnly}
         >
-          <InputField 
+          <InputField
             autoComplete="off"
             value={link}
             readOnly={readOnly}
@@ -752,11 +753,11 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             accessibilityHint="URL of part used"/>
       </Input>
       <HStack className="w-full flex bg-background-0 flex-grow justify-center">
-          <Button 
+          <Button
             className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ editOrDone }
-            style={{flex: 1}} 
+            style={{flex: 1}}
             accessibilityLabel="Finished"
             accessibilityHint="Save any changes and go back">
             <ButtonText>{readOnly ? "Edit" : "Done"}</ButtonText>
@@ -766,7 +767,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
             className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ () => router.replace({pathname: '/(home)/(assistance)/instructions',  params: {part: part, action: action}}) }
-            style={{flex: 1}} 
+            style={{flex: 1}}
             accessibilityLabel="Finished"
             accessibilityHint="Save any changes and go back">
             <ButtonText>Instructions</ButtonText>
@@ -776,7 +777,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           <Button
             className="bottom-button shadow-md rounded-lg m-1"
             onPress={ cancel }
-            style={{flex: 1}} 
+            style={{flex: 1}}
             accessibilityLabel="Cancel"
             accessibilityHint="Go back without saving changes">
             <ButtonText>Cancel</ButtonText>
@@ -786,7 +787,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           <Button
             className="bottom-button shadow-md rounded-lg m-1"
             onPress={ deleteMaintenanceItem }
-            style={{flex: 1}} 
+            style={{flex: 1}}
             accessibilityLabel="Delete"
             accessibilityHint="Go back without saving changes">
             <ButtonText>{deleteLabel}</ButtonText>
@@ -796,7 +797,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
           <Button
             className="bottom-button shadow-md rounded-lg m-1"
             onPress={ goToHistory }
-            style={{flex: 1}} 
+            style={{flex: 1}}
             accessibilityLabel="History"
             accessibilityHint="Maintenance History">
               <ButtonText>History</ButtonText>

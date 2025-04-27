@@ -65,6 +65,7 @@ const newBike = {
   maintenanceItems: [],
   stravaId: '',
   isRetired: false,
+  bikeDefinitionSummary: null,
 }
 
 type MaintenanceHistoryItemProps = {
@@ -81,7 +82,7 @@ const MaintenanceHistoryItemComponent: React.FC<MaintenanceHistoryItemProps> = (
 
   const maintenanceHistoryId = maintenancehistoryid ? maintenancehistoryid : 0;
   const initialBikeId = bikeid ? ensureString(bikeid) : '0';
-  
+
   const [isNew, setIsNew] = useState(maintenanceHistoryId === 0);
   console.log('MaintenanceHistoryItemComponent maintenanceHistoryId: '+ maintenanceHistoryId + ', bikeId: '+ initialBikeId +'');
   console.log('isNew: '+ isNew);
@@ -139,7 +140,7 @@ const MaintenanceHistoryItemComponent: React.FC<MaintenanceHistoryItemProps> = (
       }
     }
   };
- 
+
   const editOrDone = (value: any) => {
     if (!readOnly) {
       updateOrAddMaintenanceItem();
@@ -147,7 +148,7 @@ const MaintenanceHistoryItemComponent: React.FC<MaintenanceHistoryItemProps> = (
       setReadOnly(false);
     }
   }
-  
+
   const deleteMaintenanceHistoryItem = async () => {
     if (await controller.deleteMaintenanceHistoryItem(session, maintenanceHistoryItem.id)) {
       bike.maintenanceItems = bike.maintenanceItems.filter(mi => mi.id!== maintenanceHistoryItem.id);
@@ -192,7 +193,7 @@ const MaintenanceHistoryItemComponent: React.FC<MaintenanceHistoryItemProps> = (
           }
         }
       }
-      
+
       setPart(ensureString(item.part.toString()));
       setAction(ensureString(item.action.toString()));
       setDoneOnDate(new Date(item.doneDate));
@@ -251,7 +252,7 @@ const MaintenanceHistoryItemComponent: React.FC<MaintenanceHistoryItemProps> = (
 
   const selectDefaultBike = () => {
     if (!bikes || bikes.length === 0) return;
-   
+
     const defaultBike = bikes[0];
     selectBike(ensureString(defaultBike.id));
   }
@@ -280,7 +281,7 @@ const MaintenanceHistoryItemComponent: React.FC<MaintenanceHistoryItemProps> = (
       console.error('Error initializing maintenance item: ', error);
     }
   }, [bikes, maintenanceHistoryItem]);
-  
+
   const partSelected = (part: string | undefined) => {
     console.log('partSelected: ', part);
     if (null === part) return;
@@ -312,7 +313,7 @@ const MaintenanceHistoryItemComponent: React.FC<MaintenanceHistoryItemProps> = (
     navigation.setOptions({ title: ensureString(part) +' : '+ bikeName });
   }), [part, bikeName];
 
-  
+
   return (
     <Surface style={useStyle.containerScreen}>
       {!isInitialized ? <ActivityIndicator animating={!isInitialized}  size="large"/> : null }
@@ -332,7 +333,7 @@ const MaintenanceHistoryItemComponent: React.FC<MaintenanceHistoryItemProps> = (
             readonly={readOnly || !isNew}
             onSelect={actionSelected}
             />
-          <TextInput 
+          <TextInput
             label={doneOnDistanceLabel}
             value={doneOnMiles.toString()}
             disabled={readOnly}
@@ -386,7 +387,7 @@ const MaintenanceHistoryItemComponent: React.FC<MaintenanceHistoryItemProps> = (
             accessibilityHint="Save any changes and go back">
             { readOnly? 'Edit' : 'Done' }
           </Button>
-          { (readOnly || isNew) ? null : <Button 
+          { (readOnly || isNew) ? null : <Button
             mode="contained" onPress={ cancel }
             style={{flex: 1}}
             accessibilityLabel="Cancel"

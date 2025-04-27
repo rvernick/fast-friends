@@ -4,7 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Bike,  } from './bike.entity';
 import { ConfigService } from '@nestjs/config';
-import { UpdateBikeDto } from './update-bike.dto';
+import { NULL_OPTIONAL_FIELD_ID, UpdateBikeDto } from './update-bike.dto';
 import { DeleteBikeDto } from './delete-bike.dto';
 import { MaintenanceItem } from './maintenance-item.entity';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -19,6 +19,7 @@ import { MaintenanceLogDto, MaintenanceLogRequestDto } from './log-maintenance.d
 import { MaintenanceHistory } from './maintenance-history.entity';
 import { MaintenanceHistorySummary } from './maintenance-history-summary';
 import { UpdateMaintenanceHistoryItemDto } from './update-maintenance-history-item.dto';
+import { BikeDefinition, BikeDefinitionSummary } from './bike-definition.entity';
 
 
 @Injectable()
@@ -73,7 +74,7 @@ export class BikeService {
   save(bike: Bike): Promise<Bike> {
     return this.bikesRepository.save(bike);
   }
-  
+
   unlinkFromStrava(user: User) {
     user.stravaId = null;
     user.stravaCode = null;
@@ -94,7 +95,14 @@ export class BikeService {
           id: bikeId,
           user: { username },
         },
+        relations: {
+          bikeDefinition: true,
+          maintenanceItems: true
+        },
       });
+      if (result && result.bikeDefinition) {
+        result.bikeDefinitionSummary = new BikeDefinitionSummary(result.bikeDefinition);
+      }
       return result;
     } catch (e: any) {
       console.log(e.message);
@@ -111,20 +119,29 @@ export class BikeService {
   }
 
   // TODO: decide if this should be through bikeRepository
-  getBikes(username: string): Promise<Bike[] | null> {
-    const userPromise = this.findUsername(username);
-    if (userPromise == null) return null;
-
-    return userPromise
-      .then((user: User) => {
-        // console.log('getBikes: '+ user.bikes.length);
-        // console.log('getBikes user: '+ JSON.stringify(user));
-        return user.bikes;
-      })
-      .catch((e: any) => {
-        console.log(e.message);
-        return [];
+  async getBikes(username: string): Promise<Bike[] | null> {
+    try {
+      console.log("getBikes getting bikes for user: " + username);
+      const result = await this.bikesRepository.find({
+        where: {
+          user: { username },
+        },
+        relations: {
+          bikeDefinition: true,
+          maintenanceItems: true
+        },
       });
+      result.forEach(bike => {
+        if (bike.bikeDefinition) {
+          bike.bikeDefinitionSummary = new BikeDefinitionSummary(bike.bikeDefinition);
+          bike.bikeDefinitionSummary = null;
+        }
+      });
+      return result;
+    } catch (e: any) {
+      console.log(e.message);
+      return [];
+    }
   }
 
   async remove(id: number): Promise<void> {
@@ -159,6 +176,20 @@ export class BikeService {
       }
       bike.name = bikeDto.name;
       bike.type = bikeDto.type;
+      if (bikeDto.bikeDefinitionId != null) {
+        if (bikeDto.bikeDefinitionId == NULL_OPTIONAL_FIELD_ID) {
+          bike.bikeDefinition = null;
+        } else {
+          const bikeDefinition = await this.dataSource.manager
+           .getRepository(BikeDefinition)
+           .findOneBy({ id: bikeDto.bikeDefinitionId });
+          if (bikeDefinition!= null) {
+            bike.bikeDefinition = bikeDefinition;
+          } else {
+            console.log("BikeDefinition not found for id: " + bikeDto.bikeDefinitionId);
+          }
+        }
+      }
       bike.setGroupsetBrand(bikeDto.groupsetBrand);
       bike.groupsetSpeed = bikeDto.groupsetSpeed;
       bike.isElectronic = bikeDto.isElectronic;
@@ -195,7 +226,7 @@ export class BikeService {
       .innerJoin("maintenanceItem.bike", "bike")
       .innerJoin("bike.user", "user")
       .where("user.id = :id", { id: user.id })
-    
+
     if (bikeId != 0) {
       queryBuilder.andWhere("bike.id = :bikeId", { bikeId: bikeId });
     }
@@ -252,8 +283,8 @@ export class BikeService {
 
   /**
    * To ensure that MaintenanceItems unique by bike, part and action, deleted Items might be resurrected.
-   * @param maintenanceInfo 
-   * @returns 
+   * @param maintenanceInfo
+   * @returns
    */
   async updateOrAddMaintenanceItem(maintenanceInfo: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
     this.logger.log('info', 'Updating or adding maintenance item: ', JSON.stringify(maintenanceInfo));
@@ -263,7 +294,7 @@ export class BikeService {
         console.error('Maintenance item not found for user '+ maintenanceInfo.username +' and id '+ maintenanceInfo.id);
         return null;
       }
-    
+
       if (maintenanceItem.id == 0 || maintenanceItem.bike == null) {
         const bike = await this.findOne(maintenanceInfo.bikeid);
         if (bike == null) {
@@ -398,7 +429,7 @@ export class BikeService {
       .andWhere("mi.action = :action", { action: action})
       .withDeleted();
     const zombieMaintenanceItems = await queryBuilder.getMany();
-  
+
     if (zombieMaintenanceItems.length > 0) {
       const result = zombieMaintenanceItems[0];
       this.maintenanceItemsRepository.restore(result.id);
@@ -434,7 +465,7 @@ export class BikeService {
   private async hasHistory(maintenanceId: number): Promise<boolean> {
     const queryBuilder = this.maintenanceHistoryRepository.createQueryBuilder("mh")
       .where("mh.maintenanceItem.id = :maintenanceItemId", { maintenanceItemId: maintenanceId })
-      
+
     const count = await queryBuilder.getCount();
     return count > 0;
   }
@@ -442,8 +473,8 @@ export class BikeService {
   /**
    * Should find a single query to get bikeId, bikeName, maintenanceItemId for each history
    * answer should be here: https://typeorm.io/select-query-builder seems like innerjoinAndSelect might be useful
-   * @param username 
-   * @returns 
+   * @param username
+   * @returns
    */
   async getMaintenanceHistory(username: string): Promise<MaintenanceHistorySummary[]> {
     const user = await this.findUsername(username);
@@ -453,7 +484,7 @@ export class BikeService {
       .innerJoinAndSelect("maintenanceHistory.maintenanceItem", "maintenanceItem")
       .innerJoinAndSelect("maintenanceItem.bike", "bike")
       .where("bike.userId = :userId", { userId: user.id });
-    
+
     const result = await historyQueryBuilder.getMany();
     // console.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
     // this.logger.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
@@ -469,12 +500,12 @@ export class BikeService {
       .innerJoinAndSelect("maintenanceItem.bike", "bike")
       .where("bike.userId = :userId", { userId: user.id })
       .andWhere("maintenanceHistory.id = :id", { id: maintenanceHistoryId });
-    
+
     // console.log('info', 'Query:'+ historyQueryBuilder.getQuery());
     const result = await historyQueryBuilder.getOne();
     // console.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
     // this.logger.log('info', 'Maintenance history for user'+ username + ':'+ JSON.stringify(result));
-    
+
     if (result == null) {
       console.error('Maintenance history item not found for user '+ username +' and id '+ maintenanceHistoryId);
       return null;

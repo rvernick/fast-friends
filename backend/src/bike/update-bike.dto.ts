@@ -1,5 +1,7 @@
 import { IsBoolean, IsNumber, IsString } from 'class-validator'
 
+export const NULL_OPTIONAL_FIELD_ID = -1;
+
 export class UpdateBikeDto {
   @IsString()
   username: string;
@@ -12,10 +14,10 @@ export class UpdateBikeDto {
 
   @IsNumber()
   odometerMeters: number;
-  
+
   @IsString()
   type: string;
-  
+
   @IsString()
   groupsetBrand: string;
 
@@ -27,4 +29,6 @@ export class UpdateBikeDto {
 
   @IsBoolean()
   isRetired: boolean;
+
+  bikeDefinitionId?: number;
 }

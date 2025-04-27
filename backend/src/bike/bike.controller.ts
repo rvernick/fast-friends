@@ -40,19 +40,19 @@ export class BikeController {
       return null;
     }
   }
-  
+
   @UseGuards(AuthGuard)
   @Get('bikes')
-  getBikes(@Query('username') username: string): Promise<Bike[] | null> {
+  async getBikes(@Query('username') username: string): Promise<Bike[] | null> {
     try {
       console.log('bike/bikes user:'+ username);
-      return this.bikeService.getBikes(username);
+      return await this.bikeService.getBikes(username);
     } catch (error) {
       console.log('bike/bikes error:', error);
       return null;
     }
   }
-  
+
   @UseGuards(AuthGuard)
   @Post('add-or-update-bike')
   updateOrAddBike(@Body() bike: UpdateBikeDto): Promise<Bike | null> {
@@ -66,7 +66,7 @@ export class BikeController {
       return null;
     }
   }
-  
+
   @UseGuards(AuthGuard)
   @Post('delete-bike')
   deleteBike(@Body() bike: DeleteBikeDto): Promise<Bike | null> {
@@ -90,7 +90,7 @@ export class BikeController {
       return null;
     }
   }
-  
+
   @UseGuards(AuthGuard)
   @Get('maintenance-item')
   getMaintenanceItem(@Query('maintenanceid') maintenanceId: number, @Query('username') username: string): Promise<MaintenanceItem | null> {
@@ -105,7 +105,7 @@ export class BikeController {
       return null;
     }
   }
-  
+
   @UseGuards(AuthGuard)
   @Post('update-or-add-maintenance-item')
   updateMaintenanceItem(@Body() maintenanceItem: UpdateMaintenanceItemDto): Promise<MaintenanceItem> {
@@ -117,7 +117,7 @@ export class BikeController {
       throw error;
     }
   }
-  
+
   @UseGuards(AuthGuard)
   @Post('delete-maintenance-item')
   deleteMaintenanceItem(@Body('maintenanceid') maintenanceId: number, @Body('username') username: string): Promise<boolean> {
@@ -132,7 +132,7 @@ export class BikeController {
       return Promise.resolve(false);
     }
   }
-  
+
   @UseGuards(AuthGuard)
   @Post('log-performed-maintenance')
   logPerformedMaintenance(@Body() maintenanceLogs: MaintenanceLogRequestDto): Promise<string> {
@@ -144,7 +144,7 @@ export class BikeController {
       return error.message;
     }
   }
-  
+
   @UseGuards(AuthGuard)
   @Get('maintenance-history')
   getMaintenanceHistory(@Query('username') username: string): Promise<MaintenanceHistorySummary[]> {
@@ -156,7 +156,7 @@ export class BikeController {
       return null;
     }
   }
-  
+
   @UseGuards(AuthGuard)
   @Get('maintenance-history-item')
   getMaintenanceHistoryItem(@Query('maintenance_history_id') maintenanceHistoryId: number, @Query('username') username: string): Promise<MaintenanceHistorySummary | null> {
@@ -172,7 +172,7 @@ export class BikeController {
     }
   }
 
-  // update-or-add-maintenance-history-item  
+  // update-or-add-maintenance-history-item
   @UseGuards(AuthGuard)
   @Post('update-or-add-maintenance-history-item')
   updateMaintenanceHistoryItem(@Body() maintenanceHistoryItem: UpdateMaintenanceHistoryItemDto): Promise<MaintenanceHistory> {
@@ -184,7 +184,7 @@ export class BikeController {
       return Promise.resolve(null) as any;
     }
   }
-  
+
   @UseGuards(AuthGuard)
   @Post('delete-maintenance-history-item')
   deleteMaintenanceHistoryItem(@Body('maintenance_history_id') maintenanceHistoryId: number, @Body('username') username: string): Promise<boolean> {

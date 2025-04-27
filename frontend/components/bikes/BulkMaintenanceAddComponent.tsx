@@ -26,6 +26,7 @@ const newBike = {
   maintenanceItems: [],
   stravaId: '',
   isRetired: false,
+  bikeDefinitionSummary: null,
 }
 
 type BulkMaintenanceAddProps = {
@@ -38,7 +39,7 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
-  
+
   const [bike, setBike] = useState<Bike>(newBike);
   const [bikeName, setBikeName] = useState('Select Bike');
   const [bikeIdString, setBikeIdString] = useState('0');
@@ -191,7 +192,7 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
       defaultBike = bikes.find(bike => bike.id === parseInt(bikeid));
     } else {
       const roomForMore = Object.keys(Part).length;
-      defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);      
+      defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);
     }
     if (defaultBike) {
       selectBike(ensureString(defaultBike.id));
@@ -205,7 +206,7 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     setErrorMessage('');
     const selectedItems = maintenanceLogs.filter(log => checkedIds.includes(log.id) && log.bikeId === bike.id);
 
-    const result = await controller.createMaintenanceItems(session, selectedItems);
+    const result = await controller.updateOrCreateMaintenanceItems(session, selectedItems);
     console.log('submit maintenance result: ', result);
     if (result && result.length > 0) {
       setErrorMessage(result);
@@ -224,7 +225,7 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     const [dueString, setDueString] = useState('0');
     const [unit, setUnit] = useState('miles');
 
-    const toggleSelectedRow = () => {    
+    const toggleSelectedRow = () => {
       if (checkedIds.includes(log.id)) {
         log.selected = false;
         setCheckedIds((prevIds) => prevIds.filter((id) => id!== log.id));
@@ -272,7 +273,7 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
         const numberValue = parseInt(newValue);
         if (numberValue > 0) {
           setDoEveryString(newValue);
-          
+
           if (log.maintenanceItem.defaultLongevity > 0) {
             const newLongevity = displayStringToMeters(newValue, prefs);
             log.maintenanceItem.defaultLongevity = newLongevity;
@@ -307,7 +308,7 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
     const byMileage = () => {
       return log.maintenanceItem.defaultLongevity > 0;
     }
-    
+
     useEffect(() => {
       syncNextDueString();
     }, [dueValue]);
@@ -438,14 +439,14 @@ const BulkMaintenanceAddComponent: React.FC<BulkMaintenanceAddProps> = ({bikeid}
           readonly={true}
           onSelect={selectBike} /> : <Text>{bikeName}</Text>}
       </Card>
-      
+
       <ScrollView style={useStyle.scrollView}>
         <MaintenanceLogHeader />
-        {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) => 
+        {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) =>
           <MaintenanceLogRow log={log} rowKey={"mlr" + rowKeyFor(log)} key={"mlr" + rowKeyFor(log)}/>
         )}
       </ScrollView>
-              
+
       <Surface style={useStyle.bottomButtons}>
         <Button
           style={{flex: 1}}

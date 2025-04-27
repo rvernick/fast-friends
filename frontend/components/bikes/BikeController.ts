@@ -24,7 +24,8 @@ class BikeController extends AppController {
     groupsetBrand: string,
     groupsetSpeed: string,
     isElectronic: boolean,
-    isRetired: boolean): Promise<string> => {
+    isRetired: boolean,
+    bikeDefinitionId: number = 0): Promise<string> => {
 
     try {
       const body = {
@@ -37,6 +38,7 @@ class BikeController extends AppController {
         groupsetSpeed: Number(groupsetSpeed),
         isElectronic: isElectronic,
         isRetired: isRetired,
+        bikeDefinitionId: bikeDefinitionId,
       };
 
       console.log('update bike called: ' + JSON.stringify(body));

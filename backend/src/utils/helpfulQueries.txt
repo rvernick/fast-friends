@@ -44,3 +44,25 @@ and bike.is_retired = FALSE
 and bike."deletedOn" IS NULL
 order by bike.id, mi.due_distance_meters ASC
 ;
+
+select bd.brand, bd.model, bd.line, bd.groupset_line, bc.part, bc.brand, bc.model, bc.line
+from bike_component bc
+INNER JOIN bike_definition bd on bd.id = bc.bike_definition_id
+WHERE
+bd.brand = 'Giant'
+ORDER BY
+bd.brand, bd.model, bd.line
+;
+
+delete from bike_component
+where id in (
+  select bc.id
+  from bike_component bc
+  inner join bike_definition bd on bd.id = bc.bike_definition_id
+  where bd.brand = 'Giant'  
+)
+;
+
+delete from bike_definition
+where brand = 'Giant'
+;
