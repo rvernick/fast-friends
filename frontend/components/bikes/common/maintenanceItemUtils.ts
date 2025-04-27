@@ -36,56 +36,55 @@ export const updateOrCreateMaintenanceItems = async (session: any, selectedItems
 }
 
 export const updateOrAddMaintenanceItem = async (
-        session: any,
-        username: string,
-        maintenanceItemId: number,
-        bikeId: number,
-        part: string,
-        action: string,
-        dueMiles: number | null,
-        dueDate: Date | null,
-        brand: string,
-        model: string,
-        link: string,
-        defaultLongevity: number,
-        defaultLongevityDays: number,
-        autoAdjustLongevity: boolean,
-      ) => {
+    session: any,
+    username: string,
+    maintenanceItemId: number,
+    bikeId: number,
+    part: string,
+    action: string,
+    dueMiles: number | null,
+    dueDate: Date | null,
+    brand: string,
+    model: string,
+    link: string,
+    defaultLongevity: number,
+    defaultLongevityDays: number,
+    autoAdjustLongevity: boolean,
+  ) => {
 
-      if (session === null) {
-        console.log('get maintenanceItem has no context: ' + username);
-        return Promise.resolve(false);
-      }
-      const jwtToken = session.jwt_token;
-      if (jwtToken == null) {
-        console.log('get bikes has no token dying: ' + username);
-        return Promise.resolve(false);
-      }
+  if (session === null) {
+    console.log('get maintenanceItem has no context: ' + username);
+    return Promise.resolve(false);
+  }
+  const jwtToken = session.jwt_token;
+  if (jwtToken == null) {
+    console.log('get bikes has no token dying: ' + username);
+    return Promise.resolve(false);
+  }
 
-      try {
-        const parameters = {
-          username: username,
-          id: maintenanceItemId,
-          bikeid: bikeId,
-          part: ensureString(part),
-          action: ensureString(action),
-          duemiles: dueMiles ? dueMiles : 0,
-          duedate: dueDate ? dueDate.getTime() : 0,
-          brand: ensureString(brand),
-          model: ensureString(model),
-          maintenanceid: maintenanceItemId,
-          link: ensureString(link),
-          defaultLongevity: defaultLongevity,
-          defaultLongevityDays: defaultLongevityDays,
-          autoAdjustLongevity: autoAdjustLongevity,
-        };
-        console.log('update maintenanceItem ' + maintenanceItemId);
-        console.log('/bike/update-or-add-maintenance-item', JSON.stringify(parameters));
-        const response = await post('/bike/update-or-add-maintenance-item', parameters, jwtToken);
-        return response.ok;
-      } catch(e: any) {
-        console.log(e.message);
-        return Promise.resolve(false);
-      }
-    }
-    
+  try {
+    const parameters = {
+      username: username,
+      id: maintenanceItemId,
+      bikeid: bikeId,
+      part: ensureString(part),
+      action: ensureString(action),
+      duemiles: dueMiles ? dueMiles : 0,
+      duedate: dueDate ? dueDate.getTime() : 0,
+      brand: ensureString(brand),
+      model: ensureString(model),
+      maintenanceid: maintenanceItemId,
+      link: ensureString(link),
+      defaultLongevity: defaultLongevity,
+      defaultLongevityDays: defaultLongevityDays,
+      autoAdjustLongevity: autoAdjustLongevity,
+    };
+    console.log('update maintenanceItem ' + maintenanceItemId);
+    console.log('/bike/update-or-add-maintenance-item', JSON.stringify(parameters));
+    const response = await post('/bike/update-or-add-maintenance-item', parameters, jwtToken);
+    return response.ok;
+  } catch(e: any) {
+    console.log(e.message);
+    return Promise.resolve(false);
+  }
+}

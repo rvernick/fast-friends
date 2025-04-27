@@ -18,7 +18,7 @@ import { HStack } from "../ui/hstack";
 import { ModelAutocompleteDropdown } from "../common/ModelAutocompleteDropdown";
 import { ScrollView } from "../ui/scroll-view";
 // import { LineAutocompleteDropdown } from "../common/LineAutocompleteDropdown"; // Removed as lines is too hard for now
-import { getBikeDefinitions } from "@/common/data-utils";
+import { getBikeDefinitions, getLines } from "@/common/data-utils";
 import { Pressable } from "../ui/pressable";
 import { BikeIcon } from "lucide-react-native";
 
@@ -62,6 +62,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const [unsureOfYear, setUnsureOfYear] = useState(false);
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
+  const [lines, setLines] = useState<string[]>([]);
   const [line, setLine] = useState('');
   const [groupsetBrand, setGroupsetBrand] = useState(newBike.groupsetBrand);
   const [speed, setSpeeds] = useState(newBike.groupsetSpeed.toString());
@@ -177,12 +178,25 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     markDirty();
   }
 
+  const syncLines = async (brand: string, model: string) => {
+    if (model && brand.length > 0 && model.length > 0) {
+      const lines = await getLines(session, brand, model);
+      setLines(lines);
+    } else {
+      setLines([]);
+    }
+  }
+
   useEffect(() => {
     if (bike) {
       resetBike(bike);
       setIsInitialized(true);
     }
   }, [bike]);
+
+  useEffect(() => {
+    syncLines(brand, model);
+  }, [brand, model]);
 
   const updateBrand = (newBrand: string) => {
     const oldBrand = brand;

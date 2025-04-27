@@ -101,8 +101,10 @@ export class BikeDefinitionService {
     return year > 1990
       && brand!== null
       && model!== null
+      && line!== null
       && brand.length > 2
-      && model.length > 3;
+      && model.length > 3
+      && line.length > 2;
   }
 
   async getAllBrands(): Promise<string[]> {

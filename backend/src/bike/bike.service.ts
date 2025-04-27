@@ -134,6 +134,7 @@ export class BikeService {
       result.forEach(bike => {
         if (bike.bikeDefinition) {
           bike.bikeDefinitionSummary = new BikeDefinitionSummary(bike.bikeDefinition);
+          bike.bikeDefinitionSummary = null;
         }
       });
       return result;

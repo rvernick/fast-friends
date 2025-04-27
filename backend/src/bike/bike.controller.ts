@@ -46,9 +46,7 @@ export class BikeController {
   async getBikes(@Query('username') username: string): Promise<Bike[] | null> {
     try {
       console.log('bike/bikes user:'+ username);
-      const result = await this.bikeService.getBikes(username);
-      result.forEach((bike) => { bike.bikeDefinition = null; });
-      return result;
+      return await this.bikeService.getBikes(username);
     } catch (error) {
       console.log('bike/bikes error:', error);
       return null;

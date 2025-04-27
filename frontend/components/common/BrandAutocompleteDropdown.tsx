@@ -8,6 +8,8 @@ import { VStack } from "../ui/vstack";
 import { sleep } from "@/common/utils";
 import { FlatList } from "react-native";
 
+const defaultBrands = ['Trek', 'Giant', 'Scott', 'Cannondale', 'Specialized', 'Kona', 'Yeti', 'Santa Cruz', 'Bianchi', 'Pinerello', 'GT', 'Colnago', 'Cervelo', 'Focus'];
+
 type BrandAutocompleteDropdownProps = {
   session: any;
   value: string;
@@ -28,7 +30,7 @@ export const BrandAutocompleteDropdown: React.FC<BrandAutocompleteDropdownProps>
   const { data: brands, isFetching, isError } = useQuery({
     queryKey: ['brands'],
     queryFn: async () => getAllBrands(session),
-    initialData: [],  // defaultBrands,
+    initialData: defaultBrands,
     refetchOnReconnect: true,
     refetchInterval: 60*60*1000,
     refetchIntervalInBackground: true,
@@ -152,13 +154,3 @@ export const BrandAutocompleteDropdown: React.FC<BrandAutocompleteDropdownProps>
     </VStack>
   );
 }
-
-
-const defaultBrands = ['Trek', 'Giant', 'Scott', 'Cannondale', 'Specialized', 'Kona', 'Yeti', 'Santa Cruz', 'Bianchi', 'Pinerello', 'GT', 'Colnago', 'Cervelo', 'Focus'];
-
-/**
- * suggestionsListTextStyle={{
-          color: '#8f3c96',
-        }}
-
- */
