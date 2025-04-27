@@ -691,7 +691,7 @@ const bootstrapBasis = {
   Brompton: [ 'A Line', 'C Line', 'Electric Line', 'P Line', 'Superlight Line' ],
   Cannondale: [
     'Adventure', 'Bad Boy',
-    'CAADX',     'Checkpoint', 'FSI',
+    'CAADX',     'FSI',
     'Habit',     'Jekyll',
     'Moterra',   'Quick',
     'Scalpel',   'SuperSix EVO',
@@ -792,7 +792,7 @@ const bootstrapBasis = {
   Esker: [ 'Bheast', 'Hayduke', 'Jaffle', 'Rook' ],
   Evil: [ 'Following', 'Insurgent', 'Offering', 'The Calling', 'Wreckoning' ],
   Felt: [
-    'AR',       'Compulsion',
+    'AR',     'Breed',  'Compulsion',
     'Decree',   'F-Series',
     'FR',       'Nine',
     'Sundance', 'VR',
@@ -1061,10 +1061,10 @@ const bootstrapBasis = {
     'TR11'
   ],
   Trek: [
-    'Allant', 'Bontrager',
-    'Domane', 'Dual Sport',
-    'Emonda', 'Fuel EX',
-    'Madone', 'Marlin',
+    'Allant', 'Bontrager', 'Boone', 'Checkpoint',
+    'Domane', 'Dual Sport', 'Crockett',
+    'Emonda', 'Fuel EX', 'Top Fuel',
+    'Madone', 'Marlin', 'Speed Concept',
     'Rail',   'Slash',
     'Stache', 'Verve'
   ],
