@@ -222,21 +222,21 @@ const MaintenanceComponent = () => {
             <Text>{description}</Text>
           </VStack>
           <Pressable className="absolute top-0 right-0" onPress={toggleExpanded} >
-            {item.expanded ? 
-              <ChevronUpIcon className="absolute top-0 right-0" size="48"/> 
+            {item.expanded ?
+              <ChevronUpIcon className="absolute top-0 right-0" size="48"/>
               : <ChevronDownIcon size="48"/>}
           </Pressable>
         </HStack>
       </Pressable>
     )
   }
-  
+
   type BikeOrMaintenanceItemProps = {
     item: BikeMaintenanceListItem;
   };
   const BikeOrMaintenanceItem: React.FC<BikeOrMaintenanceItemProps> = ({ item }) => {
     if (item.maintenanceItem) {
-      return <MaintenanceItemComp maintenanceItem={item.maintenanceItem} item={item} />;     
+      return <MaintenanceItemComp maintenanceItem={item.maintenanceItem} item={item} />;
     }
     if (item.bike) {
       return <BikeComp item={item} bike={item.bike}/>;
@@ -244,7 +244,7 @@ const MaintenanceComponent = () => {
   }
 
   /**
-   * 
+   *
    * @param param0 CHAIN = "Chain",
   CASSETTE = "Cassette",
   FRONT_TIRE = "Front Tire",
@@ -258,7 +258,7 @@ const MaintenanceComponent = () => {
   FRONT_SHIFTER_CABLE = "Front Shifter Cable",
   BAR_TAPER = "Bar Tape",
   TUNE_UP = "Tune Up",
-   * @returns 
+   * @returns
    */
   const BikePartIcon: React.FC<MaintenanceItemProps> = ({ maintenanceItem }) => {
     const part = maintenanceItem.part;
@@ -359,11 +359,11 @@ const MaintenanceComponent = () => {
           <Text>
             No bikes found. Add a bike or sync with Strava.
           </Text>
-          <Button 
+          <Button
             className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ refresh }
-            style={{flex: 1}} 
+            style={{flex: 1}}
             accessibilityLabel="Refresh list"
             accessibilityHint="Will check for new list items">
             <ButtonText>Refresh</ButtonText>
@@ -387,7 +387,7 @@ const MaintenanceComponent = () => {
             <Dropdown
               value={sortOption}
               options={sortOptions}
-              onSelect={updateSorting}/>  
+              onSelect={updateSorting}/>
           </View>
         </HStack>
         <ScrollView
@@ -400,7 +400,7 @@ const MaintenanceComponent = () => {
         </VStack>
         </ScrollView>
         <HStack className="w-full flex bg-background-0 flex-grow justify-center">
-          <Button 
+          <Button
             className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ addMaintenanceItem }
@@ -409,7 +409,7 @@ const MaintenanceComponent = () => {
             accessibilityHint="Opens page for adding a maintenance item">
             <ButtonText>Add Maintenance Item</ButtonText>
           </Button>
-          <Button 
+          <Button
               className="bottom-button shadow-md rounded-lg m-1"
               onPress={ logMaintenance }
               style={{flex: 1}}

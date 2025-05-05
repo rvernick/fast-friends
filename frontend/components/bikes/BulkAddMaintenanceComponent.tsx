@@ -275,9 +275,10 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({mainten
   };
 
   const MaintenanceLogHeader = () => {
-      return (
+    return (
+      <VStack className="w-full">
         <HStack>
-          <VStack  style={{justifyContent: "center", width: "15%", padding: 10}}>
+          <VStack style={proportionStyle.checkBox}>
             <Checkbox size="md"
               value="Not Sure"
               isChecked={selectAll}
@@ -302,11 +303,12 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({mainten
           </VStack>
           { isMobileSize() ? null : (
             <VStack style={proportionStyle.nextDue}>
-              <Text>Action</Text>
+              <Text>Due At</Text>
             </VStack>
           )}
         </HStack>
-      );
+      </VStack>
+    );
   }
 
   const rowKeyFor = (log: MaintenanceLog): string => {
@@ -318,10 +320,10 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({mainten
   }, [maintenanceLogs]);
 
   return (
-    <VStack >
+    <VStack className="w-full h-full justify-start">
       <MaintenanceLogHeader />
       <Divider className="w-full"/>
-      <ScrollView className="w-full h-full">
+      <ScrollView className="w-full">
         {maintenanceLogs.map((log) =>
           <MaintenanceLogRow log={log} rowKey={"mlr" + rowKeyFor(log)} key={"mlr" + rowKeyFor(log)}/>
         )}

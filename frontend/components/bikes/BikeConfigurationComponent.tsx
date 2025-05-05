@@ -391,8 +391,8 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
         <CheckboxLabel>Might Be Different</CheckboxLabel>
       </Checkbox>
       </HStack>
-      <HStack className="w-full bg-background-0 flex-grow justify-center">
-        <VStack className="w-full">
+      <HStack className="w-full bg-background-0 justify-stretch">
+        <VStack className="flex-grow ">
           <Text>Brand</Text>
           <BrandAutocompleteDropdown
             session={session}
@@ -401,7 +401,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
             onSelect={updateBrand}
           />
         </VStack>
-        <VStack className="w-full">
+        <VStack className="flex-grow ">
           <Text>Model</Text>
           {/* TODO: reset bike doesn't update these */}
           <ModelAutocompleteDropdown

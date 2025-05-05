@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Image } from "react-native";
 import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
-import { ensureString, forget, isMobile, isValidPhone, strippedPhone } from '../../common/utils';
+import { ensureString, forget, isMobile, isMobileSize, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/common/ctx";
@@ -118,6 +118,11 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
 
   const dirty = () => {
     setIsDirty(true);
+  }
+
+  const logout = () => {
+    session.signOut();
+    router.push('/');
   }
 
   const updateAccount = async function() {
@@ -340,7 +345,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             isDisabled={false}
             isInvalid={false}
           >
-            <InputField 
+            <InputField
               value={firstName}
               onChangeText={updateFirstName}
               inputMode="numeric"
@@ -357,7 +362,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             isDisabled={false}
             isInvalid={false}
           >
-            <InputField 
+            <InputField
               value={lastName}
               onChangeText={updateLastName}
               inputMode="numeric"
@@ -374,7 +379,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             isDisabled={false}
             isInvalid={false}
           >
-            <InputField 
+            <InputField
               value={phoneFormat(cellPhone)}
               onChangeText={updateMobile}
               keyboardType="phone-pad"
@@ -428,7 +433,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
               accessibilityHint="Edit the user account">
                 <ButtonText>Edit</ButtonText>
             </Button>
-          ) 
+          )
             : (<Button
               className="bottom-button shadow-md rounded-lg m-1"
               style={{flex: 1}}
@@ -449,7 +454,18 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
               accessibilityHint="Cancel the edit">
                 <ButtonText>Cancel</ButtonText>
             </Button>)}
+
         </HStack>
+        {isMobileSize() ? (
+          <Button
+              className="bottom-button shadow-md rounded-lg m-1"
+              style={{flex: 1}}
+              onPress={logout}
+              testID="logout-button"
+              accessibilityLabel="Logout"
+              accessibilityHint="Logout of the user account">
+                <ButtonText>Logout</ButtonText>
+            </Button>) : null }
       </VStack>
     </BaseLayout>
   )

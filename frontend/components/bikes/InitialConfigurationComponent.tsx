@@ -261,40 +261,39 @@ const InitialConfigurationComponent = () => {
 
   return (
     <SafeAreaView className="w-full h-full">
-      <VStack className="justify-start">
-        {/* <RadioGroup
-            className="w-full"
-            value={page}
-            isDisabled={isDirty}
-            onChange={updatePage}
-            testID="page-selection">
-          <HStack className="w-full justify-evenly ">
-            <Radio value={MODEL} testID="model-selector">
-              <RadioLabel>Model</RadioLabel>
-            </Radio>
-            <Radio value={MAINTENANCE} testID="maintenance-selector">
-              <RadioLabel>Maintenance</RadioLabel>
-            </Radio>
-          </HStack>
-        </RadioGroup> */}
-        <VStack>
-          {page !== MODEL ? null : <BikeConfigurationComponent bike={currentBike} markDirty={markAsDirty}/>}
-          {page !== MAINTENANCE ? null : <BulkAddMaintenanceComponent maintenanceLogs={maintenanceLogs} markDirty={markAsDirty}/>}
-          {/* {page !== "frame" ? null : <BikeFrameComponent bike={bike} markDirty={markAsDirty}/>}   */}
-          {/* {page !== "shifters" ? null : <BikeConfigurationComponent bike={bike} markDirty={markAsDirty}/>} */}
-          {/* setDirty={setIsDirty} */}
-        </VStack>
+      <VStack className="flex-1 justify-start">
+          {/* <RadioGroup
+              className="w-full"
+              value={page}
+              isDisabled={isDirty}
+              onChange={updatePage}
+              testID="page-selection">
+            <HStack className="w-full justify-evenly ">
+              <Radio value={MODEL} testID="model-selector">
+                <RadioLabel>Model</RadioLabel>
+              </Radio>
+              <Radio value={MAINTENANCE} testID="maintenance-selector">
+                <RadioLabel>Maintenance</RadioLabel>
+              </Radio>
+            </HStack>
+          </RadioGroup> */}
+
+            {page !== MODEL ? null : <BikeConfigurationComponent bike={currentBike} markDirty={markAsDirty}/>}
+            {page !== MAINTENANCE ? null : <BulkAddMaintenanceComponent maintenanceLogs={maintenanceLogs} markDirty={markAsDirty}/>}
+            {/* {page !== "frame" ? null : <BikeFrameComponent bike={bike} markDirty={markAsDirty}/>}   */}
+            {/* {page !== "shifters" ? null : <BikeConfigurationComponent bike={bike} markDirty={markAsDirty}/>} */}
+            {/* setDirty={setIsDirty} */}
+
         <HStack>
           <Button
-            className="bottom-button shadow-md rounded-lg m-1"
+            className="bottom-button shadow-md rounded-lg m-1 flex-1"
             action="primary"
             onPress={ saveAndContinue }
-            style={{flex: 1}}
             accessibilityLabel="Finished editing"
             accessibilityHint="Will save any changes and go to the next screen">
             <ButtonText>{saveLabel}</ButtonText>
           </Button>
-          <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ skip }>
+          <Button className="bottom-button shadow-md rounded-lg m-1 flex-1" onPress={ skip }>
             <ButtonText>Skip</ButtonText>
           </Button>
         </HStack>
