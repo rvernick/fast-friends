@@ -119,33 +119,41 @@ export const LoginComponent = () => {
     }
   }
 
+  const isFaceIdPossible = async (): Promise<boolean> => {
+    if (!isMobile()) {
+      return false;
+    }
+    const hasHardware = await LocalAuthentication.hasHardwareAsync();
+    const types = await LocalAuthentication.supportedAuthenticationTypesAsync()
+    const hasBiometrics = await LocalAuthentication.isEnrolledAsync();
+    const lastUser =  await remind(FACE_ID_USERNAME);
+    const lastPass = await remind(FACE_ID_PASSWORD);
+
+    return hasHardware
+      && hasBiometrics
+      && types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)
+      && lastUser !=  null && lastUser.length > 0
+      && lastPass != null  && lastPass.length > 0;
+  }
+
   const confirmUseFaceRecognition = async () => {
     if (!isMobile()) {
       setUseFaceRecognition(false);
       setCanUseFaceId(false);
       return false;
     }
-    const hasHardware = await LocalAuthentication.hasHardwareAsync();
-    const types = await LocalAuthentication.supportedAuthenticationTypesAsync()
-    const hasBiometrics = await LocalAuthentication.isEnrolledAsync();
-    const lastUser =  await remind('FACE_ID_USERNAME');
-    const lastPass = await remind('FACE_ID_PASSWORD');
-    if ( !hasHardware
-      || !hasBiometrics
-      || !types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)
-      || !(lastUser && lastUser.length > 0)
-      || !(lastPass && lastPass.length > 0)) {
+    if (await isFaceIdPossible()) {
+      setCanUseFaceId(true);
+      return true;
+    } else {
       setUseFaceRecognition(false);
       setCanUseFaceId(false);
       return false;
-    } else {
-      setCanUseFaceId(true);
-      return true;
     }
   }
 
   const loginWithFaceRecognition = async () => {
-    const confirm = await confirmUseFaceRecognition();
+    const confirm = await isFaceIdPossible();
     if (confirm) {
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Scan your face to log in',
@@ -162,6 +170,16 @@ export const LoginComponent = () => {
     }
   }
 
+  const prepareFaceRecognition = async () => {
+    if (useFaceRecognition) {
+      loginWithFaceRecognition();
+    }
+    if (!canUseFaceId || !useFaceRecognition) {
+      confirmUseFaceRecognition();
+    }
+  }
+
+
   useEffect(() => {
     if (devFastLogin) {
       console.log('Dev fast login enabled');
@@ -171,15 +189,13 @@ export const LoginComponent = () => {
         loginSchema.parseAsync({ email: 't5@t.com', password: 'h@ppyHappy' });
       }
     }
-  }, []);
-
-  useEffect(() => {
-    if (useFaceRecognition) {
-      loginWithFaceRecognition();
-    }
     if (!canUseFaceId) {
       confirmUseFaceRecognition();
     }
+  }, []);
+
+  useEffect(() => {
+    prepareFaceRecognition();
   }, [useFaceRecognition, canUseFaceId]);
 
   if (useFaceRecognition && canUseFaceId) {
@@ -320,6 +336,16 @@ export const LoginComponent = () => {
               onPress={handleSubmit(onSubmit)}>
             <ButtonText className="font-medium">Log in</ButtonText>
           </Button>
+          {canUseFaceId ? (
+            <Link onPress={() => loginWithFaceRecognition()}>
+              <LinkText
+                className="self-center font-medium text-primary-700 group-hover/link:text-primary-600  group-hover/pressed:text-primary-700"
+                size="md"
+              >
+                [ Use Face ID ]
+              </LinkText>
+            </Link>)
+            : null }
         </VStack>
         <HStack className="self-center" space="sm">
           <Text size="md">Don't have an account?</Text>

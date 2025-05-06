@@ -122,7 +122,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
 
   const logout = () => {
     session.signOut();
-    router.push('/');
+    router.replace('/(sign-in-sign-up)/(sign-in)/sign-in');
   }
 
   const updateAccount = async function() {
