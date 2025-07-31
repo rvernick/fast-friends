@@ -94,7 +94,7 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({mainten
   };
 
   const MaintenanceLogRow: React.FC<MaintenanceLogRowProps> = ({ log, rowKey }) => {
-    const [dueValue, setDueValue] = useState(log.nextDue);
+    const [dueValue, setDueValue] = useState(log.due);
     const [dueDate, setDueDate] = useState(log.nextDate);
     const [doEveryString, setDoEveryString] = useState('0');
     const [dueString, setDueString] = useState('0');
@@ -111,6 +111,7 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({mainten
         if (!newValue.match(/^[0-9]*$/)) {
           return;
         }
+        // console.log("setNextDueMilage ", newValue)
         const nextDueDistanceMeters = displayStringToMeters(newValue, await preferences);
         log.maintenanceItem.dueDistanceMeters = nextDueDistanceMeters;
         setDueValue(nextDueDistanceMeters);
@@ -141,16 +142,23 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({mainten
       try {
         const prefs = await preferences;
         const numberValue = parseInt(newValue);
+        // console.log("setDoEvery ", newValue)
         if (numberValue > 0) {
           setDoEveryString(newValue);
 
           if (log.maintenanceItem.defaultLongevity > 0) {
             const newLongevity = displayStringToMeters(newValue, prefs);
-            log.maintenanceItem.defaultLongevity = newLongevity;
-            log.maintenanceItem.dueDistanceMeters = log.bikeMileage + newLongevity;
-            setDueValue(log.maintenanceItem.dueDistanceMeters);
-            setDueString(metersToDisplayString(log.maintenanceItem.dueDistanceMeters, prefs));
+            if (newLongevity != log.maintenanceItem.defaultLongevity) {
+              // console.log("updating log: ", log)
+              // console.log("newLongevity", newLongevity)
+              log.maintenanceItem.defaultLongevity = newLongevity;
+              log.maintenanceItem.dueDistanceMeters = log.bikeMileage + newLongevity;
+              setDueValue(log.maintenanceItem.dueDistanceMeters);
+              setDueString(metersToDisplayString(log.maintenanceItem.dueDistanceMeters, prefs));
+            }
           } else {
+            // console.log("updating log: ", log)
+            // console.log("newLongevityDays", numberValue)
             log.maintenanceItem.defaultLongevityDays = numberValue;
             log.maintenanceItem.dueDate = new Date(today().getTime() + numberValue * 24 * 60 * 60 * 1000);
             log.nextDate = log.maintenanceItem.dueDate;
@@ -164,6 +172,7 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({mainten
 
     const syncNextDueString = async () => {
       const prefs = await preferences;
+      // console.log("syncNextDueString", dueValue)
       setDueString(metersToDisplayString(dueValue ? dueValue : 0, prefs));
       if (byMileage()) {
         const longevityString = metersToDisplayString(log.maintenanceItem.defaultLongevity, prefs);
@@ -222,7 +231,7 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({mainten
               value={doEveryString}
               onChangeText={(newValue) => {setDoEvery(newValue)}}
               onBlur={ensureSelected}
-              placeholder="Enter bike name here..."
+              placeholder="Do every..."
               testID="nameInput"
               inputMode="numeric"
               autoCapitalize="none"
@@ -249,7 +258,7 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({mainten
               autoComplete="off"
               value={dueString}
               onChangeText={(newValue) => {setNextDueMilage(newValue)}}
-              placeholder="Enter bike name here..."
+              placeholder="Enter mileage..."
               testID="nameInput"
               inputMode="numeric"
               onBlur={ensureSelected}
