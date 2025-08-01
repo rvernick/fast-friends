@@ -242,7 +242,7 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({mainten
         </View>
         <View style={proportionStyle.unit}>
           <Pressable onPress={toggleSelectedRow}>
-            <Text key={"due" + rowKey} onPress={toggleSelectedRow}>
+            <Text key={"due" + rowKey}>
               {unit}</Text>
             </Pressable>
         </View>
