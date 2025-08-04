@@ -53,6 +53,10 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
 
   const isNew = bikeId === 0;
   const [bikeName, setBikeName] = useState(newBike.name);
+  const [year, setYear] = useState('2022');
+  const [brand, setBrand] = useState('');
+  const [model, setModel] = useState('');
+  const [line, setLine] = useState('');
   const [readOnly, setReadOnly] = useState(!isNew);
   const [groupsetBrand, setGroupsetBrand] = useState(newBike.groupsetBrand);
   const [speed, setSpeeds] = useState(newBike.groupsetSpeed.toString());
@@ -82,6 +86,10 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     setMileageLabel('Mileage (' + pref.units + ')');
     console.log('reset bike: ' + JSON.stringify(bike));
     setBikeName(ensureString(bike.name));
+    setYear(ensureString(bike.year));
+    setBrand(ensureString(bike.brand));
+    setModel(ensureString(bike.model));
+    setLine(ensureString(bike.line));
     navigation.setOptions({ title: ensureString(bike.name) });
     setType(ensureString(bike.type));
     setGroupsetBrand(ensureString(bike.groupsetBrand));
@@ -103,12 +111,19 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   }
 
   const updateBike = async function() {
-    const result = await controller.updateBike(session, email, bikeId,
+    const result = await controller.updateBike(
+      session,
+      email,
+      bikeId,
       bikeName,
+      year,
+      brand,
+      model,
+      line,
       displayStringToMeters(milage, await preferences),
       type,
       groupsetBrand,
-      speed,
+      speed != null && speed != '' ? Number(speed) : 0,
       isElectronic,
       isRetired);
     console.log('update bike result: ' + result);

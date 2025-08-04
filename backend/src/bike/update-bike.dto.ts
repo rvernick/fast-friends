@@ -30,5 +30,13 @@ export class UpdateBikeDto {
   @IsBoolean()
   isRetired: boolean;
 
+  year: string;
+
+  brand: string;
+
+  model: string;
+
+  line: string;
+
   bikeDefinitionId?: number;
 }

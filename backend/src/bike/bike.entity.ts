@@ -51,17 +51,35 @@ export class Bike {
   type: string;
 
   @Column({
-    type: 'integer',
+    type: 'varchar',
     nullable: true,
   })
-  year: number;
+  year: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  brand: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  model: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  line: string;
 
   @ManyToOne((type) => BikeDefinition, { nullable: true, cascade: false, eager: false })
   @JoinColumn({ name: "bike_definition_id" })
   bikeDefinition: BikeDefinition;
 
   bikeDefinitionSummary: BikeDefinitionSummary | null;
-  
+
   @Column({
     type: "enum",
     enum: GroupsetBrand,

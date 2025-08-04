@@ -176,6 +176,10 @@ export class BikeService {
       }
       bike.name = bikeDto.name;
       bike.type = bikeDto.type;
+      bike.year = bikeDto.year;
+      bike.brand = bikeDto.brand;
+      bike.model = bikeDto.model;
+      bike.line = bikeDto.line;
       if (bikeDto.bikeDefinitionId != null) {
         if (bikeDto.bikeDefinitionId == NULL_OPTIONAL_FIELD_ID) {
           bike.bikeDefinition = null;

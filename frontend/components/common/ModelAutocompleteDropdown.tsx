@@ -81,7 +81,7 @@ export const ModelAutocompleteDropdown: React.FC<ModelAutocompleteDropdownProps>
     if (suggestions.length == 1) {
       handleSelect(suggestions[0])
     } else if (suggestions.length == 0) {
-      verifyModel();
+      onSelect(selected);
     }
     setShowList(false);
 

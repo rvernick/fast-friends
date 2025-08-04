@@ -46,10 +46,9 @@ export class BikeDefinitionService {
         logger.log('Invalid year format. Must be 4 digits');
         return result;
       }
-      const yearNumber = parseInt(year);
       const exactMatchPromise = this.bikeDefinitionRepository.find({
         where: {
-          year: yearNumber,
+          year: year,
           brandName: brandName,
           modelName: modelName,
           lineName: lineName,
@@ -64,7 +63,7 @@ export class BikeDefinitionService {
           },
         });
       const exactMatch = await exactMatchPromise;
-      if (exactMatch.length < 1 && this.canBootstrap(yearNumber, brandName, modelName, lineName)) {
+      if (exactMatch.length < 1 && this.canBootstrap(year, brandName, modelName, lineName)) {
         console.log('Bootstraping definition for ', { year, brand: brandName, model: modelName, line: lineName });
         const placeHolder = await this.startDefinitionFor(year, brandName, modelName, lineName);
         result.push(placeHolder);
@@ -97,14 +96,19 @@ export class BikeDefinitionService {
     return result;
   }
 
-  canBootstrap(year: number, brand: string, model: string, line: string): boolean {
-    return year > 1990
-      && brand!== null
-      && model!== null
-      && line!== null
-      && brand.length > 2
-      && model.length > 3
-      && line.length > 2;
+  canBootstrap(year: string, brand: string, model: string, line: string): boolean {
+    try {
+      const yearNumber = parseInt(year);
+      return yearNumber > 1990
+        && brand!== null
+        && model!== null
+        && line!== null
+        && brand.length > 2
+        && model.length > 3
+        && line.length > 2;
+    } catch (e: any) {
+      return false;
+    }
   }
 
   async getAllBrands(): Promise<string[]> {
@@ -217,7 +221,7 @@ export class BikeDefinitionService {
     const model = await this.ensureModel(brand, modelName);
     const line = await this.ensureLine(model, lineName);
     const definition = await this.bikeDefinitionRepository.create();
-    definition.year = parseInt(year);
+    definition.year = year;
     definition.brand = brand;
     definition.model = model;
     definition.line = line;
@@ -266,7 +270,7 @@ export class BikeDefinitionService {
   }
 
   async fillInDefinition(definition: BikeDefinition): Promise<void> {
-    const yearString = definition.year.toString();
+    const yearString = definition.year;
     const {query, response} = await this.queryChatGPTDefinition(yearString, definition.brandName, definition.modelName, definition.lineName ? definition.lineName : '');
     populateDefinitionFromJSON(definition, query, response);
     const result = await this.bikeDefinitionRepository.save(definition);
@@ -277,7 +281,7 @@ export class BikeDefinitionService {
       const {query, response} = await this.queryChatGPTDefinition(year, brand, model, line);
       console.log('Got response from ChatGPT: ', response);
       const definition = await this.bikeDefinitionRepository.create();
-      definition.year = parseInt(year);
+      definition.year = year;
       definition.brandName = brand;
       definition.modelName = model;
       definition.lineName = line;

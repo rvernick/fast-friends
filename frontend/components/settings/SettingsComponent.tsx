@@ -327,14 +327,14 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
               source={ require("../../assets/images/btn_strava_connectwith_orange.png")}
               style={{ width: 196, height: 48}}
               />
-            <Text>{(stravaId.length > 0) ? ('Strava id: ' + stravaId) : ''}</Text>
+            {readOnly ?(<Text>{(stravaId.length > 0) ? ('Strava id: ' + stravaId) : ''}</Text>) : null }
           </Pressable>
-          {readOnly || isDirty || stravaId.length == 0 ? null : (
+          {readOnly || stravaId.length == 0 ? null : (
             <Button
                 className="bottom-button shadow-md rounded-lg m-1"
                 onPress={() => setConfirmUnlink(true) }
                 disabled={stravaId.length == 0}>
-              <ButtonText>Unlink</ButtonText>
+              <ButtonText>{'Unlink Strava: ' + stravaId}</ButtonText>
             </Button>)}
           <UnlinkWarningComponent />
           <Text>First Name</Text>

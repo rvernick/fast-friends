@@ -2,17 +2,14 @@ import React, { useEffect, useState } from "react";
 import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
-import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, metersToDisplayString } from "@/common/utils";
-import { useQueryClient } from "@tanstack/react-query";
 import { VStack } from "../ui/vstack";
 import { Text } from "../ui/text";
 import { Input, InputField } from "../ui/input";
 import { Alert, AlertIcon, AlertText } from "../ui/alert";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon, InfoIcon } from "lucide-react-native";
 import { BikeDefinitionSummary } from "@/models/BikeDefinition";
-import { Checkbox, CheckboxIcon, CheckboxIndicator, CheckboxLabel } from "../ui/checkbox";
 import { BrandAutocompleteDropdown } from "../common/BrandAutocompleteDropdown";
 import { HStack } from "../ui/hstack";
 import { ModelAutocompleteDropdown } from "../common/ModelAutocompleteDropdown";
@@ -48,8 +45,6 @@ type BikeFrameProps = {
 const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }) => {
   console.log('BikeFrameComponent bike: ' + bike.name);
   const session = useSession();
-  const navigation = useNavigation();
-  const queryClient = useQueryClient();
   const appContext = useGlobalContext();
 
   const email = session.email ? session.email : '';
@@ -57,21 +52,20 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   var bikeId = bike ? bike.id : 0;
 
   const isNew = bike.id === 0;
-  const [bikeName, setBikeName] = useState(newBike.name);
+  const [bikeName, setBikeName] = useState(bike.name);
   const [year, setYear] = useState('2022');
-  const [unsureOfYear, setUnsureOfYear] = useState(false);
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
   const [lines, setLines] = useState<string[]>([]);
   const [line, setLine] = useState('');
-  const [groupsetBrand, setGroupsetBrand] = useState(newBike.groupsetBrand);
-  const [speed, setSpeeds] = useState(newBike.groupsetSpeed.toString());
-  const [type, setType] = useState(newBike.type);
-  const [isElectronic, setIsElectronic] = useState(newBike.isElectronic);
+  const [groupsetBrand, setGroupsetBrand] = useState(bike.groupsetBrand);
+  const [speed, setSpeeds] = useState(bike.groupsetSpeed.toString());
+  const [type, setType] = useState(bike.type);
+  const [isElectronic, setIsElectronic] = useState(bike.isElectronic);
   const [stravaId, setStravaId] = useState('');
-  const [milage, setMileage] = useState(newBike.odometerMeters.toFixed(0));
+  const [milage, setMileage] = useState(bike.odometerMeters.toFixed(0));
   const [milageLabel, setMileageLabel] = useState('Mileage');
-  const [isRetired, setIsRetired] = useState(newBike.isRetired);
+  const [isRetired, setIsRetired] = useState(bike.isRetired);
   const [connectedToStrava, setConnectedToStrava] = useState(false);
   const [isInitialized, setIsInitialized] = useState(isNew);
   const [errorMessage, setErrorMessage] = useState('');
@@ -92,11 +86,11 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     setBikeName(ensureString(bike.name));
     setGroupsetBrand(ensureString(bike.groupsetBrand));
     setSpeeds(ensureString(bike.groupsetSpeed));
-    navigation.setOptions({ title: ensureString(bike.name) });
     checkConnectedToStrava(bike.stravaId);
     if (bike.bikeDefinitionSummary) {
       console.log('update bike definition: ' + JSON.stringify(bike.bikeDefinitionSummary));
       setDefinition(bike.bikeDefinitionSummary);
+      setYear(bike.bikeDefinitionSummary.year);
       setBrand(bike.bikeDefinitionSummary.brand);
       setModel(bike.bikeDefinitionSummary.model);
       if (bike.bikeDefinitionSummary.line) {
@@ -105,6 +99,10 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
       console.log('updated bike definition:');
     } else {
       setDefinition(null);
+      setYear(ensureString(bike.year));
+      setBrand(ensureString(bike.brand))
+      setModel(ensureString(bike.model))
+      setLine(ensureString(bike.line))
     }
   }
 
@@ -112,31 +110,33 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     console.log('update bike name: ' + name);
     bike.name = name;
     setBikeName(name);
-    navigation.setOptions({ title: name });
     setErrorMessage('');
     markDirty();
   }
 
   const updateYear = (itemValue: string) => {
+    if (!itemValue.match(/^[0-9]*$/) || itemValue.length > 4) return;
+
+    var updatedYear = year;
     if (itemValue.match(/^[0-9]*$/) && itemValue.length == 2) {
       if (itemValue != '20' && itemValue != '19') {
         const possibleYear = parseInt(itemValue);
         const basisYearString = new Date().getFullYear().toString().substr(2);
         const basisYear = parseInt(basisYearString) + 2;
         if (possibleYear >= basisYear ) {
-          setYear('19' + itemValue);
+          updatedYear = '19' + itemValue;
         } else {
-          setYear('20' + itemValue);
+          updatedYear = '20' + itemValue;
         }
-        markDirty();
-        // TODO: Should update possible definitions
-        return;
       }
+    } else {
+      updatedYear = itemValue;
     }
-    if (itemValue.match(/^[0-9]*$/) && itemValue.length <= 4) {
-      setYear(itemValue);
-      markDirty();
+    setYear(updatedYear);
+    if (updatedYear.length == 4) {
+      bike.year = updatedYear;
     }
+    markDirty();
   }
 
   const updateGroupsetBrand = (itemValue: string) => {
@@ -201,6 +201,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const updateBrand = (newBrand: string) => {
     const oldBrand = brand;
     setBrand(newBrand);
+    bike.brand = newBrand;
     if (shouldReset(newBrand, oldBrand)) {
       updateModel('');
       setDefinition(null);
@@ -210,6 +211,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const updateModel = (newModel: string) => {
     const oldModel = model;
     setModel(newModel);
+    bike.model = newModel;
     if (shouldReset(newModel, oldModel)) {
       updateLine('');
       setDefinition(null);
@@ -221,6 +223,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const updateLine = (newLine: string) => {
     const oldLine = line;
     setLine(newLine);
+    bike.line = newLine;
     searchPossibleDefinitions(year, brand, model, newLine);
   }
 
@@ -380,16 +383,6 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
               accessibilityHint="The model year of the bike being edited"/>
           </Input>
         </VStack>
-        <Checkbox size="md"
-          value="Not Sure"
-          isChecked={unsureOfYear}
-          onChange={(newVal) => setUnsureOfYear(newVal)}
-          accessibilityLabel="Might be a different year">
-        <CheckboxIndicator>
-          <CheckboxIcon as={CheckIcon} />
-        </CheckboxIndicator>
-        <CheckboxLabel>Might Be Different</CheckboxLabel>
-      </Checkbox>
       </HStack>
       <HStack className="w-full bg-background-0 justify-stretch">
         <VStack className="flex-grow ">
