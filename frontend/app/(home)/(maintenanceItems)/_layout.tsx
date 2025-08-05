@@ -16,7 +16,7 @@ export default function Layout() {
           title: "Maintenance",
           headerShown: true,
         }} />
-      <Stack.Screen name="[maintenanceid]" options={{
+      <Stack.Screen name="edit-item" options={{
         title: 'Maintenance Item',
       }} />
       <Stack.Screen name="bulk-maintenance" options={{

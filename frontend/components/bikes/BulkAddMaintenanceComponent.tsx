@@ -332,11 +332,10 @@ const BulkAddMaintenanceComponent: React.FC<BulkAddMaintenanceProps> = ({mainten
     <VStack className="w-full h-full justify-start">
       <MaintenanceLogHeader />
       <Divider className="w-full"/>
-      <ScrollView className="w-full">
+
         {maintenanceLogs.map((log) =>
           <MaintenanceLogRow log={log} rowKey={"mlr" + rowKeyFor(log)} key={"mlr" + rowKeyFor(log)}/>
         )}
-      </ScrollView>
     </VStack>
   )
 };

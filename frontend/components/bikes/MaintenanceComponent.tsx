@@ -19,9 +19,7 @@ import { Text } from '../ui/text';
 import {
   Link2Icon,
   BikeIcon,
-  LoaderPinwheelIcon,
   CogIcon,
-  WrenchIcon,
   CableIcon,
   OctagonMinusIcon,
   BatteryChargingIcon,
@@ -167,7 +165,7 @@ const MaintenanceComponent = () => {
       const bikeId = item.bike.id;
       const id = item.maintenanceItem ? item.maintenanceItem.id : 0;
       console.log('editMaintenanceItem called: ' + id +' bikeId: '+ bikeId);
-      router.push( { pathname: '/(home)/(maintenanceItems)', params: { id: ensureString(id), bikeid: ensureString(bikeId) } });
+      router.push( { pathname: '/(home)/(maintenanceItems)/edit-item', params: { id: ensureString(id), bikeid: ensureString(bikeId) } });
     }
 
     useEffect(() => {

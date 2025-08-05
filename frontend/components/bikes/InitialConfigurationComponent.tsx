@@ -7,7 +7,7 @@ import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { copy, ensureString, isMobileSize, metersToDisplayString, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {  SafeAreaView } from "react-native";
+import { SafeAreaView, ScrollView } from "react-native";
 import { VStack } from "../ui/vstack";
 import { Button, ButtonText } from "../ui/button";
 import { HStack } from "../ui/hstack";
@@ -233,8 +233,8 @@ const InitialConfigurationComponent = () => {
   }, [page, currentBike, bikes]);
 
   return (
-    <SafeAreaView className="w-full h-full">
-      <VStack className="flex-1 justify-start">
+    <SafeAreaView className="w-full h-full bottom-1">
+      <VStack className="w-full h-full">
           {/* <RadioGroup
               className="w-full"
               value={page}
@@ -252,12 +252,16 @@ const InitialConfigurationComponent = () => {
           </RadioGroup> */}
 
             {page !== MODEL ? null : <BikeConfigurationComponent bike={currentBike} markDirty={markAsDirty}/>}
-            {page !== MAINTENANCE ? null : <BulkAddMaintenanceComponent maintenanceLogs={maintenanceLogs} markDirty={markAsDirty}/>}
+            {page !== MAINTENANCE ? null : (
+              <ScrollView className="w-full h-full" contentContainerStyle={{ flexGrow: 1 }}>
+                <BulkAddMaintenanceComponent maintenanceLogs={maintenanceLogs} markDirty={markAsDirty}/>
+              </ScrollView>
+            )}
             {/* {page !== "frame" ? null : <BikeFrameComponent bike={bike} markDirty={markAsDirty}/>}   */}
             {/* {page !== "shifters" ? null : <BikeConfigurationComponent bike={bike} markDirty={markAsDirty}/>} */}
             {/* setDirty={setIsDirty} */}
 
-        <HStack>
+        <HStack className="w-full flex bg-background-0 flex-grow justify-center">
           <Button
             className="bottom-button shadow-md rounded-lg m-1 flex-1"
             action="primary"
