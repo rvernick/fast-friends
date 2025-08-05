@@ -5,6 +5,10 @@ export interface Bike {
   id: number;
   name: string;
   type: string; // Example: Road, Mountain, etc.
+  year: string | null;
+  brand: string | null;
+  model: string | null;
+  line: string | null;
   groupsetSpeed: number;
   groupsetBrand: string;
   isElectronic: boolean;

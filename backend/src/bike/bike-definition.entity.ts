@@ -71,10 +71,10 @@ export class BikeDefinition {
   lineName: string;
 
   @Column({
-    type: 'integer',
+    type: 'varchar',
     nullable: true,
   })
-  year: number;
+  year: string;
 
   @Index()
   @Column({
@@ -180,7 +180,7 @@ export class BikeDefinition {
 export class BikeDefinitionSummary {
   constructor(bikeDefinition: BikeDefinition) {
     this.id = bikeDefinition.id;
-    this.year = bikeDefinition.year.toString();
+    this.year = bikeDefinition.year;
     this.brand = bikeDefinition.brandName;
     this.model = bikeDefinition.modelName;
     this.line = bikeDefinition.lineName;

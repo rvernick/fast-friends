@@ -9,23 +9,22 @@ export default function Layout() {
       router.push('/(home)/(maintenanceItems)/maintenance');
     }
   }
-  
+
   return (
     <Stack initialRouteName="maintenance">
       <Stack.Screen name="maintenance" options={{
           title: "Maintenance",
           headerShown: true,
         }} />
-      <Stack.Screen name="[maintenanceid]" options={{
+      <Stack.Screen name="edit-item" options={{
         title: 'Maintenance Item',
       }} />
       <Stack.Screen name="bulk-maintenance" options={{
         title: "Initial Maintenance Schedule",
-        
       }} />
       <Stack.Screen name="log-maintenance" options={{
         title: 'Log Maintenance',
-        
+
       }} />
     </Stack>
   );

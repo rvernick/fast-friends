@@ -31,9 +31,8 @@ export const BrandAutocompleteDropdown: React.FC<BrandAutocompleteDropdownProps>
     queryKey: ['brands'],
     queryFn: async () => getAllBrands(session),
     initialData: defaultBrands,
-    refetchOnReconnect: true,
-    refetchInterval: 60*60*1000,
-    refetchIntervalInBackground: true,
+    refetchOnReconnect: false,
+    refetchInterval: 60*60*1000
   });
 
   const updateTextAndGetSuggestions = async (text: string) => {

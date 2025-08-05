@@ -5,13 +5,12 @@ import { Bike } from "@/models/Bike";
 import { defaultMaintenanceItems } from "./default-maintenance";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, isMobileSize, metersToDisplayString, today } from "@/common/utils";
+import { copy, ensureString, isMobileSize, metersToDisplayString, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {  SafeAreaView } from "react-native";
+import { SafeAreaView, ScrollView } from "react-native";
 import { VStack } from "../ui/vstack";
 import { Button, ButtonText } from "../ui/button";
 import { HStack } from "../ui/hstack";
-import { Radio, RadioGroup, RadioLabel } from "../ui/radio";
 import { MaintenanceItem } from "@/models/MaintenanceItem";
 import BikeConfigurationComponent from "./BikeConfigurationComponent";
 import BulkAddMaintenanceComponent from "./BulkAddMaintenanceComponent";
@@ -34,6 +33,10 @@ const newBike = {
       maintenanceItems: miArray,
       stravaId: '',
       bikeDefinitionSummary: null,
+      year: '2022',
+      brand: '',
+      model: '',
+      line: '',
   }
 
 
@@ -48,17 +51,9 @@ const InitialConfigurationComponent = () => {
   const [currentBike, setCurrentBike] = useState<Bike>(newBike);
   const [bikeName, setBikeName] = useState(newBike.name);
   const [readOnly, setReadOnly] = useState(false);
-  const [groupsetBrand, setGroupsetBrand] = useState(newBike.groupsetBrand);
-  const [speed, setSpeeds] = useState(newBike.groupsetSpeed.toString());
   const [type, setType] = useState(newBike.type);
-  const [isElectronic, setIsElectronic] = useState(newBike.isElectronic);
   const [errorMessage, setErrorMessage] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
-  const [stravaId, setStravaId] = useState('');
-  const [milage, setMileage] = useState(newBike.odometerMeters.toFixed(0));
-  const [milageLabel, setMileageLabel] = useState('Mileage');
-  const [isRetired, setIsRetired] = useState(newBike.isRetired);
-  const [connectedToStrava, setConnectedToStrava] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceLog[]>([]);
   const [logsCreatedFor, setLogsCreatedFor] = useState<number>(0);
@@ -115,19 +110,11 @@ const InitialConfigurationComponent = () => {
 
   const resetBike = async (bike: Bike) => {
     const pref = await preferences
-    setCurrentBike(bike);
-    setMileageLabel('Mileage (' + pref.units + ')');
-    console.log('reset bike: ' + JSON.stringify(bike));
+    const bikeCopy = copy(bike);
+    setCurrentBike(bikeCopy);
+    setIsDirty(false);
     setBikeName(ensureString(bike.name));
-    setType(ensureString(bike.type));
-    setGroupsetBrand(ensureString(bike.groupsetBrand));
-    setSpeeds(ensureString(bike.groupsetSpeed));
-    setIsElectronic(bike.isElectronic);
-    setIsRetired(bike.isRetired);
-    setMileage(metersToDisplayString(bike.odometerMeters, pref));
-    setStravaId(ensureString(bike.stravaId));
-    checkConnectedToStrava(bike.stravaId);
-    ensureMaintenanceLogs(bike);
+    ensureMaintenanceLogs(bikeCopy);
     setReadOnly(true);
   }
 
@@ -158,19 +145,26 @@ const InitialConfigurationComponent = () => {
 
   const saveModelInfo = async function() {
     try {
+      console.log('saveModelInfo ', currentBike);
       const result = await controller.updateBike(
-        session, email,
+        session,
+        email,
         currentBike.id,
-        bikeName,
-        displayStringToMeters(milage, await preferences),
-        type,
-        groupsetBrand,
-        speed,
-        isElectronic,
-        isRetired,
+        currentBike.name,
+        ensureString(currentBike.year),
+        ensureString(currentBike.brand),
+        ensureString(currentBike.model),
+        ensureString(currentBike.line),
+        currentBike.odometerMeters,
+        currentBike.type,
+        currentBike.groupsetBrand,
+        currentBike.groupsetSpeed,
+        currentBike.isElectronic,
+        currentBike.isRetired,
         currentBike.bikeDefinitionSummary ? currentBike.bikeDefinitionSummary.id : NULL_OPTIONAL_FIELD_ID);
       console.log('update bike result: ' + result);
-    } catch (error) {
+      queryClient.invalidateQueries({ queryKey: ['bikes'] });
+   } catch (error) {
       console.error('Error saving bike: ', error);
     }
   };
@@ -186,21 +180,6 @@ const InitialConfigurationComponent = () => {
     }
   }
 
-  const updatePage = (newPage: string) => {
-    setPage(newPage);
-    console.log("Switching to page: ", newPage);
-  }
-
-  const updateGroupsetBrand = (itemValue: string) => {
-    setGroupsetBrand(itemValue);
-  }
-
-  const updateName = (name: string) => {
-    setBikeName(name);
-    navigation.setOptions({ title: name });
-    setErrorMessage('');
-  }
-
   useEffect(() => {
     if (!isInitialized && bikes && bikes.length > 0) {
       setIsInitialized(true);
@@ -208,21 +187,15 @@ const InitialConfigurationComponent = () => {
     }
   }, [bikes, isInitialized]);
 
-  const checkConnectedToStrava = (stravaId: string | null) => {
-    setConnectedToStrava(
-      stravaId !== null
-        && stravaId !== ''
-        && stravaId!= '0');
-  }
-
   const markAsDirty = () => {
     setIsDirty(true);
+    updateTitle();
   }
 
-  const updateTitle = async (page: string, aBike: Bike) => {
+  const updateTitle = async () => {
     const pageAction = page === MODEL ? 'Model' : 'Maintenance Plan';
-    const start = pageAction + ': '+ ensureString(aBike.name);
-    const mileageVal = isMobileSize() ? '' : ' - ' + metersToDisplayString(aBike.odometerMeters, await preferences)
+    const start = pageAction + ': '+ ensureString(currentBike.name);
+    const mileageVal = isMobileSize() ? '' : ' - ' + metersToDisplayString(currentBike.odometerMeters, await preferences)
     const title = start + mileageVal;
     navigation.setOptions({ title: title });
   }
@@ -236,13 +209,13 @@ const InitialConfigurationComponent = () => {
   }
 
   useEffect(() => {
-    updateTitle(page, currentBike);
+    updateTitle();
   }, [currentBike, page]);
 
   useEffect(() => {
     setToFirstBikeIfNotInitialized();
     if (page === MODEL) {
-      setSaveLabel('Build Maintenance Plan');
+      setSaveLabel('Save');
     } else if (page === MAINTENANCE) {
       if (bikes && bikes.length > 1) {
         if (currentBike.id === 0) {
@@ -260,41 +233,44 @@ const InitialConfigurationComponent = () => {
   }, [page, currentBike, bikes]);
 
   return (
-    <SafeAreaView className="w-full h-full">
-      <VStack className="justify-start">
-        {/* <RadioGroup
-            className="w-full"
-            value={page}
-            isDisabled={isDirty}
-            onChange={updatePage}
-            testID="page-selection">
-          <HStack className="w-full justify-evenly ">
-            <Radio value={MODEL} testID="model-selector">
-              <RadioLabel>Model</RadioLabel>
-            </Radio>
-            <Radio value={MAINTENANCE} testID="maintenance-selector">
-              <RadioLabel>Maintenance</RadioLabel>
-            </Radio>
-          </HStack>
-        </RadioGroup> */}
-        <VStack>
-          {page !== MODEL ? null : <BikeConfigurationComponent bike={currentBike} markDirty={markAsDirty}/>}
-          {page !== MAINTENANCE ? null : <BulkAddMaintenanceComponent maintenanceLogs={maintenanceLogs} markDirty={markAsDirty}/>}
-          {/* {page !== "frame" ? null : <BikeFrameComponent bike={bike} markDirty={markAsDirty}/>}   */}
-          {/* {page !== "shifters" ? null : <BikeConfigurationComponent bike={bike} markDirty={markAsDirty}/>} */}
-          {/* setDirty={setIsDirty} */}
-        </VStack>
-        <HStack>
+    <SafeAreaView className="w-full h-full bottom-1">
+      <VStack className="w-full h-full">
+          {/* <RadioGroup
+              className="w-full"
+              value={page}
+              isDisabled={isDirty}
+              onChange={updatePage}
+              testID="page-selection">
+            <HStack className="w-full justify-evenly ">
+              <Radio value={MODEL} testID="model-selector">
+                <RadioLabel>Model</RadioLabel>
+              </Radio>
+              <Radio value={MAINTENANCE} testID="maintenance-selector">
+                <RadioLabel>Maintenance</RadioLabel>
+              </Radio>
+            </HStack>
+          </RadioGroup> */}
+
+            {page !== MODEL ? null : <BikeConfigurationComponent bike={currentBike} markDirty={markAsDirty}/>}
+            {page !== MAINTENANCE ? null : (
+              <ScrollView className="w-full h-full" contentContainerStyle={{ flexGrow: 1 }}>
+                <BulkAddMaintenanceComponent maintenanceLogs={maintenanceLogs} markDirty={markAsDirty}/>
+              </ScrollView>
+            )}
+            {/* {page !== "frame" ? null : <BikeFrameComponent bike={bike} markDirty={markAsDirty}/>}   */}
+            {/* {page !== "shifters" ? null : <BikeConfigurationComponent bike={bike} markDirty={markAsDirty}/>} */}
+            {/* setDirty={setIsDirty} */}
+
+        <HStack className="w-full flex bg-background-0 flex-grow justify-center">
           <Button
-            className="bottom-button shadow-md rounded-lg m-1"
+            className="bottom-button shadow-md rounded-lg m-1 flex-1"
             action="primary"
             onPress={ saveAndContinue }
-            style={{flex: 1}}
             accessibilityLabel="Finished editing"
             accessibilityHint="Will save any changes and go to the next screen">
             <ButtonText>{saveLabel}</ButtonText>
           </Button>
-          <Button className="bottom-button shadow-md rounded-lg m-1" style={{flex: 1}} onPress={ skip }>
+          <Button className="bottom-button shadow-md rounded-lg m-1 flex-1" onPress={ skip }>
             <ButtonText>Skip</ButtonText>
           </Button>
         </HStack>

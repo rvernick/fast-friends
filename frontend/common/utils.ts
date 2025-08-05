@@ -107,7 +107,7 @@ export async function login(username: string, password: string, session: any) {
     console.log('Invalid username or password');
     return 'Invalid username or password';
   }
-  
+
   const args = {
     username: username,
     password: password,
@@ -256,6 +256,10 @@ export const sleep = (seconds: number): Promise<void> => {
     setTimeout(resolve, 1000*seconds);
   });
 };
+
+export const copy = (obj: any): any => {
+  return JSON.parse(JSON.stringify(obj));
+}
 
 export const invalidPasswordMessage = 'password must be at least 8 characters with a mix of special, upper and lower case'
 

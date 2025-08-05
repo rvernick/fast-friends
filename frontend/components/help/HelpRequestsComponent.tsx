@@ -79,7 +79,7 @@ const HelpRequestsComponent = () => {
       return [];
     }
   }
-    
+
   const sortBy = (column: string): "ascending" | "descending" | undefined => {
     if (sortColumn === column) {
       return sortDirection === 'ascending'? 'ascending' : 'descending';
@@ -121,7 +121,7 @@ const HelpRequestsComponent = () => {
     return (
       <Surface style={useStyle.containerScreen}>
         {helpFetching ? <ActivityIndicator animating={helpFetching} size="large" /> : null}
-        
+
         <DataTable style={useStyle.containerBodyFull} testID='historyTable'>
           <DataTable.Header>
             <DataTable.Title
@@ -134,7 +134,7 @@ const HelpRequestsComponent = () => {
               sortDirection={sortBy('action')}
               onPress={() => handleSort('action')}>
                 Action</DataTable.Title>
-                {isMobile() ? null : 
+                {isMobile() ? null :
                   <DataTable.Title
                     numeric={false}
                     sortDirection={sortBy('needType')}
@@ -171,7 +171,7 @@ const HelpRequestsComponent = () => {
           <Button
             style={{flex: 1}}
             mode="contained"
-            onPress={() => router.push('/(assistance)/instructions')}>
+            onPress={() => router.push('/(home)/(assistance)/instructions')}>
               Instructions
           </Button>
           <Button

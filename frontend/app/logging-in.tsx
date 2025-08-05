@@ -2,19 +2,20 @@ import { ensureString, fetchUser, forget, remind } from '@/common/utils';
 import { useSession } from '@/common/ctx';
 import { User } from '@/models/User';
 import { router, useNavigation } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, Surface } from 'react-native-paper';
 
 /**
  * This component will help find the right landing page after the user logs in.
  * Initially, it checks to see if the user has configured their account.
  * Later, it should assist with deep linking and navigation.
- * @returns 
+ * @returns
  */
 export default function LoggingIn() {
   const session = useSession();
   const navigation = useNavigation();
-  
+  const [redirecting, setRedirecting] = useState(false);
+
   const unconfiguredAccount = async (user: User) => {
     if (!user) return false;
     return ensureString(user?.firstName) === ''
@@ -23,23 +24,31 @@ export default function LoggingIn() {
   };
 
   const routeToNextAppropriatePage = async () => {
-    const user = await fetchUser(session, ensureString(session.email));
-    if (!user) {
-      console.log('redirecting to sign-in');
-      router.replace('/(sign-in-sign-up)/(sign-in)/sign-in');
+    if (redirecting) {
       return;
     }
-    if (!user.emailVerified) {
-      console.log('waiting for email verification');
-      router.replace('/(sign-in-sign-up)/wait-for-verification');
-      return;
-    }
-    if (await unconfiguredAccount(user)) {
-      console.log('redirecting to settings');
-      router.replace('/(home)/(settings)/getting-started');
-      return;
-    }
-    router.replace('/(home)/(maintenanceItems)/maintenance');
+    try {
+      const user = await fetchUser(session, ensureString(session.email));
+      if (!user) {
+        console.log('redirecting to sign-in');
+        router.replace('/(sign-in-sign-up)/(sign-in)/sign-in');
+        return;
+      }
+      setRedirecting(true);
+      if (!user.emailVerified) {
+        console.log('waiting for email verification');
+        router.replace('/(sign-in-sign-up)/wait-for-verification');
+        return;
+      }
+      if (await unconfiguredAccount(user)) {
+        console.log('redirecting to settings');
+        router.replace('/(home)/(settings)/getting-started');
+        return;
+      }
+      router.replace('/(home)/(maintenanceItems)/maintenance');
+    } finally {
+      setRedirecting(false);
+    };
   };
 
   const attempRouteToDeepLink = async (): Promise<boolean> => {
@@ -75,10 +84,10 @@ export default function LoggingIn() {
 
     return result;
   }
- 
+
   useEffect(() => {
     try {
-      console.log('redirecting if: ', session.jwt_token);
+      // console.log('redirecting if: ', session.jwt_token);
       if (session.jwt_token) {
         routeToNextAppropriatePage();
       }

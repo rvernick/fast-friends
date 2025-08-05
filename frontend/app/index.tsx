@@ -82,16 +82,16 @@ export default function Index() {
           <Heading className="text-center" size="3xl">
             Pedal Assistant
           </Heading>
-          <Text className="text-center">Pedal Assistant, the Strava powered maintenance tracker</Text>
+          <Text className="text-center">The usage-based maintenance tracker</Text>
           <Text className="text-center">You think about your rides</Text>
-          <Text className="text-center">We'll think about your bike needs so you don't have to</Text>
+          <Text className="text-center">We'll remind you about your bike needs</Text>
           <Text> </Text>
         </VStack>
       </VStack>
       <Button className="bottom-button shadow-md rounded-lg m-1" onPress={goToSignIn}>
         <ButtonText>Get Started</ButtonText>
       </Button>
-      <VStack className="md:items-center">   
+      <VStack className="md:items-center">
         <Image className="centered" source={require("../assets/images/api_logo_pwrd_by_strava_stack_light.png")}/>
         { isMobile() ? null : (
           <Pressable style={{ width: 246, height: 82}}

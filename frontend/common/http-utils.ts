@@ -87,7 +87,7 @@ export const postExternal = async (urlBase: string, endpoint: string, args: Obje
 
 /**
  * Strips everything but the base URL from a given URL string.
- * 
+ *
  * @param {string} url - The full URL string.
  * @returns {string} The base URL.
  */
