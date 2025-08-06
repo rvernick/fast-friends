@@ -26,7 +26,7 @@ export const AppDataSource = new DataSource({
   host: process.env.DATABASE_HOST,
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
-  database: "migration_builder",
+  database: process.env.DATABASE_NAME,
   synchronize: false,
   logging: false,
   entities: [User, Bike, MaintenanceItem, MaintenanceHistory,

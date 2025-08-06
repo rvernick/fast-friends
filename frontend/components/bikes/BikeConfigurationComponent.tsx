@@ -115,9 +115,9 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   }
 
   const updateYear = (itemValue: string) => {
-    if (!itemValue.match(/^[0-9]*$/) || itemValue.length > 4) return;
+    if (!itemValue.match(/^[0-9]*$/)) return;
+    var updatedYear = itemValue;
 
-    var updatedYear = year;
     if (itemValue.match(/^[0-9]*$/) && itemValue.length == 2) {
       if (itemValue != '20' && itemValue != '19') {
         const possibleYear = parseInt(itemValue);
@@ -129,14 +129,19 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
           updatedYear = '20' + itemValue;
         }
       }
-    } else {
-      updatedYear = itemValue;
     }
+
     setYear(updatedYear);
     if (updatedYear.length == 4) {
       bike.year = updatedYear;
     }
     markDirty();
+  }
+
+  const validateYear = () => {
+    if (year.length == 0 || year.length == 4) return
+
+    setYear(ensureString(bike.year));
   }
 
   const updateGroupsetBrand = (itemValue: string) => {
@@ -374,6 +379,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
               autoComplete="off"
               value={year}
               onChangeText={updateYear}
+              onBlur={validateYear}
               placeholder="Enter bike year here..."
               testID="yearInput"
               autoCapitalize="words"

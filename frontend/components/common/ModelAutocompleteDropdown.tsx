@@ -139,7 +139,7 @@ export const ModelAutocompleteDropdown: React.FC<ModelAutocompleteDropdownProps>
           onBlur={handleBlur}
           placeholder="Enter model here (e.g. Defy, Rockhopper, Occam, Domane)"
           testID="modelInput"
-          inputMode="none"
+          inputMode="text"
           autoCapitalize="none"
           autoCorrect={false}
           accessibilityLabel="model"
