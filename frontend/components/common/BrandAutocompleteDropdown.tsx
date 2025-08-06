@@ -137,7 +137,7 @@ export const BrandAutocompleteDropdown: React.FC<BrandAutocompleteDropdownProps>
           onBlur={handleBlur}
           placeholder="Enter brand here (e.g. Giant, Scott, Cannondale)"
           testID="brandInput"
-          inputMode="none"
+          inputMode="text"
           autoCapitalize="none"
           autoCorrect={false}
           accessibilityLabel="model"

@@ -27,10 +27,10 @@ export const GettingStartedComponent = () => {
   const handlePress = () => setLinkToStravaExpanded(!linkToStravaExpanded);
 
   const stravaController = new StravaController(appContext);
-  
+
   const dimensions = Dimensions.get('window');
   const useStyle = isMobile() ? createStyles(dimensions.width, dimensions.height) : defaultWebStyles
-  
+
   const blankUser = {username: email,
     firstName: '',
     lastName: '',
@@ -54,7 +54,7 @@ export const GettingStartedComponent = () => {
     queryClient.removeQueries({ queryKey: ['bikes'] });
     forget("ff.preferences");
   }
-  
+
   const linkToStrava = async () => {
     setErrorMessage('');
     const linked = await stravaController.linkToStrava(session);
@@ -78,7 +78,7 @@ export const GettingStartedComponent = () => {
       console.error('Error updating user', error);
     }
   }, [data, isFetching]);
-  
+
   return (
     <Surface style={useStyle.containerScreen}>
       {isFetching ? <ActivityIndicator  size="large"/> : null}
@@ -148,6 +148,17 @@ export const GettingStartedComponent = () => {
             <List.Item title="Check work done" description="Click the add button to create new maintenance items"/>
             <List.Item title="Update deadline" description="Click a maintenance item to edit it"/>
           </List.Accordion>
+          <List.Accordion
+            title="5) Settings"
+            expanded={true}>
+              <List.Item title={<Button
+                mode="contained"
+                onPress={() => router.replace('/(home)/(settings)/settings')}
+                accessibilityLabel="Settings"
+                accessibilityHint="Settings">
+                  Settings
+              </Button>} />
+            </List.Accordion>
         </List.Section>
       </ScrollView>
     </Surface>

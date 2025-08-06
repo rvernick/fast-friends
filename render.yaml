@@ -4,7 +4,7 @@ services:
   name: fast-friends-be
   env: node
   rootDir: backend
-  buildCommand: npm install && npm run typeorm migration:run -- -d src/data-source.ts
+  buildCommand: npm install && npm run typeorm migration:run -- -d src/production-source.ts
   startCommand: npx @nestjs/cli start
   envVars:
     - key: NODE_ENV
