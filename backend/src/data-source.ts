@@ -27,7 +27,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  synchronize: true,
+  synchronize: process.env.DATABASE_HOST === 'localhost',
   logging: false,
   entities: [User, Bike, MaintenanceItem, MaintenanceHistory,
     PasswordReset, Notification, BatchProcess,
