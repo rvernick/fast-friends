@@ -52,6 +52,13 @@
         }
       ],
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to choose a bike picture.",
+          "cameraPermission": "The app accesses your camera to take a bike picture.",
+        }
+      ],
+      [
         "./plugins/withSetPlaceholders.js"
       ],
       [

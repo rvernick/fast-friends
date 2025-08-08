@@ -101,6 +101,12 @@ export class Bike {
   odometerMeters: number;
 
   @Column({
+    type: 'varchar',
+    name: 'photo_url',
+    nullable: true})
+  photoUrl: string;
+
+  @Column({
     type: 'boolean',
     default: false,
     nullable: false,
