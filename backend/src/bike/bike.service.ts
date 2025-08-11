@@ -20,6 +20,8 @@ import { MaintenanceHistory } from './maintenance-history.entity';
 import { MaintenanceHistorySummary } from './maintenance-history-summary';
 import { UpdateMaintenanceHistoryItemDto } from './update-maintenance-history-item.dto';
 import { BikeDefinition, BikeDefinitionSummary } from './bike-definition.entity';
+import { listBikePhotos, uploadBikePhoto } from '../utils/aws';
+import { S3MediaService } from '../media/aws-media.service';
 
 
 @Injectable()
@@ -42,8 +44,8 @@ export class BikeService {
     private userService: UserService,
     @Inject(StravaService)
     private stravaService: StravaService,
-    @Inject(ConfigService)
-    private readonly configService: ConfigService,
+    @Inject(S3MediaService)
+    private readonly mediaService: S3MediaService,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
@@ -102,6 +104,12 @@ export class BikeService {
       });
       if (result && result.bikeDefinition) {
         result.bikeDefinitionSummary = new BikeDefinitionSummary(result.bikeDefinition);
+      }
+      if (result && result.bikePhoto) {
+        result.bikePhotoUrl = await this.mediaService.getPhotoUrl(result.bikePhoto);
+        this.logger.log('info', 'Bike photo url: ', result.bikePhotoUrl);
+      } else {
+        this.logger.log('info', 'No bike photo found for bike: ', bikeId);
       }
       return result;
     } catch (e: any) {
@@ -203,6 +211,20 @@ export class BikeService {
     } catch (error) {
       console.error('Error updating or adding bike: ', error);
       return null;
+    }
+  }
+
+  async updateBikePhoto(bikeId: string, file: Express.Multer.File): Promise<string> {
+    try {
+      const bike = await this.bikesRepository.findOneBy({ id: parseInt(bikeId) });
+      this.logger.log('Updating bike photo: ', bikeId);
+      // this.logger.log('Updating bike photo: ', bike);
+      bike.bikePhoto = await this.mediaService.createPhoto(file, bike.userId);
+      this.bikesRepository.save(bike);
+      listBikePhotos()
+    } catch (error) {
+      console.error('Error updating bike photo: ', error);
+      return '';
     }
   }
 

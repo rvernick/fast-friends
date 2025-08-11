@@ -43,7 +43,7 @@ const BikeListComponent = () => {
     refetchOnMount: 'always',
     initialData: [],
   })
-  
+
   const addBike = () => {
     queryClient.removeQueries({ queryKey: ['bikes'] });
     router.push({ pathname: "/(home)/(bikes)/[bikeid]", params: {bikeid: 0 }});
@@ -144,15 +144,15 @@ type BikeRowProps = {
           <ScrollView
             className="w-full h-full"
             contentContainerStyle={{ flexGrow: 1 }}
-          >     
+          >
           <BikeList bikes={data} isUpdating={isFetching} isInFocus={isFocused}/>
           </ScrollView>
           <HStack className="w-full flex bg-background-0 flex-grow justify-center">
-            <Button 
+            <Button
               className="bottom-button shadow-md rounded-lg m-1"
               action="primary"
               onPress={ addBike }
-              style={{flex: 1}} 
+              style={{flex: 1}}
               testID='addBikeButton'
               accessibilityLabel="Create new bike"
               accessibilityHint="Opens page for adding a bike">

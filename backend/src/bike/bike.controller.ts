@@ -4,7 +4,9 @@ import {
   Get,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import { Bike } from './bike.entity';
@@ -18,6 +20,8 @@ import { AuthGuard } from '../auth/auth.guard';
 import { MaintenanceHistorySummary } from './maintenance-history-summary';
 import { MaintenanceHistory } from './maintenance-history.entity';
 import { UpdateMaintenanceHistoryItemDto } from './update-maintenance-history-item.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ThreeMegPhotoValidationPipe } from './three-meg-photo-validation';
 
 @Controller('bike')
 export class BikeController {
@@ -65,6 +69,17 @@ export class BikeController {
       console.log('bike/add-or-update-bike error:', error);
       return null;
     }
+  }
+
+  @Post('upload-bike-photo')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadPhoto(@UploadedFile('file') file: Express.Multer.File, @Body('bikeid') bikeId: string) {
+    console.log('bike/upload-photo');
+    // console.log('bike/upload-photo bikeId:'+ bikeId);
+    // console.log('bike/upload-photo file:'+ file);
+    // console.log('bike/upload-photo file:'+ file.size);
+    // console.log('bike/upload-photo file:'+ file.originalname);
+    this.bikeService.updateBikePhoto(bikeId, file);
   }
 
   @UseGuards(AuthGuard)

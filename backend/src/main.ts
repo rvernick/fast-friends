@@ -1,16 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { LoggerService, ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
 //  const logger = createLogger();
   const port = process.env.PORT || 5000;
 //  logger.log('info', 'Opening on port ' + port);
 
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true,
+    bodyParser: true,
   });
   app.enableCors();
+  app.useBodyParser('json', { limit: '5mb' });
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(port);
   const url = await app.getUrl();

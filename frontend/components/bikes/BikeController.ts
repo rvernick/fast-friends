@@ -1,7 +1,7 @@
 import AppContext from "@/common/app-context";
 import AppController from "@/common/AppController";
 import { getBike } from "@/common/data-utils";
-import { post } from "@/common/http-utils";
+import { post, postForm } from "@/common/http-utils";
 import { Bike } from "@/models/Bike";
 
 
@@ -80,6 +80,24 @@ class BikeController extends AppController {
     } catch(e: any) {
       console.log(e.message);
       return 'Unable to Update Account';
+    }
+  };
+
+  updateBikePhoto = async (session: any, bikeid: number, file: File): Promise<string>  => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('bikeid', bikeid.toString());
+
+      const response = await postForm('/bike/upload-bike-photo', formData, session.jwt_token);
+      if (response.ok) {
+        return '';
+      }
+      const result = await response.json();
+      return result.message;
+    } catch(e: any) {
+      console.log(e.message);
+      return 'Unable to update photo';
     }
   };
 }

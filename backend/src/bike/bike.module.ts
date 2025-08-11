@@ -23,6 +23,8 @@ import { BikeDefinitionService } from './bike-definition.service';
 import { BikeDefinitionController } from './bike-definition.controller';
 import { BikeDefinitionBasis } from './bike-definition-basis.entity';
 import { Brand, Line, Model } from './brand.entity';
+import { S3MediaService } from '../media/aws-media.service';
+import { S3Media } from '../media/aws-media.entity';
 
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([
@@ -30,7 +32,8 @@ import { Brand, Line, Model } from './brand.entity';
     PasswordReset, Notification, BatchProcess, EmailVerify,
     StravaVerify,
     BikeDefinition, BikeComponent, BikeDefinitionBasis,
-    Brand, Model, Line])],
+    Brand, Model, Line,
+    S3Media])],
   providers: [
     {
       provide: APP_GUARD,
@@ -41,6 +44,7 @@ import { Brand, Line, Model } from './brand.entity';
     UserService,
     StravaService,
     BikeDefinitionService,
+    S3MediaService,
   ],
   controllers: [BikeController, BikeDefinitionController],
   exports: [BikeService, BikeDefinitionService],

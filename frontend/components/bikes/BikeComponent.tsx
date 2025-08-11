@@ -100,6 +100,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     setMileage(metersToDisplayString(bike.odometerMeters, pref));
     setStravaId(ensureString(bike.stravaId));
     checkConnectedToStrava(bike.stravaId);
+    setImage(bike.bikePhotoUrl);
     setReadOnly(true);
   }
 
@@ -148,6 +149,9 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
+      if (result.assets[0].file!= null) {
+        controller.updateBikePhoto(session, bikeId, result.assets[0].file);
+      }
     }
   }
 

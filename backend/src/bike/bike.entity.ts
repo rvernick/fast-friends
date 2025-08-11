@@ -8,11 +8,13 @@ import {
   DeleteDateColumn,
   OneToMany,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { MaintenanceItem } from './maintenance-item.entity';
 import { GroupsetBrand } from './enums';
 import { BikeDefinition, BikeDefinitionSummary } from './bike-definition.entity';
+import { S3Media } from '../media/aws-media.entity';
 
 @Entity()
 export class Bike {
@@ -22,7 +24,19 @@ export class Bike {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({
+    type: 'integer',
+    name: 'user_id',
+    nullable: false,
+    default: 0,
+  })
+  user_id: number;
+
+  @Column({ name: 'userId' })
+  userId: number;
+
   @ManyToOne((type) => User, { nullable: false, cascade: false })
+  @JoinColumn({ name: 'userId' })
   user: User;
 
   @OneToMany((type) => MaintenanceItem, (maintenanceItem) => maintenanceItem.bike, {
@@ -80,6 +94,8 @@ export class Bike {
 
   bikeDefinitionSummary: BikeDefinitionSummary | null;
 
+  bikePhotoUrl: string | null;
+
   @Column({
     type: "enum",
     enum: GroupsetBrand,
@@ -105,6 +121,16 @@ export class Bike {
     name: 'photo_url',
     nullable: true})
   photoUrl: string;
+
+  @OneToOne(() => S3Media,
+    {
+      nullable: true,
+      cascade: true,
+      eager: true,
+      orphanedRowAction: 'delete',
+    })
+  @JoinColumn({name: 'bike_photo_id' })
+  bikePhoto: S3Media;
 
   @Column({
     type: 'boolean',
