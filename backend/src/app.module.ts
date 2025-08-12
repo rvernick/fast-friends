@@ -29,6 +29,8 @@ import { BikeDefinition } from './bike/bike-definition.entity';
 import { BikeComponent } from './bike/bike-component.entity';
 import { BikeDefinitionBasis } from './bike/bike-definition-basis.entity';
 import { Brand, Line, Model } from './bike/brand.entity';
+import { S3Media } from './media/aws-media.entity';
+import { S3Module } from './media/aws-media.module';
 
 @Module({
   imports: [
@@ -39,6 +41,7 @@ import { Brand, Line, Model } from './bike/brand.entity';
     StravaModule,
     InstructionModule,
     HelpRequestModule,
+    S3Module,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `config/env/${process.env.NODE_ENV}.env`,
@@ -65,6 +68,7 @@ import { Brand, Line, Model } from './bike/brand.entity';
           StravaVerify,
           BikeDefinition, BikeComponent, BikeDefinitionBasis,
           Brand, Model, Line,
+          S3Media
         ],
         synchronize: true,
       }),

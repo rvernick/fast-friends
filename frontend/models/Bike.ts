@@ -17,4 +17,5 @@ export interface Bike {
   stravaId: string;
   isRetired: boolean;
   bikeDefinitionSummary: BikeDefinitionSummary | null;
+  bikePhotoUrl: string | null;
 };

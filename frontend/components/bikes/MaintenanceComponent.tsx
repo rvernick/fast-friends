@@ -15,6 +15,7 @@ import { SafeAreaView } from "@/components/ui/safe-area-view";
 import { ScrollView } from "@/components/ui/scroll-view";
 import { Button, ButtonText } from '../ui/button';
 import { Text } from '../ui/text';
+import { Image } from '../ui/image';
 
 import {
   Link2Icon,
@@ -88,7 +89,7 @@ const MaintenanceComponent = () => {
 
   const addMaintenanceItem = () => {
     queryClient.removeQueries({ queryKey: ['maintenanceItems'] });
-    router.push( { pathname: '/(home)/(maintenanceItems)', params: { id: '0', bikeid: ensureString(defaultBikeId()) } });
+    router.push( { pathname: '/(home)/(maintenanceItems)/edit-item', params: { id: '0', bikeid: ensureString(defaultBikeId()) } });
   }
 
   const logMaintenance = () => {
@@ -214,7 +215,16 @@ const MaintenanceComponent = () => {
     return (
       <Pressable className="row-primary w-full" onPress={toggleExpanded} >
         <HStack className="w-full" key={"bike-" + bike.id}>
-          <BikeIcon size="48"/>
+          {bike.bikePhotoUrl ? (
+            <Image
+              size="xs"
+              source={{
+                uri: bike.bikePhotoUrl,
+              }}
+              alt="image"
+            />) : (
+              <BikeIcon size="48"/>
+            )}
           <VStack>
             <Text className='text-xl' >{bike.name}</Text>
             <Text>{description}</Text>

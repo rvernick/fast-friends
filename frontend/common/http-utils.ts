@@ -61,6 +61,23 @@ export const post = (endpoint: string, body: Object, jwtToken: string | null) =>
   return postExternal(baseUrl(), endpoint, body, jwtToken);
 };
 
+export const postForm = (endpoint: string, args: FormData, jwtToken: string | null): Promise<Response> => {
+  const url = baseUrl() + endpoint;
+  var headers = {};
+  if (jwtToken) {
+    headers = {
+      // 'Content-Type': 'application/json',
+      'Authorization': 'Bearer '+ jwtToken,
+    }
+  }
+
+  return fetch(url, {
+    method: 'POST',
+    headers: headers,
+    body: args,
+  });
+}
+
 export const postExternal = async (urlBase: string, endpoint: string, args: Object, jwtToken: string | null) => {
   var headers = {};
   const url = urlBase + endpoint;

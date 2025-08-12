@@ -310,7 +310,6 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
 
   const BikeDefinitionComponent: React.FC<BikeDefinitionProps> = ({ bikeDefinition, bike }) => {
     const [description, setDescription ] = useState('');
-    const [expanded, setExpanded ] = useState(false);
 
     const syncDescription = async () => {
       const val = bikeDefinition.year + ' ' + bikeDefinition.brand +' ' + bikeDefinition.model +' ' + bikeDefinition.line;

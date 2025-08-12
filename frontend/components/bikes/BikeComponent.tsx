@@ -4,12 +4,11 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, fetchUser, isMobile, metersToDisplayString } from "@/common/utils";
+import { displayStringToMeters, ensureString, fetchUser, isMobile, isMobileSize, metersToDisplayString } from "@/common/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Linking } from "react-native";
 import { BaseLayout } from "../layouts/base-layout";
 import { VStack } from "../ui/vstack";
-import { Heading } from "../ui/heading";
 import { Text } from "../ui/text";
 import { Input, InputField } from "../ui/input";
 import { Alert, AlertIcon, AlertText } from "../ui/alert";
@@ -18,6 +17,8 @@ import { CheckIcon, InfoIcon } from "../ui/icon";
 import { Dropdown } from "../common/Dropdown";
 import { Checkbox, CheckboxIcon, CheckboxIndicator, CheckboxLabel } from "../ui/checkbox";
 import { HStack } from "../ui/hstack";
+import { Image } from "../ui/image";
+import * as ImagePicker from 'expo-image-picker';
 
 const groupsetBrands = [
   'Shimano',
@@ -69,6 +70,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const [milageLabel, setMileageLabel] = useState('Mileage');
   const [isRetired, setIsRetired] = useState(newBike.isRetired);
   const [connectedToStrava, setConnectedToStrava] = useState(false);
+  const [image, setImage] = useState<string | null>(null);
 
   const controller = new BikeController(appContext);
   const preferences = controller.getUserPreferences(session);
@@ -99,6 +101,8 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     setMileage(metersToDisplayString(bike.odometerMeters, pref));
     setStravaId(ensureString(bike.stravaId));
     checkConnectedToStrava(bike.stravaId);
+    setImage(bike.bikePhotoUrl);
+
     setReadOnly(true);
   }
 
@@ -134,6 +138,24 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
       setErrorMessage(result);
     }
   };
+
+  const updateImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      if (result.assets[0].file!= null) {
+        controller.updateBikePhoto(session, bikeId, result.assets[0].file);
+      }
+    }
+  }
 
   const deleteBike = async function() {
     setErrorMessage('');
@@ -175,6 +197,22 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
       });
     }
   });
+
+  useEffect(() => {
+    if (image && isMobileSize()) {
+      navigation.setOptions({
+        title: ensureString(bikeName),
+        headerRight: () => (
+          <Image
+            size="xs"
+            source={{
+              uri: image,
+            }}
+            alt="image"
+          />)
+      });
+    }
+  }, [image]);
 
   const checkConnectedToStrava = (stravaId: string | null) => {
     setConnectedToStrava(
@@ -223,7 +261,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const typeOptions = types.map(type => ({ label: type, value: type }));
 
   return (
-    <BaseLayout>
+    <BaseLayout image={ensureString(image)} imagePress={updateImage}>
       <VStack className="max-w-[440px] w-full" space="md">
         <VStack className="w-full">
           <Text>Name</Text>
@@ -316,6 +354,15 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
             </CheckboxIndicator>
             <CheckboxLabel>Retired</CheckboxLabel>
           </Checkbox>
+          <Button
+            className="bottom-button shadow-md rounded-lg m-1"  // bottom?
+            action="primary"
+            onPress={ updateImage }
+            style={{flex: 1}}
+            accessibilityLabel="Update Image"
+            accessibilityHint="Update the image of the bike">
+            <ButtonText>Update Image</ButtonText>
+          </Button>
         </VStack>
         <HStack>
           <Button

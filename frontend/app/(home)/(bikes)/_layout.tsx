@@ -11,8 +11,7 @@ export default function Layout() {
       <Stack.Screen name="[bikeid]" options={{
         title: 'Bike',
         headerShown: true,
-        
       }} />
-    </Stack>    
+    </Stack>
   );
 }

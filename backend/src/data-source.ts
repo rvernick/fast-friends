@@ -19,6 +19,7 @@ import { BikeDefinition } from './bike/bike-definition.entity';
 import { BikeComponent } from './bike/bike-component.entity';
 import { BikeDefinitionBasis } from './bike/bike-definition-basis.entity';
 import { Brand, Line, Model } from './bike/brand.entity';
+import { S3Media } from './media/aws-media.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -27,7 +28,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  synchronize: true,
+  synchronize: process.env.DATABASE_HOST === 'localhost',
   logging: false,
   entities: [User, Bike, MaintenanceItem, MaintenanceHistory,
     PasswordReset, Notification, BatchProcess,
@@ -36,7 +37,8 @@ export const AppDataSource = new DataSource({
     HelpRequest, HelpComment, HelpCommentVote, HelpOffer,
     StravaVerify,
     BikeDefinition, BikeComponent, BikeDefinitionBasis,
-    Brand, Model, Line
+    Brand, Model, Line,
+    S3Media
   ],
   migrations: ["./migrations/*"],
   subscribers: [],
