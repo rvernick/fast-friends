@@ -16,6 +16,7 @@ import { Text } from '../ui/text';
 import { Button, ButtonText } from '../ui/button';
 import { useTheme } from 'react-native-paper';
 import { metersToDisplayString } from '@/common/utils';
+import { Image } from '../ui/image';
 
 type BikeListProps = {
   bikes: Bike[] | undefined;
@@ -102,7 +103,17 @@ type BikeRowProps = {
     return (
       <Pressable onPress={() => editBike(bike.id)} >
         <HStack className='row-primary' key={'bike: ' + bike.id + '-' + bike.odometerMeters} >
-            {bike.isElectronic ? <ZapIcon size="48"/> : <BikeIcon size="48"/> }
+          {bike.bikePhotoUrl ? (
+            <Image
+              size="xs"
+              source={{
+                uri: bike.bikePhotoUrl,
+              }}
+              alt="image"
+            />) : (
+              bike.isElectronic ? <ZapIcon size="48"/> : <BikeIcon size="48"/> 
+            )}
+            {/*  */}
             <VStack>
               <Text className="text-xl">{bike.name}</Text>
               <Text>{description}</Text>

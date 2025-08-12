@@ -4,7 +4,7 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, fetchUser, isMobile, metersToDisplayString } from "@/common/utils";
+import { displayStringToMeters, ensureString, fetchUser, isMobile, isMobileSize, metersToDisplayString } from "@/common/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Linking } from "react-native";
 import { BaseLayout } from "../layouts/base-layout";
@@ -17,6 +17,7 @@ import { CheckIcon, InfoIcon } from "../ui/icon";
 import { Dropdown } from "../common/Dropdown";
 import { Checkbox, CheckboxIcon, CheckboxIndicator, CheckboxLabel } from "../ui/checkbox";
 import { HStack } from "../ui/hstack";
+import { Image } from "../ui/image";
 import * as ImagePicker from 'expo-image-picker';
 
 const groupsetBrands = [
@@ -101,6 +102,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     setStravaId(ensureString(bike.stravaId));
     checkConnectedToStrava(bike.stravaId);
     setImage(bike.bikePhotoUrl);
+
     setReadOnly(true);
   }
 
@@ -195,6 +197,22 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
       });
     }
   });
+
+  useEffect(() => {
+    if (image && isMobileSize()) {
+      navigation.setOptions({
+        title: ensureString(bikeName),
+        headerRight: () => (
+          <Image
+            size="xs"
+            source={{
+              uri: image,
+            }}
+            alt="image"
+          />)
+      });
+    }
+  }, [image]);
 
   const checkConnectedToStrava = (stravaId: string | null) => {
     setConnectedToStrava(

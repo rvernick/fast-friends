@@ -8,6 +8,7 @@ export class S3Media1754954576574 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE "s3_media" ("id" SERIAL NOT NULL, "type" "public"."s3_media_type_enum" NOT NULL DEFAULT 'photo', "user_id" integer NOT NULL, "bucket" character varying NOT NULL, "key" character varying NOT NULL, "presigned_url" character varying, "url_expires" TIMESTAMP, "deletedOn" TIMESTAMP, "createdOn" TIMESTAMP NOT NULL DEFAULT now(), "updatedOn" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_5141129e7fbf3b6637cb92704a3" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE UNIQUE INDEX "IDX_9e9278aae526892c77387c74c4" ON "s3_media" ("bucket", "key") `);
         await queryRunner.query(`ALTER TABLE "bike" ADD "user_id" integer NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`Update "bike" SET "user_id" = "userId" WHERE "user_id" = 0`);  // added by hand
         await queryRunner.query(`ALTER TABLE "bike" ADD "photo_url" character varying`);
         await queryRunner.query(`ALTER TABLE "bike" ADD "bike_photo_id" integer`);
         await queryRunner.query(`ALTER TABLE "bike" ADD CONSTRAINT "UQ_290e9c78b93890bd1eec34cf0e0" UNIQUE ("bike_photo_id")`);

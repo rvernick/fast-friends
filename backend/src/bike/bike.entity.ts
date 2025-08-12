@@ -32,11 +32,11 @@ export class Bike {
   })
   user_id: number;
 
-  @Column({ name: 'userId' })
+  @Column({ type: 'integer', name: 'userId', nullable: true })
   userId: number;
 
   @ManyToOne((type) => User, { nullable: false, cascade: false })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @OneToMany((type) => MaintenanceItem, (maintenanceItem) => maintenanceItem.bike, {

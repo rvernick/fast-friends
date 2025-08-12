@@ -102,16 +102,7 @@ export class BikeService {
           maintenanceItems: true
         },
       });
-      if (result && result.bikeDefinition) {
-        result.bikeDefinitionSummary = new BikeDefinitionSummary(result.bikeDefinition);
-      }
-      if (result && result.bikePhoto) {
-        result.bikePhotoUrl = await this.mediaService.getPhotoUrl(result.bikePhoto);
-        this.logger.log('info', 'Bike photo url: ', result.bikePhotoUrl);
-      } else {
-        this.logger.log('info', 'No bike photo found for bike: ', bikeId);
-      }
-      return result;
+      return this.fillOutBike(result);
     } catch (e: any) {
       console.log(e.message);
       return null;
@@ -140,10 +131,7 @@ export class BikeService {
         },
       });
       result.forEach(bike => {
-        if (bike.bikeDefinition) {
-          bike.bikeDefinitionSummary = new BikeDefinitionSummary(bike.bikeDefinition);
-          bike.bikeDefinitionSummary = null;
-        }
+        this.fillOutBike(bike);
       });
       return result;
     } catch (e: any) {
@@ -154,6 +142,19 @@ export class BikeService {
 
   async remove(id: number): Promise<void> {
     await this.bikesRepository.softDelete(id);
+  }
+
+  async fillOutBike(bike: Bike): Promise<Bike> {
+    if (!bike) return bike;
+
+    if (bike.bikeDefinition) {
+      bike.bikeDefinitionSummary = new BikeDefinitionSummary(bike.bikeDefinition);
+    }
+    if (bike.bikePhoto) {
+      bike.bikePhotoUrl = await this.mediaService.getPhotoUrl(bike.bikePhoto);
+      this.logger.log('info', 'Bike photo url: ', bike.bikePhotoUrl);
+    }
+    return bike;
   }
 
   async updateOrAddBike(bikeDto: UpdateBikeDto): Promise<Bike> {
