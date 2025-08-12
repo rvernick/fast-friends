@@ -116,12 +116,6 @@ export class Bike {
   })
   odometerMeters: number;
 
-  @Column({
-    type: 'varchar',
-    name: 'photo_url',
-    nullable: true})
-  photoUrl: string;
-
   @OneToOne(() => S3Media,
     {
       nullable: true,
