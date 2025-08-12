@@ -74,6 +74,9 @@ export class BikeController {
   @Post('upload-bike-photo')
   @UseInterceptors(FileInterceptor('file'))
   async uploadPhoto(@UploadedFile('file') file: Express.Multer.File, @Body('bikeid') bikeId: string) {
+    if (file.size > 3 * 1024 * 1024) {
+      throw new Error('File size exceeds 3MB limit');
+    }
     console.log('bike/upload-photo');
     // console.log('bike/upload-photo bikeId:'+ bikeId);
     // console.log('bike/upload-photo file:'+ file);
