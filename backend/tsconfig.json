@@ -12,6 +12,6 @@
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
       "sourceMap": true,
-      "types": ["node", "jest", "express", "multer"],
+      "types": ["node", "express", "multer"],
    }
 }
