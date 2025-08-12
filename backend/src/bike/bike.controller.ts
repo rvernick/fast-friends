@@ -21,7 +21,6 @@ import { MaintenanceHistorySummary } from './maintenance-history-summary';
 import { MaintenanceHistory } from './maintenance-history.entity';
 import { UpdateMaintenanceHistoryItemDto } from './update-maintenance-history-item.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
 
 @Controller('bike')
 export class BikeController {

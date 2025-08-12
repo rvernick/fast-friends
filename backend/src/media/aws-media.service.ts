@@ -1,4 +1,4 @@
-import { Logger, Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MediaType, S3Media } from './aws-media.entity';

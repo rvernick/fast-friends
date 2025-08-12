@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Bike,  } from './bike.entity';
-import { ConfigService } from '@nestjs/config';
 import { NULL_OPTIONAL_FIELD_ID, UpdateBikeDto } from './update-bike.dto';
 import { DeleteBikeDto } from './delete-bike.dto';
 import { MaintenanceItem } from './maintenance-item.entity';
