@@ -217,6 +217,7 @@ const MaintenanceComponent = () => {
         <HStack className="w-full" key={"bike-" + bike.id}>
           {bike.bikePhotoUrl ? (
             <Image
+              className="shadow-md rounded-xl m-1"
               size="xs"
               source={{
                 uri: bike.bikePhotoUrl,
