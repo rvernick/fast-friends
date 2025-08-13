@@ -36,7 +36,7 @@ export class Bike {
   userId: number;
 
   @ManyToOne((type) => User, { nullable: false, cascade: false })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'userId' })
   user: User;
 
   @OneToMany((type) => MaintenanceItem, (maintenanceItem) => maintenanceItem.bike, {
