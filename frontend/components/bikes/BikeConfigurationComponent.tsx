@@ -18,6 +18,9 @@ import { ScrollView } from "../ui/scroll-view";
 import { getBikeDefinitions, getLines } from "@/common/data-utils";
 import { Pressable } from "../ui/pressable";
 import { BikeIcon } from "lucide-react-native";
+import { Button, ButtonText } from "../ui/button";
+import { Image } from "../ui/image";
+import * as ImagePicker from 'expo-image-picker';
 
 const groupsetBrands = [
   'Shimano',
@@ -72,6 +75,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const [preferences, setPreferences] = useState({ units: 'miles'});
   const [possibleDefinitions, setPossibleDefinitions] = useState<BikeDefinitionSummary[]>([]);
   const [definition, setDefinition] = useState<BikeDefinitionSummary | null>(null);
+  const [image, setImage] = useState<string | null>(null);
 
   const controller = new BikeController(appContext);
 
@@ -87,6 +91,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     setGroupsetBrand(ensureString(bike.groupsetBrand));
     setSpeeds(ensureString(bike.groupsetSpeed));
     checkConnectedToStrava(bike.stravaId);
+    setImage(bike.bikePhotoUrl);
     if (bike.bikeDefinitionSummary) {
       console.log('update bike definition: ' + JSON.stringify(bike.bikeDefinitionSummary));
       setDefinition(bike.bikeDefinitionSummary);
@@ -112,6 +117,24 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     setBikeName(name);
     setErrorMessage('');
     markDirty();
+  }
+
+  const updateImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      if (result.assets[0].file!= null) {
+        controller.updateBikePhoto(session, bikeId, result.assets[0].file);
+      }
+    }
   }
 
   const updateYear = (itemValue: string) => {
@@ -359,6 +382,26 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
           accessibilityLabel="Name"
           accessibilityHint="The name of the bike being edited"/>
       </Input>
+      <HStack className="w-full">
+        {image ? (
+          <Image
+            size="sm"
+            source={{
+              uri: image,
+            }}
+            alt="image"
+          />
+        ) : null}
+        <Button
+            className="bottom-button shadow-md rounded-lg m-1"  // bottom?
+            action="primary"
+            onPress={ updateImage }
+            style={{flex: 1}}
+            accessibilityLabel="Update Image"
+            accessibilityHint="Update the image of the bike">
+            <ButtonText>Update Image</ButtonText>
+        </Button>
+      </HStack>
       {errorMessage.length > 0 ? (
         <Alert action="error" variant="outline">
           <AlertIcon as={InfoIcon} />
