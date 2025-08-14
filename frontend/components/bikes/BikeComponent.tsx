@@ -4,7 +4,7 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, fetchUser, isMobile, isMobileSize, metersToDisplayString } from "@/common/utils";
+import { createFileFromUri, displayStringToMeters, ensureString, fetchUser, isMobile, isMobileSize, metersToDisplayString } from "@/common/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Linking } from "react-native";
 import { BaseLayout } from "../layouts/base-layout";
@@ -143,16 +143,23 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [4, 4],
       quality: 1,
+      base64: false,
     });
 
     console.log(result);
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const asset = result.assets[0];
+      setImage(asset.uri);
       if (result.assets[0].file!= null) {
         controller.updateBikePhoto(session, bikeId, result.assets[0].file);
+      } else {
+        const file = await createFileFromUri(asset.uri, asset.mimeType? asset.mimeType : null );
+        if (file) {
+          controller.updateBikePhoto(session, bikeId, file);
+        }
       }
     }
   }

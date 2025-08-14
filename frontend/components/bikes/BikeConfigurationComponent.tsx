@@ -3,12 +3,12 @@ import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, metersToDisplayString } from "@/common/utils";
+import { createFileFromUri, displayStringToMeters, ensureString, metersToDisplayString } from "@/common/utils";
 import { VStack } from "../ui/vstack";
 import { Text } from "../ui/text";
 import { Input, InputField } from "../ui/input";
 import { Alert, AlertIcon, AlertText } from "../ui/alert";
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon, InfoIcon } from "lucide-react-native";
+import { InfoIcon } from "lucide-react-native";
 import { BikeDefinitionSummary } from "@/models/BikeDefinition";
 import { BrandAutocompleteDropdown } from "../common/BrandAutocompleteDropdown";
 import { HStack } from "../ui/hstack";
@@ -123,16 +123,23 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [4, 4],
       quality: 1,
+      base64: false,
     });
 
     console.log(result);
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
-      if (result.assets[0].file!= null) {
-        controller.updateBikePhoto(session, bikeId, result.assets[0].file);
+      const asset = result.assets[0];
+      setImage(asset.uri);
+      if (asset.file!= null) {
+        controller.updateBikePhoto(session, bikeId, asset.file);
+      } else {
+        const file = await createFileFromUri(asset.uri, asset.mimeType? asset.mimeType : null );
+        if (file) {
+          controller.updateBikePhoto(session, bikeId, file);
+        }
       }
     }
   }
