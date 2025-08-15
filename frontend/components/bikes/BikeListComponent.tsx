@@ -105,7 +105,7 @@ type BikeRowProps = {
         <HStack className='row-primary' key={'bike: ' + bike.id + '-' + bike.odometerMeters} >
           {bike.bikePhotoUrl ? (
             <Image
-              className="shadow-md rounded-xl m-1"
+              className="shadow-md rounded-xl m-1 z-50"
               size="xs"
               source={{
                 uri: bike.bikePhotoUrl,

@@ -20,6 +20,8 @@ import { HStack } from "../ui/hstack";
 import { Image } from "../ui/image";
 import * as ImagePicker from 'expo-image-picker';
 
+const fiveMB = 5 * 1024 * 1024;
+
 const groupsetBrands = [
   'Shimano',
   'SRAM',
@@ -150,18 +152,32 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
 
     console.log(result);
 
-    if (!result.canceled) {
-      const asset = result.assets[0];
-      setImage(asset.uri);
-      if (result.assets[0].file!= null) {
-        controller.updateBikePhoto(session, bikeId, result.assets[0].file);
+    if (result.canceled) {
+      return;
+    }
+
+    var message = ''
+    const asset = result.assets[0];
+    if (asset.file!= null) {
+      if (asset.fileSize && asset.fileSize > fiveMB) {
+        message = 'Image size is too large. Please select a smaller image.';
       } else {
-        const file = await createFileFromUri(asset.uri, asset.mimeType? asset.mimeType : null );
-        if (file) {
-          controller.updateBikePhoto(session, bikeId, file);
+        message = await controller.updateBikePhoto(session, bikeId, asset.file);
+        setImage(asset.uri);
+      }
+    } else {
+      const file = await createFileFromUri(asset.uri, asset.mimeType? asset.mimeType : null );
+      if (file) {
+         console.log('File size: ', file.size);
+        if (file.size > fiveMB) {
+          message = 'Image size is too large. Please select a smaller image.';
+        } else {
+          message = await controller.updateBikePhoto(session, bikeId, file);
+          setImage(asset.uri);
         }
       }
     }
+    setErrorMessage(message);
   }
 
   const deleteBike = async function() {
@@ -211,6 +227,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
         title: ensureString(bikeName),
         headerRight: () => (
           <Image
+            className="shadow-md rounded-xl m-1 z-50"
             size="xs"
             source={{
               uri: image,

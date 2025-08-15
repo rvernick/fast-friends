@@ -392,6 +392,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
       <HStack className="w-full">
         {image ? (
           <Image
+            className="shadow-md rounded-xl m-1 z-50"
             size="sm"
             source={{
               uri: image,

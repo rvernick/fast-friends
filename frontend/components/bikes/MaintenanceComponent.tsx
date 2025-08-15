@@ -192,6 +192,7 @@ const MaintenanceComponent = () => {
   };
   const BikeComp: React.FC<BikeCompProps> = ({ item, bike }) => {
     const [description, setDescription ] = useState('');
+    const [photoUrl, setPhotoUrl ] = useState('');
 
     const toggleExpanded = () => {
       item.expanded =!item.expanded;
@@ -210,17 +211,20 @@ const MaintenanceComponent = () => {
     }
     useEffect(() => {
       syncDescription();
+      if (bike.bikePhotoUrl && bike.bikePhotoUrl != photoUrl) {
+        setPhotoUrl(bike.bikePhotoUrl);
+      }
     }, []);
 
     return (
       <Pressable className="row-primary w-full" onPress={toggleExpanded} >
         <HStack className="w-full" key={"bike-" + bike.id}>
-          {bike.bikePhotoUrl ? (
+          {photoUrl ? (
             <Image
-              className="shadow-md rounded-xl m-1"
+              className="shadow-md rounded-xl m-1 z-50"
               size="xs"
               source={{
-                uri: bike.bikePhotoUrl,
+                uri: photoUrl,
               }}
               alt="image"
             />) : (

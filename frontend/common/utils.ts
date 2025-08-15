@@ -341,6 +341,7 @@ export const createFileFromUri = async (uri: string, mimeType: string | null): P
         uri: uri,
         name: filename,
         body: blob,
+        size: blob.size,
         type: mimeType,
       } as any;
     }
