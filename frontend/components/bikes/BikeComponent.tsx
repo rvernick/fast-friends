@@ -4,7 +4,7 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, fetchUser, isMobile, isMobileSize, metersToDisplayString } from "@/common/utils";
+import { createFileFromUri, displayStringToMeters, ensureString, fetchUser, isMobile, isMobileSize, metersToDisplayString } from "@/common/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Linking } from "react-native";
 import { BaseLayout } from "../layouts/base-layout";
@@ -19,6 +19,8 @@ import { Checkbox, CheckboxIcon, CheckboxIndicator, CheckboxLabel } from "../ui/
 import { HStack } from "../ui/hstack";
 import { Image } from "../ui/image";
 import * as ImagePicker from 'expo-image-picker';
+
+const fiveMB = 5 * 1024 * 1024;
 
 const groupsetBrands = [
   'Shimano',
@@ -143,18 +145,39 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [4, 4],
       quality: 1,
+      base64: false,
     });
 
     console.log(result);
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-      if (result.assets[0].file!= null) {
-        controller.updateBikePhoto(session, bikeId, result.assets[0].file);
+    if (result.canceled) {
+      return;
+    }
+
+    var message = ''
+    const asset = result.assets[0];
+    if (asset.file!= null) {
+      if (asset.fileSize && asset.fileSize > fiveMB) {
+        message = 'Image size is too large. Please select a smaller image.';
+      } else {
+        message = await controller.updateBikePhoto(session, bikeId, asset.file);
+        setImage(asset.uri);
+      }
+    } else {
+      const file = await createFileFromUri(asset.uri, asset.mimeType? asset.mimeType : null );
+      if (file) {
+         console.log('File size: ', file.size);
+        if (file.size > fiveMB) {
+          message = 'Image size is too large. Please select a smaller image.';
+        } else {
+          message = await controller.updateBikePhoto(session, bikeId, file);
+          setImage(asset.uri);
+        }
       }
     }
+    setErrorMessage(message);
   }
 
   const deleteBike = async function() {
@@ -204,6 +227,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
         title: ensureString(bikeName),
         headerRight: () => (
           <Image
+            className="shadow-md rounded-xl m-1 z-50"
             size="xs"
             source={{
               uri: image,

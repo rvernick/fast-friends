@@ -3,7 +3,7 @@
     "name": "Pedal Assistant",
     "slug": "fast-friends",
     "owner": "fast-friends",
-    "version": "1.0.25",
+    "version": "1.0.26",
     "orientation": "portrait",
     "icon": "./assets/images/spiral-gears.png",
     "scheme": "com.pedal-assistant",
@@ -22,7 +22,7 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "buildNumber": "69"
+      "buildNumber": "74"
     },
     "android": {
       "adaptiveIcon": {
@@ -55,7 +55,7 @@
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to choose a bike picture.",
-          "cameraPermission": "The app accesses your camera to take a bike picture.",
+          "cameraPermission": "The app accesses your camera to take a bike picture."
         }
       ],
       [

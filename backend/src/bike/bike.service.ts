@@ -216,12 +216,15 @@ export class BikeService {
 
   async updateBikePhoto(bikeId: string, file: Express.Multer.File): Promise<string> {
     try {
+      this.logger.log('Updating bike photo: ', bikeId);
+      this.logger.log('Updating bike photo with : ', file.filename);
+      this.logger.log('Updating bike photo mimetype : ', file.mimetype);
       const bike = await this.bikesRepository.findOneBy({ id: parseInt(bikeId) });
       this.logger.log('Updating bike photo: ', bikeId);
-      // this.logger.log('Updating bike photo: ', bike);
+      const oldPhoto = bike.bikePhoto;
       bike.bikePhoto = await this.mediaService.createPhoto(file, bike.userId);
       this.bikesRepository.save(bike);
-      listBikePhotos()
+      this.mediaService.deletePhoto(oldPhoto);
     } catch (error) {
       console.error('Error updating bike photo: ', error);
       return '';

@@ -3,12 +3,12 @@ import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike } from "@/models/Bike";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, metersToDisplayString } from "@/common/utils";
+import { createFileFromUri, displayStringToMeters, ensureString, metersToDisplayString } from "@/common/utils";
 import { VStack } from "../ui/vstack";
 import { Text } from "../ui/text";
 import { Input, InputField } from "../ui/input";
 import { Alert, AlertIcon, AlertText } from "../ui/alert";
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon, InfoIcon } from "lucide-react-native";
+import { InfoIcon } from "lucide-react-native";
 import { BikeDefinitionSummary } from "@/models/BikeDefinition";
 import { BrandAutocompleteDropdown } from "../common/BrandAutocompleteDropdown";
 import { HStack } from "../ui/hstack";
@@ -18,6 +18,9 @@ import { ScrollView } from "../ui/scroll-view";
 import { getBikeDefinitions, getLines } from "@/common/data-utils";
 import { Pressable } from "../ui/pressable";
 import { BikeIcon } from "lucide-react-native";
+import { Button, ButtonText } from "../ui/button";
+import { Image } from "../ui/image";
+import * as ImagePicker from 'expo-image-picker';
 
 const groupsetBrands = [
   'Shimano',
@@ -72,6 +75,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const [preferences, setPreferences] = useState({ units: 'miles'});
   const [possibleDefinitions, setPossibleDefinitions] = useState<BikeDefinitionSummary[]>([]);
   const [definition, setDefinition] = useState<BikeDefinitionSummary | null>(null);
+  const [image, setImage] = useState<string | null>(null);
 
   const controller = new BikeController(appContext);
 
@@ -87,6 +91,7 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     setGroupsetBrand(ensureString(bike.groupsetBrand));
     setSpeeds(ensureString(bike.groupsetSpeed));
     checkConnectedToStrava(bike.stravaId);
+    setImage(bike.bikePhotoUrl);
     if (bike.bikeDefinitionSummary) {
       console.log('update bike definition: ' + JSON.stringify(bike.bikeDefinitionSummary));
       setDefinition(bike.bikeDefinitionSummary);
@@ -112,6 +117,31 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
     setBikeName(name);
     setErrorMessage('');
     markDirty();
+  }
+
+  const updateImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1,
+      base64: false,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      setImage(asset.uri);
+      if (asset.file!= null) {
+        controller.updateBikePhoto(session, bikeId, asset.file);
+      } else {
+        const file = await createFileFromUri(asset.uri, asset.mimeType? asset.mimeType : null );
+        if (file) {
+          controller.updateBikePhoto(session, bikeId, file);
+        }
+      }
+    }
   }
 
   const updateYear = (itemValue: string) => {
@@ -359,6 +389,27 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
           accessibilityLabel="Name"
           accessibilityHint="The name of the bike being edited"/>
       </Input>
+      <HStack className="w-full">
+        {image ? (
+          <Image
+            className="shadow-md rounded-xl m-1 z-50"
+            size="sm"
+            source={{
+              uri: image,
+            }}
+            alt="image"
+          />
+        ) : null}
+        <Button
+            className="bottom-button shadow-md rounded-lg m-1"  // bottom?
+            action="primary"
+            onPress={ updateImage }
+            style={{flex: 1}}
+            accessibilityLabel="Update Image"
+            accessibilityHint="Update the image of the bike">
+            <ButtonText>Update Image</ButtonText>
+        </Button>
+      </HStack>
       {errorMessage.length > 0 ? (
         <Alert action="error" variant="outline">
           <AlertIcon as={InfoIcon} />

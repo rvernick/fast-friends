@@ -322,3 +322,31 @@ export const today = (): Date => {
   today.setHours(0, 0, 0, 0);
   return today;
 }
+
+export const createFileFromUri = async (uri: string, mimeType: string | null): Promise<File | null> => {
+  if (mimeType == null) return null;
+  try {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const filename = uri.split('/').pop() || 'image.jpg';
+    const extension = filename.split('.').pop()?.toLowerCase() || 'jpg';
+
+    if (Platform.OS === 'web') {
+      // console.log('File created on web:');
+      return new File([blob], filename, { type: mimeType });
+    } else {
+      // For React Native, create a file-like object
+      // console.log('File created on ios:', blob.size);
+      return {
+        uri: uri,
+        name: filename,
+        body: blob,
+        size: blob.size,
+        type: mimeType,
+      } as any;
+    }
+  } catch (error) {
+    console.error('Error creating file from URI:', error);
+    return null;
+  }
+};

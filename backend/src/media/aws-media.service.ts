@@ -2,7 +2,7 @@ import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MediaType, S3Media } from './aws-media.entity';
-import { refreshS3Url, uploadBikePhoto } from '../utils/aws';
+import { deleteBikePhoto, refreshS3Url, uploadBikePhoto } from '../utils/aws';
 
 @Injectable()
 export class S3MediaService {
@@ -26,6 +26,15 @@ export class S3MediaService {
     } catch (error) {
       this.logger.error('Error creating photo: ', error);
       return null;
+    }
+  }
+
+  async deletePhoto(media: S3Media) {
+    try {
+      deleteBikePhoto(media.bucket, media.key);
+      this.mediaRepository.delete(media);
+    } catch (error) {
+      this.logger.error('Error deleting photo: ', error);
     }
   }
 
