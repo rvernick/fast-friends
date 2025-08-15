@@ -1,6 +1,6 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
-  ListBucketsCommand,
   paginateListObjectsV2,
   PutObjectCommand,
   S3Client,
@@ -32,6 +32,20 @@ export const uploadBikePhoto = async (file: Express.Multer.File): Promise<{ buck
   } catch (error) {
     console.error('Error uploading bike photo: ', error);
     return null;
+  }
+}
+
+export const deleteBikePhoto = async (bucket: string, key: string): Promise<void> => {
+  try {
+    const deleteResult = await s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      }),
+    );
+    console.log('info', 'Deleted photo from: ', deleteResult);
+  } catch (error) {
+    console.error('Error deleting bike photo: ', error);
   }
 }
 
