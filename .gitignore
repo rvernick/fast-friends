@@ -67,3 +67,5 @@ notes
 
 trash/*
 frontend/components/common/BottomButton.tsx
+backend/src/interview
+backend/src/production-source.ts
