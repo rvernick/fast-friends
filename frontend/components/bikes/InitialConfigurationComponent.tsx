@@ -16,6 +16,7 @@ import BikeConfigurationComponent from "./BikeConfigurationComponent";
 import BulkAddMaintenanceComponent from "./BulkAddMaintenanceComponent";
 import { MaintenanceLog } from "@/models/MaintenanceLog";
 import { updateOrCreateMaintenanceItems } from "./common/maintenanceItemUtils";
+import { Image } from "../ui/image";
 
 const NULL_OPTIONAL_FIELD_ID = -1;
 
@@ -37,6 +38,7 @@ const newBike = {
       brand: '',
       model: '',
       line: '',
+      bikePhotoUrl: null,
   }
 
 
@@ -51,12 +53,13 @@ const InitialConfigurationComponent = () => {
   const [currentBike, setCurrentBike] = useState<Bike>(newBike);
   const [bikeName, setBikeName] = useState(newBike.name);
   const [readOnly, setReadOnly] = useState(false);
-  const [type, setType] = useState(newBike.type);
+  // const [type, setType] = useState(newBike.type);
   const [errorMessage, setErrorMessage] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceLog[]>([]);
   const [logsCreatedFor, setLogsCreatedFor] = useState<number>(0);
+  const [image, setImage] = useState('');
 
   const MODEL = 'Model';
   const MAINTENANCE = 'Maintenance';
@@ -115,6 +118,7 @@ const InitialConfigurationComponent = () => {
     setIsDirty(false);
     setBikeName(ensureString(bike.name));
     ensureMaintenanceLogs(bikeCopy);
+    setImage(ensureString(bike.bikePhotoUrl));
     setReadOnly(true);
   }
 
@@ -197,7 +201,22 @@ const InitialConfigurationComponent = () => {
     const start = pageAction + ': '+ ensureString(currentBike.name);
     const mileageVal = isMobileSize() ? '' : ' - ' + metersToDisplayString(currentBike.odometerMeters, await preferences)
     const title = start + mileageVal;
-    navigation.setOptions({ title: title });
+    if (image) {
+      navigation.setOptions({
+        title: title,
+        headerRight: () => (
+             <Image
+                className="shadow-md rounded-xl m-1 z-50"
+                size="xs"
+                source={{
+                  uri: image,
+                }}
+                alt="image"
+              />)
+      });
+    } else {
+      navigation.setOptions({title: title});
+    }
   }
 
   const setToFirstBikeIfNotInitialized = () => {

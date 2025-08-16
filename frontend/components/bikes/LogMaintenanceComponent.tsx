@@ -22,6 +22,7 @@ import { Text } from "../ui/text";
 import { Input, InputField } from "../ui/input";
 import { Icon, CheckIcon } from "../ui/icon";
 import { Pressable } from "../ui/pressable";
+import { Image } from "../ui/image";
 
 const threeThousandMilesInMeters = milesToMeters(3000);
 
@@ -62,6 +63,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceLog[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [image, setImage] = useState('');
 
   const controller = new MaintenanceItemController(appContext);
   const preferences = controller.getUserPreferences(session);
@@ -84,6 +86,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
         setBike(bikeById);
         setBikeName(bikeById.name + ": " + metersToDisplayString(bikeById.odometerMeters, await preferences));
         setBikeIdString(idString);
+        setImage(ensureString(bikeById.bikePhotoUrl));
         setCheckedIds([]);
         setErrorMessage('');
         console.log('Selected bikeById id: ', idString);
@@ -348,8 +351,22 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   }, [bikes]);
 
   useEffect(() => {
-    navigation.setOptions({ title: bikeName });
-  }), [bikeName];
+    if (image && image.length > 0) {
+      navigation.setOptions({ title: bikeName,
+        headerRight: () => (
+             <Image
+                className="shadow-md rounded-xl m-1 z-50"
+                size="xs"
+                source={{
+                  uri: image,
+                }}
+                alt="image"
+              />)
+       });
+    } else {
+      navigation.setOptions({ title: bikeName });
+    }
+  }), [bikeName, image];
 
   return (
     <SafeAreaView className="w-full h-full bottom-1">

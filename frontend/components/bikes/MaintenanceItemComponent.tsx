@@ -20,6 +20,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { VStack } from "../ui/vstack";
 import { HStack } from "../ui/hstack";
 import { Button, ButtonText } from "../ui/button";
+import { Image } from "../ui/image";
 
 const threeThousandMilesInMeters = milesToMeters(3000);
 
@@ -51,6 +52,11 @@ const newBike = {
   stravaId: '',
   isRetired: false,
   bikeDefinitionSummary: null,
+  year: '',
+  brand: '',
+  model: '',
+  line: '',
+  bikePhotoUrl: null,
 }
 
 type MaintenanceItemProps = {
@@ -102,6 +108,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   const actionOptions = Object.entries(Action).map(([key, val]) => (val));
   const [availabileActions, setAvailableActions] = useState(actionOptions);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [image, setImage] = useState('');
 
   const deadlineOptions = ['Distance', 'Date', 'Both'].map((val) => ({ label: val, value: val }));
   const [deadline, setDeadline] = useState('Distance');
@@ -300,6 +307,7 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
         const name = isMobile() && bikeById.name.length > 9 ? bikeById.name.substring(0, 8) + "..." : bikeById.name;
         const title = name + ' (' + metersToDisplayString(bikeById.odometerMeters, prefs) +' ' + prefs.units + ')'
         setBikeName(title);
+        setImage(ensureString(bikeById.bikePhotoUrl));
         setBikeIdString(idString);
         // updatePartsList(bikeById);
         updateActionsList(bikeById, part);
@@ -506,8 +514,23 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   }
 
   useEffect(() => {
-    navigation.setOptions({ title: 'Due: ' + ensureString(part) +' : '+ bikeName });
-  }), [part, bikeName];
+    if (image) {
+      navigation.setOptions({
+        title: 'Due: ' + ensureString(part) +' : '+ bikeName,
+        headerRight: () => (
+                     <Image
+                        className="shadow-md rounded-xl m-1 z-50"
+                        size="xs"
+                        source={{
+                          uri: image,
+                        }}
+                        alt="image"
+                      />)
+      });
+    } else {
+      navigation.setOptions({ title: 'Due: ' + ensureString(part) +' : '+ bikeName });
+    }
+  }), [part, bikeName, image];
 
   useEffect(() => {
     if (isMobile()) {
