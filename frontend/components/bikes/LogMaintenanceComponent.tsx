@@ -36,6 +36,12 @@ const newBike = {
   maintenanceItems: [],
   stravaId: '',
   isRetired: false,
+  year: '',
+  brand: '',
+  model: '',
+  line: '',
+  bikeDefinitionSummary: null,
+  bikePhotoUrl: null,
 }
 
 type LogMaintenanceProps = {
@@ -48,7 +54,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
-  
+
   const [bike, setBike] = useState<Bike>(newBike);
   const [bikeName, setBikeName] = useState('Select Bike');
   const [bikeIdString, setBikeIdString] = useState('0');
@@ -148,7 +154,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
       defaultBike = bikes.find(bike => bike.id === parseInt(bikeid));
     } else {
       const roomForMore = Object.keys(Part).length;
-      defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);      
+      defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);
     }
     if (defaultBike) {
       selectBike(ensureString(defaultBike.id));
@@ -185,7 +191,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     const [dueDistanceString, setDueDistanceString] = useState('0');
     const [selected, setSelected] = useState(log.selected);
 
-    const toggleSelectedRow = () => {    
+    const toggleSelectedRow = () => {
       if (checkedIds.includes(log.id)) {
         log.selected = false;
         setSelected(false);
@@ -236,7 +242,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
         setDueDistanceString(dueDate? dueDate.toLocaleDateString() : '');
       }
     }
-    
+
     useEffect(() => {
       syncNextDueString();
     }, [nextDueValue]);
@@ -277,7 +283,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
               isInvalid={false}
               isReadOnly={false}
             >
-              <InputField 
+              <InputField
                 keyboardType="number-pad"
                 value={nextDueString}
                 onChangeText={(newValue) => {setNextDue(newValue)}}
@@ -364,13 +370,13 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
           className="w-full h-full"
           contentContainerStyle={{ flexGrow: 1 }}>
           <VStack className="w-full h-full">
-            {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) => 
+            {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) =>
               <MaintenanceLogRow log={log} rowKey={"mlr" + log.id} key={"mlr" + log.id}/>
             )}
           </VStack>
         </ScrollView>
         <HStack className="w-full flex bg-background-0 flex-grow justify-center">
-          <Button 
+          <Button
             className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ goBack }
@@ -380,7 +386,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
             <ButtonText>Cancel</ButtonText>
           </Button>
           {isMobileSize() ? null : (
-              <Button 
+              <Button
                 className="bottom-button shadow-md rounded-lg m-1"
                 onPress={ () => {router.push('/(home)/(assistance)/instructions')}}
                 style={{flex: 1}}
@@ -389,7 +395,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
                 <ButtonText>Instructions</ButtonText>
             </Button>
           )}
-          <Button 
+          <Button
               className="bottom-button shadow-md rounded-lg m-1"
               onPress={ submitMaintenance }
               isDisabled={checkedIds.length < 1}

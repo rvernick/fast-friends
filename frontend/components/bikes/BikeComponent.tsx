@@ -20,7 +20,7 @@ import { HStack } from "../ui/hstack";
 import { Image } from "../ui/image";
 import * as ImagePicker from 'expo-image-picker';
 
-const fiveMB = 5 * 1024 * 1024;
+const threeMB = 3 * 1024 * 1024;
 
 const groupsetBrands = [
   'Shimano',
@@ -150,7 +150,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
       base64: false,
     });
 
-    console.log(result);
+    console.log("result: ", result);
 
     if (result.canceled) {
       return;
@@ -158,26 +158,34 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
 
     var message = ''
     const asset = result.assets[0];
-    if (asset.file!= null) {
-      if (asset.fileSize && asset.fileSize > fiveMB) {
-        message = 'Image size is too large. Please select a smaller image.';
-      } else {
-        message = await controller.updateBikePhoto(session, bikeId, asset.file);
-        setImage(asset.uri);
-      }
+    const preProcessedFile = await preprocessFile(asset);
+    console.log('File uri: ', asset.uri);
+
+    if (!preProcessedFile) {
+      message = 'Failed to process file.';
+    } else if (preProcessedFile.size > threeMB) {
+      console.log('File size: ', preProcessedFile.size);
+      message = 'Image size is too large. Please select a smaller image.';
     } else {
-      const file = await createFileFromUri(asset.uri, asset.mimeType? asset.mimeType : null );
-      if (file) {
-         console.log('File size: ', file.size);
-        if (file.size > fiveMB) {
-          message = 'Image size is too large. Please select a smaller image.';
-        } else {
-          message = await controller.updateBikePhoto(session, bikeId, file);
-          setImage(asset.uri);
-        }
-      }
+      message = await controller.updateBikePhoto(session, bikeId, preProcessedFile);
+      setImage(asset.uri);
     }
+
     setErrorMessage(message);
+  }
+
+  const preprocessFile = async (asset: ImagePicker.ImagePickerAsset) => {
+    if (asset.file == null) {
+      return createFileFromUri(asset.uri, asset.mimeType? asset.mimeType : null );
+    }
+    console.log('File uri: ', asset.uri);
+    console.log('File size: ', asset.fileSize);
+    if (asset.fileSize && asset.fileSize < threeMB) {
+      return asset.file;
+    }
+
+    console.log('compressing');
+    return createFileFromUri(asset.uri, asset.mimeType? asset.mimeType : null );
   }
 
   const deleteBike = async function() {
