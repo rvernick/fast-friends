@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
-import { Bike } from "@/models/Bike";
+import { Bike, createNewBike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { Button, Text, Surface, Checkbox, TextInput, Card, HelperText, ActivityIndicator, IconButton } from "react-native-paper";
 import { useSession } from "@/common/ctx";
@@ -15,19 +15,7 @@ import { BikeDropdown } from "../common/BikeDropdown";
 import { DatePickerInput } from "react-native-paper-dates";
 import { defaultMaintenanceItems } from "./default-maintenance";
 
-const newBike = {
-  id: 0,
-  name: '',
-  type: 'Road',
-  groupsetSpeed: 11,
-  groupsetBrand: 'Shimano',
-  isElectronic: false,
-  odometerMeters: 0,
-  maintenanceItems: [],
-  stravaId: '',
-  isRetired: false,
-  bikeDefinitionSummary: null,
-}
+const newBike = createNewBike();
 
 type BulkMaintenanceAddProps = {
   bikeid?: string,

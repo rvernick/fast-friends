@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
-import { Bike } from "@/models/Bike";
+import { Bike, createNewBike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, isMobileSize, metersToDisplayString, milesToMeters, today } from "@/common/utils";
@@ -26,24 +26,7 @@ import { Image } from "../ui/image";
 
 const threeThousandMilesInMeters = milesToMeters(3000);
 
-const newBike = {
-  id: 0,
-  name: '',
-  type: 'Road',
-  groupsetSpeed: 11,
-  groupsetBrand: 'Shimano',
-  isElectronic: false,
-  odometerMeters: 0,
-  maintenanceItems: [],
-  stravaId: '',
-  isRetired: false,
-  year: '',
-  brand: '',
-  model: '',
-  line: '',
-  bikeDefinitionSummary: null,
-  bikePhotoUrl: null,
-}
+const newBike = createNewBike();
 
 type LogMaintenanceProps = {
   bikeid: string,

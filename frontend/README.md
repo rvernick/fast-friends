@@ -73,24 +73,8 @@ To learn more about developing your project with Expo, look at the following res
 ## Helpful links
 
 Layout info: https://reactnative.dev/docs/layout-props
+Created Apple store images here: https://appscreens.com/user/project/JlcUwadbmAZ3M7aAHZH3
 
-
-## Rebuilt with Expo Navigator and Paper
-Followed instructions on Themes with Expo Router https://hemanshum.medium.com/the-ultimate-guide-to-custom-theming-with-react-native-paper-expo-and-expo-router-8eba14adcab3
-Resetting the project move examples from app to app-example (super helpful)
-
-Started with the following steps:
-```
-npx create-expo-app@latest
-cd frontend/
-npm i @tanstack/react-query
-# npm install react-native-safe-area-context
-npx expo install expo-secure-store
-npm run reset-project
-npm install react-native-paper
-# npm i react-native-app-auth
-npm i react-native-error-boundary
-npm i @react-native-async-storage/async-storage
-npm i react-native-paper-dropdown
-```
-Tweaked index and layout files to incorporate light/dark modes and most of the theme info
+## Migrated from React Native Paper to Gluestack with NativeWind
+The layouts with RNP were getting increasingly difficult, and it doesn't support NativeWind
+Made sense to switch.  Gluestack is relatively straightforward.

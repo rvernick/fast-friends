@@ -84,6 +84,13 @@ export class Bike {
   })
   line: string;
 
+  @Column({
+    type: 'varchar',
+    name: 'serial_number',
+    nullable: true,
+  })
+  serialNumber: string;
+
   @ManyToOne((type) => BikeDefinition, { nullable: true, cascade: false, eager: false })
   @JoinColumn({ name: "bike_definition_id" })
   bikeDefinition: BikeDefinition;

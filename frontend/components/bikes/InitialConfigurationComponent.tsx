@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
-import { Bike } from "@/models/Bike";
+import { Bike, createNewBike } from "@/models/Bike";
 import { defaultMaintenanceItems } from "./default-maintenance";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
@@ -11,7 +11,6 @@ import { SafeAreaView, ScrollView } from "react-native";
 import { VStack } from "../ui/vstack";
 import { Button, ButtonText } from "../ui/button";
 import { HStack } from "../ui/hstack";
-import { MaintenanceItem } from "@/models/MaintenanceItem";
 import BikeConfigurationComponent from "./BikeConfigurationComponent";
 import BulkAddMaintenanceComponent from "./BulkAddMaintenanceComponent";
 import { MaintenanceLog } from "@/models/MaintenanceLog";
@@ -20,27 +19,7 @@ import { Image } from "../ui/image";
 
 const NULL_OPTIONAL_FIELD_ID = -1;
 
-const miArray: MaintenanceItem[] = new Array(0);
-
-const newBike = {
-      id: 0,
-      name: '',
-      type: 'Road',
-      groupsetBrand: 'Shimano',
-      groupsetSpeed: 11,
-      isElectronic: false,
-      odometerMeters: 0,
-      isRetired: false,
-      maintenanceItems: miArray,
-      stravaId: '',
-      bikeDefinitionSummary: null,
-      year: '2022',
-      brand: '',
-      model: '',
-      line: '',
-      bikePhotoUrl: null,
-  }
-
+const newBike = createNewBike();
 
 const InitialConfigurationComponent = () => {
   const session = useSession();
@@ -165,6 +144,7 @@ const InitialConfigurationComponent = () => {
         currentBike.groupsetSpeed,
         currentBike.isElectronic,
         currentBike.isRetired,
+        currentBike.serialNumber,
         currentBike.bikeDefinitionSummary ? currentBike.bikeDefinitionSummary.id : NULL_OPTIONAL_FIELD_ID);
       console.log('update bike result: ' + result);
       queryClient.invalidateQueries({ queryKey: ['bikes'] });

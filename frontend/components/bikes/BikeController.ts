@@ -29,6 +29,7 @@ class BikeController extends AppController {
     groupsetSpeed: number,
     isElectronic: boolean,
     isRetired: boolean,
+    serialNumber: string,
     bikeDefinitionId: number = 0): Promise<string> => {
 
     try {
@@ -46,6 +47,7 @@ class BikeController extends AppController {
         groupsetSpeed: groupsetSpeed,
         isElectronic: isElectronic,
         isRetired: isRetired,
+        serialNumber: serialNumber,
         bikeDefinitionId: bikeDefinitionId,
       };
 

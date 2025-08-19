@@ -39,4 +39,6 @@ export class UpdateBikeDto {
   line: string;
 
   bikeDefinitionId?: number;
+
+  serialNumber: string;
 }

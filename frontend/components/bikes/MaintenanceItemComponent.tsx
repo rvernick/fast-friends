@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
-import { Bike } from "@/models/Bike";
+import { Bike, createNewBike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
@@ -40,24 +40,7 @@ const newMaintenanceItem = {
   autoAdjustLongevity: true,
 };
 
-const newBike = {
-  id: 0,
-  name: '',
-  type: 'Road',
-  groupsetSpeed: 11,
-  groupsetBrand: 'Shimano',
-  isElectronic: false,
-  odometerMeters: 0,
-  maintenanceItems: [],
-  stravaId: '',
-  isRetired: false,
-  bikeDefinitionSummary: null,
-  year: '',
-  brand: '',
-  model: '',
-  line: '',
-  bikePhotoUrl: null,
-}
+const newBike = createNewBike();
 
 type MaintenanceItemProps = {
   maintenanceid: number,

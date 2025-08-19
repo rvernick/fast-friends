@@ -5,6 +5,7 @@ import { User } from '../user/user.entity';
 import { UpdateUserDto } from './update-user.dto';
 import { UpdateStravaDto } from './update-strava.dto';
 import { ResetPasswordDto } from './reset-password.dto';
+import { BikeService } from '../bike/bike.service';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private bikeService: BikeService,
   ) {}
 
   // need a test for when the username is nill or shouldn't be found
@@ -24,6 +26,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     const payload = { username: user.username, sub: user.id };
+    this.bikeService.getBikes(username);
     return {
       access_token: await this.jwtService.signAsync(payload),
       user: user,
@@ -135,7 +138,7 @@ export class AuthService {
     }
     this.userService.initiateEmailVerify(user, email);
   }
-  
+
   async verifyEmailCode(code: string): Promise<boolean> {
     return this.userService.verifyEmailCode(code);
   }
