@@ -22,7 +22,7 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "buildNumber": "75"
+      "buildNumber": "76"
     },
     "android": {
       "adaptiveIcon": {
@@ -52,10 +52,16 @@
         }
       ],
       [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Pedal Assistant to access your camera"
+        }
+      ],
+      [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos to choose a bike picture.",
-          "cameraPermission": "The app accesses your camera to take a bike picture."
+          "photosPermission": "Allow Pedal Assistant to access your photos.",
+          "cameraPermission": "Allow Pedal Assistant to access your camera."
         }
       ],
       [

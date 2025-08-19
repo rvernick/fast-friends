@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
-import { Bike } from "@/models/Bike";
+import { Bike, createNewBike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { createFileFromUri, displayStringToMeters, ensureString, fetchUser, isMobile, isMobileSize, metersToDisplayString } from "@/common/utils";
@@ -10,7 +10,7 @@ import { Linking } from "react-native";
 import { BaseLayout } from "../layouts/base-layout";
 import { VStack } from "../ui/vstack";
 import { Text } from "../ui/text";
-import { Input, InputField } from "../ui/input";
+import { Input, InputField, InputIcon, InputSlot } from "../ui/input";
 import { Alert, AlertIcon, AlertText } from "../ui/alert";
 import { Button, ButtonText } from "../ui/button";
 import { CheckIcon, InfoIcon } from "../ui/icon";
@@ -19,6 +19,8 @@ import { Checkbox, CheckboxIcon, CheckboxIndicator, CheckboxLabel } from "../ui/
 import { HStack } from "../ui/hstack";
 import { Image } from "../ui/image";
 import * as ImagePicker from 'expo-image-picker';
+import { CameraIcon } from "lucide-react-native";
+import SerialNumberOCRDialog from "./SerialNumberCameraOCR";
 
 const threeMB = 3 * 1024 * 1024;
 
@@ -30,16 +32,8 @@ const groupsetBrands = [
 ]
 const groupsetSpeeds = ['1', '9', '10', '11', '12', '13'];
 const types = ['Road', 'Mountain', 'Hybrid', 'Cruiser', 'Electric', 'Cargo', 'Gravel'].sort();
-const newBike = {
-      id: 0,
-      name: '',
-      type: 'Road',
-      groupsetBrand: 'Shimano',
-      groupsetSpeed: 11,
-      isElectronic: false,
-      odometerMeters: 0,
-      isRetired: false,
-  }
+const newBike = createNewBike();
+
 type BikeProps = {
   bikeid: number
 };
@@ -73,6 +67,8 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const [isRetired, setIsRetired] = useState(newBike.isRetired);
   const [connectedToStrava, setConnectedToStrava] = useState(false);
   const [image, setImage] = useState<string | null>(null);
+  const [serialNumber, setSerialNumber] = useState('');
+  const [captureSerialNumber, setCaptureSerialNumber] = useState(false);
 
   const controller = new BikeController(appContext);
   const preferences = controller.getUserPreferences(session);
@@ -100,6 +96,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     setSpeeds(ensureString(bike.groupsetSpeed));
     setIsElectronic(bike.isElectronic);
     setIsRetired(bike.isRetired);
+    setSerialNumber(ensureString(bike.serialNumber));
     setMileage(metersToDisplayString(bike.odometerMeters, pref));
     setStravaId(ensureString(bike.stravaId));
     checkConnectedToStrava(bike.stravaId);
@@ -131,7 +128,8 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
       groupsetBrand,
       speed != null && speed != '' ? Number(speed) : 0,
       isElectronic,
-      isRetired);
+      isRetired,
+      serialNumber);
     console.log('update bike result: ' + result);
     queryClient.invalidateQueries({ queryKey: ['bikes'] });
     if (result == '') {
@@ -292,8 +290,16 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const speedOptions = groupsetSpeeds.map(speed => ({ label: speed, value: speed}));
   const typeOptions = types.map(type => ({ label: type, value: type }));
 
-  return (
-    <BaseLayout image={ensureString(image)} imagePress={updateImage}>
+  if (captureSerialNumber) {
+    return (
+      <SerialNumberOCRDialog
+        open={captureSerialNumber}
+        setSerialNumber={(newVal) => setSerialNumber(newVal)}
+        closeCamera={() => setCaptureSerialNumber(false)} />)
+  } else {
+    return (
+      <BaseLayout image={ensureString(image)} imagePress={updateImage}>
+
       <VStack className="max-w-[440px] w-full" space="md">
         <VStack className="w-full">
           <Text>Name</Text>
@@ -364,6 +370,27 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
             testID="speedsDropdown"
             onSelect={(value) => setSpeeds(value ? value : '')}
           />
+          <Text>Serial Number</Text>
+          <Input
+            variant="outline"
+            size="md"
+            isDisabled={readOnly}
+            isInvalid={false}
+            isReadOnly={readOnly}>
+              <InputField
+                value={serialNumber}
+                onChangeText={(value) => setSerialNumber(value ? value : '')}
+                readOnly={readOnly}
+                inputMode="text"
+                testID="serialNumberField"
+                accessibilityLabel="Serial Number"
+                accessibilityHint="Serial number of the bike"/>
+                {(isMobile() && !readOnly) ? (<InputSlot onPress={() => setCaptureSerialNumber(true)} className="pr-3">
+                    <InputIcon as={CameraIcon} />
+                </InputSlot>) : (<InputSlot className="pr-3"/>) // null out for non-mobile
+                }
+          </Input>
+
           <Checkbox size="md"
               value="Is Electronic"
               isDisabled={readOnly}
@@ -427,7 +454,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
         </HStack>
       </VStack>
     </BaseLayout>
-  );
+  )};
 };
 
 export default BikeComponent;
