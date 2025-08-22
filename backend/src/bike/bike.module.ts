@@ -16,7 +16,6 @@ import { BatchProcess } from '../batch/batch-process.entity';
 import { BatchProcessService } from '../batch/batch-process.service';
 import { MaintenanceHistory } from './maintenance-history.entity';
 import { EmailVerify } from '../user/email-verify.entity';
-import { StravaVerify } from '../user/strava-verify.entity';
 import { BikeDefinition } from './bike-definition.entity';
 import { BikeComponent } from './bike-component.entity';
 import { BikeDefinitionService } from './bike-definition.service';
@@ -25,15 +24,17 @@ import { BikeDefinitionBasis } from './bike-definition-basis.entity';
 import { Brand, Line, Model } from './brand.entity';
 import { S3MediaService } from '../media/aws-media.service';
 import { S3Media } from '../media/aws-media.entity';
+import { OAuthVerify } from '../user/oauth-verify.entity';
 
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([
     User, Bike, MaintenanceItem, MaintenanceHistory,
     PasswordReset, Notification, BatchProcess, EmailVerify,
-    StravaVerify,
+    OAuthVerify,
     BikeDefinition, BikeComponent, BikeDefinitionBasis,
     Brand, Model, Line,
-    S3Media])],
+    S3Media
+  ])],
   providers: [
     {
       provide: APP_GUARD,

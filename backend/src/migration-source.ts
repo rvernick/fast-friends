@@ -14,12 +14,12 @@ import { ToolNeed } from './instruction/tool-need.entity';
 import { Tool } from './instruction/tool.entity';
 import { EmailVerify } from './user/email-verify.entity';
 import { HelpComment, HelpCommentVote, HelpOffer, HelpRequest } from './help/help-request.entity';
-import { StravaVerify } from './user/strava-verify.entity';
 import { BikeDefinition } from './bike/bike-definition.entity';
 import { BikeComponent } from './bike/bike-component.entity';
 import { BikeDefinitionBasis } from './bike/bike-definition-basis.entity';
 import { Brand, Line, Model } from './bike/brand.entity';
 import { S3Media } from './media/aws-media.entity';
+import { OAuthVerify } from './user/oauth-verify.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -35,7 +35,7 @@ export const AppDataSource = new DataSource({
     Instruction, InstructionReference, Step, ToolNeed, Tool,
     EmailVerify,
     HelpRequest, HelpComment, HelpCommentVote, HelpOffer,
-    StravaVerify,
+    OAuthVerify,
     BikeDefinition, BikeComponent, BikeDefinitionBasis,
     Brand, Model, Line,
     S3Media

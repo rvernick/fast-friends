@@ -239,10 +239,11 @@ export const fetchSecrets = async (session: any): Promise<any | null> => {
   }
 }
 
-export const fetchSecretsByVerify = async (verifyCode: string): Promise<any | null> => {
+export const fetchSecretsByVerify = async (verifyCode: string, target: string): Promise<any | null> => {
   try {
     const parameters = {
       verifyCode: verifyCode,
+      target: target,
     };
     console.log('fetching secrets: ' + verifyCode);
     return getInternal('/user/v1/secrets', parameters, '') as Promise<any | null>;

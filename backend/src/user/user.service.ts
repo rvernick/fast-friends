@@ -9,12 +9,11 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
-import { defaultMaintenanceItems } from '../bike/maintenance-item.entity';
 import { createSixDigitCode, sendEmail } from '../utils/utils';
 import { EmailVerify } from './email-verify.entity';
-import { StravaVerify } from './strava-verify.entity';
 import { BatchProcessService } from '../batch/batch-process.service';
 import { BatchProcess } from '../batch/batch-process.entity';
+import { OAuthVerify } from './oauth-verify.entity';
 
 @Injectable()
 export class UserService {
@@ -29,8 +28,8 @@ export class UserService {
     private passwordResetRepository: Repository<PasswordReset>,
     @InjectRepository(EmailVerify)
     private emailVerifyRepository: Repository<EmailVerify>,
-    @InjectRepository(StravaVerify)
-    private stravaVerifyRepository: Repository<StravaVerify>,
+    @InjectRepository(OAuthVerify)
+    private oauthVerifyRepository: Repository<OAuthVerify>,
     @Inject(ConfigService)
     private readonly configService: ConfigService,
     @Inject(HttpService)
@@ -111,15 +110,16 @@ export class UserService {
     return user;
   }
 
-  async getStravaVerifyCode(username: string): Promise<string | null> {
+  async getOAuthVerifyCode(username: string, target: string = 'strava'): Promise<string | null> {
     const tenMinutesInMilliseconds = 1000 * 60 * 10;
     const user = await this.findUsername(username);
-    const stravaVerify = this.stravaVerifyRepository.create();
-    stravaVerify.code = createSixDigitCode();
-    stravaVerify.user = user;
-    stravaVerify.expiresOn = new Date(Date.now() + tenMinutesInMilliseconds);
-    this.stravaVerifyRepository.save(stravaVerify);
-    return stravaVerify.code;
+    const oauthVerify = this.oauthVerifyRepository.create();
+    oauthVerify.code = createSixDigitCode();
+    oauthVerify.user = user;
+    oauthVerify.target = target;
+    oauthVerify.expiresOn = new Date(Date.now() + tenMinutesInMilliseconds);
+    this.oauthVerifyRepository.save(oauthVerify);
+    return oauthVerify.code;
   }
 
   unlinkFromStrava(user: User) {
@@ -161,7 +161,7 @@ export class UserService {
 
   async syncStravaUserV1(stravaAuthDto: StravaAuthenticationDto): Promise<User> {
     if (stravaAuthDto.verifyCode == null || stravaAuthDto.stravaCode == null) return null;
-    const stravaVerify = await this.getAndVerifyStravaCode(stravaAuthDto.verifyCode);
+    const stravaVerify = await this.getAndVerifyOAuthCode(stravaAuthDto.verifyCode, 'strava');
     var lock: BatchProcess;
     try {
       lock = await this.batchProcessService.attemptLockOn(stravaAuthDto.stravaCode);
@@ -264,7 +264,7 @@ export class UserService {
   }
 
     async updateStravaV1(stravaCode: string, verifyCode: string): Promise<boolean> {
-      const verify = await this.getAndVerifyStravaCode(verifyCode);
+      const verify = await this.getAndVerifyOAuthCode(verifyCode, 'strava');
       try {
         this.updateUser(
           verify.user,
@@ -283,18 +283,22 @@ export class UserService {
       }
     }
 
-  async getSecretsV1(verifyCode: string): Promise<any> {
-    await this.getAndVerifyStravaCode(verifyCode);
-    return {
+  async getSecretsV1(verifyCode: string, target: string): Promise<any> {
+    await this.getAndVerifyOAuthCode(verifyCode, target);
+    const result = {
       stravaClientId: this.configService.get('STRAVA_CLIENT_ID'),
       stravaSecret: this.configService.get('STRAVA_CLIENT_SECRET'),
+      bikeIndexClientId: this.configService.get('BIKE_INDEX_CLIENT_ID'),
+      bikeIndexSecret: this.configService.get('BIKE_INDEX_CLIENT_SECRET'),
     };
+    return result;
   }
 
-  async getAndVerifyStravaCode(verifyCode: string): Promise<StravaVerify> {
-    const verify = await this.stravaVerifyRepository.findOne({
+  async getAndVerifyOAuthCode(verifyCode: string, target: string): Promise<OAuthVerify> {
+    const verify = await this.oauthVerifyRepository.findOne({
       where: {
         code: verifyCode,
+        target: target,
       },
     });
 

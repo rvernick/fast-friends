@@ -28,7 +28,7 @@ class AppContext {
   public setSession(session: any) {
     this._session = session;
   }
-  
+
   public ensureUpToDate() {
     if (this._session == null || this.testing) {
       return;
@@ -111,24 +111,28 @@ class AppContext {
     });
   }
 
-  public async getStravaClientId(session: any, verifyCode: string): Promise<string> {
+  public async getSecret(session: any, verifyCode: string, secretKey: string, target: string): Promise<string> {
     if (session.jwt_token != null) {
       this.setSession(session);
       const secrets = await this.getSecrets(session);
-      return secrets['stravaClientId'];
+      return secrets[secretKey];
     }
-    const secrets = await fetchSecretsByVerify(verifyCode);
-    return secrets['stravaClientId'];
+    const secrets = await fetchSecretsByVerify(verifyCode, target);
+    return secrets[secretKey];
   }
 
+  public async getStravaClientId(session: any, verifyCode: string): Promise<string> {
+    return this.getSecret(session, verifyCode, 'stravaClientId', 'strava');
+  }
   public async getStravaClientSecret(session: any, verifyCode: string): Promise<string> {
-    if (session.jwt_token != null) {
-      this.setSession(session);
-      const secrets = await this.getSecrets(session);
-      return secrets['stravaSecret'];
-    }
-    const secrets = await fetchSecretsByVerify(verifyCode);
-    return secrets['stravaSecret'];
+    return this.getSecret(session, verifyCode, 'stravaSecret', 'strava');
+  }
+
+  public async getBikeIndexClientId(session: any, verifyCode: string): Promise<string> {
+    return this.getSecret(session, verifyCode, 'bikeIndexClientId', 'bike-index');
+  }
+  public async getBikeIndexClientSecret(session: any, verifyCode: string): Promise<string> {
+    return this.getSecret(session, verifyCode, 'bikeIndexSecret', 'bike-index');
   }
 
   public getEmail(): string | null {

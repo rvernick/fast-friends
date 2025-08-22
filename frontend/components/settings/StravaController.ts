@@ -81,33 +81,6 @@ class StravaController extends AppController {
     };
   };
 
-  async callUpdateAccount(
-    session: any,
-    username: string,
-    firstName: string,
-    lastName: string,
-    cellPhone: string) {
-
-    try {
-      const body = {
-        username: username,
-        firstName: firstName,
-        lastName: lastName,
-        cellPhone: cellPhone,
-      };
-
-      const response = await post('/auth/update-user', body, session.jwt_token);
-      if (response.ok) {
-        return '';
-      }
-      const result = await response.json();
-      console.log('json ' + result.message);
-      return result.message;
-    } catch(e: any) {
-      console.log(e.message);
-      return 'Unable to Update Account';
-    }
-  };
 
   async unlinkFromStrava(session: any, appContext: AppContext, user: any): Promise<string> {
     user.stravaToken = null;
@@ -196,8 +169,9 @@ class StravaController extends AppController {
     try {
       const parameters = {
         username: session.email,
+        target:'strava',
       };
-      return await getInternal('/user/strava-verify-code', parameters, session.jwt_token) as Promise<string>;
+      return await getInternal('/user/oauth-verify-code', parameters, session.jwt_token) as Promise<string>;
     } catch(e: any) {
       console.log(e.message);
       return '';
