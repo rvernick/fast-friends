@@ -38,6 +38,13 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('strava-verify-code')
+  getStravaVerifyCode(@Query('username') username: string): Promise<string | null> {
+    console.log('user/strava-verify-code user:'+ username);
+    return this.userService.getOAuthVerifyCode(username, 'strava');
+  }
+
+  @UseGuards(AuthGuard)
   @Get('oauth-verify-code')
   getOAuthVerifyCode(@Query('username') username: string, @Query('target') target: string): Promise<string | null> {
     console.log('user/oauth-verify-code user:'+ username, target);
@@ -53,7 +60,7 @@ export class UserController {
 
   @Public()
   @Get('v1/secrets')
-  getSecrets(@Query('verifyCode') verifyCode: string, @Query('target') target: string): Promise<string[] | null> {
+  getSecrets(@Query('verifyCode') verifyCode: string, @Query('target') target: string = 'strava'): Promise<string[] | null> {
     return this.userService.getSecretsV1(verifyCode, target);
   }
 }

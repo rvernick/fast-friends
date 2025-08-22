@@ -1,16 +1,14 @@
 import React, { useState, useRef } from 'react';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions, CameraMountError } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import TextRecognition from 'react-native-text-recognition';
 import { Box } from '../ui/box';
 import { HStack } from '../ui/hstack';
 import { Text } from "../ui/text";
 import { Button, ButtonText } from "../ui/button";
-import { VStack } from '../ui/vstack';
-import { Spinner } from '../ui/spinner';
-import { Image } from '../ui/image';
 import { Alert } from 'react-native';
-import { AlertDialog, AlertDialogBackdrop, AlertDialogBody, AlertDialogCloseButton, AlertDialogContent, AlertDialogFooter, AlertDialogHeader } from '../ui/alert-dialog';
+import { SafeAreaView } from "@/components/ui/safe-area-view";
+import { VStack } from '../ui/vstack';
 
 type SericalNumberCameraOCRProps = {
   open: boolean;
@@ -45,7 +43,6 @@ const SerialNumberOCRDialog: React.FC<SericalNumberCameraOCRProps> = ({open, clo
   // Process image with OCR
   const processImageForOCR = async (imageUri: string) => {
     setIsProcessing(true);
-    console.log('Processing Image:', imageUri);
     try {
       const results = await TextRecognition.recognize(imageUri);
 
@@ -70,7 +67,7 @@ const SerialNumberOCRDialog: React.FC<SericalNumberCameraOCRProps> = ({open, clo
           setSerialNumber(bestMatch);
           Alert.alert('Serial Number Detected', `Found: ${bestMatch}\n(Please verify format)`);
         }
-      } if (results && results.length > 0) {
+      } else if (results && results.length > 0) {
         // Fallback: clean and show all detected text
         const cleanedText = cleanSerialNumber(results[0]);
         setSerialNumber(cleanedText);
@@ -194,36 +191,44 @@ const SerialNumberOCRDialog: React.FC<SericalNumberCameraOCRProps> = ({open, clo
       );
     }
 
+    function errorMounting(event: CameraMountError): void {
+      console.error('Error mounting camera', event);
+    }
+
     return (
-      <Box className="flex-1">
-        <CameraView
-          ref={cameraRef}
-          className="flex-1"
-          facing={facing}
-        >
-          <Box className="absolute inset-0 justify-center items-center">
-            <Box className="w-4/5 h-24 border-2 border-white border-dashed rounded-lg justify-center items-center bg-black bg-opacity-10">
-              <Text className="text-white text-base font-bold text-center bg-black bg-opacity-50 px-2.5 py-1 rounded">
-                Position serial number here
-              </Text>
+      <SafeAreaView className="w-full h-full">
+        <VStack className="w-full h-full">
+          <CameraView
+            ref={cameraRef}
+            mode='picture'
+            style={{ flex: 1, justifyContent: 'center'  }}
+            facing={facing}
+            onMountError={errorMounting}
+          >
+            <Box className="inset-0 justify-center items-center ">
+              <Box className="w-4/5 h-24 border-2 border-white border-dashed rounded-lg justify-center items-center bg-opacity-10">
+                <Text className="text-white text-base font-bold text-center bg-opacity-10 px-2.5 py-1 rounded">
+                  Position serial number here
+                </Text>
+              </Box>
             </Box>
-          </Box>
 
-          <HStack className="absolute bottom-12 left-0 right-0 justify-around items-center">
-            <Button onPress={toggleCameraFacing} className="bg-black bg-opacity-60 w-15 h-15 rounded-full justify-center items-center">
-              <Text className="text-2xl">🔄</Text>
-            </Button>
+            <HStack className="absolute bottom-12 left-0 right-0 justify-around items-center">
+              <Button onPress={toggleCameraFacing} className="bg-black bg-opacity-60 w-15 h-15 rounded-full justify-center items-center">
+                <Text className="text-2xl">🔄</Text>
+              </Button>
 
-            <Button onPress={takePhoto} className="bg-blue-500 w-20 h-20 rounded-full justify-center items-center">
-              <Text className="text-3xl">📷</Text>
-            </Button>
+              <Button onPress={takePhoto} className="bg-blue-500 w-20 h-20 rounded-full justify-center items-center">
+                <Text className="text-3xl">📷</Text>
+              </Button>
 
-            <Button onPress={() => closeCamera()} className="bg-black bg-opacity-60 w-15 h-15 rounded-full justify-center items-center">
-              <Text className="text-white text-2xl font-bold">✕</Text>
-            </Button>
-          </HStack>
-        </CameraView>
-      </Box>
+              <Button onPress={() => closeCamera()} className="bg-black bg-opacity-60 w-15 h-15 rounded-full justify-center items-center">
+                <Text className="text-white text-2xl font-bold">✕</Text>
+              </Button>
+            </HStack>
+          </CameraView>
+        </VStack>
+      </SafeAreaView>
     );
   } else {
     return null;
