@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
-import { Bike } from "@/models/Bike";
+import { Bike, createNewBike } from "@/models/Bike";
 import { defaultMaintenanceItems } from "./default-maintenance";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
@@ -11,34 +11,15 @@ import { SafeAreaView, ScrollView } from "react-native";
 import { VStack } from "../ui/vstack";
 import { Button, ButtonText } from "../ui/button";
 import { HStack } from "../ui/hstack";
-import { MaintenanceItem } from "@/models/MaintenanceItem";
 import BikeConfigurationComponent from "./BikeConfigurationComponent";
 import BulkAddMaintenanceComponent from "./BulkAddMaintenanceComponent";
 import { MaintenanceLog } from "@/models/MaintenanceLog";
 import { updateOrCreateMaintenanceItems } from "./common/maintenanceItemUtils";
+import { Image } from "../ui/image";
 
 const NULL_OPTIONAL_FIELD_ID = -1;
 
-const miArray: MaintenanceItem[] = new Array(0);
-
-const newBike = {
-      id: 0,
-      name: '',
-      type: 'Road',
-      groupsetBrand: 'Shimano',
-      groupsetSpeed: 11,
-      isElectronic: false,
-      odometerMeters: 0,
-      isRetired: false,
-      maintenanceItems: miArray,
-      stravaId: '',
-      bikeDefinitionSummary: null,
-      year: '2022',
-      brand: '',
-      model: '',
-      line: '',
-  }
-
+const newBike = createNewBike();
 
 const InitialConfigurationComponent = () => {
   const session = useSession();
@@ -51,12 +32,13 @@ const InitialConfigurationComponent = () => {
   const [currentBike, setCurrentBike] = useState<Bike>(newBike);
   const [bikeName, setBikeName] = useState(newBike.name);
   const [readOnly, setReadOnly] = useState(false);
-  const [type, setType] = useState(newBike.type);
+  // const [type, setType] = useState(newBike.type);
   const [errorMessage, setErrorMessage] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceLog[]>([]);
   const [logsCreatedFor, setLogsCreatedFor] = useState<number>(0);
+  const [image, setImage] = useState('');
 
   const MODEL = 'Model';
   const MAINTENANCE = 'Maintenance';
@@ -115,6 +97,7 @@ const InitialConfigurationComponent = () => {
     setIsDirty(false);
     setBikeName(ensureString(bike.name));
     ensureMaintenanceLogs(bikeCopy);
+    setImage(ensureString(bike.bikePhotoUrl));
     setReadOnly(true);
   }
 
@@ -161,6 +144,7 @@ const InitialConfigurationComponent = () => {
         currentBike.groupsetSpeed,
         currentBike.isElectronic,
         currentBike.isRetired,
+        currentBike.serialNumber,
         currentBike.bikeDefinitionSummary ? currentBike.bikeDefinitionSummary.id : NULL_OPTIONAL_FIELD_ID);
       console.log('update bike result: ' + result);
       queryClient.invalidateQueries({ queryKey: ['bikes'] });
@@ -197,7 +181,22 @@ const InitialConfigurationComponent = () => {
     const start = pageAction + ': '+ ensureString(currentBike.name);
     const mileageVal = isMobileSize() ? '' : ' - ' + metersToDisplayString(currentBike.odometerMeters, await preferences)
     const title = start + mileageVal;
-    navigation.setOptions({ title: title });
+    if (image) {
+      navigation.setOptions({
+        title: title,
+        headerRight: () => (
+             <Image
+                className="shadow-md rounded-xl m-1 z-50"
+                size="xs"
+                source={{
+                  uri: image,
+                }}
+                alt="image"
+              />)
+      });
+    } else {
+      navigation.setOptions({title: title});
+    }
   }
 
   const setToFirstBikeIfNotInitialized = () => {

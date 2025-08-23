@@ -206,6 +206,7 @@ export class BikeService {
       bike.groupsetSpeed = bikeDto.groupsetSpeed;
       bike.isElectronic = bikeDto.isElectronic;
       bike.isRetired = bikeDto.isRetired;
+      bike.serialNumber = bikeDto.serialNumber;
       bike.user = user;
       this.bikesRepository.save(bike);
     } catch (error) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BikeController from "./BikeController";
 import { useGlobalContext } from "@/common/GlobalContext";
-import { Bike } from "@/models/Bike";
+import { Bike, createNewBike } from "@/models/Bike";
 import { useSession } from "@/common/ctx";
 import { createFileFromUri, displayStringToMeters, ensureString, metersToDisplayString } from "@/common/utils";
 import { VStack } from "../ui/vstack";
@@ -30,16 +30,8 @@ const groupsetBrands = [
 ]
 const groupsetSpeeds = ['1', '9', '10', '11', '12', '13'];
 const types = ['Road', 'Mountain', 'Hybrid', 'Cruiser', 'Electric', 'Cargo', 'Gravel'].sort();
-const newBike = {
-      id: 0,
-      name: '',
-      type: 'Road',
-      groupsetBrand: 'Shimano',
-      groupsetSpeed: 11,
-      isElectronic: false,
-      odometerMeters: 0,
-      isRetired: false,
-  }
+const newBike = createNewBike();
+
 type BikeFrameProps = {
   bike: Bike;
   markDirty: () => void;
@@ -61,8 +53,8 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const [model, setModel] = useState('');
   const [lines, setLines] = useState<string[]>([]);
   const [line, setLine] = useState('');
-  const [groupsetBrand, setGroupsetBrand] = useState(bike.groupsetBrand);
-  const [speed, setSpeeds] = useState(bike.groupsetSpeed.toString());
+  const [groupsetBrand, setGroupsetBrand] = useState(ensureString(bike.groupsetBrand));
+  const [speed, setSpeeds] = useState(ensureString(bike.groupsetSpeed));
   const [type, setType] = useState(bike.type);
   const [isElectronic, setIsElectronic] = useState(bike.isElectronic);
   const [stravaId, setStravaId] = useState('');
@@ -297,10 +289,10 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
       setBrand(definition.brand);
       setModel(definition.model);
       setLine(definition.line);
-      setSpeeds(definition.groupsetSpeed.toString());
+      setSpeeds(ensureString(definition.groupsetSpeed));
     } else {
       setBrand(bike.groupsetBrand);
-      setSpeeds(bike.groupsetSpeed.toString());
+      setSpeeds(ensureString(bike.groupsetSpeed));
     }
     setErrorMessage('');
     markDirty();

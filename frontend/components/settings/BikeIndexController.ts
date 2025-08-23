@@ -8,7 +8,7 @@ import { isMobile } from "@/common/utils";
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 
-class StravaController extends AppController {
+class BikeIndexController extends AppController {
 
   async updateStravaCode(session: any, appContext: AppContext, stravaCode: string, verifyCode: string): Promise<any> {
     this.saveStravaCode(session, appContext, stravaCode, verifyCode);
@@ -31,7 +31,7 @@ class StravaController extends AppController {
 // "access_token":"xxxxx",
 // "athlete":
 
-  async syncStravaInfo(session: any, info: any, stravaCode: string, verifyCode: string): Promise<any> {
+async syncStravaInfo(session: any, info: any, stravaCode: string, verifyCode: string): Promise<any> {
     console.log('syncStravaInfo');
     const username = (session && session.email) ? session.email : '';
     console.log('sync username:'+ username);
@@ -114,13 +114,13 @@ class StravaController extends AppController {
     return 'https://www.pedal-assistant.com';
   }
 
-  async linkToStrava(session: any): Promise<string> {
+  async linkAccount(session: any): Promise<string> {
     console.log('Sending account to Strava for linking... ');
 
     if (isMobile()) {
       return this.linkToStravaMobile(session);
     } else {
-      return this.linkToStravaWeb(session);
+      return this.linkToAccountViaWeb(session);
     }
   }
 
@@ -131,45 +131,49 @@ class StravaController extends AppController {
    * @param user
    * @param appContext
    */
-  async linkToStravaWeb(session: any): Promise<string> {
-    const url = await this.createStravaAuthUrl(session);
+  async linkToAccountViaWeb(session: any): Promise<string> {
+    const url = await this.createOAuthUrl(session);
     if (!url || url.length === 0) {
       return 'Unable to generate Strava Auth URL.  Press to try again.';
     }
-    window.open(url);
+//    window.open(url);
     return '';
   }
 
-  async createStravaAuthUrl(session: any): Promise<string> {
+  async createOAuthUrl(session: any): Promise<string> {
     const replyUrl = await this.getLocationBaseUrl();
-    const stravaVerifyCode = await this.getStravaVerifyCode(session);
-    if (!stravaVerifyCode || stravaVerifyCode.length === 0) {
-      console.log('Unable to generate Strava Verify Code');
+    const oauthVerifyCode = await this.getOAuthVerifyCode(session);
+    if (!oauthVerifyCode || oauthVerifyCode.length === 0) {
+      console.log('Unable to generate Verify Code');
       return '';
     }
-    const redirectUri = replyUrl + '/strava-reply/' + stravaVerifyCode;
-    const clientId = await this.appContext.getStravaClientId(session, '');
+    const redirectUri = replyUrl + '/bike-index-reply/' + oauthVerifyCode;
+    const clientId = await this.appContext.getBikeIndexClientId(session, '');
+    const clientSecret = await this.appContext.getBikeIndexClientSecret(session, '');
+
     console.log('redirect ' + redirectUri);
 
     const paramsObj = {
-      client_id:  clientId ,
+      client_id:  clientId,
+      client_secret: clientSecret,
+      redirect_uri: redirectUri,
       response_type: 'code',
-      approval_prompt: 'force',
-      scope: 'read_all,profile:read_all,activity:read' };
+      // approval_prompt: 'force',
+      scope: 'read_user,read_bikes,write_bikes' };
     const searchParams = new URLSearchParams(paramsObj);
 
-    const url = 'https://www.strava.com/oauth/authorize?'
+    const url = 'https://bikeindex.org/oauth/authorize?'
       + searchParams.toString()
       + '&redirect_uri=' + redirectUri;
     console.log('url:'+ url);
     return url;
   };
 
-  async getStravaVerifyCode(session: any): Promise<string> {
+  async getOAuthVerifyCode(session: any): Promise<string> {
     try {
       const parameters = {
         username: session.email,
-        target:'strava',
+        target: 'bike-index',
       };
       return await getInternal('/user/oauth-verify-code', parameters, session.jwt_token) as Promise<string>;
     } catch(e: any) {
@@ -210,7 +214,7 @@ class StravaController extends AppController {
   }
 
   async linkToStravaMobileThroughBrowser(session: any): Promise<string> {
-    const url = await this.createStravaAuthUrl(session);
+    const url = await this.createOAuthUrl(session);
     if (!url || url.length === 0) {
       return 'Unable to create Strava Auth URL.  Press to try again.';
     }
@@ -310,4 +314,4 @@ class StravaController extends AppController {
   };
 };
 
-export default StravaController;
+export default BikeIndexController;

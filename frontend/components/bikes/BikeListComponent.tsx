@@ -15,7 +15,7 @@ import { Pressable } from '../ui/pressable';
 import { Text } from '../ui/text';
 import { Button, ButtonText } from '../ui/button';
 import { useTheme } from 'react-native-paper';
-import { metersToDisplayString } from '@/common/utils';
+import { ensureString, metersToDisplayString } from '@/common/utils';
 import { Image } from '../ui/image';
 
 type BikeListProps = {
@@ -82,6 +82,7 @@ type BikeRowProps = {
   const BikeRow: React.FC<BikeRowProps> = ({ bike }) => {
     const [mileageField, setMileageField] = useState('');
     const [description, setDescription] = useState('');
+    const [image, setImage] = useState('');
 
     const syncMileage = async (bike: Bike) => {
       const prefs = await preferences;
@@ -98,17 +99,18 @@ type BikeRowProps = {
     useEffect(() => {
       syncMileage(bike);
       syncDescription(bike);
+      setImage(ensureString(bike.bikePhotoUrl));
     }, [bike]);
 
     return (
       <Pressable onPress={() => editBike(bike.id)} >
         <HStack className='row-primary' key={'bike: ' + bike.id + '-' + bike.odometerMeters} >
-          {bike.bikePhotoUrl ? (
+          {image ? (
             <Image
               className="shadow-md rounded-xl m-1 z-50"
               size="xs"
               source={{
-                uri: bike.bikePhotoUrl,
+                uri: image,
               }}
               alt="image"
             />) : (

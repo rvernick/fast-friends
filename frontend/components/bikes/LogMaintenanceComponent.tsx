@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/common/GlobalContext";
-import { Bike } from "@/models/Bike";
+import { Bike, createNewBike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { displayStringToMeters, ensureString, isMobile, isMobileSize, metersToDisplayString, milesToMeters, today } from "@/common/utils";
@@ -22,21 +22,11 @@ import { Text } from "../ui/text";
 import { Input, InputField } from "../ui/input";
 import { Icon, CheckIcon } from "../ui/icon";
 import { Pressable } from "../ui/pressable";
+import { Image } from "../ui/image";
 
 const threeThousandMilesInMeters = milesToMeters(3000);
 
-const newBike = {
-  id: 0,
-  name: '',
-  type: 'Road',
-  groupsetSpeed: 11,
-  groupsetBrand: 'Shimano',
-  isElectronic: false,
-  odometerMeters: 0,
-  maintenanceItems: [],
-  stravaId: '',
-  isRetired: false,
-}
+const newBike = createNewBike();
 
 type LogMaintenanceProps = {
   bikeid: string,
@@ -48,7 +38,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const email = session.email ? session.email : '';
-  
+
   const [bike, setBike] = useState<Bike>(newBike);
   const [bikeName, setBikeName] = useState('Select Bike');
   const [bikeIdString, setBikeIdString] = useState('0');
@@ -56,6 +46,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceLog[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [image, setImage] = useState('');
 
   const controller = new MaintenanceItemController(appContext);
   const preferences = controller.getUserPreferences(session);
@@ -78,6 +69,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
         setBike(bikeById);
         setBikeName(bikeById.name + ": " + metersToDisplayString(bikeById.odometerMeters, await preferences));
         setBikeIdString(idString);
+        setImage(ensureString(bikeById.bikePhotoUrl));
         setCheckedIds([]);
         setErrorMessage('');
         console.log('Selected bikeById id: ', idString);
@@ -148,7 +140,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
       defaultBike = bikes.find(bike => bike.id === parseInt(bikeid));
     } else {
       const roomForMore = Object.keys(Part).length;
-      defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);      
+      defaultBike = bikes.find((bike) => !bike.maintenanceItems || bike.maintenanceItems.length < roomForMore);
     }
     if (defaultBike) {
       selectBike(ensureString(defaultBike.id));
@@ -185,7 +177,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
     const [dueDistanceString, setDueDistanceString] = useState('0');
     const [selected, setSelected] = useState(log.selected);
 
-    const toggleSelectedRow = () => {    
+    const toggleSelectedRow = () => {
       if (checkedIds.includes(log.id)) {
         log.selected = false;
         setSelected(false);
@@ -236,7 +228,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
         setDueDistanceString(dueDate? dueDate.toLocaleDateString() : '');
       }
     }
-    
+
     useEffect(() => {
       syncNextDueString();
     }, [nextDueValue]);
@@ -277,7 +269,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
               isInvalid={false}
               isReadOnly={false}
             >
-              <InputField 
+              <InputField
                 keyboardType="number-pad"
                 value={nextDueString}
                 onChangeText={(newValue) => {setNextDue(newValue)}}
@@ -342,8 +334,22 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
   }, [bikes]);
 
   useEffect(() => {
-    navigation.setOptions({ title: bikeName });
-  }), [bikeName];
+    if (image && image.length > 0) {
+      navigation.setOptions({ title: bikeName,
+        headerRight: () => (
+             <Image
+                className="shadow-md rounded-xl m-1 z-50"
+                size="xs"
+                source={{
+                  uri: image,
+                }}
+                alt="image"
+              />)
+       });
+    } else {
+      navigation.setOptions({ title: bikeName });
+    }
+  }), [bikeName, image];
 
   return (
     <SafeAreaView className="w-full h-full bottom-1">
@@ -364,13 +370,13 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
           className="w-full h-full"
           contentContainerStyle={{ flexGrow: 1 }}>
           <VStack className="w-full h-full">
-            {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) => 
+            {maintenanceLogs.filter(log => log.bikeId === bike.id).map((log) =>
               <MaintenanceLogRow log={log} rowKey={"mlr" + log.id} key={"mlr" + log.id}/>
             )}
           </VStack>
         </ScrollView>
         <HStack className="w-full flex bg-background-0 flex-grow justify-center">
-          <Button 
+          <Button
             className="bottom-button shadow-md rounded-lg m-1"
             action="primary"
             onPress={ goBack }
@@ -380,7 +386,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
             <ButtonText>Cancel</ButtonText>
           </Button>
           {isMobileSize() ? null : (
-              <Button 
+              <Button
                 className="bottom-button shadow-md rounded-lg m-1"
                 onPress={ () => {router.push('/(home)/(assistance)/instructions')}}
                 style={{flex: 1}}
@@ -389,7 +395,7 @@ const LogMaintenanceComponent: React.FC<LogMaintenanceProps> = ({bikeid}) => {
                 <ButtonText>Instructions</ButtonText>
             </Button>
           )}
-          <Button 
+          <Button
               className="bottom-button shadow-md rounded-lg m-1"
               onPress={ submitMaintenance }
               isDisabled={checkedIds.length < 1}

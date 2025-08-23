@@ -20,6 +20,7 @@ import { Input, InputField } from "../ui/input";
 import { Radio, RadioGroup, RadioIcon, RadioIndicator, RadioLabel } from "../ui/radio";
 import { CircleIcon } from "../ui/icon";
 import { HStack } from "../ui/hstack";
+import BikeIndexController from "./BikeIndexController";
 
 type SettingsProps = {
   strava_id: string;
@@ -45,6 +46,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const [warnOnLosingData, setWarnOnLosingData] = useState(false);
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
+  const bikeIndexController = new BikeIndexController(appContext);
 
   const blankUser = {username: email,
     firstName: '',
@@ -158,6 +160,26 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
       setErrorMessage(linking);
     } else {
       setStravaId('Connecting to Strava...');
+    }
+    invalidateUser();
+  }
+
+    const linkToBikeIndex = async () => {
+    if (isDirty) {
+      if (validate()) {
+        setWarnOnLosingData(true);
+      }
+    } else {
+      doLinkToBikeIndex();
+    }
+  }
+  const doLinkToBikeIndex = async () => {
+    setErrorMessage('');
+    const linking = await bikeIndexController.linkAccount(session);
+    if (linking.length > 0) {
+      setErrorMessage(linking);
+    } else {
+      setStravaId('Connecting to Bike Index...');
     }
     invalidateUser();
   }
@@ -404,6 +426,14 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
               <RadioLabel>km</RadioLabel>
             </Radio>
           </RadioGroup>
+          {/* <Button
+            className="shadow-md rounded-lg m-1"
+            style={{flex: 1}}
+            onPress={ linkToBikeIndex }
+            accessibilityLabel="Bike Index"
+            accessibilityHint="Connect to Bike Index account">
+              <ButtonText>Bike Index Connect</ButtonText>
+          </Button> */}
           <Button
             className="shadow-md rounded-lg m-1"
             style={{flex: 1}}

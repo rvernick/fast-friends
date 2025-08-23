@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@/models/User";
 import { identifyLogRocketMobile, identifyLogRocketWeb } from "./logrocket";
 import { FACE_ID_PASSWORD, FACE_ID_USERNAME, LAST_LOGIN_TIME_MS } from "./constants";
+import { ImageResult, manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 export const strippedPhone = (formattedPhone: string) => {
   if (!formattedPhone) {
@@ -238,10 +239,11 @@ export const fetchSecrets = async (session: any): Promise<any | null> => {
   }
 }
 
-export const fetchSecretsByVerify = async (verifyCode: string): Promise<any | null> => {
+export const fetchSecretsByVerify = async (verifyCode: string, target: string): Promise<any | null> => {
   try {
     const parameters = {
       verifyCode: verifyCode,
+      target: target,
     };
     console.log('fetching secrets: ' + verifyCode);
     return getInternal('/user/v1/secrets', parameters, '') as Promise<any | null>;
@@ -323,13 +325,22 @@ export const today = (): Date => {
   return today;
 }
 
-export const createFileFromUri = async (uri: string, mimeType: string | null): Promise<File | null> => {
+const threeMB = 3 * 1024 * 1024;
+export const createFileFromUri = async (uri: string, mimeType: string | null, maxSize: number = threeMB): Promise<File | null> => {
   if (mimeType == null) return null;
   try {
     const response = await fetch(uri);
     const blob = await response.blob();
     const filename = uri.split('/').pop() || 'image.jpg';
     const extension = filename.split('.').pop()?.toLowerCase() || 'jpg';
+
+    console.log('create File from uri File size: ' + maxSize, blob.size);
+    if (maxSize > 0 && blob.size > maxSize) {
+      const compressionFactor = maxSize / blob.size;
+      console.log('Compression factor:', compressionFactor);
+      const compressedBlob = await compressImage(uri, compressionFactor)
+      return createFileFromUri(compressedBlob.uri, 'image/jpeg', 0);  // sending zero for max size prevents infinite loops
+    }
 
     if (Platform.OS === 'web') {
       // console.log('File created on web:');
@@ -350,3 +361,13 @@ export const createFileFromUri = async (uri: string, mimeType: string | null): P
     return null;
   }
 };
+
+const compressImage = async (uri: string, quality: number): Promise<ImageResult> => {
+  const result =  await manipulateAsync(
+    uri,
+    [{resize: { width: 500, height: 500 }}],
+    { compress: quality, format: SaveFormat.JPEG, base64: true, },
+  );
+  console.log('Compressed image:', result);
+  return result;
+}

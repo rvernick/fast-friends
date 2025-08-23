@@ -19,7 +19,7 @@ export const createToken = (user: User): string => {
 }
 
 @Entity()
-export class StravaVerify {
+export class OAuthVerify {
   constructor() {}
 
   @PrimaryGeneratedColumn()
@@ -36,6 +36,12 @@ export class StravaVerify {
   @JoinColumn({ name: "user_id" })
   user: User;
 
+  @Column({
+    type: 'varchar',
+    nullable: false,
+    default: 'strava' })
+  target: string;
+  
   @Column({ name: 'expires_on' })
   expiresOn: Date;
 

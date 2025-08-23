@@ -16,6 +16,8 @@ export class AppService {
     return {
       stravaClientId: this.configService.get('STRAVA_CLIENT_ID'),
       stravaSecret: this.configService.get('STRAVA_CLIENT_SECRET'),
+      bikeIndexClientId: this.configService.get('BIKE_INDEX_CLIENT_ID'),
+      bikeIndexSecret: this.configService.get('BIKE_INDEX_CLIENT_SECRET'),
     };
   }
 }
