@@ -53,8 +53,8 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
   const [model, setModel] = useState('');
   const [lines, setLines] = useState<string[]>([]);
   const [line, setLine] = useState('');
-  const [groupsetBrand, setGroupsetBrand] = useState(bike.groupsetBrand);
-  const [speed, setSpeeds] = useState(bike.groupsetSpeed.toString());
+  const [groupsetBrand, setGroupsetBrand] = useState(ensureString(bike.groupsetBrand));
+  const [speed, setSpeeds] = useState(ensureString(bike.groupsetSpeed));
   const [type, setType] = useState(bike.type);
   const [isElectronic, setIsElectronic] = useState(bike.isElectronic);
   const [stravaId, setStravaId] = useState('');
@@ -289,10 +289,10 @@ const BikeConfigurationComponent: React.FC<BikeFrameProps> = ({bike, markDirty }
       setBrand(definition.brand);
       setModel(definition.model);
       setLine(definition.line);
-      setSpeeds(definition.groupsetSpeed.toString());
+      setSpeeds(ensureString(definition.groupsetSpeed));
     } else {
       setBrand(bike.groupsetBrand);
-      setSpeeds(bike.groupsetSpeed.toString());
+      setSpeeds(ensureString(bike.groupsetSpeed));
     }
     setErrorMessage('');
     markDirty();
