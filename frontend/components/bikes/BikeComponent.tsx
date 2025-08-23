@@ -45,6 +45,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const appContext = useGlobalContext();
 
   const email = session.email ? session.email : '';
+  const debug = email.startsWith('t5') || email.startsWith('rvernick');
 
   var bikeId = bikeid ? bikeid : 0;
 
@@ -84,7 +85,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
   const resetBike = async (bike: Bike) => {
     const pref = await preferences
     setMileageLabel('Mileage (' + pref.units + ')');
-    console.log('reset bike: ' + JSON.stringify(bike));
+    if (debug) console.log('reset bike: ' + JSON.stringify(bike));
     setBikeName(ensureString(bike.name));
     setYear(ensureString(bike.year));
     setBrand(ensureString(bike.brand));
@@ -130,7 +131,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
       isElectronic,
       isRetired,
       serialNumber);
-    console.log('update bike result: ' + result);
+    if (debug) console.log('update bike result: ' + result);
     queryClient.invalidateQueries({ queryKey: ['bikes'] });
     if (result == '') {
       goBack();
@@ -148,7 +149,7 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
       base64: false,
     });
 
-    console.log("result: ", result);
+    if (debug) console.log("result: ", result);
 
     if (result.canceled) {
       return;
@@ -157,12 +158,12 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     var message = ''
     const asset = result.assets[0];
     const preProcessedFile = await preprocessFile(asset);
-    console.log('File uri: ', asset.uri);
+    if (debug) console.log('File uri: ', asset.uri);
 
     if (!preProcessedFile) {
       message = 'Failed to process file.';
     } else if (preProcessedFile.size > threeMB) {
-      console.log('File size: ', preProcessedFile.size);
+      if (debug) console.log('File size: ', preProcessedFile.size);
       message = 'Image size is too large. Please select a smaller image.';
     } else {
       message = await controller.updateBikePhoto(session, bikeId, preProcessedFile);
@@ -176,13 +177,13 @@ const BikeComponent: React.FC<BikeProps> = ({bikeid}) => {
     if (asset.file == null) {
       return createFileFromUri(asset.uri, asset.mimeType? asset.mimeType : null );
     }
-    console.log('File uri: ', asset.uri);
-    console.log('File size: ', asset.fileSize);
+    if (debug) console.log('File uri: ', asset.uri);
+    if (debug) console.log('File size: ', asset.fileSize);
     if (asset.fileSize && asset.fileSize < threeMB) {
       return asset.file;
     }
 
-    console.log('compressing');
+    if (debug) console.log('compressing');
     return createFileFromUri(asset.uri, asset.mimeType? asset.mimeType : null );
   }
 

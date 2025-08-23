@@ -233,61 +233,6 @@ const SerialNumberOCRDialog: React.FC<SericalNumberCameraOCRProps> = ({open, clo
   } else {
     return null;
   }
-
-  // return (
-  //   <Box className="flex-1 p-5 bg-gray-100">
-  //     <Text className="text-2xl font-bold text-center mb-7 text-gray-800">Serial Number OCR Scanner</Text>
-
-  //     {capturedImage && (
-  //       <Box className="items-center mb-5">
-  //         <Image source={{ uri: capturedImage }} className="w-full h-50 rounded-lg" resizeMode="contain" />
-  //       </Box>
-  //     )}
-
-  //     {isProcessing && (
-  //       <VStack className="items-center my-7">
-  //         <Spinner size="large" color="blue" />
-  //         <Text className="mt-2 text-gray-600 text-base">Processing image...</Text>
-  //       </VStack>
-  //     )}
-
-  //     {serialNumber && !isProcessing && (
-  //       <Box className="bg-white p-5 rounded-xl mb-5 items-center shadow-md">
-  //         <Text className="text-base text-gray-600 mb-2">Detected Serial Number:</Text>
-  //         <Text className="text-2xl font-bold text-gray-800 font-mono mb-2 text-center">{serialNumber}</Text>
-  //         <Text className="text-sm font-semibold mb-4">
-  //           {validateSerialNumber(serialNumber) ? '✅ Valid Format' : '⚠️ Please Verify'}
-  //         </Text>
-
-  //         <Button onPress={() => Alert.alert('Copied', 'Serial number copied to clipboard')} className="bg-green-500 px-4 py-2 rounded-lg">
-  //           <Text className="text-white text-sm font-semibold">📋 Copy</Text>
-  //         </Button>
-  //       </Box>
-  //     )}
-
-  //     <VStack space="md">
-  //       <Button onPress={() => setShowCamera(true)} disabled={isProcessing} className={`bg-blue-500 p-4 rounded-lg ${isProcessing ? 'opacity-50' : ''}`}>
-  //         <Text className="text-white text-base font-semibold">📷 Take Photo</Text>
-  //       </Button>
-
-  //       <Button onPress={selectFromGallery} disabled={isProcessing} className={`bg-blue-500 p-4 rounded-lg ${isProcessing ? 'opacity-50' : ''}`}>
-  //         <Text className="text-white text-base font-semibold">🖼️ Select from Gallery</Text>
-  //       </Button>
-  //     </VStack>
-
-  //     {serialNumber && (
-  //       <Button onPress={() => { setSerialNumber(''); setCapturedImage(''); }} className="mt-5 p-4 bg-white rounded-lg">
-  //         <Text className="text-red-500 text-base font-semibold">🗑️ Clear Result</Text>
-  //       </Button>
-  //     )}
-
-  //     <Box className="mt-5 p-4 bg-blue-100 rounded-lg">
-  //       <Text className="text-blue-500 text-sm text-center italic">
-  //         💡 For best results, ensure good lighting and clear focus on the serial number
-  //       </Text>
-  //     </Box>
-  //   </Box>
-  // );
 };
 
 export default SerialNumberOCRDialog;
