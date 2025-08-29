@@ -48,10 +48,14 @@ export class S3MediaService {
   }
 
   async getPhotoUrl(media: S3Media): Promise<string> {
-    this.logger.log('info', 'Getting url for: ', media);
-    if (!media.urlExpires || media.urlExpires < new Date()) {
-      return this.refreshPhoto(media).then((refreshedMedia) =>
-        refreshedMedia.presignedURL);
+    try {
+      this.logger.log('info', 'Getting url for: ', media);
+      if (!media.urlExpires || media.urlExpires < new Date()) {
+        return this.refreshPhoto(media).then((refreshedMedia) =>
+          refreshedMedia.presignedURL);
+      }
+    } catch (error) {
+      this.logger.error('Error getting photo url: ', error);
     }
     return media.presignedURL;
   }

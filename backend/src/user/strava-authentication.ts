@@ -22,5 +22,5 @@ export class StravaAuthenticationDto {
   stravaExpiresAt: string;
 
   @IsString()
-  stravaAthlete: string;
+  stravaAthlete: string;  // strava athlete ID as a string
 }

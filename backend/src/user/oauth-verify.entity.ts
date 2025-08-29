@@ -32,7 +32,7 @@ export class OAuthVerify {
   })
   code: string;
 
-  @ManyToOne((type) => User, { nullable: false, cascade: false, eager: true })
+  @ManyToOne((type) => User, { nullable: true, cascade: false, eager: true })
   @JoinColumn({ name: "user_id" })
   user: User;
 
@@ -41,10 +41,12 @@ export class OAuthVerify {
     nullable: false,
     default: 'strava' })
   target: string;
-  
+
   @Column({ name: 'expires_on' })
   expiresOn: Date;
 
   @CreateDateColumn({ name: 'created_on' })
   createdOn: Date;
+
+  // this is created by a call  Should we have a flag to say verified to allow the user to log in?
 }

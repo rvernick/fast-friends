@@ -1,10 +1,10 @@
-import { getInternal, post } from "./http-utils";
+import { baseUrl, getInternal, post } from "./http-utils";
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@/models/User";
 import { identifyLogRocketMobile, identifyLogRocketWeb } from "./logrocket";
-import { FACE_ID_PASSWORD, FACE_ID_USERNAME, LAST_LOGIN_TIME_MS } from "./constants";
+import { FACE_ID_PASSWORD, FACE_ID_STRAVA_CODE, FACE_ID_USER_ID, FACE_ID_USERNAME, LAST_LOGIN_TIME_MS } from "./constants";
 import { ImageResult, manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 export const strippedPhone = (formattedPhone: string) => {
@@ -32,6 +32,10 @@ export const isMobile = (): boolean => {
 
 export const isProduction = (): boolean => {
   return isMobile() || process.env.NODE_ENV === 'production';
+}
+
+export const isDevelopment = (): boolean => {
+  return baseUrl().includes('localhost');
 }
 
 export const remember = (key: string, value: string) => {
@@ -101,7 +105,7 @@ export async function confirmLogin(session: any): Promise<string> {
   }
 }
 
-export async function login(username: string, password: string, session: any) {
+export async function login(username: string, password: string, session: any): Promise<string | undefined> {
   console.log('Logging in... ' + username);
 
   if (username === '' || password === '') {
@@ -147,6 +151,48 @@ export async function login(username: string, password: string, session: any) {
       return 'System error';
     });
 };
+
+export const loginWithVerifyCode = async (code: string, session: any): Promise<string | undefined> => {
+  console.log('Logging in... ' + code);
+
+  const args = {
+    verifyCode: code,
+  };
+  const response = post('/auth/sign-in-strava-verify-code', args, null);
+  return response
+    .then(resp => {
+      if (resp.ok) {
+        console.log('resp: ' + resp);
+        // console.log('setting appContext.jwtToken to:'+ resp.json())
+        // console.log('body ' + resp.body);
+        // console.log('json ' + resp.body);
+        resp.json().then(body => {
+          const user = body.user;
+          session.signIn(body.access_token, user.username);
+          console.log('setting appContext.jwtToken to:' + body);
+          console.log('body ' + body.access_token);
+          if (isMobile()) {
+            const now = new Date();
+            remember(FACE_ID_USER_ID, ensureString(user.id));
+            remember(FACE_ID_STRAVA_CODE, user.stravaId);
+            remember(LAST_LOGIN_TIME_MS, now.getTime().toString());
+          }
+          initializeLogRocket(user);
+          console.log('setting appContext.email to:'+ user.username);
+          return '';
+        });
+      } else {
+        console.log('Login failed ' + resp.statusText);
+        // forget(FACE_ID_USER_ID);
+        // forget(FACE_ID_STRAVA_CODE);
+        return 'Invalid username or password';
+      }
+    })
+    .catch(error => {
+      console.log('Failed to log in ' + error.message);
+      return 'System error';
+    });
+}
 
 export const defaultUserPreferences = {
   units: "miles",
@@ -332,7 +378,6 @@ export const createFileFromUri = async (uri: string, mimeType: string | null, ma
     const response = await fetch(uri);
     const blob = await response.blob();
     const filename = uri.split('/').pop() || 'image.jpg';
-    const extension = filename.split('.').pop()?.toLowerCase() || 'jpg';
 
     console.log('create File from uri File size: ' + maxSize, blob.size);
     if (maxSize > 0 && blob.size > maxSize) {

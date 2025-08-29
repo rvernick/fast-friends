@@ -39,16 +39,13 @@ function LoginConfirmationWrapper({ children }: PropsWithChildren) {
     queryKey: ['loginConfirmation'],
     queryFn: async () => confirmLogin(session),
     initialData: 'logged-in',
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
-    refetchOnMount: true,
     refetchInterval: 2*60*1000,
     refetchIntervalInBackground: true,
   });
 
   const ensureServerRecognizesSession = async () => {
-    if (session 
-        && session.jwt_token 
+    if (session
+        && session.jwt_token
         && session.jwt_token.length > 0
         && !isFetching
         && ('not-logged-in' === data || isError)) {
