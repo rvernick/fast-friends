@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Keyboard } from "react-native";
-import { login, remind, isMobile, loginWithVerifyCode, isDevelopment } from '@/common/utils';
+import { login, remind, isMobile, loginWithVerifyCode, isDevelopment, forget, loginWithStravaCode } from '@/common/utils';
 import { baseUrl } from "../../common/http-utils";
 import { router } from "expo-router";
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -22,7 +22,7 @@ import { Link, LinkText } from "@/components/ui/link";
 import { Button, ButtonText } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react-native";
 import { useToast } from "@/components/ui/toast";
-import { FACE_ID_PASSWORD, FACE_ID_USERNAME } from "@/common/constants";
+import { FACE_ID_PASSWORD, FACE_ID_STRAVA_CODE, FACE_ID_USER_ID, FACE_ID_USERNAME } from "@/common/constants";
 import { Pressable } from "../ui/pressable";
 import StravaController from "../settings/StravaController";
 import { useGlobalContext } from "@/common/GlobalContext";
@@ -103,10 +103,15 @@ export const LoginComponent = () => {
 
   const attemptLoginUsing = (username: string, pass: string) => {
     const loginAttempt = login(username, pass, session);
-    processLoginAttempt(loginAttempt);
-  };
+    processLoginAttempt(loginAttempt, [FACE_ID_USERNAME, FACE_ID_PASSWORD]);
+  }
 
-  const processLoginAttempt = (attempt: Promise<string | undefined>) => {
+  const attemptLoginUsingStrava = (userId: string, code: string) => {
+    const loginAttempt = loginWithStravaCode(userId, code, session);
+    processLoginAttempt(loginAttempt, [FACE_ID_USER_ID, FACE_ID_STRAVA_CODE]);
+  }
+
+  const processLoginAttempt = (attempt: Promise<string | undefined>, savedCodes: string[]) => {
     // invalidateLoginConfirmation();
     attempt
       .then(msg => {
@@ -114,6 +119,7 @@ export const LoginComponent = () => {
         if (msg) {
           turnOffFaceRecognition();
           setValidated({ emailValid: true, passwordValid: false });
+          savedCodes.forEach(code => {forget(code)});
         } else {
           console.log('attemptLogin successful');
           setVerifyCodes([]);
@@ -130,7 +136,7 @@ export const LoginComponent = () => {
   const attemptLoginUsingVerifyCode = (code: string) => {
     console.log('Logging in... ' + verifyAttempts + ' ' + code);
     const loginAttempt = loginWithVerifyCode(code, session);
-    processLoginAttempt(loginAttempt);
+    processLoginAttempt(loginAttempt, []);
   }
 
   const attemptLoginUsingVerifyCodes = () => {
@@ -147,8 +153,12 @@ export const LoginComponent = () => {
   const attemptLoginViaDeviceId = async () => {
     const lastUser = await remind(FACE_ID_USERNAME);
     const lastPass = await remind(FACE_ID_PASSWORD);
+    const userId = await remind(FACE_ID_USER_ID);
+    const stravaCode = await remind(FACE_ID_STRAVA_CODE);
     if (lastUser && lastPass) {
       attemptLoginUsing(lastUser, lastPass);
+    } else if (userId && stravaCode) {
+      attemptLoginUsingStrava(userId, stravaCode);
     } else {
       turnOffFaceRecognition();
     }

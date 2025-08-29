@@ -127,8 +127,10 @@ export async function login(username: string, password: string, session: any): P
         // console.log('json ' + resp.body);
         resp.json().then(body => {
           session.signIn(body.access_token, username);
-          console.log('setting appContext.jwtToken to:' + body);
-          console.log('body ' + body.access_token);
+          if (isDevelopment()) {
+            console.log('setting appContext.jwtToken to:' + body);
+            console.log('body ' + body.access_token);
+          }
           if (isMobile()) {
             const now = new Date();
             remember(FACE_ID_USERNAME, username);
@@ -141,8 +143,6 @@ export async function login(username: string, password: string, session: any): P
         });
       } else {
         console.log('Login failed ' + resp.statusText);
-        forget(FACE_ID_USERNAME);
-        forget(FACE_ID_PASSWORD);
         return 'Invalid username or password';
       }
     })
@@ -151,6 +151,47 @@ export async function login(username: string, password: string, session: any): P
       return 'System error';
     });
 };
+
+export const loginWithStravaCode = async (userId: string, stravaId: string, session: any): Promise<string | undefined> => {
+  console.log('Logging in with strava code... ');
+  var idNumber = 0;
+  try {
+    idNumber = parseInt(userId);
+  } catch (error) {
+    console.log('Invalid userId ', userId);
+    return 'Invalid userId';
+  }
+
+  const args = {
+    userid: idNumber,
+    stravaId: stravaId,
+  };
+  const response = post('/auth/login', args, null);
+  return response
+    .then(resp => {
+      if (resp.ok) {
+        console.log('resp: ' + resp);
+        resp.json().then(body => {
+          const user = body.user;
+          session.signIn(body.access_token, user.username);
+          if (isDevelopment()) {
+            console.log('setting appContext.jwtToken to:' + body);
+            console.log('body ' + body.access_token);
+          }
+          initializeLogRocket(user);
+          console.log('setting appContext.email to:'+ user.username);
+          return '';
+        });
+      } else {
+        console.log('Login failed ' + resp.statusText);
+        return 'Invalid username or password';
+      }
+    })
+    .catch(error => {
+      console.log('Failed to log in ' + error.message);
+      return 'System error';
+    });
+}
 
 export const loginWithVerifyCode = async (code: string, session: any): Promise<string | undefined> => {
   console.log('Logging in... ' + code);
