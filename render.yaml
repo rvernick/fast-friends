@@ -1,8 +1,8 @@
 services:
 - type: web
+  runtime: node
   plan: standard
   name: fast-friends-be
-  env: node
   rootDir: backend
   buildCommand: npm install && npm run typeorm migration:run -- -d src/data-source.ts
   startCommand: npx @nestjs/cli start

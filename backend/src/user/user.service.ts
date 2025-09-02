@@ -111,13 +111,15 @@ export class UserService {
     return user;
   }
 
-  async getStravaSSOCode() {
+  async getStravaSSOCode(): Promise<any> {
     const oauthVerify = this.oauthVerifyRepository.create();
     oauthVerify.code = createSixDigitCode();
     oauthVerify.target = 'strava';
     oauthVerify.expiresOn = new Date(Date.now() + tenMinutesInMilliseconds);
     const verify = await this.oauthVerifyRepository.save(oauthVerify);
-    return verify.code;
+    const result = {verifyCode: verify.code};
+    if (isDevelopment()) console.log('Created verify code for Strava: '+ JSON.stringify(result));
+    return result;
   }
 
   async createOAuthVerifyCode(username: string, target: string = 'strava'): Promise<string | null> {
@@ -394,22 +396,25 @@ export class UserService {
 
   async getSecretsV1(verifyCode: string, target: string): Promise<any> {
     console.log('getSecretsV1: '+ verifyCode + ' '+ target);
+    var result = {};
     if (verifyCode == 'ssologinattempt') {
-      return {
+      console.log('SSO login attempt 2 secrets');
+      result = {
         stravaClientId: this.configService.get('STRAVA_CLIENT_ID'),
         stravaSecret: this.configService.get('STRAVA_CLIENT_SECRET'),
-      }
+      };
     }
-    if (verifyCode && verifyCode.length > 0) {
-      await this.getAndVerifyOAuthCode(verifyCode, target, false);
-    }
-    const result = {
+    // if (verifyCode && verifyCode.length > 0) {
+    //   result = await this.getAndVerifyOAuthCode(verifyCode, target, false);
+    // }
+    result = {
       stravaClientId: this.configService.get('STRAVA_CLIENT_ID'),
       stravaSecret: this.configService.get('STRAVA_CLIENT_SECRET'),
       bikeIndexClientId: this.configService.get('BIKE_INDEX_CLIENT_ID'),
       bikeIndexSecret: this.configService.get('BIKE_INDEX_CLIENT_SECRET'),
     };
-    return result;
+    console.log('getSecretsV1 result: ', JSON.stringify(result));
+    return Promise.resolve(result);
   }
 
   async getAndVerifyOAuthCode(verifyCode: string, target: string, requireUser: boolean = true): Promise<OAuthVerify> {

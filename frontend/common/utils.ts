@@ -318,7 +318,7 @@ export const fetchSecrets = async (session: any): Promise<any | null> => {
   console.log('fetchSecrets jwt: ' + session.jwt_token);
   try {
     const parameters = {};
-    console.log('fetching secrets: ');
+    if (isDevelopment()) console.log('fetching secrets ');
     return getInternal('/secrets', parameters, session.jwt_token) as Promise<any | null>;
   } catch(e: any) {
     console.log(e.message);
@@ -333,9 +333,9 @@ export const fetchSecretsByVerify = async (verifyCode: string, target: string): 
       target: target,
     };
     console.log('fetching secrets: ' + verifyCode);
-    return getInternal('/user/v1/secrets', parameters, '') as Promise<any | null>;
+    return getInternal('/user/v1/secrets', parameters, '');
   } catch(e: any) {
-    console.log(e.message);
+    console.log('error in fetchsecretsByVerify ' + e.message);
     return null;
   }
 }

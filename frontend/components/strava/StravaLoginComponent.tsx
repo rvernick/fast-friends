@@ -13,9 +13,10 @@ type StravaReplyProps = {
   code: string;
   scope: string;
   state: string;
+  error: string;
 };
 
-const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, scope, state}) => {
+const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, scope, state, error}) => {
   const session = useSession();
   const appContext = useGlobalContext();
   appContext.setSession(session);
@@ -41,6 +42,12 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
     }
   }
 
+  const handleError = async (error: string) => {
+    console.log('Error during sync: ', error);
+    await sleep(1);
+    router.replace('/(sign-in-sign-up)/(sign-in)/sign-in');
+  }
+
   useEffect(() => {
     if (!synced) {
       setSynced(true);
@@ -49,6 +56,10 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
           updateStravaAndReturn(ensureString(code));
         } else {
           console.log('no code found');
+        }
+        if (error) {
+          console.log('error during sync: ', error);
+          handleError(error);
         }
       } catch (error) {
         console.log('error during login: ', error);
@@ -59,7 +70,9 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
   return (
     <Surface>
       <ActivityIndicator size="large"/>
-      <Text variant="displayLarge">Strava Connection successful. Syncing Now.</Text>
+      {error ? (
+        <Text>Error: {error}</Text>)
+        : (<Text variant="displayLarge">Strava Connection successful. Syncing Now.</Text>)}
       <Text variant="displayMedium">Window will stay open when finished</Text>
     </Surface>
     );

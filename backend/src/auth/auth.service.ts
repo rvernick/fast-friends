@@ -137,7 +137,7 @@ export class AuthService {
     this.userService.deleteUser(user);
   }
 
-  async getStravaSSOCode (): Promise<string> {
+  async getStravaSSOCode (): Promise<any> {
     return this.userService.getStravaSSOCode();
   }
 

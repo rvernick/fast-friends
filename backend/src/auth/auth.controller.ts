@@ -80,8 +80,8 @@ export class AuthController {
 
   @Public()
   @Get('strava-sso-code')
-  getStravaSSO(): Promise<string> {
-    console.log('user/create-strava-sso');
+  getStravaSSO(): Promise<any> {
+    console.log('get auth/create-strava-sso');
     return this.authService.getStravaSSOCode();
   }
 

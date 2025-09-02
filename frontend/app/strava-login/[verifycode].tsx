@@ -6,14 +6,13 @@ import { Surface, Text } from "react-native-paper";
 const StravaReply = () => {
   const reply = useLocalSearchParams();
   console.log(reply);
-  if (reply.error) {
-    return (
-      <Surface>
-        <Text>Error: {reply.error}</Text>
-      </Surface>
-
-    );
-  }
+  // if (reply.error) {
+  //   return (
+  //     <Surface>
+  //       <Text>Error: {reply.error}</Text>
+  //     </Surface>
+  //   );
+  // }
 
   return (
     <Surface>
@@ -21,7 +20,8 @@ const StravaReply = () => {
         verifycode={ensureString(reply.verifycode)}
         code={ensureString(reply.code)}
         scope={ensureString(reply.scope)}
-        state={ensureString(reply.state)} />
+        state={ensureString(reply.state)}
+        error={ensureString(reply.error)} />
     </Surface>
   );
 };

@@ -74,7 +74,8 @@ export class UserController {
 
   @Public()
   @Get('v1/secrets')
-  getSecrets(@Query('verifyCode') verifyCode: string, @Query('target') target: string = 'strava'): Promise<string[] | null> {
+  getSecrets(@Query('verifyCode') verifyCode: string, @Query('target') target: string = 'strava'): Promise<any | null> {
+    console.log('user/v1/secrets user:'+ verifyCode, target);
     return this.userService.getSecretsV1(verifyCode, target);
   }
 }
