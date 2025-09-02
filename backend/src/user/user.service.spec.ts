@@ -19,10 +19,10 @@ describe('UserService', () => {
       { stravaId: "1", name: "Bike 1" } as Bike,
       { stravaId: "2", name: "Bike 2" } as Bike,
     ];
-  
+
     // Act
     const result = service['findMatchingBike'](null, bikes);
-  
+
     // Assert
     expect(result).toBeNull();
   });
@@ -35,10 +35,10 @@ describe('UserService', () => {
       { stravaId: "1", name: "Bike 1" } as Bike,
       { stravaId: "2", name: "Bike 2" } as Bike,
     ];
-  
+
     // Act
     const result = service['findMatchingBike'](bikeToMatch, bikes);
-  
+
     // Assert
     expect(result).toBeNull();
   });
@@ -51,10 +51,10 @@ describe('UserService', () => {
       { stravaId: "1", name: "Bike 1" } as Bike,
       { stravaId: "2", name: "Bike 2" } as Bike,
     ];
-  
+
     // Act
     const result = service['findMatchingBike'](bikeToMatch, bikes);
-  
+
     // Assert
     expect(result).toBeNull();
   });
@@ -67,10 +67,10 @@ describe('UserService', () => {
       { stravaId: "1", name: "Bike 1" } as Bike,
       { stravaId: "2", name: "Bike 2" } as Bike,
     ];
-  
+
     // Act
     const result = service['findMatchingBike'](bikeToMatch, bikes);
-  
+
     // Assert
     expect(result).toEqual(bikes[1]);
   });

@@ -9,7 +9,7 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { PasswordReset, createToken } from './password-reset.entity';
 import { ConfigService } from '@nestjs/config';
-import { createSixDigitCode, sendEmail } from '../utils/utils';
+import { createSixDigitCode, isDevelopment, sendEmail, tenMinutesInMilliseconds } from '../utils/utils';
 import { EmailVerify } from './email-verify.entity';
 import { BatchProcessService } from '../batch/batch-process.service';
 import { BatchProcess } from '../batch/batch-process.entity';
@@ -59,8 +59,9 @@ export class UserService {
     return result;
   }
 
-  async createUser(username: string, password: string): Promise<User> {
+  async createUser(username: string, password: string, needsEmailVerification: boolean = true): Promise<User> {
     const newUser = createNewUser(username.toLocaleLowerCase(), password);
+    newUser.emailVerified = !needsEmailVerification;
     this.usersRepository.insert(newUser);
     return newUser;
   }
@@ -110,8 +111,18 @@ export class UserService {
     return user;
   }
 
-  async getOAuthVerifyCode(username: string, target: string = 'strava'): Promise<string | null> {
-    const tenMinutesInMilliseconds = 1000 * 60 * 10;
+  async getStravaSSOCode(): Promise<any> {
+    const oauthVerify = this.oauthVerifyRepository.create();
+    oauthVerify.code = createSixDigitCode();
+    oauthVerify.target = 'strava';
+    oauthVerify.expiresOn = new Date(Date.now() + tenMinutesInMilliseconds);
+    const verify = await this.oauthVerifyRepository.save(oauthVerify);
+    const result = {verifyCode: verify.code};
+    if (isDevelopment()) console.log('Created verify code for Strava: '+ JSON.stringify(result));
+    return result;
+  }
+
+  async createOAuthVerifyCode(username: string, target: string = 'strava'): Promise<string | null> {
     const user = await this.findUsername(username);
     const oauthVerify = this.oauthVerifyRepository.create();
     oauthVerify.code = createSixDigitCode();
@@ -120,6 +131,11 @@ export class UserService {
     oauthVerify.expiresOn = new Date(Date.now() + tenMinutesInMilliseconds);
     this.oauthVerifyRepository.save(oauthVerify);
     return oauthVerify.code;
+  }
+
+  async userForValidOAuthVerifyCode(code: string, target: string): Promise<User | null> {
+    const verifyCode = await this.getAndVerifyOAuthCode(code, target);
+    return verifyCode.user;
   }
 
   unlinkFromStrava(user: User) {
@@ -180,6 +196,7 @@ export class UserService {
     const athlete = await this.getStravaAthlete(stravaAuthDto.stravaToken);
     user.stravaId = athlete.id ? athlete.id.toString() : null;
     user.stravaCode = stravaAuthDto.stravaCode;
+    user.stravaAccessToken = stravaAuthDto.stravaToken;
     user.stravaRefreshToken = stravaAuthDto.stravaRefreshToken;
     // console.log('setting strava with: ', athlete);
     console.log('setting stravaId: ' + user.stravaId);
@@ -194,11 +211,11 @@ export class UserService {
     if (athlete.measurement_preference && athlete.measurement_preference == "meters") {
       user.units = Units.KM;
     }
-    this.usersRepository.save(user);
+    const updatedUser = await this.usersRepository.save(user);
 
     // console.log('bikes: ' + JSON.stringify(athlete.bikes));
     for (const bike of athlete.bikes) {
-      const existingBike = this.findMatchingBike(bike, user.bikes);
+      const existingBike = this.findMatchingBike(bike, updatedUser.bikes);
       if (existingBike) {
         this.logger.log('Updating bike: '+ existingBike.id);
         this.syncStravaBike(existingBike, bike);
@@ -206,12 +223,12 @@ export class UserService {
         this.logger.log('bike updated: '+ existingBike.id)
       } else {
         this.logger.log('Adding bike:' + bike.name);
-        var newBike = this.addStravaBike(user, bike);
+        var newBike = this.addStravaBike(updatedUser, bike);
         const savedBike = await this.bikesRepository.save(newBike);
         this.logger.log('New bike saved:' + savedBike.id);
       }
     }
-    return user;
+    return updatedUser;
   }
 
   private findMatchingBike(bike: any, bikes: Bike[]): Bike | null {
@@ -263,47 +280,151 @@ export class UserService {
     return data;
   }
 
-    async updateStravaV1(stravaCode: string, verifyCode: string): Promise<boolean> {
-      const verify = await this.getAndVerifyOAuthCode(verifyCode, 'strava');
-      try {
-        this.updateUser(
-          verify.user,
-          null,
-          null,
-          null,
-          null,
-          stravaCode,
-          null,
-          null,
-        );
-        return true;
-      } catch (e) {
-        console.log('error updating user', e.message);
-        return false;
-      }
+  // stravaCode: string, verifyCode: string):
+  async upsertStravaV1(stravaAuthDto: StravaAuthenticationDto):  Promise<User> {
+    const verifyCode = stravaAuthDto.verifyCode;
+    const stravaCode = stravaAuthDto.stravaCode;
+    const oauthVerify = await this.getAndVerifyOAuthCode(verifyCode, 'strava', false);
+    if (oauthVerify == null) {
+      console.log('No verify code found for strava');
+      return null;
     }
-
-  async getSecretsV1(verifyCode: string, target: string): Promise<any> {
-    await this.getAndVerifyOAuthCode(verifyCode, target);
-    const result = {
-      stravaClientId: this.configService.get('STRAVA_CLIENT_ID'),
-      stravaSecret: this.configService.get('STRAVA_CLIENT_SECRET'),
-      bikeIndexClientId: this.configService.get('BIKE_INDEX_CLIENT_ID'),
-      bikeIndexSecret: this.configService.get('BIKE_INDEX_CLIENT_SECRET'),
-    };
-    return result;
+    if (oauthVerify.user != null) {
+      if (stravaAuthDto.username.length > 0 && oauthVerify.user.username!= stravaAuthDto.username) {
+        throw new Error('Different user already exists for verify code'+ verifyCode);
+      }
+      console.log('User already exists for verify code'+ verifyCode);
+      await this.updateStravaV1(stravaCode, oauthVerify.code);
+      return oauthVerify.user;
+    }
+    const stravaAthlete = await this.getStravaAthlete(stravaAuthDto.stravaToken);
+    if (stravaAthlete == null) {
+      console.log('No strava athlete found for verify code'+ verifyCode);
+      return null;
+    }
+    const user = await this.findUserFromAthlete(stravaAthlete);
+    if (user != null) {
+      // Should we assume that the user is logging in again? I think so
+      // updateUserInfo
+      // return loggedIn info
+      oauthVerify.user = user;
+      this.oauthVerifyRepository.save(oauthVerify);
+      return user;
+    }
+    if (isDevelopment()) console.log('Creating new user for athlete', stravaAthlete);
+    const newUser = await this.createUserFromAthlete(stravaAthlete);
+    const updatedUser = await this.syncUserToStrava(newUser, stravaAuthDto);
+    oauthVerify.user = updatedUser;
+    console.log('User created for athlete. updating oauth', updatedUser);
+    try {
+      this.oauthVerifyRepository.save(oauthVerify);
+      console.log('oauth verify updated');
+    } catch (error) {
+      console.log('Error saving oauth: ', error);
+    }
+    return updatedUser;
   }
 
-  async getAndVerifyOAuthCode(verifyCode: string, target: string): Promise<OAuthVerify> {
-    const verify = await this.oauthVerifyRepository.findOne({
+  async getOAuthByVerifyCode(verifyCode: string, target: string): Promise<OAuthVerify> {
+    return await this.oauthVerifyRepository.findOne({
       where: {
         code: verifyCode,
         target: target,
       },
     });
+  }
 
-    const user = verify.user;
-    if (verify == null || user == null || verify.expiresOn < new Date()) {
+  async findUserFromAthlete(athlete: any): Promise<User | null> {
+    const user = await this.usersRepository.findOne({
+      where: {
+        username: athlete.username,
+      }
+    });
+    if (user) {
+      return user;
+    }
+
+    const allStravaUsers = await this.usersRepository.createQueryBuilder()
+      .select('id')
+      .select('strava_id')
+      .where('strava_id IS NOT NULL')
+      .getMany()
+
+    console.log('allStravaUsers: ', allStravaUsers.length);
+    const stravaUser =  allStravaUsers.find((u) => u.stravaId == athlete.id);
+    if (stravaUser) {
+      return this.findOne(stravaUser.id);
+    }
+    return null;
+  }
+
+  async createUserFromAthlete(athlete: any): Promise<User> {
+    const newUser = await this.createUser(athlete.username, athlete.firstname + athlete.lastname, false);
+    newUser.firstName = athlete.firstname;
+    newUser.lastName = athlete.lastname;
+    newUser.stravaId = athlete.id;
+    newUser.units = athlete.measurement_preference == "feet" ? Units.MILES : Units.KM;
+    return newUser;
+    // console.log('New user: ', newUser);
+    // try {
+    //   return this.usersRepository.save(newUser);
+    // } catch (e) {
+    //   console.log('error saving user', e.message);
+    //   return null;
+    // }
+  }
+
+  async updateStravaV1(stravaCode: string, verifyCode: string): Promise<boolean> {
+    const verify = await this.getAndVerifyOAuthCode(verifyCode, 'strava');
+    try {
+      this.updateUser(
+        verify.user,
+        null,
+        null,
+        null,
+        null,
+        stravaCode,
+        null,
+        null,
+      );
+      return true;
+    } catch (e) {
+      console.log('error updating user', e.message);
+      return false;
+    }
+  }
+
+  async getSecretsV1(verifyCode: string, target: string): Promise<any> {
+    console.log('getSecretsV1: '+ verifyCode + ' '+ target);
+    var result = {};
+    if (verifyCode == 'ssologinattempt') {
+      console.log('SSO login attempt 2 secrets');
+      result = {
+        stravaClientId: this.configService.get('STRAVA_CLIENT_ID'),
+        stravaSecret: this.configService.get('STRAVA_CLIENT_SECRET'),
+      };
+    }
+    // if (verifyCode && verifyCode.length > 0) {
+    //   result = await this.getAndVerifyOAuthCode(verifyCode, target, false);
+    // }
+    result = {
+      stravaClientId: this.configService.get('STRAVA_CLIENT_ID'),
+      stravaSecret: this.configService.get('STRAVA_CLIENT_SECRET'),
+      bikeIndexClientId: this.configService.get('BIKE_INDEX_CLIENT_ID'),
+      bikeIndexSecret: this.configService.get('BIKE_INDEX_CLIENT_SECRET'),
+    };
+    console.log('getSecretsV1 result: ', JSON.stringify(result));
+    return Promise.resolve(result);
+  }
+
+  async getAndVerifyOAuthCode(verifyCode: string, target: string, requireUser: boolean = true): Promise<OAuthVerify> {
+    const verify = await this.getOAuthByVerifyCode(verifyCode, target);
+
+    if (verify == null  || verify.expiresOn < new Date()) {
+      this.logger.log('info', 'failed update user attempt:'+ verifyCode);
+      throw new UnauthorizedException();
+    }
+    if (requireUser && verify.user == null) {
       this.logger.log('info', 'failed update user attempt:'+ verifyCode);
       throw new UnauthorizedException();
     }

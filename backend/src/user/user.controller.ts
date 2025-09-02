@@ -31,6 +31,13 @@ export class UserController {
     return this.userService.syncStravaUserV1(stravaAuthDto);
   }
 
+  @Post('v1/upsert-strava')
+  @Public()
+  upsertStrava(@Body() stravaAuthDto: StravaAuthenticationDto): Promise<User | null> {
+    console.log('user/upsert-strava stravaAuthDto:' + JSON.stringify(stravaAuthDto.username));
+    return this.userService.upsertStravaV1(stravaAuthDto);
+  }
+
   @UseGuards(AuthGuard)
   @Post('update-push-token')
   updatePushToken(@Body("username") username: string, @Body("push_token") pushToken: string): Promise<User | null> {
@@ -41,14 +48,14 @@ export class UserController {
   @Get('strava-verify-code')
   getStravaVerifyCode(@Query('username') username: string): Promise<string | null> {
     console.log('user/strava-verify-code user:'+ username);
-    return this.userService.getOAuthVerifyCode(username, 'strava');
+    return this.userService.createOAuthVerifyCode(username, 'strava');
   }
 
   @UseGuards(AuthGuard)
   @Get('oauth-verify-code')
   getOAuthVerifyCode(@Query('username') username: string, @Query('target') target: string): Promise<string | null> {
     console.log('user/oauth-verify-code user:'+ username, target);
-    return this.userService.getOAuthVerifyCode(username, target);
+    return this.userService.createOAuthVerifyCode(username, target);
   }
 
   @Public()
@@ -59,8 +66,16 @@ export class UserController {
   }
 
   @Public()
+  @Post('v1/upsert-strava')
+  upsertStravaV1(@Body() stravaAuthDto: StravaAuthenticationDto): Promise<User> {
+    console.log('user/v1/upsert-strava user:' + stravaAuthDto.username);
+    return this.userService.upsertStravaV1(stravaAuthDto);
+  }
+
+  @Public()
   @Get('v1/secrets')
-  getSecrets(@Query('verifyCode') verifyCode: string, @Query('target') target: string = 'strava'): Promise<string[] | null> {
+  getSecrets(@Query('verifyCode') verifyCode: string, @Query('target') target: string = 'strava'): Promise<any | null> {
+    console.log('user/v1/secrets user:'+ verifyCode, target);
     return this.userService.getSecretsV1(verifyCode, target);
   }
 }

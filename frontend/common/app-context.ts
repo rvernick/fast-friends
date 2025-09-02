@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { baseUrl } from "./http-utils";
 import AsyncStorage  from '@react-native-async-storage/async-storage';
-import { fetchUser, fetchSecrets, fetchSecretsByVerify } from "../common/utils";
+import { fetchSecrets, fetchSecretsByVerify, isDevelopment } from "../common/utils";
 
 class AppContext {
   private queryClient: QueryClient;
@@ -115,9 +115,11 @@ class AppContext {
     if (session.jwt_token != null) {
       this.setSession(session);
       const secrets = await this.getSecrets(session);
+      if (isDevelopment()) console.log('getSecret secrets: ' + secrets);
       return secrets[secretKey];
     }
     const secrets = await fetchSecretsByVerify(verifyCode, target);
+    if (isDevelopment()) console.log('getSecret secrets: ' + secrets);
     return secrets[secretKey];
   }
 

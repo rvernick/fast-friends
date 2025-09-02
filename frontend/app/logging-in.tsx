@@ -1,4 +1,4 @@
-import { ensureString, fetchUser, forget, remind } from '@/common/utils';
+import { ensureString, fetchUser, forget, isDevelopment, remind } from '@/common/utils';
 import { useSession } from '@/common/ctx';
 import { User } from '@/models/User';
 import { router, useNavigation } from 'expo-router';
@@ -16,11 +16,17 @@ export default function LoggingIn() {
   const navigation = useNavigation();
   const [redirecting, setRedirecting] = useState(false);
 
-  const unconfiguredAccount = async (user: User) => {
+  const needsMaintenanceItems = async (user: User) => {
     if (!user) return false;
-    return ensureString(user?.firstName) === ''
-      && ensureString(user?.lastName) === ''
-      && (user?.bikes == null || user?.bikes.length === 0);
+    if (user?.bikes == null || user?.bikes.length === 0) return true;
+    var needsItems = true;
+    user.bikes.forEach(bike => {
+      if (bike.maintenanceItems && bike.maintenanceItems.length > 0) {
+        needsItems = false;
+        return false;
+      }
+    })
+    return needsItems;
   };
 
   const routeToNextAppropriatePage = async () => {
@@ -36,11 +42,11 @@ export default function LoggingIn() {
       }
       setRedirecting(true);
       if (!user.emailVerified) {
-        console.log('waiting for email verification');
+        if (isDevelopment()) console.log('waiting for email verification', user);
         router.replace('/(sign-in-sign-up)/wait-for-verification');
         return;
       }
-      if (await unconfiguredAccount(user)) {
+      if (await needsMaintenanceItems(user)) {
         console.log('redirecting to settings');
         router.replace('/(home)/(settings)/getting-started');
         return;
@@ -66,7 +72,7 @@ export default function LoggingIn() {
       switch (deepLink) {
         case '/log-maintenance': {
           console.log('redirecting to log maintenance');
-          router.replace({pathname: '/(home)/log-maintenance', params: paramObject});
+          router.replace({pathname: '/(home)/(maintenanceItems)/log-maintenance', params: paramObject});
           result = true;
           break;
         }

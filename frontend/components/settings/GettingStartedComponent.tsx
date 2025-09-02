@@ -22,9 +22,8 @@ export const GettingStartedComponent = () => {
   const email = session.email ? session.email : '';
   const appContext  = useGlobalContext();
   appContext.setSession(session);
-  const [linkToStravaExpanded, setLinkToStravaExpanded] = React.useState(true);
-
-  const handlePress = () => setLinkToStravaExpanded(!linkToStravaExpanded);
+  const [linkToStravaExpanded, setLinkToStravaExpanded] = useState(true);
+  const [configureBikesExpanded, setConfigureBikesExpanded] = useState(false);
 
   const stravaController = new StravaController(appContext);
 
@@ -69,6 +68,10 @@ export const GettingStartedComponent = () => {
   const syncUser = async () => {
     const userStravaId = ensureString(data?.stravaId);
     setStravaId(userStravaId);
+    if (userStravaId.length > 0) {
+      setLinkToStravaExpanded(false);
+      setConfigureBikesExpanded(true);
+    }
   }
 
   useEffect(() => {
@@ -88,7 +91,7 @@ export const GettingStartedComponent = () => {
           <List.Accordion
               title="1) Link To Strava"
               expanded={linkToStravaExpanded}
-              onPress={handlePress}>
+              onPress={() => setLinkToStravaExpanded(!linkToStravaExpanded)}>
             <List.Item title={<Button
               icon={() =>
                 <Image
@@ -108,7 +111,10 @@ export const GettingStartedComponent = () => {
             <List.Item title="Ride" description="You can disconnect from Strava at anytime"/>
           </List.Accordion>
           <List.Accordion
-            title="2) Configure Bikes and Maintenance Schedule">
+            title="2) Configure Bikes and Maintenance Schedule"
+            expanded={configureBikesExpanded}
+            onPress={() => setConfigureBikesExpanded(!configureBikesExpanded) }
+            >
             <List.Item title={<Button
                 mode="contained"
                 onPress={() => router.push('/(home)/(maintenanceItems)/bulk-maintenance')}

@@ -1,10 +1,10 @@
-import { getInternal, post } from "./http-utils";
+import { baseUrl, getInternal, post } from "./http-utils";
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "@/models/User";
 import { identifyLogRocketMobile, identifyLogRocketWeb } from "./logrocket";
-import { FACE_ID_PASSWORD, FACE_ID_USERNAME, LAST_LOGIN_TIME_MS } from "./constants";
+import { FACE_ID_PASSWORD, FACE_ID_STRAVA_CODE, FACE_ID_USER_ID, FACE_ID_USERNAME, LAST_LOGIN_TIME_MS } from "./constants";
 import { ImageResult, manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 export const strippedPhone = (formattedPhone: string) => {
@@ -32,6 +32,10 @@ export const isMobile = (): boolean => {
 
 export const isProduction = (): boolean => {
   return isMobile() || process.env.NODE_ENV === 'production';
+}
+
+export const isDevelopment = (): boolean => {
+  return baseUrl().includes('localhost');
 }
 
 export const remember = (key: string, value: string) => {
@@ -101,7 +105,7 @@ export async function confirmLogin(session: any): Promise<string> {
   }
 }
 
-export async function login(username: string, password: string, session: any) {
+export async function login(username: string, password: string, session: any): Promise<string | undefined> {
   console.log('Logging in... ' + username);
 
   if (username === '' || password === '') {
@@ -123,8 +127,10 @@ export async function login(username: string, password: string, session: any) {
         // console.log('json ' + resp.body);
         resp.json().then(body => {
           session.signIn(body.access_token, username);
-          console.log('setting appContext.jwtToken to:' + body);
-          console.log('body ' + body.access_token);
+          if (isDevelopment()) {
+            console.log('setting appContext.jwtToken to:' + body);
+            console.log('body ' + body.access_token);
+          }
           if (isMobile()) {
             const now = new Date();
             remember(FACE_ID_USERNAME, username);
@@ -137,8 +143,6 @@ export async function login(username: string, password: string, session: any) {
         });
       } else {
         console.log('Login failed ' + resp.statusText);
-        forget(FACE_ID_USERNAME);
-        forget(FACE_ID_PASSWORD);
         return 'Invalid username or password';
       }
     })
@@ -147,6 +151,89 @@ export async function login(username: string, password: string, session: any) {
       return 'System error';
     });
 };
+
+export const loginWithStravaCode = async (userId: string, stravaId: string, session: any): Promise<string | undefined> => {
+  console.log('Logging in with strava code... ');
+  var idNumber = 0;
+  try {
+    idNumber = parseInt(userId);
+  } catch (error) {
+    console.log('Invalid userId ', userId);
+    return 'Invalid userId';
+  }
+
+  const args = {
+    userid: idNumber,
+    stravaId: stravaId,
+  };
+  const response = post('/auth/login', args, null);
+  return response
+    .then(resp => {
+      if (resp.ok) {
+        console.log('resp: ' + resp);
+        resp.json().then(body => {
+          const user = body.user;
+          session.signIn(body.access_token, user.username);
+          if (isDevelopment()) {
+            console.log('setting appContext.jwtToken to:' + body);
+            console.log('body ' + body.access_token);
+          }
+          initializeLogRocket(user);
+          console.log('setting appContext.email to:'+ user.username);
+          return '';
+        });
+      } else {
+        console.log('Login failed ' + resp.statusText);
+        return 'Invalid username or password';
+      }
+    })
+    .catch(error => {
+      console.log('Failed to log in ' + error.message);
+      return 'System error';
+    });
+}
+
+export const loginWithVerifyCode = async (code: string, session: any): Promise<string | undefined> => {
+  console.log('Logging in... ' + code);
+
+  const args = {
+    verifyCode: code,
+  };
+  const response = post('/auth/sign-in-strava-verify-code', args, null);
+  return response
+    .then(resp => {
+      if (resp.ok) {
+        console.log('resp: ' + resp);
+        // console.log('setting appContext.jwtToken to:'+ resp.json())
+        // console.log('body ' + resp.body);
+        // console.log('json ' + resp.body);
+        resp.json().then(body => {
+          const user = body.user;
+          session.signIn(body.access_token, user.username);
+          console.log('setting appContext.jwtToken to:' + body);
+          console.log('body ' + body.access_token);
+          if (isMobile()) {
+            const now = new Date();
+            remember(FACE_ID_USER_ID, ensureString(user.id));
+            remember(FACE_ID_STRAVA_CODE, user.stravaId);
+            remember(LAST_LOGIN_TIME_MS, now.getTime().toString());
+          }
+          initializeLogRocket(user);
+          console.log('setting appContext.email to:'+ user.username);
+          return '';
+        });
+      } else {
+        console.log('Login failed ' + resp.statusText);
+        // forget(FACE_ID_USER_ID);
+        // forget(FACE_ID_STRAVA_CODE);
+        return 'Invalid username or password';
+      }
+    })
+    .catch(error => {
+      console.log('Failed to log in ' + error.message);
+      return 'System error';
+    });
+}
 
 export const defaultUserPreferences = {
   units: "miles",
@@ -231,7 +318,7 @@ export const fetchSecrets = async (session: any): Promise<any | null> => {
   console.log('fetchSecrets jwt: ' + session.jwt_token);
   try {
     const parameters = {};
-    console.log('fetching secrets: ');
+    if (isDevelopment()) console.log('fetching secrets ');
     return getInternal('/secrets', parameters, session.jwt_token) as Promise<any | null>;
   } catch(e: any) {
     console.log(e.message);
@@ -246,9 +333,9 @@ export const fetchSecretsByVerify = async (verifyCode: string, target: string): 
       target: target,
     };
     console.log('fetching secrets: ' + verifyCode);
-    return getInternal('/user/v1/secrets', parameters, '') as Promise<any | null>;
+    return getInternal('/user/v1/secrets', parameters, '');
   } catch(e: any) {
-    console.log(e.message);
+    console.log('error in fetchsecretsByVerify ' + e.message);
     return null;
   }
 }
@@ -332,7 +419,6 @@ export const createFileFromUri = async (uri: string, mimeType: string | null, ma
     const response = await fetch(uri);
     const blob = await response.blob();
     const filename = uri.split('/').pop() || 'image.jpg';
-    const extension = filename.split('.').pop()?.toLowerCase() || 'jpg';
 
     console.log('create File from uri File size: ' + maxSize, blob.size);
     if (maxSize > 0 && blob.size > maxSize) {

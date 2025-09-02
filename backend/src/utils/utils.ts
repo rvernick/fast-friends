@@ -4,6 +4,11 @@ import { User } from "../user/user.entity";
 import { randomInt } from "crypto";
 
 const logger = new Logger('App');
+export const tenMinutesInMilliseconds = 1000 * 60 * 10;
+
+export const isDevelopment = (): boolean => {
+  return process.env.NODE_ENV !== 'production';
+}
 
 export const createSixDigitCode = (): string => {
   const basis = randomInt(1000001, 9999999);
@@ -78,7 +83,6 @@ export const sendPushNotifications = async (notifications: PushNotification[]) =
     }
   }
 
-
   // The Expo push notification service accepts batches of notifications so
   // that you don't need to send 1000 requests to send 1000 notifications. We
   // recommend you batch your notifications to reduce the number of requests
@@ -102,7 +106,7 @@ export const sendPushNotifications = async (notifications: PushNotification[]) =
 }
 
 
-/** 
+/**
 // Later, after the Expo push notification service has delivered the
 // notifications to Apple or Google (usually quickly, but allow the service
 // up to 30 minutes when under load), a "receipt" for each notification is

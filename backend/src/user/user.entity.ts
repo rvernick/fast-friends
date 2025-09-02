@@ -61,6 +61,12 @@ export class User {
   }
 
   @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  email: string;
+
+  @Column({
     type: 'boolean',
     default: false,
     name: 'email_verified',
@@ -69,23 +75,28 @@ export class User {
 
   @Column({
     type: 'varchar',
+    name: 'first_name',
     nullable: true,
   })
   firstName: string;
 
   @Column({
+    type: 'varchar',
+    name: 'last_name',
     nullable: true,
   })
   lastName: string;
 
   @Column({
     type: 'varchar',
+    name: 'cell_phone',
     nullable: true,
   })
   cellPhone: string;
 
   @Column({
     type: 'varchar',
+    name: 'strava_code',
     nullable: true,
     transformer: new EncryptionTransformer({
       key: key,
@@ -97,6 +108,7 @@ export class User {
 
   @Column({
     type: 'varchar',
+    name: 'strava_id',
     nullable: true,
     transformer: new EncryptionTransformer({
       key: key,
@@ -105,10 +117,11 @@ export class User {
     })
   })
   stravaId: string;
-  
+
   @Column({
     type: 'varchar',
     nullable: true,
+    name: 'strava_refresh_token',
     transformer: new EncryptionTransformer({
       key: key,
       algorithm: 'aes-256-gcm',
@@ -120,6 +133,7 @@ export class User {
   @Column({
     type: 'varchar',
     nullable: true,
+    name: 'strava_access_token',
     transformer: new EncryptionTransformer({
       key: key,
       algorithm: 'aes-256-gcm',
@@ -145,6 +159,7 @@ export class User {
   @Column({
     type: 'varchar',
     nullable: true,
+    name: 'push_token',
     transformer: new EncryptionTransformer({
       key: key,
       algorithm: 'aes-256-gcm',
@@ -153,13 +168,19 @@ export class User {
   })
   pushToken: string;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({
+    name: 'deleted_on',
+  })
   deletedOn: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    name: 'created_on',
+  })
   createdOn: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    name: 'updated_on',
+  })
   updatedOn: Date;
 
   addBike(bike: Bike) {

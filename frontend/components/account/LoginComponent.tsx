@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Keyboard } from "react-native";
-import { login, remind, isMobile } from '@/common/utils';
+import { login, remind, isMobile, loginWithVerifyCode, isDevelopment, forget, loginWithStravaCode } from '@/common/utils';
 import { baseUrl } from "../../common/http-utils";
 import { router } from "expo-router";
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useSession } from "@/common/ctx";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BaseLayout } from "@/components/layouts/base-layout";
 import { VStack } from "@/components/ui/vstack";
-import {
-  CheckIcon,
-  EyeIcon,
-  EyeOffIcon,
-} from "@/components/ui/icon";
+import { Image } from "../ui/image";
+import { EyeIcon, EyeOffIcon } from "@/components/ui/icon";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { FormControl, FormControlError, FormControlErrorIcon, FormControlErrorText, FormControlLabel, FormControlLabelText } from "@/components/ui/form-control";
@@ -25,28 +22,48 @@ import { Link, LinkText } from "@/components/ui/link";
 import { Button, ButtonText } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react-native";
 import { useToast } from "@/components/ui/toast";
-import { FACE_ID_PASSWORD, FACE_ID_USERNAME } from "@/common/constants";
+import { FACE_ID_PASSWORD, FACE_ID_STRAVA_CODE, FACE_ID_USER_ID, FACE_ID_USERNAME } from "@/common/constants";
+import { Pressable } from "../ui/pressable";
+import StravaController from "../settings/StravaController";
+import { useGlobalContext } from "@/common/GlobalContext";
 
 export const LoginComponent = () => {
   const session = useSession();
   const queryClient = useQueryClient();
+  const appContext = useGlobalContext();
+  var maxAttempts = 600;
 
+  const stravaController = new StravaController(appContext);
   var user = '';
   var pword = '';
 
   if (baseUrl().includes('localhost:')) {
     user = 't5@t.com';
     pword = 'h@ppyHappy';
+    maxAttempts = 10;
   }
 
   const [devFastLogin, setDevFastLogin] = useState(true);
   const [useFaceRecognition, setUseFaceRecognition] = useState(isMobile());
   const [canUseFaceId, setCanUseFaceId] = useState(false);
   const [passwordHidden, setPasswordHidden] = useState(true);
+  const [verifyCodes, setVerifyCodes] = useState<string[]>([]);
+  const [verifyAttempts, setVerifyAttempts] = useState(0);
+
   const loginSchema = z.object({
     email: z.string().min(1, "Email is required").email(),
     password: z.string().min(1, "Password is required"),
   });
+
+  const { data: loggedInWithVerifyCode, isFetching: helpFetching, error: helpError} = useQuery({
+      queryKey: ['loginWithVerifyCode'],
+      queryFn: () => attemptLoginUsingVerifyCodes(),
+      initialData: false,
+      refetchInterval: 1000,
+      refetchOnWindowFocus: 'always',
+      refetchOnReconnect: 'always',
+      refetchOnMount: 'always',
+    })
 
   type LoginSchemaType = z.infer<typeof loginSchema>;
 
@@ -85,16 +102,27 @@ export const LoginComponent = () => {
   }
 
   const attemptLoginUsing = (username: string, pass: string) => {
-    invalidateLoginConfirmation();
     const loginAttempt = login(username, pass, session);
-    loginAttempt
+    processLoginAttempt(loginAttempt, [FACE_ID_USERNAME, FACE_ID_PASSWORD]);
+  }
+
+  const attemptLoginUsingStrava = (userId: string, code: string) => {
+    const loginAttempt = loginWithStravaCode(userId, code, session);
+    processLoginAttempt(loginAttempt, [FACE_ID_USER_ID, FACE_ID_STRAVA_CODE]);
+  }
+
+  const processLoginAttempt = (attempt: Promise<string | undefined>, savedCodes: string[]) => {
+    // invalidateLoginConfirmation();
+    attempt
       .then(msg => {
         console.log('loginAttempt: ' + msg);
         if (msg) {
           turnOffFaceRecognition();
           setValidated({ emailValid: true, passwordValid: false });
+          savedCodes.forEach(code => {forget(code)});
         } else {
           console.log('attemptLogin successful');
+          setVerifyCodes([]);
           router.replace('/logging-in');
         }
       })
@@ -103,7 +131,20 @@ export const LoginComponent = () => {
         setValidated({ emailValid: true, passwordValid: false });
         turnOffFaceRecognition();
       });
-  };
+  }
+
+  const attemptLoginUsingVerifyCode = (code: string) => {
+    console.log('Logging in... ' + verifyAttempts + ' ' + code);
+    const loginAttempt = loginWithVerifyCode(code, session);
+    processLoginAttempt(loginAttempt, []);
+  }
+
+  const attemptLoginUsingVerifyCodes = () => {
+    if (verifyAttempts > maxAttempts) return false;
+    setVerifyAttempts(verifyAttempts + 1);
+    verifyCodes.forEach(code => { attemptLoginUsingVerifyCode(code) });
+    return false;
+  }
 
   const turnOffFaceRecognition = () => {
     setUseFaceRecognition(false);
@@ -112,8 +153,12 @@ export const LoginComponent = () => {
   const attemptLoginViaDeviceId = async () => {
     const lastUser = await remind(FACE_ID_USERNAME);
     const lastPass = await remind(FACE_ID_PASSWORD);
+    const userId = await remind(FACE_ID_USER_ID);
+    const stravaCode = await remind(FACE_ID_STRAVA_CODE);
     if (lastUser && lastPass) {
       attemptLoginUsing(lastUser, lastPass);
+    } else if (userId && stravaCode) {
+      attemptLoginUsingStrava(userId, stravaCode);
     } else {
       turnOffFaceRecognition();
     }
@@ -176,6 +221,16 @@ export const LoginComponent = () => {
     }
     if (!canUseFaceId || !useFaceRecognition) {
       confirmUseFaceRecognition();
+    }
+  }
+
+  const loginWithStrava = async () => {
+    const verifyCode = await stravaController.loginWithStrava(session);
+    if (isDevelopment()) console.log('Received verify code from Strava:'+ verifyCode);
+    if (verifyCode) {
+      console.log('Verify code received:'+ verifyCode);
+      verifyCodes.push(verifyCode);
+      setVerifyAttempts(0);
     }
   }
 
@@ -346,7 +401,15 @@ export const LoginComponent = () => {
               </LinkText>
             </Link>)
             : null }
+          <Pressable onPress={loginWithStrava}>
+            <Image
+              source={ require("../../assets/images/btn_strava_connectwith_orange.png")}
+              className="w-[196px] h-[48px]"
+              alt="Connect with Strava"
+            />
+          </Pressable>
         </VStack>
+
         <HStack className="self-center" space="sm">
           <Text size="md">Don't have an account?</Text>
           <Link onPress={() => router.replace("/(sign-in-sign-up)/sign-up")}>

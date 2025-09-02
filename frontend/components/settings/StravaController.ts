@@ -1,18 +1,28 @@
-import { Linking } from "react-native";
 import AppContext from "../../common/app-context";
 import AppController from "../../common/AppController";
 import { authorize } from 'react-native-app-auth';
 import { getBaseUrl, getInternal, post, postExternal } from "../../common/http-utils";
 import { stravaBase } from "../strava/utils";
-import { isMobile } from "@/common/utils";
+import { isDevelopment, isMobile } from "@/common/utils";
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
+import * as Linking from 'expo-linking';
 
 class StravaController extends AppController {
 
   async updateStravaCode(session: any, appContext: AppContext, stravaCode: string, verifyCode: string): Promise<any> {
     this.saveStravaCode(session, appContext, stravaCode, verifyCode);
     console.log('calling doTokenExchange: ' + stravaCode + ','+ verifyCode);
+    return this.doTokenExchange(session, appContext, stravaCode, verifyCode)
+      .then((result: any) => {
+        this.syncStravaInfo(session, result, stravaCode, verifyCode)
+        appContext.invalidateUser(session)
+        return result;
+      });
+  }
+
+  async upsertStravaLogin(session: any, appContext: AppContext, stravaCode: string, verifyCode: string): Promise<any> {
+    if (isDevelopment()) console.log('calling doTokenExchange: ' + stravaCode + ','+ verifyCode);
     return this.doTokenExchange(session, appContext, stravaCode, verifyCode)
       .then((result: any) => {
         this.syncStravaInfo(session, result, stravaCode, verifyCode)
@@ -48,6 +58,32 @@ class StravaController extends AppController {
       }
       console.log('sync body:'+ JSON.stringify(body));
       const response = await post('/user/v1/sync-strava', body, session.jwt_token);
+      if (response.ok) {
+        console.log('sync response:'+ JSON.stringify(response));
+        return '';
+      }
+    } catch(e: any) {
+      console.log(e.message);
+      return e.message;
+    }
+  }
+
+    async upsertStravaUser(session: any, info: any, stravaCode: string, verifyCode: string): Promise<any> {
+    const username = (session && session.email) ? session.email : '';
+    if (isDevelopment()) console.log('sync username:'+ username);
+    try {
+      const body = {
+        username: username,
+        verifyCode: verifyCode,
+        stravaCode: stravaCode,
+        stravaToken: info.access_token,
+        stravaTokenType: info.token_type,
+        stravaAthlete: info.athlete.id.toString(),
+        stravaRefreshToken: info.refresh_token,
+        stravaExpiresAt: '', // info.expires_at,
+      }
+      if (isDevelopment()) console.log('sync body:'+ JSON.stringify(body));
+      const response = await post('/user/v1/upsert-strava', body, session.jwt_token);
       if (response.ok) {
         console.log('sync response:'+ JSON.stringify(response));
         return '';
@@ -107,11 +143,46 @@ class StravaController extends AppController {
   }
 
   async getLocationBaseUrl(): Promise<string> {
+    // if (isMobile()) {
+    //   return 'https://www.pedal-assistant.com/';
+    // }
     const initialUrl = await Linking.getInitialURL();
     if (initialUrl) {
       return getBaseUrl(initialUrl);
     }
     return 'https://www.pedal-assistant.com';
+  }
+
+  async loginWithStrava(session: any): Promise<string> {
+    const stravaVerifyCode = await this.getSSOVerifyCode();
+    const clientId = await this.appContext.getStravaClientId(session, 'ssologinattempt');
+    if (isMobile()) {
+      return this.loginWithStravaMobile(session, stravaVerifyCode, clientId);
+    }
+    return this.loginWithStravaWeb(session, stravaVerifyCode, clientId);
+  }
+
+  async loginWithStravaWeb(session: any, stravaVerifyCode: string, clientId: string): Promise<string> {
+    const url = await this.createStravaAuthUrl(stravaVerifyCode, clientId, 'strava-login');
+    console.log('redirect'+ url);
+    if (!url || url.length === 0) {
+      console.log('Unable to generate Strava Verify Code');
+      return '';
+    }
+    console.log('opening url: ', url);
+    Linking.openURL(url);
+    return stravaVerifyCode;
+  }
+
+  async loginWithStravaMobile(session: any, stravaVerifyCode: string, clientId: string): Promise<string> {
+    const url = await this.createStravaAuthUrl(stravaVerifyCode, clientId, 'strava-link');
+    if (!url || url.length === 0) {
+      console.log('Unable to generate Strava Verify Code');
+      return '';
+    }
+    console.log('opening url: ', url);
+    Linking.openURL(url);
+    return stravaVerifyCode;
   }
 
   async linkToStrava(session: any): Promise<string> {
@@ -124,6 +195,7 @@ class StravaController extends AppController {
     }
   }
 
+
   /**
    * ,
       redirect_uri: redirectUri
@@ -132,23 +204,27 @@ class StravaController extends AppController {
    * @param appContext
    */
   async linkToStravaWeb(session: any): Promise<string> {
-    const url = await this.createStravaAuthUrl(session);
+    const stravaVerifyCode = await this.getStravaVerifyCode(session);
+    const clientId = await this.appContext.getStravaClientId(session, '');
+    const url = await this.createStravaAuthUrl(stravaVerifyCode, clientId);
     if (!url || url.length === 0) {
       return 'Unable to generate Strava Auth URL.  Press to try again.';
     }
-    window.open(url);
+    Linking.openURL(url);
     return '';
   }
 
-  async createStravaAuthUrl(session: any): Promise<string> {
-    const replyUrl = await this.getLocationBaseUrl();
-    const stravaVerifyCode = await this.getStravaVerifyCode(session);
+  async createStravaAuthUrl(stravaVerifyCode: string, clientId: string, redirectLocation: string = 'strava-reply'): Promise<string> {
     if (!stravaVerifyCode || stravaVerifyCode.length === 0) {
       console.log('Unable to generate Strava Verify Code');
       return '';
     }
-    const redirectUri = replyUrl + '/strava-reply/' + stravaVerifyCode;
-    const clientId = await this.appContext.getStravaClientId(session, '');
+    if (!clientId || clientId.length === 0) {
+      console.log('Invalid Strava Client ID');
+      return '';
+    }
+    const replyUrl = await this.getLocationBaseUrl();
+    const redirectUri = replyUrl + '/' + redirectLocation + '/' + stravaVerifyCode;
     console.log('redirect ' + redirectUri);
 
     const paramsObj = {
@@ -165,6 +241,32 @@ class StravaController extends AppController {
     return url;
   };
 
+  async createStravaAuthUrlx(stravaVerifyCode: string, clientId: string, redirectLocation: string = 'strava-reply'): Promise<string> {
+    const replyUrl = Linking.createURL("");
+    // const replyUrl = isMobile() ? 'com.pedal-assistant://www.pedal-assistant.com' : await this.getLocationBaseUrl();
+    // const replyUrl = await this.getLocationBaseUrl();
+    if (!stravaVerifyCode || stravaVerifyCode.length === 0) {
+      console.log('Unable to generate Strava Verify Code');
+      return '';
+    }
+    const redirectUri = replyUrl + redirectLocation + '/' + stravaVerifyCode;
+    console.log('redirect ' + redirectUri);
+
+    const paramsObj = {
+      client_id:  clientId ,
+      response_type: 'code',
+      approval_prompt: 'force',
+      scope: 'read_all,profile:read_all,activity:read' };
+    const searchParams = new URLSearchParams(paramsObj);
+
+    const stravaLink = isMobile() ? 'strava://oauth/mobile' : 'https://www.strava.com/oauth';
+    const url = stravaLink + '/authorize?'
+      + searchParams.toString()
+      + '&redirect_uri=' + redirectUri;
+    console.log('url:'+ url);
+    return url;
+  };
+
   async getStravaVerifyCode(session: any): Promise<string> {
     try {
       const parameters = {
@@ -174,6 +276,20 @@ class StravaController extends AppController {
       return await getInternal('/user/oauth-verify-code', parameters, session.jwt_token) as Promise<string>;
     } catch(e: any) {
       console.log(e.message);
+      return '';
+    }
+  }
+
+    async getSSOVerifyCode(): Promise<string> {
+    try {
+      const verifyObject = await getInternal('/auth/strava-sso-code', {}, null);
+      if (!verifyObject || verifyObject.verifyCode === null) {
+        console.log('Unable to get Strava SSO Verify Code');
+        return '';
+      }
+      return verifyObject.verifyCode;
+    } catch(e: any) {
+      console.log('getSSOVerifyCode error' + e.message);
       return '';
     }
   }
@@ -210,7 +326,10 @@ class StravaController extends AppController {
   }
 
   async linkToStravaMobileThroughBrowser(session: any): Promise<string> {
-    const url = await this.createStravaAuthUrl(session);
+    const stravaVerifyCode = await this.getStravaVerifyCode(session);
+    const clientId = await this.appContext.getStravaClientId(session, '');
+
+    const url = await this.createStravaAuthUrl(stravaVerifyCode, clientId);
     if (!url || url.length === 0) {
       return 'Unable to create Strava Auth URL.  Press to try again.';
     }

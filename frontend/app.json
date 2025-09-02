@@ -17,12 +17,13 @@
       "supportsTablet": true,
       "bundleIdentifier": "biz.fastfriends",
       "associatedDomains": [
-        "applinks:pedal-assistant.com"
+        "applinks:pedal-assistant.com",
+        "applinks:www.pedal-assistant.com"
       ],
       "config": {
         "usesNonExemptEncryption": false
       },
-      "buildNumber": "80"
+      "buildNumber": "81"
     },
     "android": {
       "adaptiveIcon": {

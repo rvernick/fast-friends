@@ -6,6 +6,7 @@ import { UpdateUserDto } from './update-user.dto';
 import { UpdateStravaDto } from './update-strava.dto';
 import { ResetPasswordDto } from './reset-password.dto';
 import { BikeService } from '../bike/bike.service';
+import { StravaService } from '../bike/strava.service';
 
 @Injectable()
 export class AuthService {
@@ -15,36 +16,84 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private bikeService: BikeService,
+    private stravaService: StravaService,
   ) {}
 
   // need a test for when the username is nill or shouldn't be found
-  async signIn(username: string, pass: string) {
+  async signIn(username: string, pass: string): Promise<{ access_token: string, user: User }> {
     const user = await this.userService.findUsername(username);
 
     if (user == null || !user.comparePassword(pass)) {
       this.logger.log('info', 'sign in failed for: ' + username);
       throw new UnauthorizedException();
     }
+    this.getBikePhotoLinksCached(username);
+    return this.createSignInResponse(user);
+  }
+
+  async signInStravaSSO(id: number, stravaId: string): Promise<{ access_token: string, user: User }> {
+    const user = await this.userService.findOne(id);
+    if (
+      user == null
+      || user.stravaId == null
+      || user.stravaId == ''
+      || user.stravaId != stravaId
+    ) {
+      this.logger.log('info', 'sign in failed for: ' + id);
+      throw new UnauthorizedException();
+    }
+
+    await this.verifyStravaAccess(user);
+    this.getBikePhotoLinksCached(user.username);
+    return this.createSignInResponse(user);
+  }
+
+  async signInStravaVerifyCode(code: string): Promise<{ access_token: string; user: User; }> {
+    const user = await this.userService.userForValidOAuthVerifyCode(code, 'strava');
+    if (user == null) {
+      this.logger.log('info', 'sign in failed for: ' + code);
+      throw new UnauthorizedException();
+    }
+    console.log('info', 'sign in strava verify: ' +user.emailVerified);
+    this.getBikePhotoLinksCached(user.username);
+    return this.createSignInResponse(user);
+  }
+
+  async verifyStravaAccess(user: User): Promise<void> {
+    const accessToken = await this.stravaService.getToken(user);
+    if (accessToken == null) {
+      this.logger.log('info', 'strava access failed for: ' + user.username);
+      throw new UnauthorizedException();
+    }
+  }
+
+  private async createSignInResponse(user: User): Promise<{ access_token: string; user: User; }> {
     const payload = { username: user.username, sub: user.id };
-    this.bikeService.getBikes(username);
     return {
       access_token: await this.jwtService.signAsync(payload),
       user: user,
     };
   }
 
+  private async getBikePhotoLinksCached(username: string) {
+    this.bikeService.getBikes(username);
+  }
+
   async getUser(username: string): Promise<User | null> {
     return await this.userService.findUsername(username);
   }
 
-  async createUser(username: string, pass: string) {
+  async createUser(username: string, pass: string, email: string = '') {
     const user = await this.userService.findUsername(username);
     if (user != null) {
       this.logger.log('info', 'attempted to create duplicate: ' + username);
       throw new UnauthorizedException();
     }
     const newUser = await this.userService.createUser(username, pass);
-    this.requestVerifyEmail(username);
+    if (email!= '') {
+      console.log('info', 'attempted to create user with email: ' + email);
+      this.requestVerifyEmail(username);
+    }
     return newUser;
   }
 
@@ -86,6 +135,10 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     this.userService.deleteUser(user);
+  }
+
+  async getStravaSSOCode (): Promise<any> {
+    return this.userService.getStravaSSOCode();
   }
 
   async updateStrava(updateStravaDto: UpdateStravaDto) {

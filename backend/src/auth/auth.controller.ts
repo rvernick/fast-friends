@@ -40,7 +40,7 @@ export class AuthController {
   @Post('create')
   create(@Body() createUserDto: CreateUserDto) {
     console.log('creating user: ' + createUserDto.username);
-    return this.authService.createUser(createUserDto.username, createUserDto.password);
+    return this.authService.createUser(createUserDto.username, createUserDto.password, createUserDto.username);
   }
 
   @Post('change-password')
@@ -77,6 +77,28 @@ export class AuthController {
     console.log("Health check running.  Returning okay.")
     return 'Running';
   }
+
+  @Public()
+  @Get('strava-sso-code')
+  getStravaSSO(): Promise<any> {
+    console.log('get auth/create-strava-sso');
+    return this.authService.getStravaSSOCode();
+  }
+
+  @Public()
+  @Post('sign-in-strava-sso')
+  signInStravaSSO(@Body('username') id: number, @Body('stravaId') stravaId: string): Promise<{ access_token: string; }> {
+    console.log('signing in sso: ' + id + ' stravaId: ' + stravaId);
+    return this.authService.signInStravaSSO(id, stravaId);
+  }
+
+  @Public()
+  @Post('sign-in-strava-verify-code')
+  signInStravaVerifyCode(@Body('verifyCode') code: string): Promise<{ access_token: string; user: User; }> {
+    console.log('signing in strava verify: ' + code);
+    return this.authService.signInStravaVerifyCode(code);
+  }
+
 
   @UseGuards(AuthGuard)
   @Post('update-strava')
