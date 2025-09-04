@@ -191,4 +191,6 @@ export class User {
     this.bikes.push(bike);
   }
 
+  source: string;
+
 }

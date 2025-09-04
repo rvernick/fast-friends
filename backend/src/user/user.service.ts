@@ -38,25 +38,36 @@ export class UserService {
     private batchProcessService: BatchProcessService,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
-  }
-
-  findOne(id: number): Promise<User | null> {
-    const result = this.usersRepository.findOneBy({ id });
-    this.logger.log('info', 'Searching for: ' + id + ' found: ' + result);
+  async findAll(): Promise<User[]> {
+    const result = await this.usersRepository.find();
+    result.forEach((user) => this.fillOutUser(user));
     return result;
   }
 
-  findUsername(username: string): Promise<User | null> {
+  async findOne(id: number): Promise<User | null> {
+    const result = await this.usersRepository.findOneBy({ id });
+    this.logger.log('info', 'Searching for: ' + id + ' found: ' + result);
+    return this.fillOutUser(result);
+  }
+
+  async findUsername(username: string): Promise<User | null> {
     if (username == null) return null;
-    const result = this.usersRepository.findOne({
+    const result = await this.usersRepository.findOne({
       where: {
         username: username.toLocaleLowerCase(),
       },
     });
     this.logger.log('info', 'Searching for: ' + username.toLocaleLowerCase() + ' found: ' + result);
-    return result;
+    return this.fillOutUser(result);
+  }
+
+  fillOutUser(user: User): User {
+    if (user.password && user.password.length > 0) {
+      user.source = 'pedal-assistant';
+    } else {
+      user.source = 'strava';
+    }
+    return user;
   }
 
   async createUser(username: string, password: string, needsEmailVerification: boolean = true): Promise<User> {
