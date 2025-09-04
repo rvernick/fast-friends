@@ -5,7 +5,7 @@ import { renderRouter } from 'expo-router/testing-library';
 import MaintenanceHistoryComponent from '../MaintenanceHistoryComponent';
 import '@testing-library/react-native/extend-expect';
 import { mockedBikeId, mockedBikes, mockedHistory } from '@/common/test-utils';
-import { sleep } from '@/common/utils';
+import { pause } from '@/common/utils';
 
 afterEach(cleanup);
 
@@ -20,13 +20,13 @@ jest.mock('../../../common/utils', () => {
 
 const getMockedHistory = () => {
   console.log('getMockedHistory called');
-  sleep(1);
+  pause();
   return Promise.resolve(mockedHistory);
 }
 
 const getMockedBikes = () => {
   console.log('getMockedBikes called');
-  sleep(1);
+  pause();
   return Promise.resolve(mockedBikes);
 }
 
@@ -52,9 +52,9 @@ jest.mock('../../../common/utils', () => {
   };
 });
 describe('Maintenance History Component', () => {
-  
+
   it('Basic render', async () => {
-    const wrappedMI = jest.fn(() => 
+    const wrappedMI = jest.fn(() =>
         <ProviderWrapper>
           <MaintenanceHistoryComponent bikeid={mockedBikeId}/>
         </ProviderWrapper>);
@@ -82,13 +82,13 @@ describe('Maintenance History Component', () => {
     // }, {
     //     timeout: 2000,
     // });
-    
+
   });
 
   it('Starts sorted by milage descending', async () => {
     // jest.mock('MaintenanceHistoryController'); // this happens automatically with automocking
 
-    const wrappedMI = jest.fn(() => 
+    const wrappedMI = jest.fn(() =>
         <ProviderWrapper>
           <MaintenanceHistoryComponent bikeid={mockedBikeId}/>
         </ProviderWrapper>);

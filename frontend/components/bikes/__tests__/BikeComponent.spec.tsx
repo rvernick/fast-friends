@@ -2,7 +2,7 @@ import { screen, cleanup } from '@testing-library/react-native';
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import BikeComponent from '../BikeComponent';
-import { milesToMeters, sleep } from '@/common/utils';
+import { milesToMeters, pause } from '@/common/utils';
 
 afterEach(cleanup);
 
@@ -25,7 +25,7 @@ const mockedBike = {
 
 const getMockedBike = () => {
   console.log('getMockedBike called');
-  sleep(1);
+  pause();
   return Promise.resolve(mockedBike);
 }
 
@@ -51,9 +51,9 @@ jest.mock('../../../common/utils', () => {
 });
 
 describe('Bike Component', () => {
-  
+
   it('Bike mileage is displayed', async () => {
-    const wrappedBike = jest.fn(() => 
+    const wrappedBike = jest.fn(() =>
         <ProviderWrapper>
           <BikeComponent bikeid={256} />
         </ProviderWrapper>);

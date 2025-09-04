@@ -35,7 +35,7 @@ export const isProduction = (): boolean => {
 }
 
 export const isDevelopment = (): boolean => {
-  return baseUrl().includes('localhost');
+  return baseUrl().includes('localhost') || baseUrl().includes('192.168');
 }
 
 export const remember = (key: string, value: string) => {
@@ -166,7 +166,7 @@ export const loginWithStravaCode = async (userId: string, stravaId: string, sess
     userid: idNumber,
     stravaId: stravaId,
   };
-  const response = post('/auth/login', args, null);
+  const response = post('/auth/sign-in-strava-sso', args, null);
   return response
     .then(resp => {
       if (resp.ok) {
@@ -338,6 +338,12 @@ export const fetchSecretsByVerify = async (verifyCode: string, target: string): 
     console.log('error in fetchsecretsByVerify ' + e.message);
     return null;
   }
+}
+
+export const pause = (): Promise<void> => {
+  return new Promise(resolve => {
+    setTimeout(resolve, 400);
+  });
 }
 
 export const sleep = (seconds: number): Promise<void> => {

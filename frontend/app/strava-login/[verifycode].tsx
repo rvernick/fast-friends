@@ -1,19 +1,13 @@
-import { ensureString } from "@/common/utils";
+import { useSession } from "@/common/ctx";
+import { ensureString, sleep } from "@/common/utils";
 import StravaLoginComponent from "@/components/strava/StravaLoginComponent";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
 import { Surface, Text } from "react-native-paper";
 
 const StravaReply = () => {
   const reply = useLocalSearchParams();
-  console.log(reply);
-  // if (reply.error) {
-  //   return (
-  //     <Surface>
-  //       <Text>Error: {reply.error}</Text>
-  //     </Surface>
-  //   );
-  // }
-
+  
   return (
     <Surface>
       <StravaLoginComponent

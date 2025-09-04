@@ -2,7 +2,7 @@ import { screen, cleanup, fireEvent, userEvent, waitFor } from '@testing-library
 import { ProviderWrapper } from '../../test_utils';
 import { renderRouter } from 'expo-router/testing-library';
 import { SettingsComponent } from '../SettingsComponent';
-import { sleep } from '@/common/utils';
+import { pause } from '@/common/utils';
 
 afterEach(cleanup);
 
@@ -18,7 +18,7 @@ const mockedUser = {
 };
 
 const getMockedUser = () => {
-  sleep(1);
+  pause();
   console.log('getMockedUser called');
   return Promise.resolve(mockedUser);
 }
@@ -35,7 +35,7 @@ jest.mock('../../../common/utils', () => {
 
 const startComponent = async () => {
   console.log('Starting component');
-  const wrappedSettings = jest.fn(() => 
+  const wrappedSettings = jest.fn(() =>
         <ProviderWrapper>
           <SettingsComponent strava_id='' />
         </ProviderWrapper>);
@@ -96,8 +96,8 @@ describe('Settings Component', () => {
 
     expect(kmButton.props.accessibilityState.checked).toBe(true);
     expect(milesButton.props.accessibilityState.checked).toBe(false);
-    
-    const user = userEvent.setup();    
+
+    const user = userEvent.setup();
     const editButton = await screen.findByTestId('edit-button');
     fireEvent.press(editButton);
 

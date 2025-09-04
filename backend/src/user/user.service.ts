@@ -421,11 +421,15 @@ export class UserService {
     const verify = await this.getOAuthByVerifyCode(verifyCode, target);
 
     if (verify == null  || verify.expiresOn < new Date()) {
-      this.logger.log('info', 'failed update user attempt:'+ verifyCode);
+      this.logger.log('info', 'verify not found:'+ verifyCode);
+      throw new UnauthorizedException();
+    }
+    if (verify.expiresOn < new Date()) {
+      this.logger.log('info', 'expired verify: '+ verifyCode + ' ' + verify.expiresOn.toISOString());
       throw new UnauthorizedException();
     }
     if (requireUser && verify.user == null) {
-      this.logger.log('info', 'failed update user attempt:'+ verifyCode);
+      this.logger.log('info', 'failed null user check: '+ verifyCode);
       throw new UnauthorizedException();
     }
     return verify;
