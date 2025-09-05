@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../user/user.entity';
+import { Source, User } from '../user/user.entity';
 import { UpdateUserDto } from './update-user.dto';
 import { UpdateStravaDto } from './update-strava.dto';
 import { ResetPasswordDto } from './reset-password.dto';
@@ -83,15 +83,15 @@ export class AuthService {
     return await this.userService.findUsername(username);
   }
 
-  async createUser(username: string, pass: string, email: string = '') {
+  async createUser(username: string, pass: string) {
     const user = await this.userService.findUsername(username);
     if (user != null) {
       this.logger.log('info', 'attempted to create duplicate: ' + username);
       throw new UnauthorizedException();
     }
-    const newUser = await this.userService.createUser(username, pass);
-    if (email!= '') {
-      console.log('info', 'attempted to create user with email: ' + email);
+    const newUser = await this.userService.createUser(username, pass, Source.PEDAL_ASSISTANT);
+    if (newUser.email != '') {
+      console.log('info', 'attempted to create user with email: ' + newUser.email);
       this.requestVerifyEmail(username);
     }
     return newUser;

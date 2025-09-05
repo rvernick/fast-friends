@@ -374,6 +374,34 @@ export const ensureString = (value: string | string[] | null | undefined | numbe
   return '';
 }
 
+export const ensureNumber = (value: string | null | undefined | number | any): number => {
+  if (!value || value == null) return 0;
+
+  if (typeof value === 'number') {
+    return value;
+  }
+  if (value == null || value === '') {
+    return 0;
+  }
+  if (typeof value ==='string') {
+    if (value.match(/^[0-9]+$/)) {
+      return parseInt(value);
+    }
+    try {
+      if (value.match(/^[-+]?[0-9]*\.?[0-9]+$/)) {
+        const result = parseFloat(value);
+        if (isNaN(result)) {
+          return 0;
+        }
+        return result;
+      }
+    } catch (error) {
+      return 0;
+    }
+  }
+  return 0;
+}
+
 export const milesToMeters = (miles: number): number => {
   return Math.round(miles * 1609.34);
 }

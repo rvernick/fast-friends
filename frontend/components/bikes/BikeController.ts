@@ -2,6 +2,7 @@ import AppContext from "@/common/app-context";
 import AppController from "@/common/AppController";
 import { getBike } from "@/common/data-utils";
 import { post, postForm } from "@/common/http-utils";
+import { ensureNumber, ensureString } from "@/common/utils";
 import { Bike } from "@/models/Bike";
 
 
@@ -42,9 +43,9 @@ class BikeController extends AppController {
         model: model,
         line: line,
         odometerMeters: odometerMeters,
-        type: type,
+        type: ensureString(type),
         groupsetBrand: groupsetBrand,
-        groupsetSpeed: groupsetSpeed,
+        groupsetSpeed: ensureNumber(groupsetSpeed),
         isElectronic: isElectronic,
         isRetired: isRetired,
         serialNumber: serialNumber,
@@ -64,6 +65,8 @@ class BikeController extends AppController {
       return 'Unable to Update Account';
     }
   };
+
+
 
   deleteBike = async (session: any, username: string, id: number): Promise<string> => {
     try {

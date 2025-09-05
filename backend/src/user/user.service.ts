@@ -1,7 +1,7 @@
 import { Logger, Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Units, User, createNewUser } from './user.entity';
+import { Source, Units, User, createNewUser } from './user.entity';
 import { Bike  } from '../bike/bike.entity';
 import { StravaAuthenticationDto } from './strava-authentication';
 import { HttpService } from '@nestjs/axios';
@@ -39,40 +39,30 @@ export class UserService {
   ) {}
 
   async findAll(): Promise<User[]> {
-    const result = await this.usersRepository.find();
-    result.forEach((user) => this.fillOutUser(user));
-    return result;
+    return await this.usersRepository.find();
   }
 
   async findOne(id: number): Promise<User | null> {
-    const result = await this.usersRepository.findOneBy({ id });
-    this.logger.log('info', 'Searching for: ' + id + ' found: ' + result);
-    return this.fillOutUser(result);
+    return await this.usersRepository.findOneBy({ id });
   }
 
   async findUsername(username: string): Promise<User | null> {
     if (username == null) return null;
-    const result = await this.usersRepository.findOne({
+    return await this.usersRepository.findOne({
       where: {
         username: username.toLocaleLowerCase(),
       },
     });
-    this.logger.log('info', 'Searching for: ' + username.toLocaleLowerCase() + ' found: ' + result);
-    return this.fillOutUser(result);
   }
 
-  fillOutUser(user: User): User {
-    if (user.password && user.password.length > 0) {
-      user.source = 'pedal-assistant';
-    } else {
-      user.source = 'strava';
+  async createUser(username: string, password: string, type: Source): Promise<User> {
+    const newUser = createNewUser(username.toLocaleLowerCase(), password, type);
+    if (newUser.source === Source.STRAVA) {
+      newUser.emailVerified = true;
+    } else if (newUser.source === Source.PEDAL_ASSISTANT) {
+      newUser.emailVerified = false;
+      newUser.email = username;
     }
-    return user;
-  }
-
-  async createUser(username: string, password: string, needsEmailVerification: boolean = true): Promise<User> {
-    const newUser = createNewUser(username.toLocaleLowerCase(), password);
-    newUser.emailVerified = !needsEmailVerification;
     this.usersRepository.insert(newUser);
     return newUser;
   }
@@ -295,19 +285,21 @@ export class UserService {
   async upsertStravaV1(stravaAuthDto: StravaAuthenticationDto):  Promise<User> {
     const verifyCode = stravaAuthDto.verifyCode;
     const stravaCode = stravaAuthDto.stravaCode;
-    const oauthVerify = await this.getAndVerifyOAuthCode(verifyCode, 'strava', false);
+    const requiresUser = false;
+    const oauthVerify = await this.getAndVerifyOAuthCode(verifyCode, 'strava', requiresUser);
     if (oauthVerify == null) {
       console.log('No verify code found for strava');
       return null;
     }
     if (oauthVerify.user != null) {
-      if (stravaAuthDto.username.length > 0 && oauthVerify.user.username!= stravaAuthDto.username) {
+      if (stravaAuthDto.username.length > 0 && oauthVerify.user.username != stravaAuthDto.username) {
         throw new Error('Different user already exists for verify code'+ verifyCode);
       }
       console.log('User already exists for verify code'+ verifyCode);
       await this.updateStravaV1(stravaCode, oauthVerify.code);
       return oauthVerify.user;
     }
+    // by token, or should we also use username?
     const stravaAthlete = await this.getStravaAthlete(stravaAuthDto.stravaToken);
     if (stravaAthlete == null) {
       console.log('No strava athlete found for verify code'+ verifyCode);
@@ -362,6 +354,9 @@ export class UserService {
       .getMany()
 
     console.log('allStravaUsers: ', allStravaUsers.length);
+    allStravaUsers.forEach((u) => {
+      console.log('checking user: ', JSON.stringify(u));
+    });
     const stravaUser =  allStravaUsers.find((u) => u.stravaId == athlete.id);
     if (stravaUser) {
       return this.findOne(stravaUser.id);
@@ -370,7 +365,9 @@ export class UserService {
   }
 
   async createUserFromAthlete(athlete: any): Promise<User> {
-    const newUser = await this.createUser(athlete.username, athlete.firstname + athlete.lastname, false);
+    // TODO: need to find a way to indicate this is a strava user
+    // Source column?  Specific password?
+    const newUser = await this.createUser(athlete.username, athlete.firstname + athlete.lastname, Source.STRAVA);
     newUser.firstName = athlete.firstname;
     newUser.lastName = athlete.lastname;
     newUser.stravaId = athlete.id;

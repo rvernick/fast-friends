@@ -10,6 +10,7 @@ export const baseUrl = () => {
   if (process.env.NODE_ENV === 'production') {
     defaultBase = 'https://fast-friends-be.onrender.com';
   }
+
   const result = process.env.BASE_URL || defaultBase;
   return ensureNoSlash(result);
 }

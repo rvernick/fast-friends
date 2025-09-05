@@ -33,8 +33,8 @@ export class UserController {
 
   @Post('v1/upsert-strava')
   @Public()
-  upsertStrava(@Body() stravaAuthDto: StravaAuthenticationDto): Promise<User | null> {
-    console.log('user/upsert-strava stravaAuthDto:' + JSON.stringify(stravaAuthDto.username));
+  upsertStravaV1(@Body() stravaAuthDto: StravaAuthenticationDto): Promise<User> {
+    console.log('user/v1/upsert-strava user:' + stravaAuthDto.username);
     return this.userService.upsertStravaV1(stravaAuthDto);
   }
 
@@ -63,13 +63,6 @@ export class UserController {
   stravaCallbackV1(@Body("stravaCode") stravaCode: string, @Body("verifyCode") verifyCode: string): Promise<boolean> {
     console.log('user/v1/update-strava user:' + stravaCode + " verifyCode: " + verifyCode);
     return this.userService.updateStravaV1(stravaCode, verifyCode);
-  }
-
-  @Public()
-  @Post('v1/upsert-strava')
-  upsertStravaV1(@Body() stravaAuthDto: StravaAuthenticationDto): Promise<User> {
-    console.log('user/v1/upsert-strava user:' + stravaAuthDto.username);
-    return this.userService.upsertStravaV1(stravaAuthDto);
   }
 
   @Public()
