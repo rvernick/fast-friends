@@ -21,6 +21,7 @@ import { Radio, RadioGroup, RadioIcon, RadioIndicator, RadioLabel } from "../ui/
 import { CircleIcon } from "../ui/icon";
 import { HStack } from "../ui/hstack";
 import BikeIndexController from "./BikeIndexController";
+import { blankUser } from "@/models/User";
 
 type SettingsProps = {
   strava_id: string;
@@ -44,17 +45,10 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccessful, setSaveSuccessful] = useState(false);
   const [warnOnLosingData, setWarnOnLosingData] = useState(false);
+  const [userSource, setUserSource] = useState('pedal-assistant');
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
   const bikeIndexController = new BikeIndexController(appContext);
-
-  const blankUser = {username: email,
-    firstName: '',
-    lastName: '',
-    cellPhone: '',
-    stravaId: providedStravaId,
-    units: "miles",
-    pushToken: '' };
 
   const { status, data, error, isFetching } = useQuery({
     queryKey: ['user'],
@@ -232,6 +226,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     setEnteredCellPhone(ensureString(data?.cellPhone));
     const newUnits = data?.units == "km" ? "km" : "miles";
     setUnits(newUnits);
+    setUserSource(ensureString(data?.source));
   }
 
   const phoneFormat = (phoneWithEverything: string) => {
@@ -351,7 +346,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
               />
             {readOnly ?(<Text>{(stravaId.length > 0) ? ('Strava id: ' + stravaId) : ''}</Text>) : null }
           </Pressable>
-          {readOnly || stravaId.length == 0 ? null : (
+          {userSource == 'strava' || readOnly || stravaId.length == 0  ? null : (
             <Button
                 className="bottom-button shadow-md rounded-lg m-1"
                 onPress={() => setConfirmUnlink(true) }

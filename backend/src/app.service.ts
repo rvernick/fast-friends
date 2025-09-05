@@ -12,7 +12,6 @@ export class AppService {
     return 'Hello World!';
   }
 
-// should this have login protection?
   getSecrets() {
     return {
       stravaClientId: this.configService.get('STRAVA_CLIENT_ID'),

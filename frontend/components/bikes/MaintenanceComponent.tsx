@@ -192,7 +192,7 @@ const MaintenanceComponent = () => {
   };
   const BikeComp: React.FC<BikeCompProps> = ({ item, bike }) => {
     const [description, setDescription ] = useState('');
-    const [photoUrl, setPhotoUrl ] = useState('');
+    const [photoUrl, setPhotoUrl ] = useState(ensureString(bike.bikePhotoUrl));
 
     const toggleExpanded = () => {
       item.expanded =!item.expanded;

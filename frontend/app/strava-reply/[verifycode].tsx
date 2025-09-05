@@ -5,21 +5,13 @@ import { Surface, Text } from "react-native-paper";
 
 const StravaReply = () => {
   const reply = useLocalSearchParams();
-  if (reply.error) {
-    return (
-      <Surface>
-        <Text>Error: {reply.error}</Text>
-      </Surface>
-
-    );
-  }
 
   return (
     <Surface>
       <StravaReplyComponent
-        verifycode={ensureString(reply.verifycode)} 
-        code={ensureString(reply.code)} 
-        scope={ensureString(reply.scope)} 
+        verifycode={ensureString(reply.verifycode)}
+        code={ensureString(reply.code)}
+        scope={ensureString(reply.scope)}
         state={ensureString(reply.state)} />
     </Surface>
   );

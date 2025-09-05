@@ -82,7 +82,7 @@ type BikeRowProps = {
   const BikeRow: React.FC<BikeRowProps> = ({ bike }) => {
     const [mileageField, setMileageField] = useState('');
     const [description, setDescription] = useState('');
-    const [image, setImage] = useState('');
+    const [image, setImage] = useState(ensureString(bike.bikePhotoUrl));
 
     const syncMileage = async (bike: Bike) => {
       const prefs = await preferences;
@@ -101,6 +101,12 @@ type BikeRowProps = {
       syncDescription(bike);
       setImage(ensureString(bike.bikePhotoUrl));
     }, [bike]);
+
+    useEffect(() => {
+      if (image != ensureString(bike.bikePhotoUrl)) {
+        setImage(ensureString(bike.bikePhotoUrl));
+      }
+    });
 
     return (
       <Pressable onPress={() => editBike(bike.id)} >

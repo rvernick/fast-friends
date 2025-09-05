@@ -10,6 +10,7 @@ export interface User {
   bikes: Bike[];
   units: string;
   pushToken: string;
+  source: string;
 };
 
 export enum Units {
@@ -27,5 +28,7 @@ export const blankUser = () => {
     stravaId: '',
     bikes: [],
     units: Units.MILES,
+    pushToken: '',
+    source: 'pedal-assistant'
   };
 };

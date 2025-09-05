@@ -38,25 +38,36 @@ export class UserService {
     private batchProcessService: BatchProcessService,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
-  }
-
-  findOne(id: number): Promise<User | null> {
-    const result = this.usersRepository.findOneBy({ id });
-    this.logger.log('info', 'Searching for: ' + id + ' found: ' + result);
+  async findAll(): Promise<User[]> {
+    const result = await this.usersRepository.find();
+    result.forEach((user) => this.fillOutUser(user));
     return result;
   }
 
-  findUsername(username: string): Promise<User | null> {
+  async findOne(id: number): Promise<User | null> {
+    const result = await this.usersRepository.findOneBy({ id });
+    this.logger.log('info', 'Searching for: ' + id + ' found: ' + result);
+    return this.fillOutUser(result);
+  }
+
+  async findUsername(username: string): Promise<User | null> {
     if (username == null) return null;
-    const result = this.usersRepository.findOne({
+    const result = await this.usersRepository.findOne({
       where: {
         username: username.toLocaleLowerCase(),
       },
     });
     this.logger.log('info', 'Searching for: ' + username.toLocaleLowerCase() + ' found: ' + result);
-    return result;
+    return this.fillOutUser(result);
+  }
+
+  fillOutUser(user: User): User {
+    if (user.password && user.password.length > 0) {
+      user.source = 'pedal-assistant';
+    } else {
+      user.source = 'strava';
+    }
+    return user;
   }
 
   async createUser(username: string, password: string, needsEmailVerification: boolean = true): Promise<User> {
@@ -421,11 +432,15 @@ export class UserService {
     const verify = await this.getOAuthByVerifyCode(verifyCode, target);
 
     if (verify == null  || verify.expiresOn < new Date()) {
-      this.logger.log('info', 'failed update user attempt:'+ verifyCode);
+      this.logger.log('info', 'verify not found:'+ verifyCode);
+      throw new UnauthorizedException();
+    }
+    if (verify.expiresOn < new Date()) {
+      this.logger.log('info', 'expired verify: '+ verifyCode + ' ' + verify.expiresOn.toISOString());
       throw new UnauthorizedException();
     }
     if (requireUser && verify.user == null) {
-      this.logger.log('info', 'failed update user attempt:'+ verifyCode);
+      this.logger.log('info', 'failed null user check: '+ verifyCode);
       throw new UnauthorizedException();
     }
     return verify;

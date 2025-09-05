@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { useGlobalContext } from "@/common/GlobalContext";
 import StravaController from "../settings/StravaController";
-import { ensureString, sleep } from "@/common/utils";
+import { ensureString, pause, sleep } from "@/common/utils";
 import { ActivityIndicator, Surface, Text } from "react-native-paper";
 
 type StravaReplyProps = {
@@ -40,6 +40,12 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
     }
   }
 
+  const handleError = async () => {
+    console.log('Error during sync: ');
+    await pause();
+    router.replace('/(home)');
+  }
+
   useEffect(() => {
     if (!synced) {
       setSynced(true);
@@ -48,6 +54,7 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
           updateStravaAndReturn(ensureString(code));
         } else {
           console.log('no code found');
+          handleError();
         }
       } catch (error) {
         console.log('error during login: ', error);

@@ -3,8 +3,12 @@ import { router } from "expo-router";
 import { useSession } from "@/common/ctx";
 import { useGlobalContext } from "@/common/GlobalContext";
 import StravaController from "../settings/StravaController";
-import { ensureString, isDevelopment, loginWithVerifyCode, sleep } from "@/common/utils";
-import { ActivityIndicator, Surface, Text } from "react-native-paper";
+import { ensureString, isDevelopment, loginWithVerifyCode, pause } from "@/common/utils";
+import { BaseLayout } from "../layouts/base-layout";
+import { VStack } from "../ui/vstack";
+import { Spinner } from "../ui/spinner";
+import { Heading } from "../ui/heading";
+import { Text } from "../ui/text";
 
 // probably need to split this into one for login and one for syncing
 
@@ -44,7 +48,7 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
 
   const handleError = async (error: string) => {
     console.log('Error during sync: ', error);
-    await sleep(1);
+    await pause();
     router.replace('/(sign-in-sign-up)/(sign-in)/sign-in');
   }
 
@@ -68,13 +72,25 @@ const StravaReplyComponent: React.FC<StravaReplyProps> = ({verifycode, code, sco
   }, [session, synced]);
 
   return (
-    <Surface>
-      <ActivityIndicator size="large"/>
-      {error ? (
-        <Text>Error: {error}</Text>)
-        : (<Text variant="displayLarge">Strava Connection successful. Syncing Now.</Text>)}
-      <Text variant="displayMedium">Window will stay open when finished</Text>
-    </Surface>
+    <BaseLayout>
+      <VStack className="max-w-[440px] w-full" space="md">
+        <Spinner />
+        <VStack className="md:items-center" space="md">
+          <VStack>
+            <Heading className="text-center" size="3xl">
+              Strava Connection successful. Syncing Now.
+            </Heading>
+            <Text className="text-center">Pedal Assistant</Text>
+            <Text className="text-center">The usage-based maintenance tracker</Text>
+            <Text className="text-center">You think about your rides</Text>
+            <Text className="text-center">We'll remind you about your bike needs</Text>
+            <Text> </Text>
+            <Text className="text-center">Window may stay open when finished</Text>
+            <Text> </Text>
+          </VStack>
+        </VStack>
+      </VStack>
+    </BaseLayout>
     );
   };
 

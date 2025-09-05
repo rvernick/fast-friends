@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Keyboard } from "react-native";
-import { login, remind, isMobile, loginWithVerifyCode, isDevelopment, forget, loginWithStravaCode } from '@/common/utils';
+import { login, remind, isMobile, loginWithVerifyCode, isDevelopment, forget, loginWithStravaCode, pause } from '@/common/utils';
 import { baseUrl } from "../../common/http-utils";
 import { router } from "expo-router";
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -31,7 +31,7 @@ export const LoginComponent = () => {
   const session = useSession();
   const queryClient = useQueryClient();
   const appContext = useGlobalContext();
-  var maxAttempts = 600;
+  var maxAttempts = 120;
 
   const stravaController = new StravaController(appContext);
   var user = '';
@@ -49,6 +49,7 @@ export const LoginComponent = () => {
   const [passwordHidden, setPasswordHidden] = useState(true);
   const [verifyCodes, setVerifyCodes] = useState<string[]>([]);
   const [verifyAttempts, setVerifyAttempts] = useState(0);
+  const [attemptingFaceIdLogin, setAttemptingFaceIdLogin] = useState(false);
 
   const loginSchema = z.object({
     email: z.string().min(1, "Email is required").email(),
@@ -150,15 +151,19 @@ export const LoginComponent = () => {
     setUseFaceRecognition(false);
   }
 
+  const isLoggedIn = () => {
+    return session.jwt_token && session.jwt_token.length > 0;
+  }
+
   const attemptLoginViaDeviceId = async () => {
     const lastUser = await remind(FACE_ID_USERNAME);
     const lastPass = await remind(FACE_ID_PASSWORD);
     const userId = await remind(FACE_ID_USER_ID);
     const stravaCode = await remind(FACE_ID_STRAVA_CODE);
     if (lastUser && lastPass) {
-      attemptLoginUsing(lastUser, lastPass);
+      await attemptLoginUsing(lastUser, lastPass);
     } else if (userId && stravaCode) {
-      attemptLoginUsingStrava(userId, stravaCode);
+      await attemptLoginUsingStrava(userId, stravaCode);
     } else {
       turnOffFaceRecognition();
     }
@@ -171,14 +176,21 @@ export const LoginComponent = () => {
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
     const types = await LocalAuthentication.supportedAuthenticationTypesAsync()
     const hasBiometrics = await LocalAuthentication.isEnrolledAsync();
-    const lastUser =  await remind(FACE_ID_USERNAME);
-    const lastPass = await remind(FACE_ID_PASSWORD);
 
     return hasHardware
       && hasBiometrics
       && types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)
-      && lastUser !=  null && lastUser.length > 0
-      && lastPass != null  && lastPass.length > 0;
+      && await hasFaceIdData()
+  }
+
+  const hasFaceIdData = async (): Promise<boolean> => {
+    const lastUser =  await remind(FACE_ID_USERNAME);
+    const lastPass = await remind(FACE_ID_PASSWORD);
+    const userId = await remind(FACE_ID_USER_ID);
+    const stravaCode = await remind(FACE_ID_STRAVA_CODE);
+
+    return (lastUser.length > 0 && lastPass.length > 0)
+      || (userId.length > 0 && stravaCode.length > 0);
   }
 
   const confirmUseFaceRecognition = async () => {
@@ -198,20 +210,30 @@ export const LoginComponent = () => {
   }
 
   const loginWithFaceRecognition = async () => {
-    const confirm = await isFaceIdPossible();
-    if (confirm) {
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Scan your face to log in',
-        cancelLabel: 'Cancel',
-      });
-      if (result.success) {
-        console.log('Face ID login successful');
-        attemptLoginViaDeviceId();
-      } else {
-        console.log('Face ID login failed');
-        turnOffFaceRecognition();
-        setValidated({ emailValid: true, passwordValid: false });
+    try {
+      const attemptingFaceIdLoginAlready = attemptingFaceIdLogin;
+      setAttemptingFaceIdLogin(true);
+      if (isLoggedIn() || attemptingFaceIdLoginAlready) return;
+
+      const confirm = await isFaceIdPossible();
+      if (confirm) {
+        const result = await LocalAuthentication.authenticateAsync({
+          promptMessage: 'Scan your face to log in',
+          cancelLabel: 'Cancel',
+        });
+        if (result.success) {
+          console.log('Face ID login successful');
+          attemptLoginViaDeviceId();
+        } else {
+          console.log('Face ID login failed');
+          turnOffFaceRecognition();
+          setValidated({ emailValid: true, passwordValid: false });
+        }
       }
+    } catch (error) {
+      console.log('Failed to authenticate with face ID:'+ error);
+    } finally {
+      setAttemptingFaceIdLogin(false);
     }
   }
 
@@ -225,6 +247,7 @@ export const LoginComponent = () => {
   }
 
   const loginWithStrava = async () => {
+    if (isDevelopment()) console.log('Logging in with Strava...');
     const verifyCode = await stravaController.loginWithStrava(session);
     if (isDevelopment()) console.log('Received verify code from Strava:'+ verifyCode);
     if (verifyCode) {
@@ -234,6 +257,11 @@ export const LoginComponent = () => {
     }
   }
 
+  const goToHomeIfHasJWT = () => {
+    if (isLoggedIn()) {
+      router.replace('/(home)');
+    }
+  }
 
   useEffect(() => {
     if (devFastLogin) {
@@ -247,6 +275,7 @@ export const LoginComponent = () => {
     if (!canUseFaceId) {
       confirmUseFaceRecognition();
     }
+    goToHomeIfHasJWT();
   }, []);
 
   useEffect(() => {
