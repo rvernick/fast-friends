@@ -299,7 +299,7 @@ export class UserService {
       await this.updateStravaV1(stravaCode, oauthVerify.code);
       return oauthVerify.user;
     }
-    // by token, or should we also use username?
+
     const stravaAthlete = await this.getStravaAthlete(stravaAuthDto.stravaToken);
     if (stravaAthlete == null) {
       console.log('No strava athlete found for verify code'+ verifyCode);
@@ -347,19 +347,16 @@ export class UserService {
       return user;
     }
 
-    const allStravaUsers = await this.usersRepository.createQueryBuilder()
-      .select('id')
-      .select('strava_id')
-      .where('strava_id IS NOT NULL')
-      .getMany()
+    const allUsers = await this.usersRepository.find();
 
-    console.log('allStravaUsers: ', allStravaUsers.length);
-    allStravaUsers.forEach((u) => {
-      console.log('checking user: ', JSON.stringify(u));
-    });
-    const stravaUser =  allStravaUsers.find((u) => u.stravaId == athlete.id);
+    if (isDevelopment()) {
+      allUsers.forEach((u) => {
+        console.log('checking all user: ', JSON.stringify(u));
+      });
+    }
+    const stravaUser =  allUsers.find((u) => u.stravaId == athlete.id);
     if (stravaUser) {
-      return this.findOne(stravaUser.id);
+      return stravaUser;
     }
     return null;
   }
