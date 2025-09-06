@@ -51,7 +51,7 @@ export class MaintenanceItem {
 
   @ManyToOne((type) => Bike, (bike) => bike.maintenanceItems, { nullable: false })
   bike: Bike;
-  
+
   @Column({
     type: "enum",
     enum: Part,

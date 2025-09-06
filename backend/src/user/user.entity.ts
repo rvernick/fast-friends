@@ -17,9 +17,14 @@ export enum Units {
   MILES = "miles",
 }
 
-export const createNewUser = (username: string, password: string) => {
+export enum Source {
+  STRAVA = "strava",
+  PEDAL_ASSISTANT = "pedal-assistant",
+}
+
+export const createNewUser = (username: string, password: string, type: Source) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
-  const newUser = new User(username, hashedPassword);
+  const newUser = new User(username, hashedPassword, type);
   return newUser;
 };
 
@@ -28,13 +33,14 @@ const key = process.env.COLUMN_ENCRYPTION_KEY;
 @Entity()
 @Index(["username", "deletedOn"], { unique: true })
 export class User {
-  constructor(username: string, pass: string) {
+  constructor(username: string, pass: string, type: Source) {
     if (username != null && username.length > 0) {
       this.username = username.toLowerCase();
     } else {
       this.username = username;
     }
     this.password = pass;
+    this.source = type;
   }
 
   comparePassword(candidatePassword: string): boolean {
@@ -168,6 +174,14 @@ export class User {
   })
   pushToken: string;
 
+  @Column({
+    type: 'enum',
+    enum: Source,
+    default: Source.PEDAL_ASSISTANT,
+    nullable: false,
+  })
+  source: string;
+
   @DeleteDateColumn({
     name: 'deleted_on',
   })
@@ -190,7 +204,4 @@ export class User {
     }
     this.bikes.push(bike);
   }
-
-  source: string;
-
 }

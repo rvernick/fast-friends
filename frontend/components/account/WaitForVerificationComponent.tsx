@@ -1,6 +1,6 @@
 import { useSession } from '@/common/ctx';
 import { useEffect, useState } from 'react';
-import { ensureString, fetchUser } from '@/common/utils';
+import { ensureString, fetchUser, pause } from '@/common/utils';
 import { post } from '@/common/http-utils';
 import { router } from 'expo-router';
 import { useGlobalContext } from '@/common/GlobalContext';
@@ -25,7 +25,7 @@ export const WaitForVerificationComponent = () => {
   const [showError, setShowError] = useState(false);
   const [firstAttempt, setFirstAttempt] = useState(true);
   const [startedVerification, setStartedVerification] = useState(false);
-  
+
   const startEmailVerification = async () => {
     try {
       const body = {
@@ -75,11 +75,21 @@ export const WaitForVerificationComponent = () => {
     }
   }
 
+  const ensureUserNeedsVerification = async () => {
+    const user = await fetchUser(session, ensureString(session.email));
+    await pause();
+    if (user && user.emailVerified) {
+      console.log('verification successful');
+      router.replace('/logging-in');
+    }
+  }
+
   useEffect(() => {
     if (!startedVerification) {
       startEmailVerification();
       setStartedVerification(true);
     }
+    ensureUserNeedsVerification();
   }, []);
 
     return (
@@ -108,7 +118,7 @@ export const WaitForVerificationComponent = () => {
               isInvalid={false}
               isReadOnly={false}
             >
-              <InputField 
+              <InputField
                 value={code}
                 multiline={false}
                 onChangeText={updateCode}
@@ -127,7 +137,7 @@ export const WaitForVerificationComponent = () => {
               </Alert>)
              : <Text> </Text>}
             <Button className="bottom-button shadow-md rounded-lg m-1" size="md" variant="solid"
-                action="primary" 
+                action="primary"
                 onPress={submitCode}
                 testID="submitButton"
                 accessibilityLabel="Submit Button"
@@ -135,7 +145,7 @@ export const WaitForVerificationComponent = () => {
               <ButtonText>Submit</ButtonText>
             </Button>
             <Button className="bottom-button shadow-md rounded-lg m-1" size="md" variant="solid"
-                action="secondary" 
+                action="secondary"
                 onPress={startEmailVerification}
                 testID="resendButton"
                 accessibilityLabel="Resend Code Button"

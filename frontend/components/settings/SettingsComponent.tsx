@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Image } from "react-native";
 import { useGlobalContext } from "../../common/GlobalContext";
 import SettingsController from "./SettingsController";
-import { ensureString, forget, isMobile, isMobileSize, isValidPhone, strippedPhone } from '../../common/utils';
+import { ensureString, forget, isDevelopment, isMobileSize, isValidPhone, strippedPhone } from '../../common/utils';
 import StravaController from "./StravaController";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSession } from "@/common/ctx";
@@ -45,7 +45,7 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccessful, setSaveSuccessful] = useState(false);
   const [warnOnLosingData, setWarnOnLosingData] = useState(false);
-  const [userSource, setUserSource] = useState('pedal-assistant');
+  const [stravaUser, setStravaUser] = useState(false);
   const controller = new SettingsController(appContext);
   const stravaController = new StravaController(appContext);
   const bikeIndexController = new BikeIndexController(appContext);
@@ -226,7 +226,11 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
     setEnteredCellPhone(ensureString(data?.cellPhone));
     const newUnits = data?.units == "km" ? "km" : "miles";
     setUnits(newUnits);
-    setUserSource(ensureString(data?.source));
+    if (isDevelopment()) {
+      console.log('User ', JSON.stringify(data));
+      console.log('User source: ', data?.source);
+    }
+    setStravaUser(ensureString(data?.source) == 'strava');
   }
 
   const phoneFormat = (phoneWithEverything: string) => {
@@ -346,12 +350,12 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
               />
             {readOnly ?(<Text>{(stravaId.length > 0) ? ('Strava id: ' + stravaId) : ''}</Text>) : null }
           </Pressable>
-          {userSource == 'strava' || readOnly || stravaId.length == 0  ? null : (
+          {stravaUser || readOnly || stravaId.length == 0  ? null : (
             <Button
                 className="bottom-button shadow-md rounded-lg m-1"
                 onPress={() => setConfirmUnlink(true) }
                 disabled={stravaId.length == 0}>
-              <ButtonText>{'Unlink Strava: ' + stravaId}</ButtonText>
+              <ButtonText>{' Unlink Strava: ' + stravaId}</ButtonText>
             </Button>)}
           <UnlinkWarningComponent />
           <Text>First Name</Text>
@@ -429,14 +433,16 @@ export const SettingsComponent: React.FC<SettingsProps> = () => {
             accessibilityHint="Connect to Bike Index account">
               <ButtonText>Bike Index Connect</ButtonText>
           </Button> */}
-          <Button
-            className="shadow-md rounded-lg m-1"
-            style={{flex: 1}}
-            onPress={ () => router.push('/(home)/(settings)/change-password') }
-            accessibilityLabel="Change Password"
-            accessibilityHint="Update the user password">
-              <ButtonText>Change Password</ButtonText>
-          </Button>
+          {stravaUser ? null : (
+            <Button
+              className="shadow-md rounded-lg m-1"
+              style={{flex: 1}}
+              onPress={ () => router.push('/(home)/(settings)/change-password') }
+              accessibilityLabel="Change Password"
+              accessibilityHint="Update the user password">
+                <ButtonText>Change Password</ButtonText>
+            </Button>
+          )}
         </VStack>
         {readOnly ? null : (
           <Button

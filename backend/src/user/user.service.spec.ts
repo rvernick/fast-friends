@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { Bike } from '../bike/bike.entity';
-import { User } from './user.entity';
+import { Source, User } from './user.entity';
 import { createSixDigitCode } from '../utils/utils';
 
 const dummyService = () => {
@@ -78,7 +78,7 @@ describe('UserService', () => {
   it('a new strava bike should not have maintenance items', () => {
     // Arrange
     const service = dummyService();
-    const user = new User('username', 'password');
+    const user = new User('username', 'password', Source.PEDAL_ASSISTANT);
     const stravaBike = {
       name: 'Test Bike',
       stravaId: 1234,

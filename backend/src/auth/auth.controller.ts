@@ -40,7 +40,7 @@ export class AuthController {
   @Post('create')
   create(@Body() createUserDto: CreateUserDto) {
     console.log('creating user: ' + createUserDto.username);
-    return this.authService.createUser(createUserDto.username, createUserDto.password, createUserDto.username);
+    return this.authService.createUser(createUserDto.username, createUserDto.password);
   }
 
   @Post('change-password')
