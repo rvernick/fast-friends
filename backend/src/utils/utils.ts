@@ -2,6 +2,7 @@ import { Logger } from "@nestjs/common";
 import { Expo } from 'expo-server-sdk';
 import { User } from "../user/user.entity";
 import { randomInt } from "crypto";
+import { sendMailgunEmail } from "./mailgun-utils";
 
 const logger = new Logger('App');
 export const tenMinutesInMilliseconds = 1000 * 60 * 10;
@@ -21,7 +22,20 @@ export const sendEmail = (email: string,
     subject: string,
     body: string,
     htmlBody: string = '',
-    from: string = 'support@pedal-assistant.com'): boolean => {
+    from: string = 'support@pedal-assistant.com'): Promise<boolean> => {
+
+  if (isDevelopment()) {
+    return sendMailgunEmail(email, subject, body, htmlBody, from);
+  }
+  return Promise.resolve(false);
+  // return sendTwilloEmail(email, subject, body, htmlBody, from);
+}
+
+export const sendTwilloEmail = (email: string,
+    subject: string,
+    body: string,
+    htmlBody: string = '',
+    from: string = 'support@pedal-assistant.com'): Promise<boolean> => {
 
   try {
   const sgMail = require('@sendgrid/mail');
@@ -47,7 +61,7 @@ export const sendEmail = (email: string,
     })
   } catch (error) {
     logger.error('Error in sendMail: '+ error.message);
-    return false;
+    return Promise.resolve(false);
   }
 }
 
@@ -105,6 +119,8 @@ export const sendPushNotifications = async (notifications: PushNotification[]) =
   }
 }
 
+
+// mailgun@pedal-assistant.com
 
 /**
 // Later, after the Expo push notification service has delivered the
