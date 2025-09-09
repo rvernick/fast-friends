@@ -1,4 +1,4 @@
-import {strippedPhone, isValidPhone, isValidPassword, isValidEmail, ensureNumber } from '../../../common/utils';
+import {strippedPhone, isValidPhone, isValidPassword, isValidEmail, ensureNumber, getDateFromString } from '../../../common/utils';
 
 describe('Phone Helper Methods', () => {
   it('stripped phone number', () => {
@@ -50,4 +50,23 @@ describe('Phone Helper Methods', () => {
     expect(ensureNumber('abc.123.456')).toBe(0);
     expect(ensureNumber('abc.123.456.789')).toBe(0);
   })
+
+  it('parse date', () => {
+    const nan = 'Invalid Date'
+    expect(getDateFromString(nan)).toBeNull();
+    const christmas = '12/25/2025';
+    expect(getDateFromString(christmas)).toEqual(new Date(2025, 11, 25));
+    const july4 = '7/4/2026';
+    expect(getDateFromString(july4)).toEqual(new Date(2026, 6, 4));
+
+    expect(getDateFromString('2022/07/04')).toEqual(new Date(2022, 6, 4));
+    expect(getDateFromString('4/25/2022')).toEqual(new Date(2022, 3, 25));
+    expect(getDateFromString('11/25/2024')).toEqual(new Date(2024, 10, 25));
+
+    const altDate = new Date('8/4/2023')
+    const eight423 =new Date(2023, 7, 4)
+
+    expect(getDateFromString('2023-08-04')).toEqual(eight423);
+  });
 });
+

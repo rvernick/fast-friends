@@ -491,3 +491,33 @@ const compressImage = async (uri: string, quality: number): Promise<ImageResult>
   console.log('Compressed image:', result);
   return result;
 }
+
+export const getDateFromString = (dateString: string): Date | null => {
+  try {
+    const date = new Date(Date.parse(dateString));
+    if (!isNaN(date.getTime())) {
+
+      if (isDevelopment()) {
+        console.log(dateString + ' parsed date:', date);
+        console.log('year', date.getFullYear());
+        console.log('month', date.getMonth());
+        console.log('day', date.getDate());
+        console.log('hours', date.getHours());
+      }
+      if (date.getHours() === 0) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      }
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
+    }
+
+    const parts = dateString.split('/');
+    if (parts.length === 3) {
+      const [month, day, year] = parts;
+      if (isDevelopment()) console.log('Parsing date from MM/DD/YYYY:', month, day, year);
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    }
+  } catch (error) {
+    console.error('Error parsing date string:', error);
+  }
+  return null;
+}

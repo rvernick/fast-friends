@@ -3,7 +3,7 @@ import { useGlobalContext } from "@/common/GlobalContext";
 import { Bike, createNewBike } from "@/models/Bike";
 import { router, useNavigation } from "expo-router";
 import { useSession } from "@/common/ctx";
-import { displayStringToMeters, ensureString, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
+import { displayStringToMeters, ensureString, getDateFromString, isMobile, metersToDisplayString, milesToMeters, today } from "@/common/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MaintenanceItemController from "./MaintenanceItemController";
 import { Action, MaintenanceItem, Part } from "@/models/MaintenanceItem";
@@ -452,34 +452,33 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
   }
 
   const validateDueDateString = () => {
-    if (validateDateString(dueDateString)) {
-      setDueDate(new Date(Date.parse(dueDateString)));
-    }
+    validateDateString(dueDateString);
   }
 
   const validateDateString = (dateString: string): boolean => {
     try {
       console.log('Validating due date string: ', dateString);
-      const parsedDate = Date.parse(dateString);
-      if (!isNaN(parsedDate)) {
-        const newDueDate = new Date(parsedDate);
+      const parsedDate = getDateFromString(dateString);
+      if (parsedDate != null) {
         // setDueDate(newDueDate);
         // setDueDateString(newDueDate.toLocaleDateString());
-        console.log('Parsed due date: ', newDueDate);
-        if (newDueDate.getTime() < new Date().getTime()) {
-          console.log('Invalid date.  Date should be in the future');
-          setDueDateErrorMessage('Invalid date.  Date should be in the future');
-          return false;
-        }
-        if (newDueDate.getTime() > (new Date().getTime() + fiveYears)) {
+        console.log('Parsed due date: ', parsedDate);
+        if (parsedDate.getTime() > (new Date().getTime() + fiveYears)) {
           console.log('Invalid date.  Date should be within 5 years');
           setDueDateErrorMessage('Invalid date.  Date should be within 5 years');
           return false;
         }
         setDueDateErrorMessage('');
+        if (parsedDate.getTime() < new Date().getTime()) {
+          console.log('Invalid date.  Date should be in the future');
+          setDueDateErrorMessage('Warning.  Date should be in the future');
+        }
+        setDueDate(parsedDate);
+        setDueDateString(parsedDate.toLocaleDateString());
         return true;
       }
-      setDueDateErrorMessage('Invalid date.  Expected MM/DD/YYYY');
+      console.log('Invalid due date string: ', parsedDate);
+      setDueDateErrorMessage('Invalid date.  Expected MM/DD/YYYY ' + dateString);
       return false;
     } catch (error) {
       console.error('Invalid due date string: ', dateString);
@@ -491,9 +490,6 @@ const MaintenanceItemComponent: React.FC<MaintenanceItemProps> = ({maintenanceid
     setDueDateString(dateString);
     setDueDateErrorMessage('');
     console.log('dueDateStringChange: ', dateString);
-    if (dateString.length >= 10) {
-      validateDateString(dateString);
-    }
   }
 
   useEffect(() => {
