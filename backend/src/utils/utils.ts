@@ -18,17 +18,13 @@ export const createSixDigitCode = (): string => {
   return basisString.substring(1, 7);
 }
 
-export const sendEmail = (email: string,
+export const sendEmail = async (email: string,
     subject: string,
     body: string,
     htmlBody: string = '',
     from: string = 'support@pedal-assistant.com'): Promise<boolean> => {
 
-  if (isDevelopment()) {
-    return sendMailgunEmail(email, subject, body, htmlBody, from);
-  }
-  return Promise.resolve(false);
-  // return sendTwilloEmail(email, subject, body, htmlBody, from);
+  return sendMailgunEmail(email, subject, body, htmlBody, from);
 }
 
 export const sendTwilloEmail = (email: string,

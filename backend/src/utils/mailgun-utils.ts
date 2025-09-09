@@ -13,15 +13,15 @@ export const sendMailgunEmail = async (email: string,
   const mailgun = new Mailgun(FormData);
   const mg = mailgun.client({ username: "api", key: apiKey });
   try {
-    const data = await mg.messages.create("email.pedal-assistant.com", {
+    const sendResult = await mg.messages.create("email.pedal-assistant.com", {
       from: "Pedal Assistance Support <support@pedal-assistant.com>",
       to: email,
       subject: subject,
       text: body,
     });
 
-    console.log(data); // logs response data
-    return true;
+    console.log(sendResult); // logs response data
+    return sendResult.status == 200;
   } catch (error) {
     console.log(error); //logs any error
   }
