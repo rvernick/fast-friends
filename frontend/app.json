@@ -65,19 +65,23 @@
           "cameraPermission": "Allow Pedal Assistant to access your camera."
         }
       ],
-      [
-        "./plugins/withSetPlaceholders.js"
-      ],
-      [
-        "./plugins/withInfoPlist.js"
-      ],
+      ["./plugins/withSetPlaceholders.js"],
+      ["./plugins/withInfoPlist.js"],
       [
         "expo-local-authentication",
         {
           "faceIDPermission": "Allow Pedal Assistant to use Face ID."
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-maps",
+        {
+          "requestLocationPermission": true,
+          "locationPermission": "Allow Pedal Assistant to use your location"
+        }
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

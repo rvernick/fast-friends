@@ -6,6 +6,7 @@ import {
   MailCheckIcon,
   BriefcaseMedicalIcon,
   FileKeyIcon,
+  MapIcon,
 } from "lucide-react-native"
 
 export default function SignInSignUp() {
@@ -43,6 +44,16 @@ export default function SignInSignUp() {
         }}
       />
       <Tabs.Screen
+        name="map"
+        options={{
+          title: "Map",
+          headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <MapIcon size={tabBarIconSize} color={color} />
+          ),
+        }}
+      />
+      {/* <Tabs.Screen
         name="privacy-policy"
         options={{
           title: "Privacy",
@@ -51,7 +62,7 @@ export default function SignInSignUp() {
             <FileKeyIcon size={tabBarIconSize} color={color} />
           ),
         }}
-      />
+      /> */}
       <Tabs.Screen
         name="wait-for-verification"
         options={{
