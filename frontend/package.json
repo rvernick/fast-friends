@@ -99,6 +99,7 @@
     "react-native-web": "^0.21.0",
     "react-native-worklets": "0.5.1",
     "tailwindcss": "^3.4.17",
+    "typescript-lru-cache": "^2.0.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {
