@@ -1,10 +1,9 @@
-import { AppleMaps, GoogleMaps } from 'expo-maps';
-import { Platform } from 'react-native';
-import { Text } from '../../components/ui/text';
-import { BathroomsMapComponent } from '../../components/routes/Bathrooms';
+// import { BathroomsMapComponent } from '../../components/routes/Bathrooms';
+import { Text } from "@/components/ui/text";
 
 export default function MapPage() {
   return (
-    <BathroomsMapComponent />
+    // <BathroomsMapComponent />
+    <Text>Maps are only available on Android and iOS</Text>
   );
 }

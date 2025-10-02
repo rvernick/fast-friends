@@ -332,7 +332,7 @@ const MaintenanceComponent = () => {
 
   const getSortedItems = (bikes: Bike[], sortBy: string): BikeMaintenanceListItem[] => {
     var sortedItems: BikeMaintenanceListItem[] = [];
-    const sortedBikes = getSortedBikes(bikes, sortBy);
+    const sortedBikes = (bikes && bikes.length > 0) ? getSortedBikes(bikes, sortBy) : [];
     for (const bike of sortedBikes) {
       const bikeItem = getItemForBike(bike);
       sortedItems.push(bikeItem);

@@ -46,6 +46,7 @@ export default function SignInSignUp() {
       <Tabs.Screen
         name="map"
         options={{
+          href: null,   // Uncomment for map testing
           title: "Map",
           headerShown: true,
           tabBarIcon: ({ color }) => (
@@ -53,7 +54,7 @@ export default function SignInSignUp() {
           ),
         }}
       />
-      {/* <Tabs.Screen
+      <Tabs.Screen
         name="privacy-policy"
         options={{
           title: "Privacy",
@@ -62,7 +63,7 @@ export default function SignInSignUp() {
             <FileKeyIcon size={tabBarIconSize} color={color} />
           ),
         }}
-      /> */}
+      />
       <Tabs.Screen
         name="wait-for-verification"
         options={{

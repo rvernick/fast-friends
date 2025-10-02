@@ -8,12 +8,12 @@ export const getBikes = async (session: any, username: string): Promise<Bike[] |
   sleep(0.1);
   if (session === null) {
     console.log('get maintenanceItems has no context: ' + username);
-    return Promise.resolve(null);
+    return Promise.resolve([]);
   }
   const jwtToken = await session.jwt_token;
   if (jwtToken == null) {
     console.log('get bikes has no token dying: ' + username);
-    return Promise.resolve(null);
+    return Promise.resolve([]);
   }
 
   try {
@@ -24,7 +24,7 @@ export const getBikes = async (session: any, username: string): Promise<Bike[] |
     return getInternal('/bike/bikes', parameters, jwtToken);
   } catch(e: any) {
     console.log(e.message);
-    return null;
+    return Promise.resolve([]);
   }
 };
 
@@ -47,7 +47,7 @@ export const getHistory = async (session: any, username: string): Promise<Mainte
     return getInternal('/bike/maintenance-history', parameters, jwtToken);
   } catch(e: any) {
     console.log(e.message);
-    return [];
+    return Promise.resolve([]);
   }
 };
 
