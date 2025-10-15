@@ -6,7 +6,7 @@ import { Bike } from '../../models/Bike';
 import { useSession } from '@/common/ctx';
 import { MaintenanceItem } from '@/models/MaintenanceItem';
 import MaintenanceListController from './MaintenanceListController';
-import { distanceUnitDisplayString, ensureString, isMobile, metersToDisplayString, today } from '@/common/utils';
+import { distanceUnitDisplayString, ensureDate, ensureString, isDevelopment, isMobile, metersToDisplayString, metersToMilesString, today } from '@/common/utils';
 import { useIsFocused } from '@react-navigation/native';
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
@@ -467,13 +467,35 @@ const soonestDue = (bike: Bike): number => {
   var smallest = 100000;
   for (const item of bike.maintenanceItems) {
     try {
-      const overdue = bike.odometerMeters - item.dueDistanceMeters;
+      const overdue = dueDistanceEstimate(item, bike.odometerMeters);
       smallest = Math.min(smallest, overdue);
     } catch (error) {
       console.log('Error calculating overdue:', error);
     }
   }
   return smallest;
+}
+
+const dueDistanceEstimate = (item: MaintenanceItem, odometerMeters: number): number => {
+  if (item.dueDistanceMeters && item.dueDistanceMeters > 0) {
+    console.log('dueDistanceMeters: ' + item.part, odometerMeters - item.dueDistanceMeters);
+    return odometerMeters - item.dueDistanceMeters;
+  }
+  const metersPerDay = 20 * 1000;
+  if (item.dueDate) {
+    const dueDate = ensureDate(item.dueDate);
+    const today = new Date();
+    const daysUntilDue = (today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24);
+    const metersEstimate = metersPerDay * daysUntilDue;
+    if (isDevelopment()) {
+      console.log('dueDate:', dueDate);
+      console.log('dueDate:', item.dueDate);
+      console.log('daysUntilDue:', daysUntilDue);
+      console.log('miles till due: ' + metersEstimate);
+    }
+    return metersEstimate;
+  }
+  return 100000;
 }
 
 export default MaintenanceComponent;

@@ -1,4 +1,4 @@
-import { AppleMaps, GoogleMaps } from 'expo-maps';
+import { AppleMaps } from 'expo-maps';
 import { useRef, useState } from 'react';
 import { ToiletCache } from './toilet-cache';
 import { AppleMapsCircle } from 'expo-maps/build/apple/AppleMaps.types';

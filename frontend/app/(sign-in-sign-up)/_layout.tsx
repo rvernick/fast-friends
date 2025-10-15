@@ -12,11 +12,12 @@ import {
 export default function SignInSignUp() {
 
   return (
-    <Tabs>
+    <Tabs initialRouteName="(sign-in)">
       <Tabs.Screen
         name="(sign-in)"
         options={{
           title: "Sign In",
+          href: "/sign-in",
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <LogInIcon size={tabBarIconSize} color={color} />
