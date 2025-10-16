@@ -6,16 +6,18 @@ import {
   MailCheckIcon,
   BriefcaseMedicalIcon,
   FileKeyIcon,
+  MapIcon,
 } from "lucide-react-native"
 
 export default function SignInSignUp() {
 
   return (
-    <Tabs>
+    <Tabs initialRouteName="(sign-in)">
       <Tabs.Screen
         name="(sign-in)"
         options={{
           title: "Sign In",
+          href: "/sign-in",
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <LogInIcon size={tabBarIconSize} color={color} />
@@ -39,6 +41,17 @@ export default function SignInSignUp() {
           headerShown: true,
           tabBarIcon: ({ color }) => (
             <BriefcaseMedicalIcon size={tabBarIconSize} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="map"
+        options={{
+          href: null,   // Uncomment for map testing
+          title: "Map",
+          headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <MapIcon size={tabBarIconSize} color={color} />
           ),
         }}
       />

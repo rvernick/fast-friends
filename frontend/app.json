@@ -23,7 +23,7 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "buildNumber": "83"
+      "buildNumber": "84"
     },
     "android": {
       "adaptiveIcon": {
@@ -77,7 +77,15 @@
           "faceIDPermission": "Allow Pedal Assistant to use Face ID."
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-maps",
+        {
+          "requestLocationPermission": true,
+          "locationPermission": "Allow Pedal Assistant to use your location"
+        }
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

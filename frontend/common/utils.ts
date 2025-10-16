@@ -402,6 +402,23 @@ export const ensureNumber = (value: string | null | undefined | number | any): n
   return 0;
 }
 
+export const ensureDate = (value: string | Date | null | undefined | number): Date => {
+  if (value instanceof Date) {
+    return value;
+  }
+  if (typeof value === 'number') {
+    return new Date(value);
+  }
+  if (typeof value ==='string') {
+    const date = new Date(value);
+    if (isNaN(date.getTime())) {
+      return new Date();
+    }
+    return date;
+  }
+  return new Date();
+}
+
 export const milesToMeters = (miles: number): number => {
   return Math.round(miles * 1609.34);
 }

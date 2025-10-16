@@ -8,7 +8,7 @@ const NewPasswordOnReset = () => {
   return (
     <NewPasswordOnResetComponent token={ensureString(resetInfo.token)}/>
   );
-  
+
 };
 
 export default NewPasswordOnReset;

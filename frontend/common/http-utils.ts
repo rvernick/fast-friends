@@ -1,5 +1,4 @@
 import { Platform } from "react-native";
-import { isDevelopment } from "./utils";
 
 export const baseUrl = () => {
   var defaultBase = 'http://10.0.2.2:4000';  // Android emulator
@@ -16,13 +15,11 @@ export const baseUrl = () => {
 }
 
 export const getInternal = async (url: string, parameters: any, jwtToken: string | null): Promise<any> => {
-  if (isDevelopment()) console.log('getInternal url: ' + url);
   const fullUrl = baseUrl() + url;
   return get(fullUrl, parameters, jwtToken);
 };
 
 export const get = (url: string, parameters: any, access_token: string | null): Promise<any> => {
-  if (isDevelopment()) console.log('GET: '+ url + '\n' + JSON.stringify(parameters));
   var fullUrl = url
   if (parameters != null && Object.keys(parameters).length > 0) {
     fullUrl = fullUrl + '?' + objToQueryString(parameters);
@@ -34,12 +31,10 @@ export const get = (url: string, parameters: any, access_token: string | null): 
       'Authorization': 'Bearer '+ access_token,
     }
   } else {
-    if (isDevelopment()) console.log('no access token provided');
     headers = {
       'Content-Type': 'application/json',
     }
   }
-  if (isDevelopment()) console.log('fullUrl GET: ' + fullUrl);
   // console.log('jwtToken ' + access_token);
   return fetch(fullUrl, {
     method: 'GET',
