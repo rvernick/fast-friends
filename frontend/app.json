@@ -23,7 +23,7 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "buildNumber": "83"
+      "buildNumber": "84"
     },
     "android": {
       "adaptiveIcon": {
@@ -65,8 +65,12 @@
           "cameraPermission": "Allow Pedal Assistant to access your camera."
         }
       ],
-      ["./plugins/withSetPlaceholders.js"],
-      ["./plugins/withInfoPlist.js"],
+      [
+        "./plugins/withSetPlaceholders.js"
+      ],
+      [
+        "./plugins/withInfoPlist.js"
+      ],
       [
         "expo-local-authentication",
         {
